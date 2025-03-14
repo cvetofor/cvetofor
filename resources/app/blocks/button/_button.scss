@@ -1,0 +1,262 @@
+.button {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 16px;
+  border: 2px solid $color-black;
+  transition: $transition;
+  cursor: pointer;
+  outline: none;
+  box-sizing: border-box;
+  &--full-width {
+    width: 100%;
+  }
+  &--width-165 {
+    min-width: 165px;
+  }
+  &--purple {
+    color: $color-purple;
+    border-color: $color-purple;
+    @include hover {
+      &:hover {
+        color: $color-white;
+        background-color: $color-purple;
+      }
+    }
+  }
+  &--green {
+    color: $color-white;
+    background-color: $color-green;
+    border-color: $color-green;
+    &.disabled {
+      background-color: #bae49a;
+      border-color: #bae49a;
+    }
+    @include hover {
+      &:hover {
+        background-color: $color-green-dark;
+        border-color: $color-green-dark;
+      }
+    }
+  }
+  &--pink {
+    color: $color-purple;
+    background-color: $color-pink;
+    border-color: $color-pink;
+    @include hover {
+      &:hover {
+        color: $color-white;
+        background-color: $color-purple;
+        border-color: $color-purple;
+      }
+    }
+  }
+  &--red {
+    color: $color-error;
+    border-color: $color-error;
+  }
+  &[disabled],
+  &.disabled {
+    pointer-events: none;
+  }
+  &[disabled] {
+    opacity: 0.7;
+  }
+}
+
+.add-product-to-cart-button {
+  @include flex(center, center, 0);
+  @include size(52px, 52px);
+  border-radius: 50%;
+  border: 2px solid $color-green;
+  transition: $transition;
+  @include hover {
+    &:hover {
+      background-color: $color-green;
+      svg {
+        fill: $color-white;
+      }
+    }
+  }
+  svg {
+    @include size(16px, 16px);
+    fill: $color-green;
+    transition: $transition;
+  }
+}
+
+.zoom-button {
+  @include size(42px, 42px);
+  svg {
+    @include size(42px, 42px);
+  }
+}
+
+.like-button,
+.dislike-button {
+  .button__icon {
+    @include size(36px, 36px);
+  }
+}
+
+.link-button {
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: $color-blue;
+  transition: $transition;
+  cursor: pointer;
+  &:hover {
+    color: $color-green;
+    .link-button__icon {
+      fill: $color-green;
+    }
+  }
+  &--center {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  &.disabled {
+    color: $color-outline-variant;
+    pointer-events: none;
+    .link-button__icon {
+      fill: $color-outline-variant;
+    }
+  }
+  .link-button__icon {
+    @include size(16px, 16px);
+    fill: $color-blue;
+    transition: $transition;
+  }
+}
+
+.remove-cart-item-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @include size(36px, 36px);
+  background-color: #ffdad6;
+  border-radius: 12px;
+  flex-shrink: 0;
+  transition: background-color ease 0.3s;
+  @include hover {
+    &:hover {
+      background-color: #ffb8b0;
+    }
+  }
+  svg {
+    @include size(16px, 16px);
+  }
+}
+
+.add-cart-additional-item-button {
+  @include size(16px, 16px);
+  @include hover {
+    &:hover {
+      svg {
+        fill: $color-purple;
+      }
+    }
+  }
+  &.active {
+    background-image: url(../img/image/check.svg);
+  }
+  svg {
+    @include size(16px, 16px);
+    fill: $color-green;
+    transition: $transition;
+  }
+}
+
+.remove-cart-additional-item-button {
+  @include size(12px, 16px);
+  svg {
+    @include size(12px, 16px);
+  }
+}
+
+.link {
+  color: $color-purple;
+  @include hover {
+    &:hover {
+      color: #ae106c;
+    }
+  }
+}
+
+.play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  @include size(96px, 96px);
+  z-index: 2;
+  &.hidden {
+    display: none;
+  }
+  @include media(max, 767) {
+    @include size(70px, 70px);
+  }
+  @include hover {
+    &:hover {
+      svg {
+        fill: $color-pink-light;
+      }
+    }
+  }
+  svg {
+    @include size(96px, 96px);
+    fill: #fffefe;
+    transition: $transition;
+    @include media(max, 767) {
+      @include size(70px, 70px);
+    }
+  }
+}
+
+.toggle-buttons__wrap {
+  display: flex;
+  @include media(max, 575) {
+    flex-direction: column;
+  }
+}
+
+.toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  min-width: 180px;
+  color: $color-purple;
+  background-color: $color-pink;
+  transition: $transition;
+  cursor: pointer;
+  &:nth-child(1) {
+    border-radius: 12px 0 0 12px;
+    @include media(max, 575) {
+      border-radius: 12px 12px 0 0;
+    }
+  }
+  &:nth-child(2) {
+    border-radius: 0 12px 12px 0;
+    @include media(max, 575) {
+      border-radius: 0 0 12px 12px;
+    }
+  }
+  &.active {
+    color: #fffefe;
+    background-color: $color-purple;
+  }
+  @include hover {
+    &:hover {
+      color: #fffefe;
+      background-color: $color-purple;
+    }
+  }
+}

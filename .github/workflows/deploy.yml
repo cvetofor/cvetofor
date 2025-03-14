@@ -1,0 +1,44 @@
+name: Deploy cvetofor.ru
+
+on: 
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/**'
+      - 'bootstrap/**'
+      - 'config/**'
+      - 'database/**'
+      - 'lang/**'
+      - 'public/**'
+      - 'resources/**'
+      - 'routes/**'
+      - 'composer.json'
+      - 'composer.lock'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      # - name: Install dependencies
+      #   run: composer install --prefer-dist --no-progress --no-suggest
+
+      # - name: Run migrations
+      #   run: php artisan make migrate --force
+
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      - name: Deploy to server
+        env:
+          SERVER_IP : ${{ secrets.SERVER_IP  }}
+          SERVER_USER : ${{ secrets.SERVER_USER  }}
+          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+
+        run: |
+          sshpass -p "$SERVER_PASSWORD" rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ $SERVER_USER@$SERVER_IP:$DEPLOY_PATH

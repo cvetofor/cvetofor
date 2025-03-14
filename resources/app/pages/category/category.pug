@@ -1,0 +1,92 @@
+extends /template/template
+include /blocks/product/product
+
+block mainwrapper
+
+  .heading.heading--big-banner(style='background-image: url(img/image-content/heading-big-pic.jpg);')
+    .container
+      .heading__row
+        .breadcrumbs
+          span.breadcrumbs__item
+            a(href='/')
+              span Главная
+          span.breadcrumbs__item
+            a(href='#')
+              span Каталог
+          span.breadcrumbs__item
+            span Букеты с пионами
+        .title-page
+          h1.h1 Букеты с пионами
+        .text-page
+          p Букеты с использованием пионов для различных поводов
+
+  .page
+
+    .section.product-filters
+      .container
+        include /blocks/product-filters/product-filters
+
+    .section
+      .container
+        .products__wrap
+          +product({
+            image: "product-pic.jpg",
+            title: 'Букет из цветных мини гербера',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Розы 15 штук Кения рыжие N28447',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Полевой букет с ромашками',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Горшок -органайзер "Голова" белый, 1,3 л',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Букет из цветных мини гербера',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Розы 15 штук Кения рыжие N28447',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Полевой букет с ромашками',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Горшок -органайзер "Голова" белый, 1,3 л',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Букет из цветных мини гербера',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Розы 15 штук Кения рыжие N28447',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Полевой букет с ромашками',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Горшок -органайзер "Голова" белый, 1,3 л',
+            promo: true
+          })
+          a.button.button--purple.show-more-button(href="#") Показать еще

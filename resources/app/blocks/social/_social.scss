@@ -1,0 +1,23 @@
+.social {
+  width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.social__item {
+  @include size(38px, 38px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+}
+
+.social__icon {
+  @include size(24px, 24px);
+  fill: $color-purple;
+  transition: $transition;
+  @include media(max, 767) {
+    @include size(31px, 31px);
+  }
+}

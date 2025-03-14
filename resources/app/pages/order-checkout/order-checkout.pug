@@ -1,0 +1,164 @@
+extends /template/template
+include /blocks/heading/heading
+include /blocks/select/select
+include /blocks/components/tooltip/tooltip
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Оформление заказа"],
+  })
+
+  .page
+
+    .main-cols__wrap
+      .container
+        .main-col
+          .order-checkout(data-form-wrapper="order-checkout" data-form="order-checkout")
+            form.form.invalid(data-validate-form="" data-form-body="")
+
+              .section.order-checkout__main
+                .box
+                  .order-checkout__heading
+                    .toggle-buttons__wrap(data-toggle-fields="address")
+                      .toggle-button.active(data-show-fields) Я знаю адрес
+                      .toggle-button(data-hide-fields) Я не знаю адрес
+                    .order-checkout__infotext.hidden(data-fields-info)
+                      p Курьер предварительно свяжется с получателем чтобы узнать адрес доставки
+                  .fields.fields--gap-20-30(data-fields="address")
+                    .inputholder.inputholder--width-three-quarters.form__inputholder
+                      label.inputholder__label(data-default-label) Адрес*
+                      input.inputholder__input(type="text" placeholder="Переяславль-Залесский, ул. Ленина, д.1" data-required="" data-text-error="address" id="delivery-address" data-delivery-address)
+                      .suggest-dropdown(data-suggest-dropdown)
+                    .inputholder.inputholder--width-quarter.form__inputholder
+                      label.inputholder__label(data-default-label) Номер квартиры
+                      input.inputholder__input(type="text" placeholder="89" data-mask-number="4")
+                  script(src="//api-maps.yandex.ru/2.1/?apikey=0d9bdf9e-18cc-4e13-a5fe-e0a5d84fd99c&suggest_apikey=b9aee010-ca48-4e31-b508-e1e5020eaa3f&lang=ru_RU")
+                  .fields.fields--gap-20-30
+                    .inputholder.inputholder--width-three-quarters.form__inputholder
+                      label.inputholder__label(data-default-label) ФИО получателя*
+                      input.inputholder__input(type="text" placeholder="ФИО" data-required="")
+                    .inputholder.inputholder--width-quarter.form__inputholder
+                      label.inputholder__label(data-default-label) Телефон*
+                      input.inputholder__input(type="tel" placeholder="+7 (777) 000 00-00" data-required="" data-mask-tel="" data-text-error="phone")
+                    .inputholder.inputholder--width-quarter.form__inputholder
+                      label.inputholder__label(data-default-label) Дата*
+                      input.inputholder__input(type="text" data-datepicker data-required="" data-text-error="date")
+                    .inputholder.inputholder--width-quarter.form__inputholder
+                      label.inputholder__label(data-default-label) Время доставки*
+                      +select([
+                        "09:00 - 12:00",
+                        "12:00 - 15:00",
+                        "15:00 - 18:00",
+                        "18:00 - 21:00"
+                      ])
+                  .fields.fields--checkbox
+                    span.checkbox
+                      input(type="checkbox" id="photoreport")
+                      label.checkbox__title(for="photoreport") Фотоотчет
+                      +tooltip({
+                        text: "Также как граница обучения кадров требует определения и уточнения кластеризации усилий.",
+                        placement: "top-start",
+                        icon: "tooltip"
+                      })
+                    span.checkbox
+                      input(type="checkbox" id="anonymity")
+                      label.checkbox__title(for="anonymity") Доставить анонимно
+                .box
+                  .fields
+                    span.checkbox
+                      input(type="checkbox" id="postcard" data-toggle-postcard)
+                      label.checkbox__title(for="postcard") Открытка с текстом
+                      +tooltip({
+                        text: "Также как граница обучения кадров требует определения и уточнения кластеризации усилий.",
+                        placement: "top-start",
+                        icon: "tooltip"
+                      })
+                    .inputholder.form__inputholder
+                      label.inputholder__label(data-default-label) Текст для открытки
+                      textarea.inputholder__textarea.inputholder__textarea--readonly(placeholder="Введите текст" data-required="" data-text-error="postcard" readonly data-no-validate data-postcard)
+
+              .section
+                h2 Контакты заказчика
+                .box
+                  .fields.fields--gap-20-30.fields--margin-bottom-40
+                    .inputholder.form__inputholder
+                      label.inputholder__label(data-default-label) Комментарий к заказу
+                      textarea.inputholder__textarea(placeholder="Текст комментария")
+                  .fields.fields--gap-20-30
+                    .inputholder.form__inputholder
+                      label.inputholder__label(data-default-label) ФИО заказчика*
+                      input.inputholder__input(type="text" placeholder="ФИО" data-required="")
+                    .inputholder.inputholder--width-half.form__inputholder
+                      label.inputholder__label(data-default-label) Email*
+                      input.inputholder__input(type="email" placeholder="email@email.ru" data-required="" data-email="" data-text-error="email")
+                    .inputholder.inputholder--width-half.form__inputholder
+                      label.inputholder__label(data-default-label) Телефон*
+                      input.inputholder__input(type="tel" placeholder="+7 (777) 000 00-00" data-required="" data-mask-tel="" data-text-error="phone")
+
+              .section
+                h2 Способ оплаты
+                .box
+                  .payment__items-wrap
+                    label.payment__item
+                      input(type="radio" name="payment")
+                      .payment__item-image__wrap
+                        img.payment__item-image(src="img/image-content/logo-sberbank.svg", alt="")
+                      span.payment__item-title Сбербанк
+                    label.payment__item
+                      input(type="radio" name="payment" checked)
+                      .payment__item-image__wrap
+                        img.payment__item-image(src="img/image-content/logo-robokassa.svg", alt="")
+                      span.payment__item-title Робокасса
+                    label.payment__item
+                      input(type="radio" name="payment")
+                      .payment__item-image__wrap
+                        img.payment__item-image(src="img/image-content/wallet.svg", alt="")
+                      span.payment__item-title Наличными
+                    label.payment__item
+                      input(type="radio" name="payment")
+                      .payment__item-image__wrap
+                        img.payment__item-image(src="img/image-content/card.svg", alt="")
+                      span.payment__item-title По счету (для юр. лиц)
+
+              .section
+                .form__buttonholder
+                  .buttonholder(data-form-trigger="")
+                    button.form__button.button.button--green.submit-button(disabled="" data-form-button="")
+                      span Оплатить заказ
+                  span.form__policy.policy Я принимаю и соглашаюсь на обработку #[a.policy__link(href="#") персональных данных].#[br] Соглашаюсь, что цветы - уникальный товар, который может отличаться по форме, размеру и оттенку от товара  на выбранном фото.
+
+        .side-col(data-sticky)
+          .section(data-sticky-element="130" data-sticky-unset="1198")
+            .box.box--no-margin
+              .cart__summary
+                .cart__summary-heading
+                  span.cart__summary-title Ваш заказ
+                  span.cart__summary-count Позиций: 5 шт
+                .cart__summary-items__wrap
+                  .cart__summary-item
+                    span Летнее ассорти
+                    span 5 000 р.
+                  .cart__summary-item
+                    span Розы 15 штук Кения рыжие N28447
+                    span 10 000 р.
+                  .cart__summary-item
+                    span Монобукет из пионов
+                    span 3 000 р.
+                  .cart__summary-item
+                    span Мягкая игрушка
+                    span 300 р.
+                  .cart__summary-item
+                    span Доставка
+                    span 400 р.
+                  .cart__summary-item
+                    span Скидка
+                    span.negative - 5 000 р.
+                .cart__summary-bottom
+                  span.cart__summary-total Итого: 18 300 р.
+                  span.cart__summary-no-discount Без скидки: 23 000 р.
+            .notification.notification--error.hidden(data-notification-error)
+              .notification__content
+                svg.notification__icon
+                  use(href="#icon-exclamation-mark")
+                span.notification__text Проверьте правильность заполнения полей!

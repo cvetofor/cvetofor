@@ -1,0 +1,65 @@
+main {
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+  }
+
+  h1,
+  .h1,
+  h2,
+  .h2,
+  h3,
+  .h3 {
+    display: block;
+    font-family: $font-default;
+    font-weight: 600;
+    font-stretch: 120%;
+    font-variation-settings: "wdth" 120, "GRAD" 0, "slnt" 0, "XTRA" 468,
+      "XOPQ" 96, "YOPQ" 25, "YTLC" 525, "YTUC" 712, "YTAS" 750, "YTDE" -203,
+      "YTFI" 738, "opsz" 43;
+    color: $color-black;
+
+    &--white {
+      color: $color-white;
+    }
+  }
+
+  h1,
+  .h1 {
+    font-size: 48px;
+    line-height: 1.16;
+
+    @include media(max, 991) {
+      font-size: 36px;
+    }
+  }
+
+  h2,
+  .h2 {
+    font-size: 36px;
+    line-height: 1.16;
+    padding: 0 20px;
+    margin-bottom: 20px;
+
+    @include media(max, 991) {
+      font-size: 28px;
+      line-height: 118%;
+    }
+  }
+
+  h3,
+  .h3 {
+    font-size: 28px;
+    line-height: 118%;
+
+    // padding: 0 20px;
+    // margin-bottom: 20px;
+    @include media(max, 991) {
+      font-size: 24px;
+      line-height: 1.16;
+    }
+  }
+}

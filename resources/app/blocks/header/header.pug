@@ -1,0 +1,106 @@
+include ../logo/logo
+
+header.header(data-header)
+  .header__row
+    +logo
+    .header__menu(data-header-menu)
+      .header__menu-heading
+        +logo
+        .header__menu-close(data-close-header-menu)
+      .header__menu-content
+        button.header__city(data-modal-open="city")
+          svg.header__city-icon
+            use(href="#icon-placemark")
+          span.header__city-text Переяславль-Залесский
+        .burger
+        nav.nav.header__nav
+          ul.nav__list
+            li.nav__item
+              a.nav__link(href="javascript:void(0);" data-modal-open="catalog") Каталог
+            li.nav__item
+              a.nav__link(href="#") О нас
+            li.nav__item
+              a.nav__link(href="#") Оплата и доставка
+            li.nav__item
+              a.nav__link(href="#") Контакты
+        a.header__phone(href="tel:+78008000000") 8 (800) 800-00-00
+        .header__controls-wrap.header__controls-wrap--mobile
+          a.header__control.header__control--cart.active(href="#")
+            span.header__control-value 4
+          a.header__control.header__control--personal(href="#")
+    form.header__search(data-header-search)
+      .inputholder.form__inputholder
+        input.inputholder__input(type="text" placeholder="Поиск по каталогу" data-header-search-input)
+        button.reset-btn(type="reset")
+          svg
+            use(href='#icon-cross')
+        .dropdown(data-header-search-tip)
+          ul.dropdown__list
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Букет из пионов
+                span.dropdown__list-link__price 3000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Горшок - органайзер "Голова" белый из пионов, 1,3 л
+                span.dropdown__list-link__price 5000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Пионы красные Пионы красные Пионы красные Пионы красные Пионы красные
+                span.dropdown__list-link__price 4000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Букет из пионов
+                span.dropdown__list-link__price 3000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Горшок - органайзер "Голова" белый из пионов, 1,3 л
+                span.dropdown__list-link__price 5000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Пионы красные Пионы красные Пионы красные Пионы красные Пионы красные
+                span.dropdown__list-link__price 4000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Букет из пионов
+                span.dropdown__list-link__price 3000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Горшок - органайзер "Голова" белый из пионов, 1,3 л
+                span.dropdown__list-link__price 5000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Пионы красные Пионы красные Пионы красные Пионы красные Пионы красные
+                span.dropdown__list-link__price 4000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Букет из пионов
+                span.dropdown__list-link__price 3000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Горшок - органайзер "Голова" белый из пионов, 1,3 л
+                span.dropdown__list-link__price 5000 р.
+            li.dropdown__list-item
+              a.dropdown__list-link(href="#")
+                span.dropdown__list-link__title Пионы красные Пионы красные Пионы красные Пионы красные Пионы красные
+                span.dropdown__list-link__price 4000 р.
+    .header__controls-wrap.header__controls-wrap--desktop
+      button.header__control.header__control--search(data-toggle-header-search)
+      a.header__control.header__control--cart.header__control--desktop.active(href="#")
+        span.header__control-value 4
+      a.header__control.header__control--personal.header__control--desktop(href="#")
+      button.header__control.header__control--burger(data-open-header-menu)
+  .header__mobcontrols-wrap
+    a.header__mobcontrol.header__mobcontrol--mainpage(href="#")
+      span.header__mobcontrol-icon
+      span.header__mobcontrol-title Главная
+    a.header__mobcontrol.header__mobcontrol--catalog(href="javascript:void(0);" data-modal-open="catalog")
+      span.header__mobcontrol-icon
+      span.header__mobcontrol-title Каталог
+    a.header__mobcontrol.header__mobcontrol--cart.active(href="#")
+      span.header__mobcontrol-icon
+      span.header__mobcontrol-value 99+
+      span.header__mobcontrol-title Корзина
+    a.header__mobcontrol.header__mobcontrol--personal(href="#")
+      span.header__mobcontrol-icon
+      span.header__mobcontrol-title Профиль

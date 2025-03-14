@@ -1,0 +1,25 @@
+
+.modal(data-modal="rate-checkout" data-form-wrapper="rate-checkout" data-form="rate-checkout")
+  .modal__container
+    form.form.invalid(data-validate-form="" data-form-body="")
+      .modal__heading
+        .modal__title
+          span Нам очень важно ваше мнение!
+        .modal__close(data-modal-close="")
+      .modal__text
+        p Оцените удобство оформления заказа
+      .form__buttonholder(data-form-trigger="")
+        button.button.button--red.button--full-width.like-button
+          svg.button__icon
+            use(href="#icon-dislike")
+        button.button.button--green.button--full-width.dislike-button
+          svg.button__icon
+            use(href="#icon-like")
+    .modal__thanks(data-form-thanks="")
+      .modal__heading
+        .modal__title
+          span Спасибо за вашу оценку!
+        .modal__close(data-modal-close="")
+      .modal__text
+        p Для нас очень важно ваше мнение - это помогает в развитии сервиса.
+      a.button.button--green.button--full-width.return-to-mainpage-button(href="#") На главную

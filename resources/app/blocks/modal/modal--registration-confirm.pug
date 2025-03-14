@@ -1,0 +1,28 @@
+
+.modal(data-modal="registration-confirm" data-form-wrapper="registration-confirm" data-form="registration-confirm")
+  .modal__container
+    form.form.invalid(data-validate-form="" data-form-body="")
+      .modal__heading
+        .modal__title
+          span Введите код
+        .modal__close(data-modal-close="")
+      .modal__text
+        p Код был отправлен на указанную электронную почту
+      .fields
+        .inputholder.form__inputholder
+          label.inputholder__label(data-default-label) Код
+          input.inputholder__input(type="text" placeholder="_ _ _ - _ _ _" data-required="" data-mask-code data-text-error="code")
+      .form__buttonholder
+        .buttonholder(data-form-trigger="")
+          button.form__button.button.button--green.button--full-width.submit-button(disabled="" data-form-button="")
+            span Отправить
+        .repeat-code(data-repeat-code) Повторный код через #[span.code-repeat__value(data-repeat-code-timer="60") 60] сек
+        .form__button.button.button--purple.button--full-width.repeat-code-button.hidden(data-repeat-code-button) Отправить код снова
+    .modal__thanks(data-form-thanks="")
+      .modal__heading
+        .modal__title
+          span Регистрация пройдена успешно
+        .modal__close(data-modal-close="")
+      .modal__text
+        p Перейдите в Личный кабинет для заполнения персональных данных
+      a.button.button--green.button--full-width.go-to-personal-button(href="#") Перейти в личный кабинет

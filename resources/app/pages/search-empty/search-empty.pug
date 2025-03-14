@@ -1,0 +1,27 @@
+extends /template/template
+include /blocks/product/product
+
+block mainwrapper
+
+  .heading.heading--big-banner(style='background-image: url(img/image-content/heading-big-pic.jpg);')
+    .container
+      .heading__row
+        .breadcrumbs
+          span.breadcrumbs__item
+            a(href='/')
+              span Главная
+          span.breadcrumbs__item
+            span Поиск
+        .title-page
+          h1.h1 По вашему запросу “розы” ничего не найдено
+
+  .page
+
+    .section.product-filters
+      .container
+        include /blocks/product-filters/product-filters
+
+    .section
+      .container
+        .products__wrap
+          a.button.button--green.return-to-mainpage-button(href="#") Вернуться на главную

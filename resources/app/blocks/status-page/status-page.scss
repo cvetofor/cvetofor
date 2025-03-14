@@ -1,0 +1,28 @@
+.status-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.status-page__icon {
+  @include size(64px, 64px);
+}
+
+.status-page__title,
+.status-page__text {
+  text-align: center;
+}
+
+.status-page__title {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.18;
+  font-stretch: 120%;
+  font-variation-settings: "GRAD" 0, "slnt" 0, "XTRA" 468, "XOPQ" 96, "YOPQ" 25,
+    "YTLC" 525, "YTUC" 712, "YTAS" 750, "YTDE" -203, "YTFI" 738, "opsz" 43;
+}
+
+.status-page__text {
+  font-size: 18px;
+}

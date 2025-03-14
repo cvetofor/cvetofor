@@ -1,0 +1,18 @@
+extends /template/template.pug
+include /blocks/heading/heading
+
+block mainwrapper
+
+    +heading({
+      breadcrumbs: ["Список страниц"],
+    })
+
+    .page
+      - var pagesJson = [['Главная', 'index.html'],['Список страниц', 'pages.html'], ['Категория каталога', 'category.html'], ['Карточка товара', 'product-detail.html'], ['Карточка товара, монобукет', 'product-detail-mono.html'], ['Карточка товара, нет в наличии', 'product-detail-not-available.html'], ['Поиск', 'search.html'], ['Поиск, пустой', 'search-empty.html'], ['О нас', 'about.html'], ['Правила сервиса', 'rules.html'], ['Контакты', 'contacts.html'], ['Доставка и оплата', 'delivery.html'], ['Цветы для корпоративных клиентов', 'corporate.html'], ['Политика конфиденциальности', 'policy.html'], ['Личный кабинет, Персональные данные', 'personal-profile.html'], ['Личный кабинет, Сменить E-mail', 'personal-change-email.html'], ['Личный кабинет, Сменить пароль', 'personal-change-password.html'], ['Личный кабинет, История заказов', 'personal-orders.html'], ['Корзина', 'cart.html'], ['Корзина, пустая', 'cart-empty.html'], ['Оформление заказа', 'order-checkout.html'], ['Оформление заказа, успешное', 'order-checkout-success.html'], ['Оформление заказа, успешное, оплата по счету', 'order-checkout-success-invoice-payment.html'], ['404', '404.html']]
+      mixin page(pages)
+        ul.pages-dev(style={color: 'teal', 'font-weight': '700', 'margin-top': '-20px'})
+          each page in pages
+            li.pages-dev__item(style={'margin-top': '20px', 'font-size': '26px'})
+              a.pages-dev__link(href=page[1]) #{page[0]}
+      .container(style={flex: '1 1 auto', margin: '40px auto'})
+        +page(pagesJson)

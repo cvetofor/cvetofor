@@ -1,0 +1,114 @@
+.order-checkout {
+  .form__buttonholder {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    @include media(max, 575) {
+      flex-direction: column;
+      gap: 20px;
+    }
+  }
+  .fields {
+    &--checkbox {
+      flex-direction: column;
+    }
+    &:not(:last-child) {
+      margin-bottom: 20px;
+    }
+  }
+  .inputholder {
+    &--width-quarter {
+      @include media(max, 1199) {
+        width: calc(50% - 15px);
+      }
+      @include media(max, 575) {
+        width: 100%;
+      }
+    }
+  }
+  .buttonholder {
+    flex-shrink: 0;
+  }
+}
+
+.order-checkout__heading {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 40px;
+  @include media(max, 1199) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  @include media(max, 1199) {
+    flex-direction: row;
+    align-items: center;
+  }
+  @include media(max, 767) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.order-checkout__infotext {
+  font-size: 12px;
+  font-weight: 300;
+  max-width: 320px;
+}
+
+.payment__items-wrap {
+  @include grid(repeat(4, 1fr), 20px);
+  @include media(max, 767) {
+    @include grid(repeat(2, 1fr), 20px);
+    gap: 10px 15px;
+  }
+}
+
+.payment__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  cursor: pointer;
+  @include hover {
+    &:hover {
+      .payment__item-image__wrap {
+        border-color: #f1c1dd;
+      }
+    }
+  }
+  input[type="radio"] {
+    &:checked {
+      + .payment__item-image__wrap {
+        border-color: $color-purple;
+        + .payment__item-title {
+          color: $color-purple;
+        }
+      }
+    }
+  }
+}
+
+.payment__item-image__wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 145px;
+  padding: 20px;
+  background-color: $color-bg;
+  border: 2px solid $color-bg;
+  border-radius: 24px;
+  transition: $transition;
+  @include media(max, 767) {
+    min-height: 120px;
+  }
+}
+
+.payment__item-title {
+  font-weight: 300;
+  font-size: 14px;
+  text-align: center;
+  transition: $transition;
+}

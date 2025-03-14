@@ -1,0 +1,7 @@
+mixin tooltip(data)
+  .tippy-toggler(data-tippy data-tippy-placement=(data.placement ? data.placement : false) data-tippy-content=(data.text ? data.text : false) data-tippy-close=(data.close ? true : false) data-tippy-maxWidth=(data.maxWidth ? data.maxWidth : false) data-tippy-trigger=(data.trigger ? data.trigger : ''))
+    svg
+      use(href=`#icon-${data.icon}`)
+    if !data.text
+      .hidden(data-tippy-content)
+        block

@@ -1,0 +1,60 @@
+extends /template/template
+include /blocks/heading/heading
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Личный кабинет"],
+  })
+
+  .page
+
+    .main-cols__wrap
+      .container
+        .side-col
+          .box.box--padding-20
+            ul.sidenav
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Персональные данные
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title История заказов
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Сменить пароль
+              li.sidenav__item
+                a.sidenav__link.active(href="#")
+                  span.sidenav__link-title Сменить E-mail
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Выйти
+                  svg.sidenav__link-icon
+                    use(href="#icon-logout")
+
+        .main-col
+          .personal
+
+            .section
+              .change-email(data-form-wrapper="change-email" data-form="change-email")
+                .box
+                  form.form.invalid(data-validate-form="" data-form-body="")
+                    .fields.fields--gap-20-30
+                      .inputholder.inputholder--width-half.form__inputholder
+                        label.inputholder__label(data-default-label) Email*
+                        input.inputholder__input(type="email" data-required="" data-email="" data-text-error="email")
+                    .form__buttonholder
+                      .buttonholder(data-form-trigger="")
+                        button.form__button.button.button--green.submit-button(disabled="" data-form-button="")
+                          span Сохранить данные
+                      span.form__info При сохранении данных, на новый адрес будет отправлено письмо для подтверждения. Изменение вступит в силу только после подтверждения.
+                  .notification.notification--info.hidden(data-notification="confirm-personal-changes")
+                    .notification__content
+                      svg.notification__icon
+                        use(href="#icon-exclamation-mark")
+                      span.notification__text Отправили код подтверждения на вашу почту
+                    .notification-button(data-modal-open="personal-confirm-changes")
+                      span.button__title Подтвердить
+                      svg.button__icon
+                        svg.notification__icon
+                          use(href="#icon-check")

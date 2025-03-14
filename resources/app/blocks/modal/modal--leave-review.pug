@@ -1,0 +1,24 @@
+
+.modal(data-modal="leave-review" data-form-wrapper="leave-review" data-form="leave-review")
+  .modal__container
+    form.form.invalid(data-validate-form="" data-form-body="")
+      .modal__heading
+        .modal__title
+          span Отзыв о заказе
+        .modal__close(data-modal-close="")
+      .fields
+        .inputholder.form__inputholder
+          textarea.inputholder__textarea(data-required="" data-text-error="review")
+      .form__buttonholder
+        .buttonholder(data-form-trigger="")
+          button.form__button.button.button--green.submit-button(disabled="" data-form-button="")
+            span Отправить
+        span.form__policy.policy Нажимая на кнопку, вы соглашаетесь на  #[a.policy__link(href="#") обработку персональных данных]
+    .modal__thanks(data-form-thanks="")
+      .modal__heading
+        .modal__title
+          span Спасибо за ваш отзыв!
+        .modal__close(data-modal-close="")
+      .modal__text
+        p Для нас очень важно ваше мнение - это помогает в развитии сервиса.
+      .button.button--green.button--full-width.close-button Закрыть

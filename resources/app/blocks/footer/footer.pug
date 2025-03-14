@@ -1,0 +1,33 @@
+include ../logo/logo
+include ../social/social
+
+footer.footer
+  .container
+    .footer__top
+      +logo
+      +social({'class':'footer__social'})
+      a.footer__phone(href="tel:+78008000000") 8 (800) 800-00-00
+      nav.nav.footer__nav
+        ul.nav__list
+          li.nav__item
+            a.nav__link(href="javascript:void(0);" data-modal-open="catalog") Каталог
+          li.nav__item
+            a.nav__link(href="#") О нас
+          li.nav__item
+            a.nav__link(href="#") Оплата и доставка
+          li.nav__item
+            a.nav__link(href="#") Контакты
+          li.nav__item
+            a.nav__link(href="#") Корпоративным клиентам
+    .footer__bottom
+      .footer__info
+        span.footer__copyright © Цветофор, 2023
+        span.footer__address 142600, г.Москва, ул.Ленина, д.1
+      .footer__texterra
+        span.footer__texterra-text Разработано
+        a.footer__texterra-link(href="https://texterra.ru/" target="_blank")
+          svg.footer__texterra-icon
+            use(href='#icon-texterra')
+      .footer__links-wrap
+        a.footer__link(href="#") Правила ресурса
+        a.footer__link(href="#") Политика конфиденциальности

@@ -1,0 +1,81 @@
+extends /template/template
+include /blocks/product/product
+
+block mainwrapper
+
+  .section.banner
+    include /blocks/banner/banner
+
+  .section.product-filters
+    .container
+      include /blocks/product-filters/product-filters
+
+  .section
+    .container
+      h2 Готовые букеты
+      .products__wrap
+        +product({
+            image: "product-pic.jpg",
+            title: 'Букет из цветных мини гербера',
+            promo: true
+          })
+        +product({
+          image: "product-pic.jpg",
+          title: 'Розы 15 штук Кения рыжие N28447',
+        })
+        +product({
+          image: "product-pic.jpg",
+          title: 'Полевой букет с ромашками',
+        })
+        +product({
+          image: "product-pic.jpg",
+          title: 'Горшок -органайзер "Голова" белый, 1,3 л',
+        })
+        a.button.button--purple.show-more-button(href="#") Показать еще
+
+  .section
+    .container
+      h2 Букеты с пионами
+      .products__wrap
+        +product({
+            image: "product-pic.jpg",
+            title: 'Букет из цветных мини гербера',
+            promo: true
+          })
+        +product({
+          image: "product-pic.jpg",
+          title: 'Розы 15 штук Кения рыжие N28447',
+          promo: true
+        })
+        +product({
+          image: "product-pic.jpg",
+          title: 'Полевой букет с ромашками',
+        })
+        +product({
+          image: "product-pic.jpg",
+          title: 'Горшок -органайзер "Голова" белый, 1,3 л',
+        })
+        a.button.button--purple.show-more-button(href="#") Показать еще
+
+  .section
+    .container
+      h2 Букеты на свадьбу
+      .products__wrap
+        +product({
+            image: "product-pic.jpg",
+            title: 'Букет из цветных мини гербера',
+          })
+        +product({
+          image: "product-pic.jpg",
+          title: 'Розы 15 штук Кения рыжие N28447',
+        })
+        +product({
+          image: "product-pic.jpg",
+          title: 'Полевой букет с ромашками',
+        })
+        +product({
+          image: "product-pic.jpg",
+          title: 'Горшок -органайзер "Голова" белый, 1,3 л',
+        })
+        a.button.button--purple.show-more-button(href="#") Показать еще
+

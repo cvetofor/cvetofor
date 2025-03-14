@@ -1,0 +1,169 @@
+extends /template/template
+include /blocks/heading/heading
+include /blocks/product/product
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Каталог", "Букеты с пионами", "Монобукет из пионов"],
+  })
+
+  .page
+
+    .section
+      .container
+        .product-detail
+          .slider.slider--product-detail
+            span.product-detail__label Акция
+            .swiper(data-swiper="product-detail")
+              .swiper-wrapper
+                a.swiper-slide(href="img/image-content/product-detail-pic.jpg" data-fancybox)
+                  img.product-detail__image(src="img/image-content/product-detail-pic.jpg", alt="")
+                  .zoom-button
+                    svg
+                      use(href="#icon-zoom")
+                a.swiper-slide(href="img/image-content/product-detail-pic.jpg" data-fancybox)
+                  img.product-detail__image(src="img/image-content/product-detail-pic.jpg", alt="")
+                  .zoom-button
+                    svg
+                      use(href="#icon-zoom")
+                a.swiper-slide.swiper-slide--video(href="https://www.youtube.com/watch?v=_sI_Ps7JSEk" data-fancybox)
+                  img.product-detail__image(src="img/image-content/product-detail-pic.jpg", alt="")
+                  button.play-button
+                    svg
+                      use(href=`#icon-play`)
+              button.swiper-button-prev.swiper-button-prev--white(data-swiper="product-detail-button-prev")
+                svg
+                  use(href="#icon-arrow-slider")
+              button.swiper-button-next.swiper-button-next--white(data-swiper="product-detail-button-next")
+                svg
+                  use(href="#icon-arrow-slider")
+            .swiper-pagination.swiper-pagination--darkgrey(data-swiper="product-detail-pagination")
+          .box.box--no-margin.box--padding-40.box--padding-mobile-30.box--border-radius-36
+            .product-detail__info
+              .product-detail__info-top
+                span.product-detail__price 3500 р.
+                .product-detail__delivery
+                  svg.product-detail__delivery-icon
+                    use(href=`#icon-car`)
+                  span.product-detail__delivery-title Доставка:
+                  span.product-detail__delivery-value 350 р.
+              .product-detail__composition
+                span.product-detail__composition-title Состав букета:
+                .product-detail__composition-content
+                  .composition-item
+                    .composition-item__color(style="background-color: #DF0000;")
+                    span.composition-item__title красные
+                    span.composition-item__quantity 5 шт.,
+                  .composition-item
+                    .composition-item__color(style="background-color: #FF5099;")
+                    span.composition-item__title розовые
+                    span.composition-item__quantity 3 шт.,
+                  .composition-item
+                    .composition-item__color(style="background-color: #FFFFFF;")
+                    span.composition-item__title белые
+                    span.composition-item__quantity 6 шт.,
+                  .composition-item
+                    .composition-item__color(style="background-color: #FF9900;")
+                    span.composition-item__title оранжевые
+                    span.composition-item__quantity 3 шт.,
+                button.link-button.change-composition-button(data-modal-open="change-composition-mono")
+                  span.link-button__title Изменить состав букета
+                  svg.link-button__icon
+                    use(href="#icon-gear")
+                include /blocks/modal/modal--change-composition-mono
+              button.button.button--green.button--width-165.add-to-cart-button В корзину
+
+    .section
+      .container
+        h2 Описание
+        .content
+          p Конфеты - таблетки «На случай влюблённости» Крем-мёд «Любовий»: с клубникой Чай чёрный I love u вкус лесные ягоды Шоколад молочный «All you need is love» Шоколад молочный "С днём святого Валентина” Шоколадное печенье «С тобой моя жизнь стала слаще» Карамельная трость Коробка «Любовь» Открытка «P.S I love you» Лента атласная «Love» Набор конвертов «Открой, когда…»
+          table
+            thead
+              tr
+                td № п/п
+                td Название параметра
+                td Название другого параметра
+                td Название еще одного параметра
+                td Название четвертого параметра
+            tbody
+              tr
+                td 1.
+                td 100
+                td 100
+                td Рыбатекст поможет дизайнеру сгенерировать несколько абзацев
+                td 100
+              tr
+                td 2.
+                td 100
+                td 100
+                td Рыбатекст поможет дизайнеру, верстальщику, вебмастеру сгенерировать несколько абзацев более менее осмысленного текста рыбы на русском языке, а начинающему оратору отточить навык публичных выступлений в домашних условиях.
+                td 100
+              tr
+                td 3.
+                td 100
+                td 100
+                td Значение
+                td 100
+              tr
+                td 4.
+                td 100
+                td 100
+                td Значение
+                td 100
+
+    .section
+      .container
+        h2 Смотрите также
+        .slider.slider--products
+          .swiper(data-swiper="products")
+            .swiper-wrapper
+              .swiper-slide
+                +product({
+                  image: "product-pic.jpg",
+                  title: 'Букет из цветных мини гербера',
+                  promo: true
+                })
+              .swiper-slide
+                +product({
+                  image: "product-pic.jpg",
+                  title: 'Розы 15 штук Кения рыжие N28447',
+                  promo: true
+                })
+              .swiper-slide
+                +product({
+                  image: "product-pic.jpg",
+                  title: 'Полевой букет с ромашками',
+                })
+              .swiper-slide
+                +product({
+                  image: "product-pic.jpg",
+                  title: 'Горшок -органайзер "Голова" белый, 1,3 л',
+                })
+              .swiper-slide
+                +product({
+                  image: "product-pic.jpg",
+                  title: 'Букет из цветных мини гербера',
+                })
+              .swiper-slide
+                +product({
+                  image: "product-pic.jpg",
+                  title: 'Розы 15 штук Кения рыжие N28447',
+                })
+              .swiper-slide
+                +product({
+                  image: "product-pic.jpg",
+                  title: 'Полевой букет с ромашками',
+                })
+              .swiper-slide
+                +product({
+                  image: "product-pic.jpg",
+                  title: 'Горшок -органайзер "Голова" белый, 1,3 л',
+                })
+          button.swiper-button-prev.swiper-button-prev--black(data-swiper="products-button-prev")
+            svg
+              use(href="#icon-arrow-slider")
+          button.swiper-button-next.swiper-button-next--black(data-swiper="products-button-next")
+            svg
+              use(href="#icon-arrow-slider")

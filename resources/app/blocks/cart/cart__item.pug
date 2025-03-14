@@ -1,0 +1,16 @@
+mixin cart__item(data)
+  div(class=data.notAvailable ? "cart__item cart__item--not-available" : "cart__item")
+    a.cart__item-image__wrap(href="#")
+      img.cart__item-image(src="img/image-content/cart-item-pic.jpg", alt="")
+    .cart__item-info
+      .cart__item-heading
+        a.cart__item-title(href="#") Розы 15 штук Кения рыжие N28447
+        .cart__item-label %
+      .cart__item-desc
+        p пионы 5 шт., розы 3 шт., астры 5 шт., ромашки 9 шт., орхидеи 5 шт.
+      .cart__item-price__wrap
+        span.cart__item-price 5 000 р.
+        span.cart__item-price.cart__item-price--old 7 500 р.
+    button.remove-cart-item-button
+      svg
+        use(href="#icon-bin")

@@ -1,0 +1,26 @@
+.product-filters__wrap
+  .product-filter.product-filter--price
+    span.product-filter__title Цена:
+    .product-filter__content
+      form.form.invalid(data-validate-form="" data-form-body="")
+        .fields
+          .inputholder.form__inputholder
+            input.inputholder__input(type="text" placeholder="1500" data-form-group data-mask-number="10")
+          span.divider -
+          .inputholder.form__inputholder
+            input.inputholder__input(type="text" placeholder="3500" data-form-group data-mask-number="10")
+          span.unit р.
+        .form__buttonholder(data-form-trigger="")
+          button.form__button.button.button--pink.apply-btn(disabled="" data-form-button="")
+            span Применить
+  .product-filter.product-filter--sort
+    span.product-filter__title Сортировка:
+    .product-filter__content
+      a.product-sort.product-sort--down.active(href="#")
+        span.product-sort__title По названию
+        svg.product-sort__icon
+          use(href="#icon-sort")
+      a.product-sort.product-sort--up(href="#")
+        span.product-sort__title По цене
+        svg.product-sort__icon
+          use(href="#icon-sort")

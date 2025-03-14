@@ -1,0 +1,39 @@
+
+.modal(data-modal="city")
+  .modal__heading
+    .modal__title
+      span Выбор города
+    .modal__close(data-modal-close="")
+  .modal__container
+    form.modal__city-search(data-modal-city-search)
+      .inputholder.form__inputholder
+        input.inputholder__input(type="text" placeholder="Введите ваш город*" data-required="" data-modal-city-input)
+        button.reset-btn(type="reset")
+          svg
+            use(href='#icon-cross')
+      .modal__city-dropdown(data-modal-city-tip)
+        .modal__city-dropdown__content
+    ul.modal__cities-list
+      li.modal__cities-list__item Москва
+      li.modal__cities-list__item Санкт-Петербург
+      li.modal__cities-list__item Казань
+      li.modal__cities-list__item Владивосток
+      li.modal__cities-list__item Петропавловск-Камчатский
+      li.modal__cities-list__item Хабаровск
+      li.modal__cities-list__item Комсомольск-на-Амуре
+      li.modal__cities-list__item Иркутск
+      li.modal__cities-list__item Чита
+      li.modal__cities-list__item Сургут
+      li.modal__cities-list__item Челябинск
+      li.modal__cities-list__item Якутск
+      li.modal__cities-list__item Магадан
+      li.modal__cities-list__item Воркута
+      li.modal__cities-list__item Пермь
+      li.modal__cities-list__item Вологда
+      li.modal__cities-list__item Самара
+      li.modal__cities-list__item Калуга
+      li.modal__cities-list__item Ярославль
+      li.modal__cities-list__item Тамбов
+      li.modal__cities-list__item Нижний Новгород
+      li.modal__cities-list__item Рязань
+      li.modal__cities-list__item Сергиев Посад

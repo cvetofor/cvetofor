@@ -1,0 +1,41 @@
+extends /template/template
+include /blocks/product/product
+
+block mainwrapper
+
+  .heading.heading--big-banner(style='background-image: url(img/image-content/heading-big-pic.jpg);')
+    .container
+      .heading__row
+        .breadcrumbs
+          span.breadcrumbs__item
+            a(href='/')
+              span Главная
+          span.breadcrumbs__item
+            span Поиск
+        .title-page
+          h1.h1 По вашему запросу “розы” найдено 3 позиции
+
+  .page
+
+    .section.product-filters
+      .container
+        include /blocks/product-filters/product-filters
+
+    .section
+      .container
+        .products__wrap
+          +product({
+            image: "product-pic.jpg",
+            title: 'Букет из цветных мини гербера',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Розы 15 штук Кения рыжие N28447',
+            promo: true
+          })
+          +product({
+            image: "product-pic.jpg",
+            title: 'Полевой букет с ромашками',
+            promo: true
+          })

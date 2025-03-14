@@ -1,0 +1,82 @@
+.tippy-toggler {
+  @include size(15px, 15px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-left: 7px;
+  border-radius: 50%;
+  border: 1px solid $color-outline-variant;
+  cursor: pointer;
+  transition: $transition;
+  position: relative;
+  z-index: 1;
+  svg {
+    @include size(5px, 7px);
+    transition: $transition;
+    fill: $color-outline-variant;
+  }
+}
+
+.tippy-box {
+  width: 200px;
+  font-size: 12px;
+  line-height: 1.25;
+  font-weight: 300;
+  color: #000;
+  background-color: #fffefe;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.15);
+  &[data-placement="top-start"] {
+    border-radius: 12px 12px 12px 0;
+    > .tippy-arrow {
+      &::before {
+        left: -7px;
+        border-width: 10px 20px 0 0;
+        border-color: $color-white transparent transparent transparent;
+      }
+    }
+  }
+  &[data-placement="top-end"] {
+    border-radius: 12px 12px 0 12px;
+    > .tippy-arrow {
+      &::before {
+        left: -13px;
+        border-width: 0 20px 10px 0;
+        border-color: transparent $color-white transparent transparent;
+      }
+    }
+  }
+  &[data-placement="bottom-start"] {
+    border-radius: 0 12px 12px 12px;
+    > .tippy-arrow {
+      &::before {
+        left: -7px;
+        border-width: 10px 0 0 20px;
+        border-color: transparent transparent transparent $color-white;
+      }
+    }
+  }
+  &[data-placement="bottom-end"] {
+    border-radius: 12px 0 12px 12px;
+    > .tippy-arrow {
+      &::before {
+        left: -13px;
+        border-width: 0 0 10px 20px;
+        border-color: transparent transparent $color-white transparent;
+      }
+    }
+  }
+  > .tippy-arrow {
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+}
+
+.tippy-content {
+  padding: 14px;
+}
+
+.tippy-arrow {
+  color: #fffefe;
+}

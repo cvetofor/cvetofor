@@ -1,0 +1,27 @@
+extends /template/template
+include /blocks/heading/heading
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Заказ оформлен"],
+    title: "Заказ №123456 оформлен!",
+    text: "Заказ №123456 сформирован и направлен на почту mail@mail.ru",
+  })
+
+  .page
+
+    .section
+      .container
+        .box.box--padding-40
+          .status-page
+            .status-page
+              svg.status-page__icon
+                use(href="#icon-check-in-square")
+              span.status-page__title Ваш заказ оформлен
+              .status-page__text
+                p Перейдите в #[a.link(href="#") личный кабинет] для подробной информации
+              a.link-button.download-account-button(href="#" target="_blank")
+                span.link-button__title Скачать счет
+                svg.link-button__icon
+                  use(href="#icon-download")

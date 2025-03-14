@@ -1,0 +1,187 @@
+extends /template/template
+include /blocks/heading/heading
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Личный кабинет"],
+  })
+
+  .page
+
+    .main-cols__wrap
+      .container
+        .side-col
+          .box.box--padding-20
+            ul.sidenav
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Персональные данные
+              li.sidenav__item
+                a.sidenav__link.active(href="#")
+                  span.sidenav__link-title История заказов
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Сменить пароль
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Сменить E-mail
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Выйти
+                  svg.sidenav__link-icon
+                    use(href="#icon-logout")
+
+        .main-col
+          .personal
+
+            .section
+              .orders__wrap
+
+                .box
+                  .order
+                    .order__heading.accordion(data-accordion="")
+                      .accordion__toggle(data-accordion-toggle="")
+                        .accordion__title
+                          span Заказ №32455 от 20.11.23
+                        .accordion__btn
+                          svg
+                            use(href="#icon-arrow-accordion")
+                      .accordion__content(data-accordion-content="")
+                        .order__sellers-wrap
+
+                          .order__seller
+                            .order__seller-heading
+                              span.order__seller-title Продавец 1
+                              .order__seller-status.order__seller-status--canceled
+                                span.order__seller-status__title Отменён
+                                svg.order__seller-status__icon
+                                  use(href="#icon-cross")
+                            .order__seller-list
+                              .order__seller-list__item
+                                span 1 x Летнее ассорти
+                                span 5000 р.
+                              .order__seller-list__item
+                                span 2 x Название букета 2
+                                span 10 000 р.
+                              .order__seller-list__item
+                                span Доставка
+                                span 200 р.
+
+                          .order__seller
+                            .order__seller-heading
+                              span.order__seller-title Продавец 2
+                              .order__seller-status.order__seller-status--completed
+                                span.order__seller-status__title Завершён
+                                svg.order__seller-status__icon
+                                  use(href="#icon-check")
+                            .order__seller-list
+                              .order__seller-list__item
+                                span 1 x Монобукет из пионов
+                                span 3000 р.
+                              .order__seller-list__item
+                                span Доставка
+                                span 300 р.
+
+                          .order__seller
+                            .order__seller-heading
+                              span.order__seller-title Продавец 3
+                              .order__seller-status.order__seller-status--in-work
+                                span.order__seller-status__title В работе
+                                svg.order__seller-status__icon
+                                  use(href="#icon-rotate")
+                            .order__seller-list
+                              .order__seller-list__item
+                                span 1 x Монобукет из пионов
+                                span 3000 р.
+                              .order__seller-list__item
+                                span Доставка
+                                span 300 р.
+
+                    .order__bottom
+                      .order__info
+                        .order__info-item
+                          span.order__info-item__title Получатель:
+                          span.order__info-item__value Иванова Елена Ивановна
+                        .order__info-item
+                          span.order__info-item__title Сумма:
+                          span.order__info-item__value 18 000 р.
+                      button.link-button.leave-review-button(data-modal-open="leave-review")
+                        span.link-button__title Отзыв
+                        svg.link-button__icon
+                          use(href="#icon-edit")
+
+                .box
+                  .order
+                    .order__heading.accordion(data-accordion="")
+                      .accordion__toggle(data-accordion-toggle="")
+                        .accordion__title
+                          span Заказ №32455 от 20.11.23
+                        .accordion__btn
+                          svg
+                            use(href="#icon-arrow-accordion")
+                      .accordion__content(data-accordion-content="")
+                        .order__sellers-wrap
+
+                          .order__seller
+                            .order__seller-heading
+                              span.order__seller-title Продавец 1
+                              .order__seller-status.order__seller-status--canceled
+                                span.order__seller-status__title Отменён
+                                svg.order__seller-status__icon
+                                  use(href="#icon-cross")
+                            .order__seller-list
+                              .order__seller-list__item
+                                span 1 x Летнее ассорти
+                                span 5000 р.
+                              .order__seller-list__item
+                                span 2 x Название букета 2
+                                span 10 000 р.
+                              .order__seller-list__item
+                                span Доставка
+                                span 200 р.
+
+                          .order__seller
+                            .order__seller-heading
+                              span.order__seller-title Продавец 2
+                              .order__seller-status.order__seller-status--completed
+                                span.order__seller-status__title Завершён
+                                svg.order__seller-status__icon
+                                  use(href="#icon-check")
+                            .order__seller-list
+                              .order__seller-list__item
+                                span 1 x Монобукет из пионов
+                                span 3000 р.
+                              .order__seller-list__item
+                                span Доставка
+                                span 300 р.
+
+                          .order__seller
+                            .order__seller-heading
+                              span.order__seller-title Продавец 3
+                              .order__seller-status.order__seller-status--in-work
+                                span.order__seller-status__title В работе
+                                svg.order__seller-status__icon
+                                  use(href="#icon-rotate")
+                            .order__seller-list
+                              .order__seller-list__item
+                                span 1 x Монобукет из пионов
+                                span 3000 р.
+                              .order__seller-list__item
+                                span Доставка
+                                span 300 р.
+
+                    .order__bottom
+                      .order__info
+                        .order__info-item
+                          span.order__info-item__title Получатель:
+                          span.order__info-item__value Иванова Елена Ивановна
+                        .order__info-item
+                          span.order__info-item__title Сумма:
+                          span.order__info-item__value 18 000 р.
+                      button.link-button.leave-review-button(data-modal-open="leave-review")
+                        span.link-button__title Отзыв
+                        svg.link-button__icon
+                          use(href="#icon-edit")
+
+                a.button.button--purple.show-more-button(href="#") Показать еще

@@ -1,0 +1,29 @@
+.map {
+  position: relative;
+}
+
+.map__holder {
+  &--no-touch {
+    &:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      @include size(100%, 100%);
+      background-color: transparent;
+      z-index: 1;
+    }
+  }
+}
+
+.map__placemark {
+  display: block;
+  white-space: nowrap;
+  padding: 10px 20px;
+  //border: 1px solid var(--color-border);
+  //background-color: var(--color-bg-secondary);
+  color: var(--color-text-basic);
+  width: fit-content;
+  border-radius: 20px;
+  transform: translate(55px, 4px);
+}

@@ -1,0 +1,73 @@
+.counter__wrap {
+  &--composition {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    @include media(max, 575) {
+      gap: 10px;
+    }
+  }
+}
+.counter__color {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid $color-surface-variant;
+  flex-shrink: 0;
+  @include media(max, 575) {
+    width: 21px;
+    height: 21px;
+  }
+}
+.counter__title {
+  font-weight: 300;
+  margin-right: auto;
+  @include media(max, 575) {
+    font-size: 14px;
+  }
+}
+.counter {
+  margin-left: auto;
+}
+
+.counter {
+  display: flex;
+  gap: 6px;
+  .input {
+    width: 50px;
+    height: 36px;
+    flex: 0 0 50px;
+    text-align: center;
+    background-color: #fffefe;
+    border: 2px solid $color-surface-variant;
+    border-radius: 12px;
+  }
+}
+
+.count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @include size(36px, 36px);
+  color: $color-green;
+  border-radius: 12px;
+  flex: 0 0 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  background-color: $color-green-light;
+  transition: $transition;
+  user-select: none;
+  @include hover {
+    &:hover {
+      background-color: #b1f27e;
+    }
+  }
+  &--disable {
+    color: $color-green-light;
+    background-color: #ecfce1;
+    pointer-events: none;
+  }
+}

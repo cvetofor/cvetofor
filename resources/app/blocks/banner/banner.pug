@@ -1,0 +1,17 @@
+include banner__item
+
+.slider.slider--banner
+  .swiper(data-swiper="banner")
+    .swiper-wrapper
+      +banner__item
+      +banner__item
+      +banner__item
+    .swiper-pagination.swiper-pagination--lightgrey(data-swiper="banner-pagination")
+    .swiper__navigation
+      .container
+        button.swiper-button-prev.swiper-button-prev--white(data-swiper="banner-button-prev")
+          svg
+            use(href="#icon-arrow-slider")
+        button.swiper-button-next.swiper-button-next--white(data-swiper="banner-button-next")
+          svg
+            use(href="#icon-arrow-slider")

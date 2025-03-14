@@ -1,0 +1,110 @@
+.heading {
+  margin-top: 130px;
+  @include media(max, 1199) {
+    margin-top: 40px;
+  }
+  &--small-banner,
+  &--big-banner {
+    .breadcrumbs__item {
+      color: $color-white;
+      a {
+        color: $color-outline-variant;
+        @include hover {
+          &:hover {
+            color: $color-outline;
+          }
+        }
+      }
+    }
+    .title-page {
+      h1 {
+        color: $color-white;
+      }
+    }
+    .text-page {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.15;
+      font-variation-settings: "GRAD" 0, "slnt" 0, "XTRA" 468, "XOPQ" 96,
+        "YOPQ" 79, "YTLC" 514, "YTUC" 712, "YTAS" 750, "YTDE" -203, "YTFI" 738,
+        "opsz" 43;
+      max-width: 600px;
+      color: $color-bg;
+    }
+  }
+  &--big-banner {
+    min-height: 420px;
+    padding: 130px 0;
+    margin: 0;
+    @include bgImage(no-repeat, center, cover, false);
+    position: relative;
+    border-radius: 0 0 30px 30px;
+    overflow: hidden;
+    z-index: 1;
+    @include media(max, 1199) {
+      margin-top: -90px;
+    }
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+    .title-page {
+      max-width: 720px;
+    }
+  }
+  &--small-banner {
+    @include media(max, 1199) {
+      margin-top: 20px;
+    }
+    .heading__row {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 260px;
+      padding: 50px 40px;
+      border-radius: 24px;
+      @include bgImage(no-repeat, center, cover, false);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+      }
+      @include media(max, 767) {
+        padding: 30px;
+        min-height: 340px;
+      }
+    }
+  }
+}
+
+.heading__row {
+  padding: 0 20px;
+}
+
+.title-page {
+  h1 {
+    word-break: break-word;
+  }
+}
+
+.text-page {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.25;
+  color: $color-outline;
+  margin-top: 20px;
+}

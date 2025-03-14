@@ -1,0 +1,12 @@
+
+.modal(data-modal="city-confirm")
+  .modal__heading
+    .modal__title
+      span Для оформления заказа необходимо выбрать город.
+    .modal__close(data-modal-close="")
+  .modal__container
+    .modal__text
+      p Ваш город #[span.modal__city Переяславль-Залесский]?
+    .buttons__wrap
+      .button.button--purple.button--full-width.choose-another-button(data-modal-open="city") Нет, выбрать другой
+      .button.button--green.button--full-width.yes-button(data-modal-close="") Да

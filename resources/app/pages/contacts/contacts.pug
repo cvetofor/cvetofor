@@ -1,0 +1,145 @@
+extends /template/template
+include /blocks/heading/heading
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Контакты"],
+    text: "Рыбатекст поможет дизайнеру сгенерировать несколько абзацев",
+    class: "heading--small-banner",
+    bg: "heading-small-pic.jpg"
+  })
+
+  .page
+
+    .section
+      .container
+        .contacts__main
+          .box__wrap
+            h2 По вопросам сотрудничества
+            .box
+              .contacts__cooperation
+                .contacts__cooperation-image__wrap
+                  img.contacts__cooperation-image(src="img/image-content/project-manager-pic.jpg", alt="")
+                .contacts__cooperation-content
+                  span.contacts__cooperation-position Руководитель проекта
+                  span.contacts__cooperation-name Замарин Андрей
+                  a.contacts__cooperation-phone(href="tel:+78008000000") 8 (800) 800-00-00
+          .box__wrap
+            .box
+              .contacts__wrap
+                .contacts__item
+                  span.contacts__item-title E-mail
+                  .contacts__item-content
+                    a.contacts__email(href="mailto:email@email.ru") email@email.ru
+                .contacts__item
+                  span.contacts__item-title Единый номер
+                  .contacts__item-content
+                    a.contacts__phone(href="tel:+78008000000") 8 (800) 800-00-00
+                .contacts__item
+                  span.contacts__item-title Мы в соцсетях
+                  .contacts__item-content
+                    .social.contacts__social
+                      a.social__item(href="#" target="_blank")
+                        svg.social__icon(width="34" height="34")
+                          use(href='#icon-vk')
+                      a.social__item(href="#" target="_blank")
+                        svg.social__icon(width="34" height="34")
+                          use(href='#icon-telegram')
+                      a.social__item(href="#" target="_blank")
+                        svg.social__icon(width="34" height="34")
+                          use(href='#icon-whatsapp')
+
+    .section
+      .container
+        h2 Адреса магазинов
+        .box
+          .contacts__addresses
+            .contacts__addresses-content
+              .contacts__addresses-search(data-map-search)
+                .inputholder
+                  input.inputholder__input(type="text" placeholder="Введите адрес" data-map-search-input)
+                  button.reset-btn(data-map-search-reset)
+              .contacts__addresses-items__wrap
+                .contacts__addresses-item.active(data-map-address="Ростов-на-Дону, ул. Ленина, д. 1, к. 3")
+                  svg.contacts__addresses-item__icon
+                    use(href='#icon-placemark-empty')
+                  .contacts__addresses-item__content
+                    span.contacts__addresses-item__title Ростов-на-Дону, ул. Ленина, д. 1, к. 3
+                    .contacts__addresses-item__text
+                      span Будни с 8:00 до 19:00
+                      span +7 000 000 00 00
+                .contacts__addresses-item(data-map-address="Санкт-Петербург, 8-й Верхний переулок, 4А")
+                  svg.contacts__addresses-item__icon
+                    use(href='#icon-placemark-empty')
+                  .contacts__addresses-item__content
+                    span.contacts__addresses-item__title Санкт-Петербург, 8-й Верхний переулок, 4А
+                    .contacts__addresses-item__text
+                      span Будни с 8:00 до 19:00
+                      span +7 000 000 00 00
+                .contacts__addresses-item(data-map-address="Ростов-на-Дону, ул. Ленина, д. 1, к. 3")
+                  svg.contacts__addresses-item__icon
+                    use(href='#icon-placemark-empty')
+                  .contacts__addresses-item__content
+                    span.contacts__addresses-item__title Ростов-на-Дону, ул. Ленина, д. 1, к. 3
+                    .contacts__addresses-item__text
+                      span Будни с 8:00 до 19:00
+                      span +7 000 000 00 00
+                .contacts__addresses-item(data-map-address="Санкт-Петербург, 8-й Верхний переулок, 4А")
+                  svg.contacts__addresses-item__icon
+                    use(href='#icon-placemark-empty')
+                  .contacts__addresses-item__content
+                    span.contacts__addresses-item__title Санкт-Петербург, 8-й Верхний переулок, 4А
+                    .contacts__addresses-item__text
+                      span Будни с 8:00 до 19:00
+                      span +7 000 000 00 00
+            .contacts__map.map.map--no-touch(data-map-overlay="")
+              .map__holder(data-map="" data-map-icon="img/image/map-placemark.svg" data-map-coords="47.250253, 39.680185")
+            script(src="//api-maps.yandex.ru/2.1/?apikey=0d9bdf9e-18cc-4e13-a5fe-e0a5d84fd99c&lang=ru_RU")
+    .section
+      .container
+        .contacts__bottom
+          .box__wrap
+            h2 Реквизиты
+            .box
+              .contacts__requisites
+                span.contacts__requisites-title ИП “ООО”
+                .contacts__requisites-items__wrap
+                  .contacts__requisites-item
+                    span.contacts__requisites-item__title Юридический адрес:
+                    span.contacts__requisites-item__text Ростов-на-Дону, ул. Ленина, д. 1, к. 3
+                  .contacts__requisites-item
+                    span.contacts__requisites-item__title ИНН:
+                    span.contacts__requisites-item__text 6165093777
+                  .contacts__requisites-item
+                    span.contacts__requisites-item__title ОГРНИП:
+                    span.contacts__requisites-item__text 1026103722721
+          .box__wrap
+            h2 Связаться с нами
+            .contact-us(data-form-wrapper="contact-us" data-form="contact-us")
+              .box.box--border-radius-20
+                form.form.invalid(data-validate-form="" data-form-body="")
+                  .fields
+                    .inputholder.form__inputholder
+                      label.inputholder__label(data-default-label) ФИО*
+                      input.inputholder__input(type="text" placeholder="Иванов Иван Иванович" data-required="")
+                    .inputholder.form__inputholder
+                      label.inputholder__label(data-default-label) Телефон*
+                      input.inputholder__input(type="tel" placeholder="+7 (000) 000-0000" data-required="" data-mask-tel="" data-text-error="phone")
+                    .inputholder.form__inputholder
+                      label.inputholder__label(data-default-label) E-mail
+                      input.inputholder__input(type="email" placeholder="email@email.ru" data-email="" data-text-error="email")
+                    .inputholder.form__inputholder
+                      label.inputholder__label(data-default-label) Комментарий*
+                      textarea.inputholder__textarea(placeholder="Текст комментария" data-required="" data-text-error="comment")
+                  .form__buttonholder
+                    .buttonholder(data-form-trigger="")
+                      button.form__button.button.button--green.submit-button(disabled="" data-form-button="")
+                        span Отправить
+                    span.form__policy.policy Нажимая на кнопку, вы соглашаетесь на  #[a.policy__link(href="#") обработку персональных данных]
+                .form__thanks(data-form-thanks)
+                  .form__thanks-image__wrap
+                    img.form__thanks-image(src="img/image/emoji-happy.svg", alt="")
+                  span.form__thanks-title Спасибо!
+                  .form__thanks-text
+                    p Мы свяжемся с вами в ближайшее время!

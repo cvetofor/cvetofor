@@ -1,0 +1,57 @@
+extends /template/template
+include /blocks/heading/heading
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Личный кабинет"],
+  })
+
+  .page
+
+    .main-cols__wrap
+      .container
+        .side-col
+          .box.box--padding-20
+            ul.sidenav
+              li.sidenav__item
+                a.sidenav__link.active(href="#")
+                  span.sidenav__link-title Персональные данные
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title История заказов
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Сменить пароль
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Сменить E-mail
+              li.sidenav__item
+                a.sidenav__link(href="#")
+                  span.sidenav__link-title Выйти
+                  svg.sidenav__link-icon
+                    use(href="#icon-logout")
+
+        .main-col
+          .personal
+
+            .section
+              .profile(data-form-wrapper="profile" data-form="profile")
+                .box
+                  form.form.invalid(data-validate-form="" data-form-body="")
+                    .fields.fields--gap-20-30
+                      .inputholder.inputholder--width-half.form__inputholder
+                        label.inputholder__label(data-default-label) Фамилия*
+                        input.inputholder__input(type="text" placeholder="Фамилия*" data-required="" data-text-error="surname")
+                      .inputholder.inputholder--width-half.form__inputholder
+                        label.inputholder__label(data-default-label) Имя*
+                        input.inputholder__input(type="text" placeholder="Имя*" data-required="" data-text-error="name")
+                      .inputholder.inputholder--width-half.form__inputholder
+                        label.inputholder__label(data-default-label) Отчество
+                        input.inputholder__input(type="text" placeholder="Отчество")
+                      .inputholder.inputholder--width-half.form__inputholder
+                        label.inputholder__label(data-default-label) Телефон*
+                        input.inputholder__input(type="tel" placeholder="+7 (777) 000 00-00" data-required="" data-mask-tel="" data-text-error="phone")
+                    .form__buttonholder(data-form-trigger="")
+                      button.form__button.button.button--green.submit-button(disabled="" data-form-button="")
+                        span Сохранить данные

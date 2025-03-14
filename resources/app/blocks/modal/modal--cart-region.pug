@@ -1,0 +1,12 @@
+
+.modal(data-modal="cart-region")
+  .modal__heading
+    .modal__title
+      span В корзине есть товар выбранного региона
+    .modal__close(data-modal-close="")
+  .modal__container
+    .modal__text
+      p Выбор другого региона обнуляет корзину. Вы уверены что хотите выбрать другой регион?
+    .buttons__wrap
+      .button.button--red.button--full-width.confirm-button(data-modal-close="") Подтвердить
+      button.button.button--green.button--full-width.cancel-button Отмена

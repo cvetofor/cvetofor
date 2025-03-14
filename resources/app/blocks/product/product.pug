@@ -1,0 +1,35 @@
+mixin product(data)
+  .product
+    a.product__image-wrap(href="#")
+      img.product__image(src=`img/image-content/${data.image}`, alt="")
+      if data.promo
+        span.product__label Акция
+      .product__composition
+        span.product__composition-title Состав букета:
+        .product-composition__list
+          li.product-composition__list-item
+            span.product-composition__item-title пионы
+            span.product-composition__item-quantity 5 шт.
+          li.product-composition__list-item
+            span.product-composition__item-title розы
+            span.product-composition__item-quantity 3 шт.
+          li.product-composition__list-item
+            span.product-composition__item-title ромашки
+            span.product-composition__item-quantity 9 шт.
+          li.product-composition__list-item
+            span.product-composition__item-title астры
+            span.product-composition__item-quantity 5 шт.
+          li.product-composition__list-item
+            span.product-composition__item-title орхидеи
+            span.product-composition__item-quantity 5 шт.
+    a.product__title(href="#") #{data.title}
+    .product__bottom
+      .product__prices-wrap
+        span.product__price 5000 р.
+        .product__delivery-price
+          svg.product__delivery-price__icon
+            use(href="#icon-car")
+          span.product__delivery-price__title 350 р.
+      button.add-product-to-cart-button
+        svg
+          use(href="#icon-plus")

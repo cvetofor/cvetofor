@@ -1,0 +1,16 @@
+mixin breadcrumbs(links)
+  -
+    var arr = links.split(",")
+    
+  .breadcrumbs
+    span.breadcrumbs__item
+      a(href="/")
+        span Главная
+    each link, index in arr
+      if index + 1 < arr.length
+        span.breadcrumbs__item
+          a(href="#")
+            span= link
+      else
+        span.breadcrumbs__item
+          span= link

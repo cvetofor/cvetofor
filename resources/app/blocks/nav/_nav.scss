@@ -1,0 +1,19 @@
+.nav__list {
+  display: flex;
+}
+
+.nav__item {
+  width: fit-content;
+}
+
+.nav__link {
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  @include hover {
+    &:hover {
+      color: $color-purple;
+    }
+  }
+}

@@ -1,0 +1,72 @@
+.section.banner {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  @include media(max, 1199) {
+    margin-top: -90px;
+  }
+}
+
+.banner__item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 540px;
+  padding-top: 193px;
+  padding-bottom: 80px;
+  @include bgImage(no-repeat, center, cover, false);
+  position: relative;
+  @include media(max, 767) {
+    padding-top: 160px;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    @include size(100%, 100%);
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+  }
+  > .container {
+    width: fit-content;
+  }
+}
+
+.banner__item-content {
+  width: 100%;
+  max-width: 640px;
+  position: relative;
+  z-index: 2;
+}
+
+.banner__item-title,
+.banner__item-text {
+  text-align: center;
+}
+
+.banner__item-title {
+  display: block;
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 1.16;
+  color: #fffefe;
+  font-stretch: 120%;
+  font-variation-settings: "GRAD" 0, "slnt" 0, "XTRA" 468, "XOPQ" 96, "YOPQ" 25,
+    "YTLC" 525, "YTUC" 712, "YTAS" 750, "YTDE" -203, "YTFI" 738, "opsz" 43;
+  word-break: break-word;
+  @include media(max, 991) {
+    font-size: 36px;
+  }
+}
+
+.banner__item-text {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.15;
+  color: $color-bg;
+  font-stretch: 150%;
+  font-variation-settings: "GRAD" 0, "slnt" 0, "XTRA" 468, "XOPQ" 96, "YOPQ" 79,
+    "YTLC" 514, "YTUC" 712, "YTAS" 750, "YTDE" -203, "YTFI" 738, "opsz" 43;
+  margin-top: 20px;
+}

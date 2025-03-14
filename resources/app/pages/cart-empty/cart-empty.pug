@@ -1,0 +1,21 @@
+extends /template/template
+include /blocks/heading/heading
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Корзина"],
+  })
+
+  .page
+
+    .section
+      .container
+        .box.box--padding-40
+          .status-page
+            .status-page
+              svg.status-page__icon
+                use(href="#icon-basket")
+              span.status-page__title Ваша корзина пуста
+              .status-page__text
+                p Перейдите в #[a.link(href="#") каталог] для выбора товара

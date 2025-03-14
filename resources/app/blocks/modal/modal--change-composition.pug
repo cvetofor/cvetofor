@@ -1,0 +1,37 @@
+
+include /blocks/components/counter/counter
+
+.modal(data-modal="change-composition")
+  .modal__heading
+    .modal__title
+      span Изменить состав
+    .modal__close(data-modal-close="")
+  .modal__container
+    .fields
+      .counter__wrap.counter__wrap--composition
+        span.counter__title Пионы
+        +counter({
+          value: 56
+        })
+      .counter__wrap.counter__wrap--composition
+        span.counter__title Розы
+        +counter({
+          value: 3
+        })
+      .counter__wrap.counter__wrap--composition
+        span.counter__title Астры
+        +counter({
+          value: 5
+        })
+      .counter__wrap.counter__wrap--composition
+        span.counter__title Орхидеи
+        +counter({
+          value: 5
+        })
+    .modal__total
+      span.modal__total-title Итого
+      .modal__total-price__wrap
+        span.modal__total-price.modal__total-price--old 6000 р.
+        span.modal__total-price 5500 р.
+    .buttonholder
+      button.button.button--green.button--full-width.apply-button(disabled) Применить

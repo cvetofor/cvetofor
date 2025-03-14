@@ -1,0 +1,33 @@
+
+.modal(data-modal="invoice-payment" data-form-wrapper="invoice-payment" data-form="invoice-payment")
+  .modal__heading
+    .modal__title
+      span Оплата с помощью счёта
+    .modal__close(data-modal-close="")
+  .modal__container
+    form.form.invalid(data-validate-form="" data-form-body="")
+      .fields
+        .inputholder.form__inputholder
+          label.inputholder__label(data-default-label) Получатель
+          input.inputholder__input(type="text" placeholder="ИП Иванов Иван Иванович" data-required="")
+        .inputholder.inputholder--width-half.form__inputholder
+          label.inputholder__label(data-default-label) Счет получателя
+          input.inputholder__input(type="text" placeholder="40178100000000000000" data-length="20" data-required="" data-mask-number="20" data-text-error="beneficiaryAccount")
+        .inputholder.inputholder--width-half.form__inputholder
+          label.inputholder__label(data-default-label) БИК
+          input.inputholder__input(type="text" placeholder="000000000" data-length="9" data-required="" data-mask-number="9" data-text-error="bik")
+        .inputholder.form__inputholder
+          label.inputholder__label(data-default-label) Наименование банка
+          input.inputholder__input(type="text" placeholder="Банк ВТБ (ПАО)" data-required="")
+        .inputholder.form__inputholder
+          label.inputholder__label(data-default-label) Корреспондентский счет
+          input.inputholder__input(type="text" placeholder="30101000000000000000" data-length="20" data-required="" data-mask-number="20" data-text-error="correspondentAccount")
+        .inputholder.inputholder--width-half.form__inputholder
+          label.inputholder__label(data-default-label) ИНН
+          input.inputholder__input(type="text" placeholder="0000000000" data-length="10" data-required="" data-mask-number="10" data-text-error="inn")
+      .form__buttonholder
+        div.button.button--purple.button--full-width(data-modal-close="")
+          span Отменить
+        .buttonholder(data-form-trigger="")
+          button.form__button.button.button--green.button--full-width.pay-button(disabled="" data-form-button="")
+            span Оплатить заказ

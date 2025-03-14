@@ -1,0 +1,177 @@
+extends /template/template
+include /blocks/heading/heading
+include /blocks/cart/cart__item
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Корзина"],
+  })
+
+  .page
+
+    .main-cols__wrap
+      .container
+        .main-col
+          .section
+            .cart__salesman
+              span.h3 Продавец 1
+              .box.box--padding-32.box--padding-mobile-20
+                .cart__items-wrap
+                  +cart__item({
+                    notAvailable: true,
+                  })
+                  +cart__item({})
+                  +cart__item({})
+                .cart__salesman-bottom
+                  .cart__delivery
+                    span.cart__delivery-title Доставка
+                    span.cart__delivery-value 200 р.
+                  .cart__recommend.accordion(data-accordion="")
+                    .accordion__toggle(data-accordion-toggle="")
+                      .accordion__title
+                        span Рекомендуем добавить
+                      .accordion__btn
+                        svg
+                          use(href="#icon-arrow-accordion")
+                    .accordion__content(data-accordion-content="")
+                      .cart__additional-items__wrap
+                        .cart__additional-item(data-cart-additional-item)
+                          .cart__additional-item__image-wrap
+                            img.cart__additional-item__image(src="img/image-content/cart-additional-item-pic.jpg", alt="")
+                          .cart__additional-item__info
+                            span.cart__additional-item__title Мягкая игрушка
+                            .cart__additional-item__content
+                              svg.cart__additional-item__check(data-cart-additional-item-check)
+                                use(href="#icon-check")
+                              button.add-cart-additional-item-button.hidden(data-cart-additional-item-add)
+                                svg
+                                  use(href="#icon-plus-w-circle")
+                              span.cart__additional-item__price 300 р.
+                              button.remove-cart-additional-item-button(data-cart-additional-item-remove)
+                                svg
+                                  use(href="#icon-bin")
+                        .cart__additional-item(data-cart-additional-item)
+                          .cart__additional-item__image-wrap
+                            img.cart__additional-item__image(src="img/image-content/cart-additional-item-pic.jpg", alt="")
+                          .cart__additional-item__info
+                            span.cart__additional-item__title Мягкая игрушка
+                            .cart__additional-item__content
+                              svg.cart__additional-item__check.hidden(data-cart-additional-item-check)
+                                use(href="#icon-check")
+                              button.add-cart-additional-item-button(data-cart-additional-item-add)
+                                svg
+                                  use(href="#icon-plus-w-circle")
+                              span.cart__additional-item__price 300 р.
+                              button.remove-cart-additional-item-button.hidden(data-cart-additional-item-remove)
+                                svg
+                                  use(href="#icon-bin")
+                        .cart__additional-item(data-cart-additional-item)
+                          .cart__additional-item__image-wrap
+                            img.cart__additional-item__image(src="img/image-content/cart-additional-item-pic.jpg", alt="")
+                          .cart__additional-item__info
+                            span.cart__additional-item__title Мягкая игрушка
+                            .cart__additional-item__content
+                              svg.cart__additional-item__check.hidden(data-cart-additional-item-check)
+                                use(href="#icon-check")
+                              button.add-cart-additional-item-button(data-cart-additional-item-add)
+                                svg
+                                  use(href="#icon-plus-w-circle")
+                              span.cart__additional-item__price 300 р.
+                              button.remove-cart-additional-item-button.hidden(data-cart-additional-item-remove)
+                                svg
+                                  use(href="#icon-bin")
+          .section.section--margin-top-40
+            .cart__salesman
+              span.h3 Продавец 2
+              .box.box--padding-32.box--padding-mobile-20
+                .cart__items-wrap
+                  +cart__item({})
+                .cart__salesman-bottom
+                  .cart__delivery
+                    span.cart__delivery-title Доставка
+                    span.cart__delivery-value 200 р.
+                  .cart__recommend.accordion(data-accordion="")
+                    .accordion__toggle(data-accordion-toggle="")
+                      .accordion__title
+                        span Рекомендуем добавить
+                      .accordion__btn
+                        svg
+                          use(href="#icon-arrow-accordion")
+                    .accordion__content(data-accordion-content="")
+                      .cart__additional-items__wrap
+                        .cart__additional-item(data-cart-additional-item)
+                          .cart__additional-item__image-wrap
+                            img.cart__additional-item__image(src="img/image-content/cart-additional-item-pic.jpg", alt="")
+                          .cart__additional-item__info
+                            span.cart__additional-item__title Мягкая игрушка
+                            .cart__additional-item__content
+                              svg.cart__additional-item__check(data-cart-additional-item-check)
+                                use(href="#icon-check")
+                              button.add-cart-additional-item-button.hidden(data-cart-additional-item-add)
+                                svg
+                                  use(href="#icon-plus-w-circle")
+                              span.cart__additional-item__price 300 р.
+                              button.remove-cart-additional-item-button(data-cart-additional-item-remove)
+                                svg
+                                  use(href="#icon-bin")
+                        .cart__additional-item(data-cart-additional-item)
+                          .cart__additional-item__image-wrap
+                            img.cart__additional-item__image(src="img/image-content/cart-additional-item-pic.jpg", alt="")
+                          .cart__additional-item__info
+                            span.cart__additional-item__title Мягкая игрушка
+                            .cart__additional-item__content
+                              svg.cart__additional-item__check.hidden(data-cart-additional-item-check)
+                                use(href="#icon-check")
+                              button.add-cart-additional-item-button(data-cart-additional-item-add)
+                                svg
+                                  use(href="#icon-plus-w-circle")
+                              span.cart__additional-item__price 300 р.
+                              button.remove-cart-additional-item-button.hidden(data-cart-additional-item-remove)
+                                svg
+                                  use(href="#icon-bin")
+                        .cart__additional-item(data-cart-additional-item)
+                          .cart__additional-item__image-wrap
+                            img.cart__additional-item__image(src="img/image-content/cart-additional-item-pic.jpg", alt="")
+                          .cart__additional-item__info
+                            span.cart__additional-item__title Мягкая игрушка
+                            .cart__additional-item__content
+                              svg.cart__additional-item__check.hidden(data-cart-additional-item-check)
+                                use(href="#icon-check")
+                              button.add-cart-additional-item-button(data-cart-additional-item-add)
+                                svg
+                                  use(href="#icon-plus-w-circle")
+                              span.cart__additional-item__price 300 р.
+                              button.remove-cart-additional-item-button.hidden(data-cart-additional-item-remove)
+                                svg
+                                  use(href="#icon-bin")
+        .side-col(data-sticky)
+          .section(data-sticky-element="130" data-sticky-unset="1198")
+            .box.box--no-margin
+              .cart__summary
+                .cart__summary-heading
+                  span.cart__summary-title Ваш заказ
+                  span.cart__summary-count Позиций: 5 шт
+                .cart__summary-items__wrap
+                  .cart__summary-item
+                    span Летнее ассорти
+                    span 5 000 р.
+                  .cart__summary-item
+                    span Розы 15 штук Кения рыжие N28447
+                    span 10 000 р.
+                  .cart__summary-item
+                    span Монобукет из пионов
+                    span 3 000 р.
+                  .cart__summary-item
+                    span Мягкая игрушка
+                    span 300 р.
+                  .cart__summary-item
+                    span Доставка
+                    span 400 р.
+                  .cart__summary-item
+                    span Скидка
+                    span.negative - 5 000 р.
+                .cart__summary-bottom
+                  span.cart__summary-total Итого: 18 300 р.
+                  span.cart__summary-no-discount Без скидки: 23 000 р.
+                button.button.button--green.button--full-width.go-to-checkout-button Перейти к оформлению

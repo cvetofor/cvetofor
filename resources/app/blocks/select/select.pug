@@ -1,0 +1,10 @@
+mixin select(list)
+  .select(data-select="" data-close-on-select="true")
+    .select__active(data-select-btn="" data-select-default="")
+      span.select__text
+        span(data-select-changing="")
+    .select__drop(data-select-list="")
+      each item, index in list
+        label.select__item(data-select-option="")
+          input.select__input(type="radio", name="select-group" data-select-input="" checked=index === 0)
+          span #{item}

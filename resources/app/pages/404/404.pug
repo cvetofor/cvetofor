@@ -1,0 +1,21 @@
+extends /template/template
+include /blocks/heading/heading
+
+block mainwrapper
+
+  +heading({
+    breadcrumbs: ["Ошибка 404"],
+    title: "Страница не найдена",
+  })
+
+  .page
+
+    .section.error404
+      .container
+        .error404__content
+          .error404__text-wrap
+            .error404__text
+              p К сожалению, мы не можем найти запрашиваемую страницу. Возможно, она была удалена, перемещена или никогда не существовала.
+            a.button.button--green.return-to-mainpage-button(href="#") На главную
+          .error404__image-wrap
+            img.error404__image(src="img/image-content/error404-pic.svg", alt="")
