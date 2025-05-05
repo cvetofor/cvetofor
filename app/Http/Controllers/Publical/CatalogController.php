@@ -143,14 +143,14 @@ class CatalogController extends Controller {
             );
 
             $city = GeographicalNamesInflection::getCase(CitiesService::getCity()->city, 'предложный');
-
+            $selectedCity = CitiesService::getCity();
             $prices = \Cache::remember('welcome_categories_prices|' . $unique, now()->addMinutes(1), fn() => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
         }
 
         SEOTools::setTitle('Доставка цветов в Улан-Удэ заказать букет с доставкой недорого по цене магазина Цветофор');
         SEOTools::setDescription('Заказать букет цветов в Улан-Удэ с доставкой на дом недорого. Доставка цветов в Улан-Удэ по адресу заказать онлайн на сайте по цене интернет-магазина Цветофор');
 
-        return view('welcome', compact('prices', 'banner', 'mainPageTagsModel', 'tags', 'city'));
+        return view('welcome', compact('prices', 'banner', 'mainPageTagsModel', 'tags', 'city', 'selectedCity'));
     }
 
 

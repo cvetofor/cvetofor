@@ -44,6 +44,7 @@ class Order extends Model {
         'market_comment',
         'meta',
         'num_order',
+        'source',
     ];
 
     public $hidden = [
@@ -207,7 +208,7 @@ class Order extends Model {
     }
 
     public function getTitleAttribute() {
-        
+
         if($this->num_order){
             $numOrder = $this->num_order;
         }else if($this->parent){

@@ -158,7 +158,12 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
                 return (new \DateTime($item->delivery_date))->format('d.m.Y') ?? '-';
             })
         );
+        $table->add(
+            Text::make()->field('source')->title('Источник')->renderHtml()->customRender(function ($item) {
 
+                return $item->source ?? '';
+            })
+        );
         $actionName = 'Действие';
         if (request()->has('filter')) {
             $filter = json_decode(request()->get('filter'), true)['status'];

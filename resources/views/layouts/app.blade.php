@@ -41,7 +41,7 @@ session()->forget('order_delivery_radius_km');
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('metrics')
     @stack('styles')
-
+    <script src="https://telegram.org/js/telegram-web-app.js?57"></script>
     <script type="text/javascript">
         ! function() {
             var t = document.createElement("script");
@@ -302,9 +302,9 @@ session()->forget('order_delivery_radius_km');
                     post: () => "{{ route('v1.order.deliveryRadius') }}"
                 }
             }
-        };   
-        
-    
+        };
+
+
     </script>
     @stack('scripts')
     <script src="/dist/js/libs.js"></script>
@@ -316,8 +316,12 @@ session()->forget('order_delivery_radius_km');
     <script src="/dist/js/ya_commerce.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-        if (window.location.pathname === '/' && !sessionStorage.getItem('modalShown')) {
-                modal.show('city'); 
+            const urlHasCityParam = new URLSearchParams(window.location.search).has('city');
+            const citySelected = document.cookie.includes('city_id=');
+
+            // Показываем модалку, если нет параметра city в URL и нет куки с городом
+            if (!urlHasCityParam && !citySelected && window.location.pathname === '/' && !sessionStorage.getItem('modalShown')) {
+                modal.show('city');
                 sessionStorage.setItem('modalShown', 'true');
             }
         });

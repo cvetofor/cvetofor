@@ -40,6 +40,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             AdminDebugBar::class,
             \App\Http\Middleware\GeoMiddleware::class,
+            \App\Http\Middleware\CityFromQueryString::class,
         ],
 
         'logs' => [

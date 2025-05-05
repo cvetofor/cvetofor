@@ -9,21 +9,41 @@ use Illuminate\Http\Request;
 
 class CitiesService {
     public static function getCity() {
-        if (request()->hasCookie('city_id')) {
-            $city_id = request()->cookie('city_id');
-
+        if (session()->has('city_id')) {
+            $city_id = session('city_id');
             if (is_numeric($city_id)) {
                 $city = cache('city_' . $city_id, function () use ($city_id) {
                     return City::where('id', $city_id)->first();
                 });
-                if ($city)
-                    return $city;
+                if ($city) return $city;
             }
         }
+
+        $cityIdFromUrl = request()->query('city');
+        if ($cityIdFromUrl && is_numeric($cityIdFromUrl)) {
+            $city = City::find($cityIdFromUrl);
+            if ($city) {
+                cookie()->queue(cookie()->forever('city_id', $city->id));
+                return $city;
+            }
+        }
+
+        if (request()->hasCookie('city_id')) {
+            $city_id = request()->cookie('city_id');
+            if (is_numeric($city_id)) {
+                $city = cache('city_' . $city_id, function () use ($city_id) {
+                    return City::where('id', $city_id)->first();
+                });
+                if ($city) return $city;
+            }
+        }
+
         $city = cache('city_first', function () {
             return City::active()->first() ?? City::first();
         });
-        \cookie()->forever('city_id', $city->id);
+
+        cookie()->queue(cookie()->forever('city_id', $city->id));
+
         return $city;
     }
 
