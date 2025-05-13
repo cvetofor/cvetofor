@@ -219,7 +219,7 @@ class OrderCreatedCrmListener implements ShouldQueue
             config("$this->prefix.cf.delivery_address") => $this->makeDeliveryAddressValue($order),
 //            config("$this->prefix.cf.receiving_phone") => $order->person_receiving_phone ?? '',
             config("$this->prefix.cf.delivery") => 'Доставка',
-            config("$this->prefix.cf.application_source") => 'Сайт ЦВЕТОФОР',
+            config("$this->prefix.cf.application_source") => 'Cайт ЦВЕТОФОР',
 
         ];
 
