@@ -321,8 +321,8 @@ class OrderController extends Controller
             #$orderRequest['delivery_status_id'] = DeliveryStatus::where('code', 'UD')->orWhere('title', 'Не доставлен')->first()->id;
             $orderRequest['order_status_id'] = OrderStatus::where('code', OrderStatus::ISSUED)->orWhere('title', 'Оформлен')->first()?->id ?? null;
 
-
-
+            $botName = session('bot_name') ?? request()->cookie('bot_name');
+            \Log::info('SOURCE', ['source' => $orderRequest['source']]);
             $orderRequest['address'] = [
                 'address'           => $orderRequest['address'],
                 'coordinates'       => $orderRequest['coordinates'],
@@ -333,6 +333,7 @@ class OrderController extends Controller
             $orderRequest['is_anon'] = $orderRequest['is_anon'] ? true : false;
 
             $orderRequest['published'] = true;
+            $orderRequest['source'] = $botName;
             $order = Order::create(array_merge($orderRequest->toArray(), $meta));
 
             // Если это оплата по счёту
@@ -407,7 +408,7 @@ class OrderController extends Controller
                 $orderRequest['cart'] = $arrCart;
 
                 $orderRequest['uuid'] = (string) \Str::uuid();
-
+                $orderRequest['source'] = $botName;
                 $marketOrder = Order::create(array_merge($orderRequest->toArray(), $meta));
 
                 $marketObject = Market::find($market->first()->associatedModel->market?->id);
