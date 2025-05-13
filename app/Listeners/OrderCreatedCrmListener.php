@@ -7,6 +7,7 @@ use AmoCRM\Client\LongLivedAccessToken;
 use AmoCRM\Collections\CustomFieldsValuesCollection;
 use AmoCRM\Collections\LinksCollection;
 use AmoCRM\Collections\TagsCollection;
+use AmoCRM\Exceptions\AmoCRMApiErrorResponseException;
 use AmoCRM\Exceptions\AmoCRMApiException;
 use AmoCRM\Exceptions\AmoCRMApiNoContentException;
 use AmoCRM\Exceptions\AmoCRMMissedTokenException;
@@ -45,6 +46,7 @@ use App\Models\Order;
 use App\Models\ProductPrice;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Arr;
 
 class OrderCreatedCrmListener implements ShouldQueue
 {
@@ -61,6 +63,8 @@ class OrderCreatedCrmListener implements ShouldQueue
      */
     public function handle(OrderCreated $event): void
     {
+        $amocrmLogger = logger()->channel('amocrm');
+        $amocrmLogger->debug('Начали обработку заказа', ['order_id' => $event->order->id]);
         if (App::isLocal()) $this->prefix = 'amocrm.testfloweramocrmru';
 
         $this->client = (new AmoCRMApiClient())
@@ -68,17 +72,35 @@ class OrderCreatedCrmListener implements ShouldQueue
             ->setAccessToken((new LongLivedAccessToken(config("$this->prefix.token"))));
 
         $order = $event->order;
-        if ($order->market_id != 1) return; // Заказ привязан не к магазину Цветофор Улан-Удэ
+        if ($order->market_id != 1) {
+            $amocrmLogger->debug('Закончили обработку заказа. Заказ привязан не к магазину Цветофор Улан-Удэ');
+            return;
+        } // Заказ привязан не к магазину Цветофор Улан-Удэ
 
+        $amocrmLogger->debug('Начали поиск контакта');
 
         $contact = $this->findContact($order->phone);
         if (empty($contact)) $contact = $this->createContact($order);
+        $amocrmLogger->debug('Нашли/создали контакт', ['contact_id' => $contact->id]);
 
         $deliveryPrice = $this->getDeliveryPrice($order);
         $leadModel = $this->makeLeadModel($order, $deliveryPrice);
+        $amocrmLogger->debug('Создали модель сделки', ['lead' => array_filter($leadModel->toArray())]);
 
-        $this->client->leads()->addOne($leadModel);
-        $this->client->leads()->link($leadModel, (new LinksCollection())->add($contact));
+        try {
+            $lead = $this->client->leads()->addOne($leadModel);
+            $amocrmLogger->debug('Создали сделку');
+        } catch (AmoCRMApiErrorResponseException $e){
+            $amocrmLogger->error('Произошла ошибка при попытке создания сделки', [
+                'message' => $e->getMessage(),
+                'request' => Arr::except($e->getLastRequestInfo(), ['curl_call', 'jquery_call']),
+            ]);
+            return;
+        }
+
+        $this->client->leads()->link($lead, (new LinksCollection())->add($contact));
+        $amocrmLogger->debug('Привязали контакта к сделке');
+
     }
 
     /**
@@ -131,6 +153,9 @@ class OrderCreatedCrmListener implements ShouldQueue
         return $deliveryOrderPrice && isset($deliveryOrderPrice->price) ? $deliveryOrderPrice->price : 0;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     protected function makeLeadModel(Order $order, mixed $deliveryPrice): LeadModel
     {
         return (new LeadModel())
@@ -169,21 +194,29 @@ class OrderCreatedCrmListener implements ShouldQueue
                 ->add((new SelectCustomFieldValueModel())
                     ->setValue($order->paymentStatus->title == 'Оплачено' ? 'Оплачен' : 'НЕ ОПЛАЧЕН'))));
 
-        $cf->add((new UrlCustomFieldValuesModel())
-            ->setFieldId(config("$this->prefix.cf.order_link"))
-            ->setValues((new UrlCustomFieldValueCollection())
-                ->add((new UrlCustomFieldValueModel())->setValue($this->makeAdminOrderUrl($order)))));
+        $url = $this->makeAdminOrderUrl($order);
+        if (!empty($url)) {
+            $cf->add((new UrlCustomFieldValuesModel())
+                ->setFieldId(config("$this->prefix.cf.order_link"))
+                ->setValues((new UrlCustomFieldValueCollection())
+                    ->add((new UrlCustomFieldValueModel())->setValue($url))));
+        }
 
         $cf->add((new NumericCustomFieldValuesModel())
             ->setFieldId(config("$this->prefix.cf.delivery_cost"))
             ->setValues((new NumericCustomFieldValueCollection())
                 ->add((new NumericCustomFieldValueModel())->setValue($deliveryPrice))));
 
+        $cf->add((new NumericCustomFieldValuesModel())
+            ->setFieldId(config("$this->prefix.cf.receiving_phone"))
+            ->setValues((new NumericCustomFieldValueCollection())
+                ->add((new NumericCustomFieldValueModel())->setValue(intval($order->person_receiving_phone)))));
+
         $fields = [
             config("$this->prefix.cf.receiving_name") => $order->person_receiving_name,
             config("$this->prefix.cf.delivery_interval") => $order->delivery_time,
             config("$this->prefix.cf.delivery_address") => $this->makeDeliveryAddressValue($order),
-            config("$this->prefix.cf.receiving_phone") => $order->person_receiving_phone ?? '',
+//            config("$this->prefix.cf.receiving_phone") => $order->person_receiving_phone ?? '',
             config("$this->prefix.cf.delivery") => 'Доставка',
             config("$this->prefix.cf.application_source") => 'Сайт ЦВЕТОФОР',
 
