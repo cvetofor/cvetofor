@@ -72,7 +72,8 @@ class OrderCreatedCrmListener implements ShouldQueue
             ->setAccessToken((new LongLivedAccessToken(config("$this->prefix.token"))));
 
         $order = $event->order;
-        if ($order->market_id != 1) {
+        $childOrderMarketIds = $order->childs->pluck('market_id');
+        if ($order->market_id != 1 && !in_array(1, $childOrderMarketIds->toArray())) {
             $amocrmLogger->debug('Закончили обработку заказа. Заказ привязан не к магазину Цветофор Улан-Удэ');
             return;
         } // Заказ привязан не к магазину Цветофор Улан-Удэ
