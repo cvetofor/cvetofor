@@ -194,10 +194,13 @@ class OrderCreatedCrmListener implements ShouldQueue
                 ->add((new SelectCustomFieldValueModel())
                     ->setValue($order->paymentStatus->title == 'Оплачено' ? 'Оплачен' : 'НЕ ОПЛАЧЕН'))));
 
-        $cf->add((new UrlCustomFieldValuesModel())
-            ->setFieldId(config("$this->prefix.cf.order_link"))
-            ->setValues((new UrlCustomFieldValueCollection())
-                ->add((new UrlCustomFieldValueModel())->setValue($this->makeAdminOrderUrl($order)))));
+        $url = $this->makeAdminOrderUrl($order);
+        if (!empty($url)) {
+            $cf->add((new UrlCustomFieldValuesModel())
+                ->setFieldId(config("$this->prefix.cf.order_link"))
+                ->setValues((new UrlCustomFieldValueCollection())
+                    ->add((new UrlCustomFieldValueModel())->setValue($url))));
+        }
 
         $cf->add((new NumericCustomFieldValuesModel())
             ->setFieldId(config("$this->prefix.cf.delivery_cost"))
