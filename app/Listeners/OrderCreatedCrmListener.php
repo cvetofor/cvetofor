@@ -160,7 +160,7 @@ class OrderCreatedCrmListener implements ShouldQueue
     protected function makeLeadModel(Order $order, mixed $deliveryPrice): LeadModel
     {
         return (new LeadModel())
-            ->setName("Заказ #$order->id")
+            ->setName("Заказ #$order->num_order")
             ->setPrice($order->total_price + $deliveryPrice)
             ->setPipelineId(config('amocrm.pipeline_id'))
             ->setStatusId(config("$this->prefix.status_id"))
@@ -211,16 +211,14 @@ class OrderCreatedCrmListener implements ShouldQueue
         $cf->add((new NumericCustomFieldValuesModel())
             ->setFieldId(config("$this->prefix.cf.receiving_phone"))
             ->setValues((new NumericCustomFieldValueCollection())
-                ->add((new NumericCustomFieldValueModel())->setValue(intval($order->person_receiving_phone)))));
+                ->add((new NumericCustomFieldValueModel())->setValue((intval(preg_replace("/[^0-9]/", "", $order->person_receiving_phone)))))));
 
         $fields = [
             config("$this->prefix.cf.receiving_name") => $order->person_receiving_name,
             config("$this->prefix.cf.delivery_interval") => $order->delivery_time,
             config("$this->prefix.cf.delivery_address") => $this->makeDeliveryAddressValue($order),
-//            config("$this->prefix.cf.receiving_phone") => $order->person_receiving_phone ?? '',
             config("$this->prefix.cf.delivery") => 'Доставка',
-            config("$this->prefix.cf.application_source") => 'Cайт ЦВЕТОФОР',
-
+            config("$this->prefix.cf.application_source") => 'Сайт ЦВЕТОФОР',
         ];
 
         foreach ($fields as $field => $value) {
@@ -230,7 +228,6 @@ class OrderCreatedCrmListener implements ShouldQueue
                     (new TextCustomFieldValueCollection())
                         ->add((new TextCustomFieldValueModel())->setValue($value))));
         }
-
 
         $paymentMethodId = config("$this->prefix.cf.payment_method_map.{$order->payment->code}");
         $cf->add((new SelectCustomFieldValuesModel())
@@ -244,8 +241,7 @@ class OrderCreatedCrmListener implements ShouldQueue
                 ->add((new DateCustomFieldValueModel())->setValue($order->delivery_date))),
         );
 
-        $commentText = !empty($order->comment) ? $order->comment . "\n" : '';
-        $commentText .= !empty($order->postcard_text) ? "\nОткрытка:\n" . $order->postcard_text : '';
+        $commentText = !empty($order->comment) ? $order->comment : '';
 
         $cf->add((new TextareaCustomFieldValuesModel())
             ->setFieldId(config("$this->prefix.cf.order_comment"))
@@ -283,7 +279,7 @@ class OrderCreatedCrmListener implements ShouldQueue
     {
         return !empty($order->address)
             ? implode(', ', array_filter(array_merge(
-                (array)data_get($order->address, 'address'),
+                (array)str_replace('Республика Бурятия, ', '', data_get($order->address, 'address')),
                 !empty(data_get($order->address, 'apartament_number')) ? [data_get($order->address, 'apartament_number')] : [],
             )))
             : 'Уточнить у получателя';
