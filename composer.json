@@ -9,6 +9,7 @@
   "license": "MIT",
   "require": {
     "php": "^8.0.2",
+    "amocrm/amocrm-api-library": "^1.10",
     "area17/twill": "^3.0",
     "avadim/fast-excel-laravel": "^2.4",
     "bacon/bacon-qr-code": "^2.0",

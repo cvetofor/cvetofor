@@ -7,6 +7,7 @@ use App\Events\OrderChangeStatus;
 use App\Events\OrderDeliveryChanged;
 use App\Events\OrderPaymentReceived;
 use App\Listeners\OrderCreatedCrmListener;
+use App\Listeners\OrderUpdatedCrmListener;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use App\Listeners\OrderCreatedListener;
@@ -39,6 +40,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         OrderPaymentReceived::class => [
             OrderPaymentReceivedListener::class,
+            OrderUpdatedCrmListener::class
         ]
     ];
 
