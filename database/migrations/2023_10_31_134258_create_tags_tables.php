@@ -10,10 +10,10 @@ class CreateTagsTables extends Migration
     {
         Schema::table('tags', function (Blueprint $table) {
             // this will create an id, a "published" column, and soft delete and timestamps columns
-            if (!Schema::hasColumn('tags', 'deleted_at')) {
+            if (! Schema::hasColumn('tags', 'deleted_at')) {
                 $table->softDeletes();
             }
-            if (!Schema::hasColumn('tags', 'created_at')) {
+            if (! Schema::hasColumn('tags', 'created_at')) {
                 $table->timestamps();
             }
         });

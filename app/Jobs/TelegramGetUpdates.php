@@ -2,10 +2,7 @@
 
 namespace App\Jobs;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 class TelegramGetUpdates
@@ -34,12 +31,13 @@ class TelegramGetUpdates
             360,
             function () {
                 $resource = \TwillAppSettings::getGroupDataForSectionAndName('resource', 'resource')->content;
+
                 return isset($resource['telegram_bot_api']) ? $resource['telegram_bot_api'] : false;
             }
         );
 
         if ($telegramBotApi) {
-            $client = new \GuzzleHttp\Client();
+            $client = new \GuzzleHttp\Client;
             $response = $client->post(
                 "https://api.telegram.org/bot{$telegramBotApi}/getUpdates"
             );
@@ -55,8 +53,8 @@ class TelegramGetUpdates
                     \App\Models\TelegramChatUser::firstOrCreate(
                         [
                             'username' => $username,
-                            'chat_id'  => $chat_id,
-                            'bot'      => $bot,
+                            'chat_id' => $chat_id,
+                            'bot' => $bot,
                         ]
                     );
                 }

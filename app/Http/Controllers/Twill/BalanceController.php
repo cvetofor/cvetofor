@@ -2,23 +2,18 @@
 
 namespace App\Http\Controllers\Twill;
 
-use A17\Twill\Services\Forms\Form;
-use A17\Twill\Services\Forms\Fields\Input;
-use A17\Twill\Services\Listings\Columns\Text;
-use A17\Twill\Services\Listings\TableColumns;
 use A17\Twill\Models\Contracts\TwillModelContract;
+use A17\Twill\Services\Listings\Columns\Text;
 use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Services\Listings\TableColumns;
 use App\Models\Balance;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class BalanceController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleController
 {
     protected $moduleName = 'balances';
-
 
     /**
      * This method can be used to enable/disable defaults. See setUpController in the docs for available options.
@@ -45,7 +40,7 @@ class BalanceController extends \App\Http\Controllers\Twill\AuthorizedBaseModule
         $this->disableIncludeScheduledInList();
 
         $this->disableCreate();
-        #$this->disableDelete();
+        // $this->disableDelete();
     }
 
     public function destroy(int|TwillModelContract $id, ?int $submoduleId = null): JsonResponse
@@ -56,6 +51,7 @@ class BalanceController extends \App\Http\Controllers\Twill\AuthorizedBaseModule
 
         $result = \DB::transaction(function () use ($item) {
             $item->orders()->detach();
+
             return $item->forceDelete();
         }, 3);
 
@@ -73,16 +69,15 @@ class BalanceController extends \App\Http\Controllers\Twill\AuthorizedBaseModule
         );
     }
 
-
     protected function getIndexData(array $prependScope = []): array
     {
         $data = parent::getIndexData($prependScope);
 
-        # $data['create'] = \Gate::allows('is_owner');
+        // $data['create'] = \Gate::allows('is_owner');
 
         foreach ($data['tableData'] as $i => $item) {
             if (
-                !\Gate::allows('is_owner')
+                ! \Gate::allows('is_owner')
             ) {
                 $balance = Balance::where('id', $item['id'])->first();
                 $data['tableData'][$i]['title'] = $balance->title ?? '';
@@ -90,9 +85,9 @@ class BalanceController extends \App\Http\Controllers\Twill\AuthorizedBaseModule
                 $data['tableData'][$i]['delete'] = \Gate::allows('is_owner') && $item->status !== Balance::STATUS['APPROVED'] ? route('twill.orders.destroy', ['order' => $item['id']]) : false;
             }
         }
+
         return $data;
     }
-
 
     public function index(?int $parentModuleId = null): mixed
     {
@@ -128,10 +123,11 @@ class BalanceController extends \App\Http\Controllers\Twill\AuthorizedBaseModule
 
     public function recalc(Request $request)
     {
-        if (!$request->hasValidSignature()) {
+        if (! $request->hasValidSignature()) {
             abort(401);
         }
         \Artisan::call('marketplace:payments');
+
         return back();
     }
 
@@ -140,17 +136,17 @@ class BalanceController extends \App\Http\Controllers\Twill\AuthorizedBaseModule
         $balance = [
             'Available' => [
                 // Action name.
-                'name'    => 'доступно ' . auth()->user()->market->withdrawalFunds() . ' ₽',
+                'name' => 'доступно '.auth()->user()->market->withdrawalFunds().' ₽',
                 // Button action title.
                 'variant' => 'aslink-grey',
                 // Button style variant. Available variants; primary, secondary, action, editor, validate, aslink, aslink-grey, warning, ghost, outline, tertiary
-                'size'    => 'small',
+                'size' => 'small',
                 // Button size. Available sizes; small
-                'link'    => '',
+                'link' => '',
                 // Button action link.
-                'target'  => '',
+                'target' => '',
                 // Leave it blank for self.
-                'type'    => 'a',
+                'type' => 'a',
                 // Leave it blank for "button".
             ],
         ];
@@ -158,17 +154,17 @@ class BalanceController extends \App\Http\Controllers\Twill\AuthorizedBaseModule
         if (\Gate::allows('is_owner')) {
             $balance['recalc'] = [
                 // Action name.
-                'name'    => 'Рассчитать сейчас',
+                'name' => 'Рассчитать сейчас',
                 // Button action title.
                 'variant' => 'primary',
                 // Button style variant. Available variants; primary, secondary, action, editor, validate, aslink, aslink-grey, warning, ghost, outline, tertiary
-                'size'    => 'small',
+                'size' => 'small',
                 // Button size. Available sizes; small
-                'link'    => \URL::signedRoute('twill.balances.recalc', ['id' => auth()->user()->id]),
+                'link' => \URL::signedRoute('twill.balances.recalc', ['id' => auth()->user()->id]),
                 // Button action link.
-                'target'  => '_blank',
+                'target' => '_blank',
                 // Leave it blank for self.
-                'type'    => 'a',
+                'type' => 'a',
                 // Leave it blank for "button".
             ];
         }
@@ -190,12 +186,12 @@ class BalanceController extends \App\Http\Controllers\Twill\AuthorizedBaseModule
                 ->label('Подтвержденные')
                 ->queryString('approved')
                 ->scope('approved')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->approved()->count()),
+                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->approved()->count()),
             QuickFilter::make()
                 ->label('На подтверждении')
                 ->queryString('waitApprove')
                 ->scope('waitApprove')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->waitApprove()->count()),
+                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->waitApprove()->count()),
         ]);
     }
 }

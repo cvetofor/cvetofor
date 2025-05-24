@@ -4,10 +4,10 @@ namespace App\Notifications;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\URL;
 
 class ChangeEmailNotification extends Notification implements ShouldQueue
 {
@@ -16,7 +16,6 @@ class ChangeEmailNotification extends Notification implements ShouldQueue
     protected User $user;
 
     protected $email;
-
 
     /**
      * Create a new notification instance.
@@ -61,7 +60,7 @@ class ChangeEmailNotification extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->greeting("Здравствуйте!")
+            ->greeting('Здравствуйте!')
             ->subject('Уведомление об изменении Email пользователя')
             ->line('Ссылка для изменения Email')
             ->action('Сменить Email', URL::temporarySignedRoute(

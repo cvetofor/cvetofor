@@ -6,5 +6,5 @@ use A17\Twill\Models\Model;
 
 class ProductSlug extends Model
 {
-    protected $table = "product_slugs";
+    protected $table = 'product_slugs';
 }

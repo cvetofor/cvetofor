@@ -2,19 +2,19 @@
 
 namespace App\Notifications;
 
+use A17\Twill\Facades\TwillAppSettings;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use A17\Twill\Facades\TwillAppSettings;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class OrderPaymentReceivedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-
     public $order;
+
     /**
      * Create a new notification instance.
      *
@@ -61,10 +61,10 @@ class OrderPaymentReceivedNotification extends Notification implements ShouldQue
         }
 
         return (new MailMessage)
-            ->subject('Заказ № ' . $this->order->num_order . ' с сайта Цветофор.рф оплачен!')
-            ->greeting("Здравствуйте!")
-            ->line('Ваш заказ №' . $this->order->num_order . ' оплачен')
-            ->salutation('По всем вопросам вы можете звонить по телефону ' . $phone . ' или написать нам почту. ')
+            ->subject('Заказ № '.$this->order->num_order.' с сайта Цветофор.рф оплачен!')
+            ->greeting('Здравствуйте!')
+            ->line('Ваш заказ №'.$this->order->num_order.' оплачен')
+            ->salutation('По всем вопросам вы можете звонить по телефону '.$phone.' или написать нам почту. ')
             ->markdown('emails.user.order.received', compact('order', 'deliveryPrice'));
     }
 

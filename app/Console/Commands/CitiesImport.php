@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\City;
 use App\Models\Region;
 use App\Repositories\CityRepository;
-use DASPRiD\Enum\Exception\IllegalArgumentException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
@@ -45,9 +44,9 @@ class CitiesImport extends Command
 
             if ($i == 0) {
                 $header = $line;
+
                 continue;
             }
-
 
             $arrs = [];
             foreach ($line as $j => $attr) {
@@ -57,18 +56,17 @@ class CitiesImport extends Command
             if (count($arrs) == count($header)) {
 
                 // У Москвы нет города, только Регион
-                if (!filled($arrs['city']) && $arrs['region'] === 'Москва') {
+                if (! filled($arrs['city']) && $arrs['region'] === 'Москва') {
                     $arrs['city'] = $arrs['region'];
                 }
 
-                if($arrs['area_type'] === "г" && $arrs['area'] && ! $arrs['city'])
-                {
+                if ($arrs['area_type'] === 'г' && $arrs['area'] && ! $arrs['city']) {
                     $arrs['city'] = $arrs['area'];
                 }
 
                 $city = $repository->firstOrCreate($arrs);
 
-                $region = Region::where('name', 'like', '%' . $city->region . '%')->first();
+                $region = Region::where('name', 'like', '%'.$city->region.'%')->first();
                 if ($region) {
                     $city->region_id = $region->id;
                 }

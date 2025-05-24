@@ -2,10 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Order;
-use App\Models\OrderStatus;
-use Illuminate\Console\Command;
 use App\Notifications\OrderMovedToTenderNotification;
+use Illuminate\Console\Command;
 
 class ToTenderCron extends Command
 {
@@ -35,14 +33,13 @@ class ToTenderCron extends Command
             ->whereHas('orderStatus', function ($q) {
                 return $q->where('code', \App\Models\OrderStatus::ISSUED);
             })
-            # Можно не брать в работу до тех пор пока заказ не оплачен
+            // Можно не брать в работу до тех пор пока заказ не оплачен
             ->whereHas('paymentStatus', function ($q) {
                 return $q->where('code', \App\Models\PaymentStatus::PAID);
             })
             ->where('updated_at', '<', \Carbon\Carbon::now()->subMinutes(15));
 
-
-        $ordersToTender =  $query->get();
+        $ordersToTender = $query->get();
 
         if ($ordersToTender->count() > 0) {
             $marketsId = $ordersToTender->pluck('market_id');
@@ -63,8 +60,6 @@ class ToTenderCron extends Command
                 }
             }
         }
-
-
 
         return Command::SUCCESS;
     }

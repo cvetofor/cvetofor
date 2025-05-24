@@ -2,19 +2,16 @@
 
 namespace App\Http\Controllers\Twill;
 
-use App\Models\Payment;
-use Illuminate\Http\Request;
-use Illuminate\Foundation\Application;
-use A17\Twill\Services\Listings\TableColumns;
+use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 use A17\Twill\Services\Listings\Columns\Image;
 use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
-use A17\Twill\Models\Behaviors\Sortable;
+use A17\Twill\Services\Listings\TableColumns;
+use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 
 class PaymentController extends BaseModuleController
 {
-
     public function __construct(Application $app, Request $request)
     {
         parent::__construct($app, $request);
@@ -29,7 +26,6 @@ class PaymentController extends BaseModuleController
         $this->modelTitle = 'Оплата';
         $this->enableReorder();
     }
-
 
     protected function getIndexTableColumns(): TableColumns
     {

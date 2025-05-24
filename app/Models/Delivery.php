@@ -20,7 +20,7 @@ class Delivery extends Model
     ];
 
     protected $casts = [
-        'address' => 'array'
+        'address' => 'array',
     ];
 
     public function order()
@@ -28,10 +28,9 @@ class Delivery extends Model
         return $this->belongsTo(Order::class, 'order_id');
     }
 
-
     public function getTitleAttribute()
     {
-        return 'Доставка заказа №' . $this->order->parent->id;
+        return 'Доставка заказа №'.$this->order->parent->id;
     }
 
     public function scopeAtWork($query)

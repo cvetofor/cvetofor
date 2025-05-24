@@ -2,53 +2,52 @@
 
 namespace A17\Twill\Models;
 
-use App\Models\Market;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Support\Facades\Crypt;
 use A17\Twill\Facades\TwillPermissions;
-use Illuminate\Support\Facades\Session;
-use PragmaRX\Google2FAQRCode\Google2FA;
-use A17\Twill\Models\Behaviors\HasOauth;
-use Illuminate\Notifications\Notifiable;
 use A17\Twill\Models\Behaviors\HasMedias;
-use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Models\Behaviors\HasPresenter;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use A17\Twill\Models\Behaviors\HasOauth;
 use A17\Twill\Models\Behaviors\HasPermissions;
+use A17\Twill\Models\Behaviors\HasPresenter;
 use A17\Twill\Models\Behaviors\IsTranslatable;
 use A17\Twill\Models\Contracts\TwillModelContract;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\Access\Authorizable;
-use A17\Twill\Notifications\Reset as ResetNotification;
-use A17\Twill\Notifications\Welcome as WelcomeNotification;
-use Illuminate\Foundation\Auth\User as AuthenticatableContract;
-use A17\Twill\Notifications\TemporaryPassword as TemporaryPasswordNotification;
 use A17\Twill\Notifications\PasswordResetByAdmin as PasswordResetByAdminNotification;
-use App\Models\MarketWorkTime;
+use A17\Twill\Notifications\Reset as ResetNotification;
+use A17\Twill\Notifications\TemporaryPassword as TemporaryPasswordNotification;
+use A17\Twill\Notifications\Welcome as WelcomeNotification;
+use App\Models\Market;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Foundation\Auth\User as AuthenticatableContract;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Session;
+use PragmaRX\Google2FAQRCode\Google2FA;
 
-class User extends AuthenticatableContract implements TwillModelContract {
+class User extends AuthenticatableContract implements TwillModelContract
+{
     use Authenticatable;
     use Authorizable;
     use HasMedias;
-    use Notifiable;
-    use HasPresenter;
     use HasOauth;
     use HasPermissions;
-    use SoftDeletes;
+    use HasPresenter;
     use IsTranslatable;
-
+    use Notifiable;
+    use SoftDeletes;
 
     const PUBLIC_ROLES = [
-        'shop'    => 'shop',
+        'shop' => 'shop',
         'manager' => 'manager',
         'florist' => 'florist',
         'courier' => 'courier',
     ];
 
-    protected static function boot() {
+    protected static function boot()
+    {
         parent::boot();
-
 
         static::created(function ($user) {
             $user->load('role');
@@ -58,8 +57,8 @@ class User extends AuthenticatableContract implements TwillModelContract {
                     \App\Models\Market::create(
                         [
                             'published' => true,
-                            'name'      => 'Название магазина',
-                            'user_id'   => $user->id,
+                            'name' => 'Название магазина',
+                            'user_id' => $user->id,
                         ]
                     );
                 }, 5);
@@ -70,13 +69,13 @@ class User extends AuthenticatableContract implements TwillModelContract {
     public $timestamps = true;
 
     protected $casts = [
-        'is_superadmin'     => 'boolean',
-        'published'         => 'boolean',
+        'is_superadmin' => 'boolean',
+        'published' => 'boolean',
         'send_notify_phone' => 'boolean',
         'send_notify_email' => 'boolean',
-        'deleted_at'        => 'datetime',
-        'registered_at'     => 'datetime',
-        'last_login_at'     => 'datetime',
+        'deleted_at' => 'datetime',
+        'registered_at' => 'datetime',
+        'last_login_at' => 'datetime',
     ];
 
     protected $fillable = [
@@ -96,7 +95,7 @@ class User extends AuthenticatableContract implements TwillModelContract {
         'second_name',
         'last_name',
 
-        # Владелец магазинов, создавший пользователей
+        // Владелец магазинов, создавший пользователей
         'master_user_id',
     ];
 
@@ -113,15 +112,15 @@ class User extends AuthenticatableContract implements TwillModelContract {
         'profile' => [
             'default' => [
                 [
-                    'name'  => 'default',
+                    'name' => 'default',
                     'ratio' => 1,
                 ],
             ],
         ],
     ];
 
-
-    public function __construct(array $attributes = []) {
+    public function __construct(array $attributes = [])
+    {
         $this->table = config('twill.users_table', 'twill_users');
 
         parent::__construct($attributes);
@@ -130,14 +129,14 @@ class User extends AuthenticatableContract implements TwillModelContract {
     /**
      * Scope accessible users for the current user.
      *
-     * @param Builder $query
-     * @return Builder
+     * @param  Builder  $query
      */
-    public function scopeAccessible($query): Builder {
+    public function scopeAccessible($query): Builder
+    {
         /** @var self $currentUser */
         $currentUser = auth('twill_users')->user();
 
-        if (!config('twill.enabled.permissions-management') || $currentUser->isSuperAdmin()) {
+        if (! config('twill.enabled.permissions-management') || $currentUser->isSuperAdmin()) {
             return $query;
         }
 
@@ -146,7 +145,8 @@ class User extends AuthenticatableContract implements TwillModelContract {
         return $query->whereIn('role_id', $accessibleRoleIds);
     }
 
-    public static function getRoleColumnName() {
+    public static function getRoleColumnName()
+    {
         if (config('twill.enabled.permissions-management')) {
             return 'role_id';
         }
@@ -154,11 +154,13 @@ class User extends AuthenticatableContract implements TwillModelContract {
         return 'role';
     }
 
-    public function getTitleInBrowserAttribute() {
+    public function getTitleInBrowserAttribute()
+    {
         return $this->name;
     }
 
-    public function getRoleValueAttribute() {
+    public function getRoleValueAttribute()
+    {
         if ($this->is_superadmin || $this->role === 'SUPERADMIN') {
             return 'SUPERADMIN';
         }
@@ -167,38 +169,45 @@ class User extends AuthenticatableContract implements TwillModelContract {
             return $this->role->name ?? null;
         }
 
-        if (!empty($this->role)) {
+        if (! empty($this->role)) {
             return TwillPermissions::roles()::{$this->role}()->getValue();
         }
 
         return null;
     }
 
-    public function getCanDeleteAttribute() {
+    public function getCanDeleteAttribute()
+    {
         return auth('twill_users')->user()->id !== $this->id;
     }
 
-    public function scopeActivated($query) {
+    public function scopeActivated($query)
+    {
         return $query->whereNotNull('registered_at')->published();
     }
 
-    public function scopePending($query) {
+    public function scopePending($query)
+    {
         return $query->whereNull('registered_at')->published();
     }
 
-    public function scopePublished($query): Builder {
+    public function scopePublished($query): Builder
+    {
         return $query->wherePublished(true);
     }
 
-    public function scopeDraft($query): Builder {
+    public function scopeDraft($query): Builder
+    {
         return $query->wherePublished(false);
     }
 
-    public function scopeOnlyTrashed($query): Builder {
+    public function scopeOnlyTrashed($query): Builder
+    {
         return $query->onlyTrashed();
     }
 
-    public function scopeNotSuperAdmin($query) {
+    public function scopeNotSuperAdmin($query)
+    {
         if (config('twill.enabled.permissions-management')) {
             return $query->where('is_superadmin', '<>', true);
         }
@@ -206,24 +215,28 @@ class User extends AuthenticatableContract implements TwillModelContract {
         return $query->where('role', '<>', 'SUPERADMIN');
     }
 
-    public function setImpersonating($id) {
+    public function setImpersonating($id)
+    {
         Session::put('impersonate', $id);
     }
 
-    public function stopImpersonating() {
+    public function stopImpersonating()
+    {
         Session::forget('impersonate');
     }
 
-    public function isImpersonating() {
+    public function isImpersonating()
+    {
         return Session::has('impersonate');
     }
 
-    public function notifyWithCustomMarkdownTheme($instance) {
+    public function notifyWithCustomMarkdownTheme($instance)
+    {
         $hostAppMailConfig = config('mail.markdown.paths') ?? [];
 
         config([
             'mail.markdown.paths' => array_merge(
-                [__DIR__ . '/../../views/emails'],
+                [__DIR__.'/../../views/emails'],
                 $hostAppMailConfig
             ),
         ]);
@@ -235,15 +248,18 @@ class User extends AuthenticatableContract implements TwillModelContract {
         ]);
     }
 
-    public function sendWelcomeNotification($token) {
+    public function sendWelcomeNotification($token)
+    {
         $this->notifyWithCustomMarkdownTheme(new WelcomeNotification($token));
     }
 
-    public function sendPasswordResetNotification($token) {
+    public function sendPasswordResetNotification($token)
+    {
         $this->notifyWithCustomMarkdownTheme(new ResetNotification($token));
     }
 
-    public function isSuperAdmin() {
+    public function isSuperAdmin()
+    {
         if (config('twill.enabled.permissions-management')) {
             return $this->is_superadmin;
         }
@@ -251,35 +267,43 @@ class User extends AuthenticatableContract implements TwillModelContract {
         return $this->role === 'SUPERADMIN';
     }
 
-    public function isPublished() {
+    public function isPublished()
+    {
         return (bool) $this->published;
     }
 
-    public function isActivated() {
+    public function isActivated()
+    {
         return (bool) $this->registered_at;
     }
 
-    public function sendTemporaryPasswordNotification($password) {
+    public function sendTemporaryPasswordNotification($password)
+    {
         $this->notify(new TemporaryPasswordNotification($password));
     }
 
-    public function sendPasswordResetByAdminNotification($password) {
+    public function sendPasswordResetByAdminNotification($password)
+    {
         $this->notify(new PasswordResetByAdminNotification($password));
     }
 
-    public function groups() {
+    public function groups()
+    {
         return $this->belongsToMany(Group::class, 'group_twill_user', 'twill_user_id', 'group_id');
     }
 
-    public function publishedGroups() {
+    public function publishedGroups()
+    {
         return $this->groups()->published();
     }
 
-    public function role() {
+    public function role()
+    {
         return $this->belongsTo(Role::class);
     }
 
-    public function allPermissions() {
+    public function allPermissions()
+    {
         $permissions = Permission::whereHas('users', function ($query) {
             $query->where('id', $this->id);
         })->orWhereHas('roles', function ($query) {
@@ -294,22 +318,26 @@ class User extends AuthenticatableContract implements TwillModelContract {
         return $permissions;
     }
 
-    public function getLastLoginColumnValueAttribute() {
+    public function getLastLoginColumnValueAttribute()
+    {
         return $this->last_login_at ?
             $this->last_login_at->format('d M Y, H:i') : ($this->isActivated() ? '&mdash;' : twillTrans('twill::lang.user-management.activation-pending'));
     }
 
-    public function setGoogle2faSecretAttribute($secret) {
+    public function setGoogle2faSecretAttribute($secret)
+    {
         $this->attributes['google_2fa_secret'] = filled($secret) ? Crypt::encrypt($secret) : null;
     }
 
-    public function getGoogle2faSecretAttribute($secret) {
+    public function getGoogle2faSecretAttribute($secret)
+    {
         return filled($secret) ? Crypt::decrypt($secret) : null;
     }
 
-    public function generate2faSecretKey() {
+    public function generate2faSecretKey()
+    {
         if (is_null($this->google_2fa_secret)) {
-            $secret = (new Google2FA())->generateSecretKey();
+            $secret = (new Google2FA)->generateSecretKey();
 
             $this->google_2fa_secret = $secret;
 
@@ -317,8 +345,9 @@ class User extends AuthenticatableContract implements TwillModelContract {
         }
     }
 
-    public function get2faQrCode() {
-        return (new Google2FA())->getQRCodeInline(
+    public function get2faQrCode()
+    {
+        return (new Google2FA)->getQRCodeInline(
             config('app.name'),
             $this->email,
             $this->google_2fa_secret,
@@ -326,21 +355,24 @@ class User extends AuthenticatableContract implements TwillModelContract {
         );
     }
 
-    public function getTranslatedAttributes(): array {
+    public function getTranslatedAttributes(): array
+    {
         return [];
     }
 
-    public function markets(): HasMany {
-        # по владельцу магазина
+    public function markets(): HasMany
+    {
+        // по владельцу магазина
         return $this->hasMany(Market::class, 'user_id');
     }
 
-
-    public function stores(): BelongsToMany {
+    public function stores(): BelongsToMany
+    {
         return $this->belongsToMany(Market::class, 'market_user', 'user_id', 'market_id');
     }
 
-    public function getMarketId() {
+    public function getMarketId()
+    {
         if (Session::get('market_id') && \is_numeric(Session::get('market_id'))) {
             return Session::get('market_id');
         } else {
@@ -350,7 +382,8 @@ class User extends AuthenticatableContract implements TwillModelContract {
         }
     }
 
-    public function getMarketIds() {
+    public function getMarketIds()
+    {
         return array_merge(
             // Для администратора
             $this->markets->pluck('id')->toArray(),
@@ -359,7 +392,8 @@ class User extends AuthenticatableContract implements TwillModelContract {
         );
     }
 
-    public function getMarketAttribute() {
+    public function getMarketAttribute()
+    {
         // @todo employer
         return Market::with('city')->where('id', Session::get('market_id'))->first();
     }

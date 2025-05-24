@@ -2,10 +2,10 @@
 
 namespace App\Repositories;
 
+use A17\Twill\Repositories\Behaviors\HandleRevisions;
+use A17\Twill\Repositories\ModuleRepository;
 use App\Models\MarketWorkTime;
 use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Repositories\ModuleRepository;
-use A17\Twill\Repositories\Behaviors\HandleRevisions;
 
 class MarketWorkTimeRepository extends ModuleRepository
 {
@@ -352,7 +352,7 @@ class MarketWorkTimeRepository extends ModuleRepository
         ],
     ];
 
-    # The below can be setup optionally, documented below.
+    // The below can be setup optionally, documented below.
 
     public bool $fieldsGroupsFormFieldNamesAutoPrefix = true;
 
@@ -366,12 +366,10 @@ class MarketWorkTimeRepository extends ModuleRepository
     public function filter($query, array $scopes = []): Builder
     {
 
-        $query = $query->whereHas('market', function($q)
-        {
-            return $q->where('id',auth('twill_users')->user()->getMarketId());
-        })->orWhereHas('delivery', function($q)
-        {
-            return $q->where('id',auth('twill_users')->user()->getMarketId());
+        $query = $query->whereHas('market', function ($q) {
+            return $q->where('id', auth('twill_users')->user()->getMarketId());
+        })->orWhereHas('delivery', function ($q) {
+            return $q->where('id', auth('twill_users')->user()->getMarketId());
         });
 
         return parent::filter($query, $scopes);

@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Api\SMSController;
-use App\Models\User;
-use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Foundation\Auth\RegistersUsers;
+use App\Models\User;
 use App\Notifications\SendPasswordAfterRegisterNotification;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
-class RegisterController extends Controller {
+class RegisterController extends Controller
+{
     /*
     |--------------------------------------------------------------------------
     | Register Controller
@@ -39,39 +39,41 @@ class RegisterController extends Controller {
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('guest');
     }
 
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
-    protected function validator(array $data) {
+    protected function validator(array $data)
+    {
         $data['phone'] = str_replace(['(', ')', '-', ' '], ['', '', '', ''], $data['phone']);
+
         return Validator::make($data, [
-            #'name' => ['required', 'string', 'max:255'],
+            // 'name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['string', 'email', 'max:255', 'unique:users'],
             'concent_exclusive_email' => '',
-            #'password' => ['required', 'string', 'min:8', 'confirmed'],
+            // 'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
 
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
      * @return \App\Models\User
      */
-    protected function create(array $data) {
+    protected function create(array $data)
+    {
         $data['password'] = $this->password(6, false, true, false);
         $data['phone'] = str_replace(['(', ')', '-', ' '], ['', '', '', ''], $data['phone']);
         $user = User::create([
-            'email' => $data['email'] ?? "",
-            'phone' => $data['phone'] ?? "",
+            'email' => $data['email'] ?? '',
+            'phone' => $data['phone'] ?? '',
             'concent_exclusive_email' => $data['concent_exclusive_email'] ?? false,
             'password' => Hash::make($data['password']),
         ]);
@@ -83,9 +85,10 @@ class RegisterController extends Controller {
         return $user;
     }
 
-    public static function password($length = 32, $letters = true, $numbers = true, $symbols = true, $spaces = false) {
-        return (new Collection())
-            ->when($letters, fn($c) => $c->merge([
+    public static function password($length = 32, $letters = true, $numbers = true, $symbols = true, $spaces = false)
+    {
+        return (new Collection)
+            ->when($letters, fn ($c) => $c->merge([
                 'a',
                 'b',
                 'c',
@@ -139,7 +142,7 @@ class RegisterController extends Controller {
                 'Y',
                 'Z',
             ]))
-            ->when($numbers, fn($c) => $c->merge([
+            ->when($numbers, fn ($c) => $c->merge([
                 '0',
                 '1',
                 '2',
@@ -151,7 +154,7 @@ class RegisterController extends Controller {
                 '8',
                 '9',
             ]))
-            ->when($symbols, fn($c) => $c->merge([
+            ->when($symbols, fn ($c) => $c->merge([
                 '~',
                 '!',
                 '#',
@@ -179,8 +182,8 @@ class RegisterController extends Controller {
                 ':',
                 ';',
             ]))
-            ->when($spaces, fn($c) => $c->merge([' ']))
-            ->pipe(fn($c) => Collection::times($length, fn() => $c[random_int(0, $c->count() - 1)]))
+            ->when($spaces, fn ($c) => $c->merge([' ']))
+            ->pipe(fn ($c) => Collection::times($length, fn () => $c[random_int(0, $c->count() - 1)]))
             ->implode('');
     }
 }

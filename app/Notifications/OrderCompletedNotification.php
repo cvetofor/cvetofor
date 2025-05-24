@@ -2,18 +2,18 @@
 
 namespace App\Notifications;
 
-use App\Models\Order;
-use Illuminate\Bus\Queueable;
 use A17\Twill\Facades\TwillAppSettings;
-use Illuminate\Notifications\Notification;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class OrderCompletedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public $order;
+
     /**
      * Create a new notification instance.
      *
@@ -55,7 +55,7 @@ class OrderCompletedNotification extends Notification implements ShouldQueue
         $deliveryPrice = 0.0;
 
         if ($order->parent_id != null) {
-             #  Теории такого не должно случится, чтобы основной заказ был отменён
+            //  Теории такого не должно случится, чтобы основной заказ был отменён
 
             $ch = $order->childs;
             foreach ($ch as $child) {
@@ -66,9 +66,9 @@ class OrderCompletedNotification extends Notification implements ShouldQueue
         }
 
         return (new MailMessage)
-            ->subject('Заказ № ' . $this->order->num_order . ' с сайта Цветофор.рф выполнен!')
-            ->greeting("Здравствуйте!")
-            ->line('Ваш заказ № ' . $this->order->num_order . ' был успешно доставлен. ')
+            ->subject('Заказ № '.$this->order->num_order.' с сайта Цветофор.рф выполнен!')
+            ->greeting('Здравствуйте!')
+            ->line('Ваш заказ № '.$this->order->num_order.' был успешно доставлен. ')
 
             ->with('Благодарим вас за выбор!')
             ->with('Надеемся, букет вам понравился и вы довольны сервисом.')

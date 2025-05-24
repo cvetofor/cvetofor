@@ -5,15 +5,16 @@ namespace App\Http\Requests;
 use App\Models\Market;
 use App\Services\Helpers;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Collection;
 
-class OrderRequest extends FormRequest {
+class OrderRequest extends FormRequest
+{
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize() {
+    public function authorize()
+    {
         return true;
     }
 
@@ -22,18 +23,19 @@ class OrderRequest extends FormRequest {
      *
      * @return array<string, mixed>
      */
-    public function rules() {
+    public function rules()
+    {
         return [
-            # address
-            # is_photo_needle
-            # is_anon
-            # postcard_text
+            // address
+            // is_photo_needle
+            // is_anon
+            // postcard_text
 
-            'payment_id'             => [
+            'payment_id' => [
                 'required',
                 'exists:App\Models\Payment,id',
             ],
-            'person_receiving_name'  => [
+            'person_receiving_name' => [
                 'required',
                 'string',
             ],
@@ -41,37 +43,37 @@ class OrderRequest extends FormRequest {
                 'required',
                 'string',
             ],
-            'delivery_date'          => [
+            'delivery_date' => [
                 'required',
                 'string',
             ],
-            'delivery_time'          => [
+            'delivery_time' => [
                 'required',
                 'string',
             ],
-            'fio'                    => [
+            'fio' => [
                 'required',
                 'min:3',
             ],
-            'phone'                  => [
+            'phone' => [
                 'required',
                 'min:10',
             ],
-            'comment'                => [
+            'comment' => [
                 'max:1000',
             ],
-            'address'                => [
+            'address' => [
                 'max:5000',
             ],
-            'email'                  => [
+            'email' => [
                 'email',
             ],
-            #'postcard' => 'nullable|accepted',
+            // 'postcard' => 'nullable|accepted',
         ];
     }
 
-
-    public function checkRadius($markets) {
+    public function checkRadius($markets)
+    {
         if ($this->has('coordinates')) {
             [$lat, $long] = explode(',', $this['coordinates']);
             foreach ($markets as $market) {
@@ -89,11 +91,10 @@ class OrderRequest extends FormRequest {
 
                 $maxDeliveryRadius = $market->delivery_radius;
 
-
                 if ($deliveryRadiusKm > $maxDeliveryRadius) {
                     return [
-                        'radius'  => $deliveryRadiusKm,
-                        'modal'   => 'delivery-area',
+                        'radius' => $deliveryRadiusKm,
+                        'modal' => 'delivery-area',
                         'message' => "Продавец {$market->name} не осуществляет доставку по выбранному адресу. Попробуйте выбрать другой адрес.",
                     ];
                 }
@@ -101,18 +102,20 @@ class OrderRequest extends FormRequest {
         } else {
             session()->forget('order_delivery_radius_km');
         }
+
         return false;
     }
 
-    public function checkTimes($markets) {
+    public function checkTimes($markets)
+    {
 
-        $userDate = new \DateTime($this['delivery_date'] . ' ' . date('h') . ':' . date('i'));
+        $userDate = new \DateTime($this['delivery_date'].' '.date('h').':'.date('i'));
 
         $deliveryMinDate = Market::getDeliveryDate($markets);
 
         $times = Market::getDeliveryTime($markets)['times'][strtolower($userDate->format('l'))] ?? [];
 
-        if (!in_array(explode(' - ', $this->delivery_time), $times)) {
+        if (! in_array(explode(' - ', $this->delivery_time), $times)) {
             return true;
         }
 

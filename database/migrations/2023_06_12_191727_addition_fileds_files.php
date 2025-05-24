@@ -14,8 +14,6 @@ return new class extends Migration
         });
     }
 
-
-
     public function down()
     {
         Schema::table(config('twill.files_table', 'files'), function (Blueprint $table) {

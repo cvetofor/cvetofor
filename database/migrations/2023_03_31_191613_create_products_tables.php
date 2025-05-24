@@ -18,7 +18,6 @@ class CreateProductsTables extends Migration
             // your generated model and form include a description field, to get you started, but feel free to get rid of it if you don't need it
             $table->text('description')->nullable();
 
-
             $table->bigInteger('market_id')->index()->unsigned()->nullable();
             $table->foreign('market_id')->references('id')->on('markets')->onDelete('set null');
 
@@ -28,7 +27,6 @@ class CreateProductsTables extends Migration
             $table->timestamp('verified_at')->nullable();
 
             $table->boolean('is_market_public')->default(false);
-
 
             // Для торговых предложений
             $table->nestedSet();

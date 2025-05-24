@@ -2,24 +2,20 @@
 
 namespace App\Models;
 
-use App\Models\Remain;
-use App\Models\Attribute;
-use A17\Twill\Models\Model;
-use App\Repositories\RemainRepository;
-use A17\Twill\Models\Behaviors\HasSlug;
-use A17\Twill\Models\Behaviors\HasBlocks;
 use A17\Twill\Models\Behaviors\HasMedias;
-use Illuminate\Database\Eloquent\Builder;
 use A17\Twill\Models\Behaviors\HasRelated;
 use A17\Twill\Models\Behaviors\HasRevisions;
-use App\Repositories\ProductPriceRepository;
-use Rennokki\QueryCache\Traits\QueryCacheable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use A17\Twill\Models\Behaviors\HasSlug;
+use A17\Twill\Models\Model;
+use App\Repositories\RemainRepository;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
-class Product extends Model {
-    use HasSlug, HasMedias, HasRevisions, HasRelated;
-
+class Product extends Model
+{
+    use HasMedias, HasRelated, HasRevisions, HasSlug;
     use QueryCacheable;
 
     /**
@@ -54,13 +50,12 @@ class Product extends Model {
      */
     protected static $flushCacheOnUpdate = true;
 
-    protected static function boot() {
+    protected static function boot()
+    {
         parent::boot();
 
-        static::retrieved(function ($model) {
-        });
+        static::retrieved(function ($model) {});
     }
-
 
     public $mediasParams = [
         'preview' => [
@@ -69,10 +64,9 @@ class Product extends Model {
                     'name' => 'default',
                     'ratio' => 16 / 9,
                 ],
-            ]
+            ],
         ],
     ];
-
 
     protected $fillable = [
         'published',
@@ -87,62 +81,70 @@ class Product extends Model {
     ];
 
     protected $hidden = [
-        'market_id'
+        'market_id',
     ];
 
     public $slugAttributes = [
         'title',
     ];
+
     protected $casts = [
         'verified_at' => 'datetime',
         'is_market_public' => 'boolean',
         'price' => 'float',
     ];
 
-    function remains(): HasMany {
+    public function remains(): HasMany
+    {
         return $this->hasMany(Remain::class, 'product_id');
     }
 
-    function colors() {
+    public function colors()
+    {
         return $this->getRelated('colors');
     }
 
-    function category(): BelongsTo {
+    public function category(): BelongsTo
+    {
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    function prices(): HasMany {
+    public function prices(): HasMany
+    {
         return $this->hasMany(ProductPrice::class);
     }
 
-    function skus(): HasMany {
+    public function skus(): HasMany
+    {
         return $this->hasMany(Product::class, 'parent_id');
     }
 
-    function parent(): BelongsTo {
+    public function parent(): BelongsTo
+    {
         return $this->belongsTo(Product::class, 'parent_id');
     }
-
 
     // public function attributes(): HasMany
     // {
     //     return $this->hasMany(Attribute::class, 'product_id');
     // }
 
-
-    public function scopeDraft($query): Builder {
+    public function scopeDraft($query): Builder
+    {
         return $query->whereHas('remains', function ($q) {
             $q->where('published', false)->where('market_id', auth('twill_users')->user()->getMarketId());
         });
     }
 
-    public function scopeInStock($query): Builder {
+    public function scopeInStock($query): Builder
+    {
         return $query->whereHas('remains', function ($q) {
             $q->where('published', true)->where('market_id', auth('twill_users')->user()->getMarketId());
         });
     }
 
-    public function scopeWaitToCheckAdmin($query): Builder {
+    public function scopeWaitToCheckAdmin($query): Builder
+    {
         $query = $query->where('verified_at', null);
 
         if (! auth()->user()->can('is_owner')) {
@@ -152,25 +154,29 @@ class Product extends Model {
         return $query;
     }
 
-    public function scopePublished($query): Builder {
+    public function scopePublished($query): Builder
+    {
         return $query->whereHas('remains', function ($q) {
             $q->where('published', true);
         });
     }
 
-    public function getPublishedAttribute() {
+    public function getPublishedAttribute()
+    {
         if (auth()->guard('twill_users')->check()) {
             return $this->remains()->whereMarketIdAndProductId(auth()->guard('twill_users')->user()->getMarketId(), $this->id)->first()->published ?? false;
         }
+
         return $this->attributes['published'];
     }
 
-    public function setPublishedAttribute($value) {
-        if (!isset($this->attributes['published'])) {
+    public function setPublishedAttribute($value)
+    {
+        if (! isset($this->attributes['published'])) {
             $this->attributes['published'] = $value;
         }
 
-        if (!app()->runningInConsole()) {
+        if (! app()->runningInConsole()) {
 
             if (auth()->guard('twill_users')->user()->getMarketId()) {
                 $model = $this->remains()->whereMarketIdAndProductId(auth()->guard('twill_users')->user()->getMarketId(), $this->id)->first();

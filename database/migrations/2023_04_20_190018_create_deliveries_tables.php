@@ -23,7 +23,6 @@ class CreateDeliveriesTables extends Migration
             $table->decimal('km');
             $table->decimal('price');
 
-
             // add those 2 columns to enable publication timeframe fields (you can use publish_start_date only if you don't need to provide the ability to specify an end date)
             // $table->timestamp('publish_start_date')->nullable();
             // $table->timestamp('publish_end_date')->nullable();

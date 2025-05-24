@@ -13,9 +13,8 @@ class ProfileRequest extends Request
 
     public function rulesForUpdate()
     {
-        if(request()->has('phone'))
-        {
-            request()['phone'] = str_replace(['(',')','-',' '],['','','',''],request()['phone']);
+        if (request()->has('phone')) {
+            request()['phone'] = str_replace(['(', ')', '-', ' '], ['', '', '', ''], request()['phone']);
         }
 
         return [

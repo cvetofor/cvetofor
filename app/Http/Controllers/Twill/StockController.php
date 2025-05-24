@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Twill;
 
+use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 use A17\Twill\Services\Listings\Columns\Text;
-use A17\Twill\Services\Listings\TableColumns;
 use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Services\Listings\TableColumns;
 
 class StockController extends BaseModuleController
 {
@@ -33,7 +33,7 @@ class StockController extends BaseModuleController
         ]);
     }
 
-    public function setUpController() : void
+    public function setUpController(): void
     {
         $this->modelTitle = 'Скидка';
         $this->setSearchColumns(['title']);
@@ -61,7 +61,6 @@ class StockController extends BaseModuleController
         $after->push(
             Text::make()->field('percent')->title(__('Процент от заказа'))->sortable()
         );
-
 
         return $table->merge($after);
     }

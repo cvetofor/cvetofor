@@ -2,28 +2,27 @@
 
 namespace App\Models;
 
-use A17\Twill\Models\Model;
-use A17\Twill\Models\Behaviors\HasSlug;
-use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Behaviors\HasMedias;
 use A17\Twill\Models\Behaviors\HasNesting;
 use A17\Twill\Models\Behaviors\HasPosition;
-use Rennokki\QueryCache\Traits\QueryCacheable;
+use A17\Twill\Models\Behaviors\HasSlug;
+use A17\Twill\Models\Behaviors\Sortable;
+use A17\Twill\Models\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Category extends Model implements Sortable
 {
-    use HasSlug, HasMedias, HasPosition, HasNesting;
+    use HasMedias, HasNesting, HasPosition, HasSlug;
     use QueryCacheable;
 
     /**
-    * Invalidate the cache automatically
-    * upon update in the database.
-    *
-    * @var bool
-    */
+     * Invalidate the cache automatically
+     * upon update in the database.
+     *
+     * @var bool
+     */
     protected static $flushCacheOnUpdate = true;
-
 
     /**
      * Specify the amount of time to cache queries.
@@ -63,8 +62,7 @@ class Category extends Model implements Sortable
         'title',
     ];
 
-
-    public function products() : HasMany
+    public function products(): HasMany
     {
         return $this->hasMany(CategoryProduct::class, 'category_id');
     }

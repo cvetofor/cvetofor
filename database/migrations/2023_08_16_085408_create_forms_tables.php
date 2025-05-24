@@ -28,11 +28,6 @@ class CreateFormsTables extends Migration
             // $table->timestamp('publish_end_date')->nullable();
         });
 
-
-
-
-
-
     }
 
     public function down()

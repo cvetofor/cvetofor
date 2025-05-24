@@ -4,7 +4,6 @@ namespace App\Models;
 
 use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class MarketWorkTime extends Model
@@ -17,7 +16,7 @@ class MarketWorkTime extends Model
     ];
 
     protected $casts = [
-        'times' => 'array'
+        'times' => 'array',
     ];
 
     public function market(): HasOne
@@ -32,11 +31,10 @@ class MarketWorkTime extends Model
 
     public function getTitleAttribute()
     {
-        if( $this->market->name ?? false )
-        {
-            return ($this->market->name ?? "") . ' / ' . ($this->market->city->city ?? "") . ": Время работы";
+        if ($this->market->name ?? false) {
+            return ($this->market->name ?? '').' / '.($this->market->city->city ?? '').': Время работы';
         }
 
-        return ($this->delivery->name ?? "") . ' / ' . ($this->delivery->city->city ?? "") . ": Время доставки";
+        return ($this->delivery->name ?? '').' / '.($this->delivery->city->city ?? '').': Время доставки';
     }
 }

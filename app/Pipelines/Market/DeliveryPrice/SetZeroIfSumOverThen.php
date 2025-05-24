@@ -4,7 +4,6 @@ namespace App\Pipelines\Market\DeliveryPrice;
 
 class SetZeroIfSumOverThen
 {
-
     public function handle($data, \Closure $next)
     {
 
@@ -13,7 +12,7 @@ class SetZeroIfSumOverThen
         $last = $next([$price, $market]);
 
         $cartPrice = \Cache::driver('array')->rememberForever(
-            'attributes.market_id' . $market->id . session_id(),
+            'attributes.market_id'.$market->id.session_id(),
             function () use ($market) {
                 $cart = \Cart::getContent();
                 $items = $cart->where('attributes.market_id', '=', $market->id);
@@ -23,6 +22,7 @@ class SetZeroIfSumOverThen
                 foreach ($items as $key => $item) {
                     $price += $item->getPriceSumWithConditions();
                 }
+
                 return $price;
             }
         );

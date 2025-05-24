@@ -26,11 +26,6 @@ class CreateReviewsTables extends Migration
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('set null');
         });
 
-
-
-
-
-
     }
 
     public function down()

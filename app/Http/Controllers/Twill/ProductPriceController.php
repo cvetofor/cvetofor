@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Twill;
 
+use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 
 class ProductPriceController extends BaseModuleController
 {

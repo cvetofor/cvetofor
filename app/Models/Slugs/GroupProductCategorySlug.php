@@ -9,17 +9,15 @@ class GroupProductCategorySlug extends Model
 {
     use QueryCacheable;
 
-    protected $table = "group_product_category_slugs";
-
+    protected $table = 'group_product_category_slugs';
 
     /**
-    * Invalidate the cache automatically
-    * upon update in the database.
-    *
-    * @var bool
-    */
+     * Invalidate the cache automatically
+     * upon update in the database.
+     *
+     * @var bool
+     */
     protected static $flushCacheOnUpdate = true;
-
 
     /**
      * Specify the amount of time to cache queries.

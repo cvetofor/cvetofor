@@ -2,35 +2,33 @@
 
 namespace App\Http\Controllers\Publical;
 
-use stdClass;
-use Illuminate\Support\Arr;
-use App\Models\ProductPrice;
-use Illuminate\Http\Request;
-use App\Services\CitiesService;
-use App\Services\CatalogService;
-use App\Http\Controllers\Controller;
-use App\Models\GroupProductCategory;
-use Illuminate\Support\Facades\Cache;
 use A17\Twill\Facades\TwillAppSettings;
 use A17\Twill\Models\Tag;
-use App\Models\GroupProduct;
-use Artesaos\SEOTools\Facades\SEOTools;
-use App\Repositories\GroupProductRepository;
-use CwsDigital\TwillMetadata\Traits\SetsMetadata;
+use App\Helpers\SeoinfoHelper;
+use App\Http\Controllers\Controller;
+use App\Models\GroupProductCategory;
+use App\Models\ProductPrice;
 use App\Repositories\GroupProductCategoryRepository;
+use App\Repositories\GroupProductRepository;
+use App\Services\CatalogService;
+use App\Services\CitiesService;
 use App\Services\Defenders\ProductPriceDefender;
 use App\ViewModel\CatalogController\MainPageTagsModel;
-use Illuminate\Support\Collection;
-use App\Helpers\SeoinfoHelper;
+use Artesaos\SEOTools\Facades\SEOTools;
+use CwsDigital\TwillMetadata\Traits\SetsMetadata;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use morphos\Russian\GeographicalNamesInflection;
+use stdClass;
 
-class CatalogController extends Controller {
+class CatalogController extends Controller
+{
     use SetsMetadata;
 
     protected $ttl = 0;
 
-
-    public function index(Request $request, CatalogService $catalogService) {
+    public function index(Request $request, CatalogService $catalogService)
+    {
         $categories = GroupProductCategory::published()->has('products')->get();
 
         $banner = TwillAppSettings::get('main-page.main_page.banner');
@@ -51,14 +49,15 @@ class CatalogController extends Controller {
             )
         );
 
-        $prices = \Cache::remember('index|' . $unique, now()->addMinutes(1), fn() => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
+        $prices = \Cache::remember('index|'.$unique, now()->addMinutes(1), fn () => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
 
         $city = GeographicalNamesInflection::getCase(CitiesService::getCity()->city, 'предложный');
 
         return view('welcome', compact('prices', 'banner', 'city'));
     }
 
-    public function welcome(Request $request, CatalogService $catalogService) {
+    public function welcome(Request $request, CatalogService $catalogService)
+    {
         $categories = TwillAppSettings::get('main-page.main_page.categories');
 
         $banner = TwillAppSettings::get('main-page.main_page.banner');
@@ -67,13 +66,13 @@ class CatalogController extends Controller {
 
             $_categories = [];
             foreach ($categories->pluck('id')->toArray() as $cagegory) {
-                if (request()->has('category_' . $cagegory)) {
+                if (request()->has('category_'.$cagegory)) {
                     $_categories[] = $cagegory;
                 }
             }
 
             $remains = $catalogService->findPricesByCategoriesId($_categories);
-            if (!$remains) {
+            if (! $remains) {
 
                 $keys = array_keys(request()->all());
                 foreach ($keys as $key) {
@@ -81,7 +80,6 @@ class CatalogController extends Controller {
                         $tag = str_replace('category_', '', $key);
                     }
                 }
-
 
                 $tagModel = Tag::where('slug', $tag)->firstOrFail();
                 $remains = $catalogService->findByTag($tagModel);
@@ -99,11 +97,10 @@ class CatalogController extends Controller {
         $tags = $tags ? $tags->toArray() : [];
         $_tags = $tags ? \Arr::pluck($tags, 'content.item') : [];
 
-
         $mainPageTagsModel = [];
         if (isset($_tags[0])) {
             $tags = [];
-            # Для такой же сортировки, как в админ панели
+            // Для такой же сортировки, как в админ панели
             foreach ($_tags as $tag) {
                 $tags[] = Tag::where('slug', $tag)->first();
             }
@@ -118,12 +115,12 @@ class CatalogController extends Controller {
                             \request()->toArray(),
                             [
                                 'city_id' => CitiesService::getCity()->id,
-                                'tag_id'  => $tag->id,
+                                'tag_id' => $tag->id,
                             ]
                         )
                     )
                 );
-                $prices = \Cache::remember('welcome_categories_tags|' . $unique, now()->addMinutes(1), fn() => $catalogService->findByTag($tag));
+                $prices = \Cache::remember('welcome_categories_tags|'.$unique, now()->addMinutes(1), fn () => $catalogService->findByTag($tag));
                 $mainPageTagsModel[] = new MainPageTagsModel($tag, $prices);
             }
         }
@@ -144,7 +141,7 @@ class CatalogController extends Controller {
 
             $city = GeographicalNamesInflection::getCase(CitiesService::getCity()->city, 'предложный');
             $selectedCity = CitiesService::getCity();
-            $prices = \Cache::remember('welcome_categories_prices|' . $unique, now()->addMinutes(1), fn() => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
+            $prices = \Cache::remember('welcome_categories_prices|'.$unique, now()->addMinutes(1), fn () => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
         }
 
         SEOTools::setTitle('Доставка цветов в Улан-Удэ заказать букет с доставкой недорого по цене магазина Цветофор');
@@ -152,7 +149,6 @@ class CatalogController extends Controller {
 
         return view('welcome', compact('prices', 'banner', 'mainPageTagsModel', 'tags', 'city', 'selectedCity'));
     }
-
 
     public function category(
         $slug,
@@ -195,6 +191,7 @@ class CatalogController extends Controller {
         if ($request->ajax()) {
 
             $prices = $catalogService->findByTag($tagModel);
+
             return response()->json([
                 'data' => Arr::map($prices, function ($paginator) {
                     return view('components.category', ['paginator' => $paginator])->render();
@@ -203,20 +200,20 @@ class CatalogController extends Controller {
         }
 
         $prices = $catalogService->findByTag($tagModel);
-        SEOTools::setTitle($tagModel->name . ' В ' . $citiesService::getCity()->parent_case);
+        SEOTools::setTitle($tagModel->name.' В '.$citiesService::getCity()->parent_case);
 
         $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
 
-        if (!empty($seoHelper['title'])) {
+        if (! empty($seoHelper['title'])) {
             SEOTools::setTitle(str_replace('%city%', $citiesService::getCity()->parent_case, $seoHelper['title']));
         }
 
-        if (!empty($seoHelper['desc'])) {
+        if (! empty($seoHelper['desc'])) {
             SEOTools::setDescription(str_replace('%city%', $citiesService::getCity()->parent_case, $seoHelper['desc']));
         }
 
         $seoText = '';
-        if (!empty($seoHelper['text'])) {
+        if (! empty($seoHelper['text'])) {
             $seoText = $seoHelper['text'];
             $seoText = str_replace('%city%', $citiesService::getCity()->parent_case, $seoText);
         }
@@ -224,10 +221,8 @@ class CatalogController extends Controller {
         return view('tags', compact('prices', 'banner', 'tagModel', 'seoText'));
     }
 
-
-
     public function product(
-        $slug = false,
+        $slug,
         ProductPrice $price,
         GroupProductCategoryRepository $groupProductCategoryRepository,
         ProductPriceDefender $productPriceDefender,
@@ -236,16 +231,16 @@ class CatalogController extends Controller {
 
         $breadcrumbs = isset($groupProduct->category) ? array_reverse($this->breadcrumbs($groupProduct->category)) : [];
 
-        $item = new stdClass();
+        $item = new stdClass;
         $item->nestedSlug = '';
         $item->title = $groupProduct->title;
         $breadcrumbs[] = $item;
 
-        $canPutToCart = !$productPriceDefender->isProductNotPublished($price);
+        $canPutToCart = ! $productPriceDefender->isProductNotPublished($price);
 
         abort_if(
-            ($groupProduct->category && $slug !== $groupProduct->category->nestedSlug . '/' . $groupProduct->slug
-                || !$price->market->isActive()
+            ($groupProduct->category && $slug !== $groupProduct->category->nestedSlug.'/'.$groupProduct->slug
+                || ! $price->market->isActive()
             ),
             404
         );
@@ -254,36 +249,34 @@ class CatalogController extends Controller {
             try {
                 $this->setMetadata($groupProduct);
             } catch (\Throwable $th) {
-                //throw $th;
+                // throw $th;
             }
         }
 
         $currentCity = \App\Services\CitiesService::getCity()->parent_case;
         $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
 
-        if (!empty($seoHelper['title'])) {
+        if (! empty($seoHelper['title'])) {
             SEOTools::setTitle(str_replace('%city%', $currentCity, $seoHelper['title']));
         }
 
-        if (!empty($seoHelper['desc'])) {
+        if (! empty($seoHelper['desc'])) {
             SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
         }
 
         $seoText = '';
-        if (!empty($seoHelper['text'])) {
+        if (! empty($seoHelper['text'])) {
             $seoText = $seoHelper['text'];
             $seoText = str_replace('%city%', $currentCity, $seoText);
         }
 
-
         return view('product', compact('price', 'groupProduct', 'breadcrumbs', 'canPutToCart', 'seoText'));
     }
 
-
-
-    public function search(Request $request, CatalogService $catalogService) {
+    public function search(Request $request, CatalogService $catalogService)
+    {
         $data = $this->validate($request, [
-            'q'       => 'required_if:product,""|min:2',
+            'q' => 'required_if:product,""|min:2',
             'product' => 'required_if:q,""|min:1',
         ]);
 
@@ -297,35 +290,37 @@ class CatalogController extends Controller {
                 'data' => ['category_search' => view('components.category', ['paginator' => $catalogService->{$method}($search)])->render()],
             ]);
         }
-        SEOTools::setTitle('Поиск по сайту: ' . $search);
+        SEOTools::setTitle('Поиск по сайту: '.$search);
 
         $result = $catalogService->{$method}($search);
 
         $currentCity = \App\Services\CitiesService::getCity()->parent_case;
         $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
 
-        if (!empty($seoHelper['title'])) {
+        if (! empty($seoHelper['title'])) {
             SEOTools::setTitle(str_replace('%city%', $currentCity, $seoHelper['title']));
         }
 
-        if (!empty($seoHelper['desc'])) {
+        if (! empty($seoHelper['desc'])) {
             SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
         }
 
         $seoText = '';
-        if (!empty($seoHelper['text'])) {
+        if (! empty($seoHelper['text'])) {
             $seoText = $seoHelper['text'];
             $seoText = str_replace('%city%', $currentCity, $seoText);
         }
 
         $seoH1 = '';
-        if (!empty($seoHelper['h1'])) {
+        if (! empty($seoHelper['h1'])) {
             $seoH1 = str_replace('%city%', $currentCity, $seoHelper['h1']);
         }
+
         return view('search', compact('result', 'search', 'seoText', 'seoH1'));
     }
 
-    public function searchFast(Request $request, CatalogService $catalogService) {
+    public function searchFast(Request $request, CatalogService $catalogService)
+    {
         $data = $this->validate($request, [
             'q' => 'required|min:2',
         ]);
@@ -338,39 +333,43 @@ class CatalogController extends Controller {
                 return [
                     'price' => round($price->public_price),
                     'title' => $price->title,
-                    'href'  => $price->link,
+                    'href' => $price->link,
                 ];
             }),
         ]);
     }
 
-    protected function breadcrumbs($item) {
+    protected function breadcrumbs($item)
+    {
         $parent = $item;
         if ($item) {
             $breadcrumbs[] = $item;
         }
         if ($parent && $parent->parent) {
             while ($parent = $parent->parent) {
-                $parent->nestedSlug = 'catalog/' . $parent->nestedSlug;
+                $parent->nestedSlug = 'catalog/'.$parent->nestedSlug;
                 $breadcrumbs[] = $parent;
             }
         }
 
-        $catalog = new stdClass();
+        $catalog = new stdClass;
         $catalog->nestedSlug = '';
         $catalog->title = 'Каталог';
         $breadcrumbs[] = $catalog;
+
         return $breadcrumbs;
     }
 
-    protected function ajaxResponse($categories, $catalogService, $paginate = 4) {
+    protected function ajaxResponse($categories, $catalogService, $paginate = 4)
+    {
         $_categories = [];
         foreach ($categories as $cagegory) {
-            if (request()->has('category_' . $cagegory)) {
+            if (request()->has('category_'.$cagegory)) {
                 $_categories[] = $cagegory;
             }
         }
         $remains = $catalogService->findPricesByCategoriesId($_categories, $paginate);
+
         return response()->json([
             'data' => Arr::map($remains, function ($paginator) {
                 return view('components.category', ['paginator' => $paginator])->render();

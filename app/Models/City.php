@@ -2,23 +2,21 @@
 
 namespace App\Models;
 
-use A17\Twill\Models\Model;
-use A17\Twill\Models\Behaviors\HasSlug;
-use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Models\Behaviors\HasRelated;
 use A17\Twill\Models\Behaviors\HasPosition;
-use Rennokki\QueryCache\Traits\QueryCacheable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use A17\Twill\Models\Behaviors\HasRelated;
+use A17\Twill\Models\Behaviors\HasSlug;
+use A17\Twill\Models\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class City extends Model
 {
-    use HasSlug;
     use HasPosition;
     use HasRelated;
+    use HasSlug;
     use QueryCacheable;
-
 
     /**
      * Specify the amount of time to cache queries.
@@ -45,11 +43,11 @@ class City extends Model
     public $cachePrefix = 'cities_';
 
     /**
-    * Invalidate the cache automatically
-    * upon update in the database.
-    *
-    * @var bool
-    */
+     * Invalidate the cache automatically
+     * upon update in the database.
+     *
+     * @var bool
+     */
     protected static $flushCacheOnUpdate = true;
 
     protected $fillable = [
@@ -82,7 +80,6 @@ class City extends Model
         'region_id',
     ];
 
-
     public $slugAttributes = [
         'city',
     ];
@@ -106,16 +103,15 @@ class City extends Model
     {
 
         return $query
-        ->where("published", true)
-        ->has('markets')
-        ->whereHas('markets', function ($q) {
-            return $q->published()->whereHas('prices', function($qp){
-                return $qp->whereHas('groupProduct', function($qg){
-                    return $qg->where('price', '<>', null)->where('price', '<>', 0);
+            ->where('published', true)
+            ->has('markets')
+            ->whereHas('markets', function ($q) {
+                return $q->published()->whereHas('prices', function ($qp) {
+                    return $qp->whereHas('groupProduct', function ($qg) {
+                        return $qg->where('price', '<>', null)->where('price', '<>', 0);
+                    });
                 });
             });
-        })
-        ;
     }
 
     /**
@@ -125,29 +121,26 @@ class City extends Model
      */
     public function getParentCaseAttribute()
     {
-        $city =  $this->city;
+        $city = $this->city;
 
-        if ($city){
+        if ($city) {
             $ch = mb_substr($city, -1);
 
-            $replace = array(
-                "к","н","г","ш","щ","з","х",
-                "ф","в","п","р","л","д","ж",
-                "ч","м","т","б"
-                );
+            $replace = [
+                'к', 'н', 'г', 'ш', 'щ', 'з', 'х',
+                'ф', 'в', 'п', 'р', 'л', 'д', 'ж',
+                'ч', 'м', 'т', 'б',
+            ];
 
-            if(in_array($ch,$replace) )
-            {
-                $city.='е';
-            }
-            else if(in_array($ch, ['а','й']))
-            {
+            if (in_array($ch, $replace)) {
+                $city .= 'е';
+            } elseif (in_array($ch, ['а', 'й'])) {
                 $city = rtrim($city, $ch);
-                $city.='е';
+                $city .= 'е';
             }
 
         }
+
         return $city;
     }
-
 }

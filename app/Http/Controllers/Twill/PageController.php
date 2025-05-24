@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Twill;
 
+use A17\Twill\Http\Controllers\Admin\NestedModuleController as BaseModuleController;
+use A17\Twill\Models\Contracts\TwillModelContract;
 use App\Models\Page;
 use CwsDigital\TwillMetadata\Traits\SetsMetadata;
-use A17\Twill\Models\Contracts\TwillModelContract;
-use A17\Twill\Http\Controllers\Admin\NestedModuleController as BaseModuleController;
 
 class PageController extends BaseModuleController
 {
@@ -41,6 +41,7 @@ class PageController extends BaseModuleController
     {
         $page = Page::forSlug($slug)->first();
         $this->setMetadata($page);
+
         return view('site.pages.page', ['page' => $page]);
     }
 

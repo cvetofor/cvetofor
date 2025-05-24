@@ -2,12 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Models\GroupProduct;
 use App\Models\Product;
-use App\Models\ProductPrice;
 use App\Repositories\ProductPriceRepository;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -20,6 +17,7 @@ class RecalculateFlowersJob implements ShouldQueue
     public $productIds;
 
     public $marketId;
+
     /**
      * Create a new job instance.
      *

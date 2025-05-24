@@ -10,7 +10,6 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
@@ -19,17 +18,17 @@ class Kernel extends ConsoleKernel
         $schedule->command('marketplace:payments')->weeklyOn(1, '00:01');
         $schedule->job(new \App\Jobs\TelegramGetUpdates)->everyMinute();
 
-	// Очистка кеша каждый час
-    	$schedule->command('cache:clear')->hourly();
+        // Очистка кеша каждый час
+        $schedule->command('cache:clear')->hourly();
 
-    	// Очистка конфигурационного кеша каждый час
-    	$schedule->command('config:clear')->hourly();
+        // Очистка конфигурационного кеша каждый час
+        $schedule->command('config:clear')->hourly();
 
-    	// Очистка кеша маршрутов каждый час
-    	$schedule->command('route:clear')->hourly();
+        // Очистка кеша маршрутов каждый час
+        $schedule->command('route:clear')->hourly();
 
-    	// Очистка кеша представлений каждый час
-   	 $schedule->command('view:clear')->hourly();
+        // Очистка кеша представлений каждый час
+        $schedule->command('view:clear')->hourly();
     }
 
     /**
@@ -39,7 +38,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

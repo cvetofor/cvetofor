@@ -6,5 +6,5 @@ use A17\Twill\Models\Revision;
 
 class PaymentRevision extends Revision
 {
-    protected $table = "payment_revisions";
+    protected $table = 'payment_revisions';
 }

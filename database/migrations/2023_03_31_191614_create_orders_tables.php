@@ -34,24 +34,22 @@ class CreateOrdersTables extends Migration
             $table->bigInteger('order_status_id')->unsigned()->index()->nullable();
             $table->foreign('order_status_id')->references('id')->on('order_statuses')->onDelete('set null');
 
-
-
             $table->uuid('uuid')->unique();
             $table->string('email', 300)->nullable();
             $table->string('phone', 300)->nullable();
             $table->json('address')->nullable();
             $table->string('comment', 1000)->nullable();
             $table->string('market_comment', 1000)->nullable();
-            $table->boolean('is_photo_needle')->default(false); #
-            $table->boolean('is_anon')->defalt(false)->nullable(); #
-            $table->dateTime('delivery_date')->nullable(); ##
-            $table->string('delivery_time',100)->nullable(); ##
+            $table->boolean('is_photo_needle')->default(false); //
+            $table->boolean('is_anon')->defalt(false)->nullable(); //
+            $table->dateTime('delivery_date')->nullable(); // #
+            $table->string('delivery_time', 100)->nullable(); // #
             $table->decimal('total_price')->nullable();
             $table->text('postcard_text')->nullable();
             $table->boolean('is_policy_accepted')->nullable();
-            $table->string('person_receiving_name', 100)->nullable(); #
-            $table->string('person_receiving_phone', 50)->nullable(); #
-            $table->string('payment_link', 1000)->nullable(); #
+            $table->string('person_receiving_name', 100)->nullable(); //
+            $table->string('person_receiving_phone', 50)->nullable(); //
+            $table->string('payment_link', 1000)->nullable(); //
             $table->json('cart')->nullable();
             $table->nestedSet();
         });

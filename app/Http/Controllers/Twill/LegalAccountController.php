@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers\Twill;
 
+use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
-use A17\Twill\Services\Listings\Columns\Text;
-use A17\Twill\Services\Listings\TableColumns;
 use A17\Twill\Services\Forms\Fields\Input;
 use A17\Twill\Services\Forms\Form;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Services\Listings\Columns\Text;
+use A17\Twill\Services\Listings\TableColumns;
 
-class LegalAccountController extends BaseModuleController {
+class LegalAccountController extends BaseModuleController
+{
     protected $moduleName = 'legalAccounts';
+
     /**
      * This method can be used to enable/disable defaults. See setUpController in the docs for available options.
      */
-    protected function setUpController(): void {
+    protected function setUpController(): void
+    {
         $this->modelTitle = 'Юр. компания';
         $this->disablePermalink();
         $this->disablePublish();
@@ -26,7 +29,8 @@ class LegalAccountController extends BaseModuleController {
      * See the table builder docs for more information. If you remove this method you can use the blade files.
      * When using twill:module:make you can specify --bladeForm to use a blade form instead.
      */
-    public function getForm(TwillModelContract $model): Form {
+    public function getForm(TwillModelContract $model): Form
+    {
         $form = parent::getForm($model);
 
         $form->add(
@@ -60,7 +64,8 @@ class LegalAccountController extends BaseModuleController {
     /**
      * This is an example and can be removed if no modifications are needed to the table.
      */
-    protected function getIndexTableColumns(): TableColumns {
+    protected function getIndexTableColumns(): TableColumns
+    {
         $table = TableColumns::make();
 
         $table->add(

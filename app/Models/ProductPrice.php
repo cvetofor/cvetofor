@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
+use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Model;
 use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Models\Behaviors\HasRevisions;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Pipeline\Pipeline;
 
 class ProductPrice extends Model
 {
@@ -35,7 +34,6 @@ class ProductPrice extends Model
     {
         return $this->belongsTo(Product::class);
     }
-
 
     public function groupProduct(): BelongsTo
     {
@@ -111,7 +109,7 @@ class ProductPrice extends Model
             ], true)
         ) {
             $query = $query->orderBy('price', strtoupper(request()->input('order.price')));
-        } else if (empty(request()->input('order.price')) && empty(request()->input('order.title'))) {
+        } elseif (empty(request()->input('order.price')) && empty(request()->input('order.title'))) {
             $query = $query->orderBy('price', 'ASC');
         }
 
@@ -122,7 +120,6 @@ class ProductPrice extends Model
     {
         return 'sku';
     }
-
 
     /**
      * Получить стоимость доставки у конкретного магазина, в зависимости от стоимость букета
@@ -159,9 +156,9 @@ class ProductPrice extends Model
         if (\App\Models\Hollyday::isHollyDays() && $this->market->holidays_percent > 0) {
             return $this->market->holidays_percent;
         }
+
         return 0;
     }
-
 
     /**
      * Посчитать все наценки, которые могут быть
@@ -178,7 +175,6 @@ class ProductPrice extends Model
             $price = $price + ($price * $comission / 100);
         }
 
-
         return (float) $price;
     }
 
@@ -188,7 +184,7 @@ class ProductPrice extends Model
     public function getPublicPriceAttribute()
     {
         $price = $this->extraCharge($this->attributes['price']);
-    
+
         // Прибавляем к цене фиксированное значение 5
 
         return round($price, 2);
@@ -198,9 +194,9 @@ class ProductPrice extends Model
     {
         $slug = '';
         if ($this->groupProduct->category) {
-            $slug = $this->groupProduct->category->nestedSlug . '/' . $this->groupProduct->slug . '/';
+            $slug = $this->groupProduct->category->nestedSlug.'/'.$this->groupProduct->slug.'/';
         } else {
-            $slug = $this->groupProduct->slug . '/';
+            $slug = $this->groupProduct->slug.'/';
         }
 
         $link = str_replace('//', '/', route('catalog.product', ['slug' => $slug, 'price' => $this->sku], false));

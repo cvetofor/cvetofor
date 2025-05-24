@@ -5,13 +5,13 @@ namespace App\Services;
 use App\Models\Color;
 use App\Models\Product;
 use App\Models\ProductPrice;
-use App\Services\CompositeProducts;
-use Illuminate\Support\Facades\Log;
 
-class PriceService {
-    function calc(ProductPrice $price, $compositions = [], $priceAttribute = 'public_price'): CalcResponse {
-        # Цикл по товарам, который выбрал пользователь в букете
-        # Цикл по указанным блокам в букете
+class PriceService
+{
+    public function calc(ProductPrice $price, $compositions = [], $priceAttribute = 'public_price'): CalcResponse
+    {
+        // Цикл по товарам, который выбрал пользователь в букете
+        // Цикл по указанным блокам в букете
         $blocks = $price->groupProduct?->blocks()->where('type', 'products')->get();
 
         $totalCounts = [];
@@ -30,7 +30,6 @@ class PriceService {
             }
         }
 
-
         if ($blocks) {
             $blocks = $blocks->transform(function ($block) use ($totalCounts, $count) {
                 $product = Product::find(\Arr::get($block->content, 'browsers.products.0'));
@@ -41,21 +40,20 @@ class PriceService {
                     $product->category->is_visible
                 ) {
                     return [
-                        'count'       => $count[\Arr::get($block->content, 'browsers.products.0')] ?? \Arr::get($block->content, 'count'),
-                        'product'     => \Arr::get($block->content, 'browsers.products.0'),
-                        'color'       => \Arr::get($block->content, 'browsers.color.0'),
-                        'rgb' => \Arr::get($block->content, 'browsers.color.0') 
+                        'count' => $count[\Arr::get($block->content, 'browsers.products.0')] ?? \Arr::get($block->content, 'count'),
+                        'product' => \Arr::get($block->content, 'browsers.products.0'),
+                        'color' => \Arr::get($block->content, 'browsers.color.0'),
+                        'rgb' => \Arr::get($block->content, 'browsers.color.0')
                             ? optional(Color::find(\Arr::get($block->content, 'browsers.color.0')))->data['rgb'] ?? ''
                             : '',
-                        'title'       => $product->title,
+                        'title' => $product->title,
                         'hiddenCount' => $totalCounts[\Arr::get($block->content, 'browsers.products.0')],
                     ];
                 }
+
                 return null;
             })->filter()->toArray();
         }
-
-
 
         $condition = null;
         $conditionPrice = 0.0;
@@ -72,13 +70,13 @@ class PriceService {
 
             if ($conditionPrice !== 0) {
                 $condition = new \Darryldecode\Cart\CartCondition(
-                    array(
-                        'name'   => 'Скидка',
-                        'type'   => 'coupon',
+                    [
+                        'name' => 'Скидка',
+                        'type' => 'coupon',
                         'target' => 'total',
                         // this condition will be applied to cart's subtotal when getSubTotal() is called.
-                        'value'  => -round($conditionPrice),
-                    )
+                        'value' => -round($conditionPrice),
+                    ]
                 );
             }
 
@@ -89,6 +87,7 @@ class PriceService {
                 $blocks
             );
         }
+
         return new CalcResponse(
             $price->{$priceAttribute},
             $price->{$priceAttribute} - round($conditionPrice),
@@ -98,22 +97,21 @@ class PriceService {
     }
 
     /**
-     *
-     * @param mixed $composition
-     * @param mixed $price
-     * @param mixed $key
-     * @param mixed $blocks
-     * @param mixed $conditionPrice
-     * @param mixed $total
-     * @param mixed $visited
-     * @param mixed $priceAttribute
+     * @param  mixed  $composition
+     * @param  mixed  $price
+     * @param  mixed  $key
+     * @param  mixed  $blocks
+     * @param  mixed  $conditionPrice
+     * @param  mixed  $total
+     * @param  mixed  $visited
+     * @param  mixed  $priceAttribute
      * @return void
      */
-    private function __findProduct($composition, $price, $key, &$blocks, &$conditionPrice, &$total, &$visited, $priceAttribute) {
+    private function __findProduct($composition, $price, $key, &$blocks, &$conditionPrice, &$total, &$visited, $priceAttribute)
+    {
         $userCount = (int) $composition['count'];
         $userColor = $composition['color'];
         $hiddenCount = $composition['hiddenCount'];
-
 
         $userPriceId = $composition['id'] ?? ProductPrice::published()
             ->where('market_id', $price->market_id)
@@ -127,7 +125,7 @@ class PriceService {
                 }
             )
             ->filter(
-                function ($e) use ($composition, $hiddenCount) {
+                function ($e) use ($hiddenCount) {
                     return $hiddenCount >= $e->quantity_from;
                 }
             )
@@ -143,7 +141,7 @@ class PriceService {
                     $userColor == $block['color'] &&
                     $userProductId == $block['product'] &&
                     $userCount >= $block['count'] &&
-                    !in_array($k, $visited)
+                    ! in_array($k, $visited)
                 ) {
                     $visited[] = $k;
 
@@ -159,19 +157,17 @@ class PriceService {
                             }
                         )
                         ->filter(
-                            function ($e) use ($block, $hiddenCount) {
-                                # берем старую цену
+                            function ($e) use ($hiddenCount) {
+                                // берем старую цену
                                 return $hiddenCount >= $e->quantity_from;
                             }
                         )->first();
-
-
 
                     if ($blocPrice->id !== $userPrice->id && $userCount != $block['count']) {
                         $conditionPrice += ($blocPrice->{$priceAttribute} * $userCount) - ($userPrice->{$priceAttribute} * $userCount);
                     }
 
-                    # Считаем по старой цене, чтобы потом положить разницу в Скидку
+                    // Считаем по старой цене, чтобы потом положить разницу в Скидку
                     $total += ($blocPrice->{$priceAttribute} * $userCount);
                     $blocks[$k]['count'] = $userCount;
                     break;
@@ -183,16 +179,18 @@ class PriceService {
     }
 }
 
-
-class CalcResponse {
+class CalcResponse
+{
     public $condition;
+
     public $total = 0.0;
 
     public $totalWithContitions = 0.0;
 
     public $blocks = [];
 
-    public function __construct($total, $totalWithContitions, ?\Darryldecode\Cart\CartCondition $condition, $blocks) {
+    public function __construct($total, $totalWithContitions, ?\Darryldecode\Cart\CartCondition $condition, $blocks)
+    {
         $this->condition = $condition;
         $this->total = round($total);
         $this->totalWithContitions = round($totalWithContitions);

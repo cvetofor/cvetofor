@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use A17\Twill\Models\Model;
-use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Behaviors\HasPosition;
+use A17\Twill\Models\Behaviors\Sortable;
+use A17\Twill\Models\Model;
 use Rennokki\QueryCache\Traits\QueryCacheable;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Color extends Model implements Sortable
 {
     use HasPosition;
     use QueryCacheable;
-
 
     /**
      * Specify the amount of time to cache queries.
@@ -39,11 +37,11 @@ class Color extends Model implements Sortable
     public $cachePrefix = 'colors_';
 
     /**
-    * Invalidate the cache automatically
-    * upon update in the database.
-    *
-    * @var bool
-    */
+     * Invalidate the cache automatically
+     * upon update in the database.
+     *
+     * @var bool
+     */
     protected static $flushCacheOnUpdate = true;
 
     protected $fillable = [
@@ -53,9 +51,9 @@ class Color extends Model implements Sortable
         'data',
     ];
 
-    protected $hidden = ['data',];
+    protected $hidden = ['data'];
 
     protected $casts = [
-        'data' => 'array'
+        'data' => 'array',
     ];
 }

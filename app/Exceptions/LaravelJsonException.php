@@ -2,7 +2,4 @@
 
 namespace App\Exceptions;
 
-class LaravelJsonException extends \Exception
-{
-
-}
+class LaravelJsonException extends \Exception {}

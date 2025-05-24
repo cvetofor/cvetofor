@@ -22,7 +22,7 @@ class CreateStocksTables extends Migration
             $table->bigInteger('market_id')->index()->unsigned()->nullable();
             $table->foreign('market_id')->references('id')->on('markets')->onDelete('set null');
 
-            $table->unique(['code','market_id']);
+            $table->unique(['code', 'market_id']);
 
             // add those 2 columns to enable publication timeframe fields (you can use publish_start_date only if you don't need to provide the ability to specify an end date)
             $table->timestamp('publish_start_date')->nullable();

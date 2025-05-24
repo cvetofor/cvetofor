@@ -2,13 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\City;
 use App\Models\Color;
-use App\Models\Market;
 use App\Models\Product;
-use App\Models\Remain;
-use App\Services\Helpers;
-use Illuminate\Http\Request;
 use stdClass;
 
 class CompositeProducts
@@ -26,9 +21,9 @@ class CompositeProducts
                 }
             }
         }
-        
+
         $blocks = $blocks?->map(function ($block) use ($price, $is_visible, $priceAttribute, $totalCounts) {
-            
+
             return Product::whereIn('id', $block->content['browsers']['products'])->whereHas('category', function ($q) use ($is_visible) {
                 return $q->where('is_visible', $is_visible);
             })->get()->transform(function ($item) use ($block, $price, $priceAttribute, $totalCounts) {
@@ -54,12 +49,12 @@ class CompositeProducts
                     return $item->priceObj->quantity_from < $e->quantity_from;
                 })->last();
 
-
                 $item->prices = $item->prices->transform(function ($item) use ($priceAttribute) {
-                    $result = new stdClass();
+                    $result = new stdClass;
                     $result->quantity_from = $item->quantity_from;
                     $result->price = $item->{$priceAttribute};
                     $result->id = $item->id;
+
                     return $result;
                 });
 
@@ -92,10 +87,9 @@ class CompositeProducts
         return $total;
     }
 
-
     public function MonoFlowersData($blocks)
     {
-        $name = "";
+        $name = '';
         $count = 0;
 
         foreach ($blocks as $block) {

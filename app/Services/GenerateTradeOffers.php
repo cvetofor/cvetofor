@@ -9,7 +9,6 @@ class GenerateTradeOffers
     /**
      * Генерация Торговых предложений
      *
-     * @param integer|array $id
      * @return void
      */
     public static function generate(int|array $id)
@@ -25,7 +24,5 @@ class GenerateTradeOffers
         }, 3);
     }
 
-    private static function __generate(int $id)
-    {
-    }
+    private static function __generate(int $id) {}
 }

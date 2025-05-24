@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers\Twill;
 
-use Illuminate\Http\Request;
-use Illuminate\Foundation\Application;
+use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 
 class CityController extends BaseModuleController
 {
-
-
     protected $moduleName = 'cities';
 
     protected $indexOptions = [];
@@ -24,7 +20,6 @@ class CityController extends BaseModuleController
         $this->setSearchColumns(['city']);
         $this->setTitleColumnKey('city');
     }
-
 
     protected $perPage = 50;
 

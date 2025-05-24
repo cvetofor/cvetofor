@@ -3,27 +3,21 @@
 namespace App\Models;
 
 use A17\Twill\Models\Behaviors\HasBlocks;
-use App\Casts\TimeCast;
-use A17\Twill\Models\User;
-use A17\Twill\Models\Model;
-use App\Services\CitiesService;
-use Illuminate\Database\Eloquent\Builder;
 use A17\Twill\Models\Behaviors\HasRelated;
 use A17\Twill\Models\Behaviors\HasRevisions;
-use App\Pipelines\Market\DeliveryPrice\SetZeroIfSumEagerThen;
-use Illuminate\Support\Collection;
-use Rennokki\QueryCache\Traits\QueryCacheable;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Concerns\HasEvents;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Pipeline\Pipeline;
+use A17\Twill\Models\Model;
+use A17\Twill\Models\User;
+use App\Services\CitiesService;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Collection;
 
 class Market extends Model
 {
-    use HasRevisions;
-    use HasRelated;
     use HasBlocks;
+    use HasRelated;
+    use HasRevisions;
 
     protected $dates = [
         'publish_start_date',
@@ -32,9 +26,8 @@ class Market extends Model
 
     protected $casts = [
         'additional_addresses' => 'array',
-        'deliveries_radius'    => 'array',
+        'deliveries_radius' => 'array',
     ];
-
 
     protected static function boot()
     {
@@ -52,7 +45,6 @@ class Market extends Model
             $time2->save();
             $market->delivery_times()->associate($time2->id);
             $market->save();
-
 
             if (empty($market->user_id)) {
                 $market->user_id = auth()->user()->id;
@@ -95,7 +87,6 @@ class Market extends Model
     protected $hidden = [
         'balance',
     ];
-
 
     public function isActive()
     {
@@ -140,14 +131,12 @@ class Market extends Model
         return $this->hasMany(Order::class);
     }
 
-
     public function scopePublished($query): Builder
     {
         return $query->where("{$this->getTable()}.published", true)->visible()->whereHas('user', function ($qu) {
             return $qu->where('published', true);
         });
     }
-
 
     public function getDeliveryRadiusAttribute()
     {
@@ -157,42 +146,38 @@ class Market extends Model
 
         return \Illuminate\Support\Collection::make($this->deliveries_radius)->max('radius') ?? 0;
     }
-    
+
     public function getDeliveryProductPriceAttribute($outerGroupProductPrice = false)
     {
         $id = $this->id;
-        
-        $price = \Cache::driver('array')->rememberForever(
-            'request_delivery_product_price_market_' . $id,
-            function () use ($id, $outerGroupProductPrice) {
 
+        $price = \Cache::driver('array')->rememberForever(
+            'request_delivery_product_price_market_'.$id,
+            function () {
 
                 $cartPrice = 0;
                 $radiusCollection = null;
 
-               
                 $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
-        
-
 
                 // Берем ближайший радиус
-                $DaP = $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '>=',  0)->first();
-             
-                $DaP = $DaP ?: $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '<=',  0)->last();
-           
-               
+                $DaP = $radiusCollection->sort(fn ($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '>=', 0)->first();
+
+                $DaP = $DaP ?: $radiusCollection->sort(fn ($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '<=', 0)->last();
+
                 return $DaP['price'] ?? 0;
             }
         );
-    
+
         return $price;
     }
+
     public function getDeliveryPriceAttribute($outerGroupProductPrice = false)
     {
         $id = $this->id;
 
         $price = \Cache::driver('array')->rememberForever(
-            'request_delivery_price_market_' . $id,
+            'request_delivery_price_market_'.$id,
             function () use ($id, $outerGroupProductPrice) {
 
                 $userDeliveryRadius = \session()->get('order_delivery_radius_km', null);
@@ -202,7 +187,6 @@ class Market extends Model
                     return $this->price_i_dont_know_address;
                 }
 
-
                 $cartPrice = 0.0;
                 // Если считаем не по цене букета, в листинге, берем стоимость корзины
                 $cart = \Cart::getContent();
@@ -211,7 +195,6 @@ class Market extends Model
                 foreach ($items as $key => $item) {
                     $cartPrice += $item->getPriceSumWithConditions();
                 }
-
 
                 $cartPrice = $outerGroupProductPrice > 0 ? $outerGroupProductPrice : $cartPrice;
 
@@ -223,11 +206,9 @@ class Market extends Model
                     $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
                 }
 
-
-
                 // Берем ближайший радиус
-                $DaP = $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '>=', $userDeliveryRadius ?? 0)->first();
-                $DaP = $DaP ?: $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '<=', $userDeliveryRadius ?? 0)->last();
+                $DaP = $radiusCollection->sort(fn ($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '>=', $userDeliveryRadius ?? 0)->first();
+                $DaP = $DaP ?: $radiusCollection->sort(fn ($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '<=', $userDeliveryRadius ?? 0)->last();
 
                 if (
                     isset($DaP['free_delivery_at']) && $DaP['free_delivery_at'] > 0 &&
@@ -240,9 +221,9 @@ class Market extends Model
                 return $DaP['price'] ?? 0;
             }
         );
+
         return $price;
     }
-
 
     public function workTimeLong()
     {
@@ -267,23 +248,22 @@ class Market extends Model
         if ($weeksday) {
             $weeksday[0] = (string) collect($weeksday)->min();
             $weeksday[1] = (string) collect($weeksday)->max();
-            $weeksday[0] = $weeksday[0][0] . $weeksday[0][1] . ':' . $weeksday[0][2] . $weeksday[0][3];
-            $weeksday[1] = $weeksday[1][0] . $weeksday[1][1] . ':' . $weeksday[1][2] . $weeksday[1][3];
+            $weeksday[0] = $weeksday[0][0].$weeksday[0][1].':'.$weeksday[0][2].$weeksday[0][3];
+            $weeksday[1] = $weeksday[1][0].$weeksday[1][1].':'.$weeksday[1][2].$weeksday[1][3];
         }
 
         if ($weekend) {
             $weekend[0] = $weekend ? (string) collect($weekend)->min() : false;
             $weekend[1] = $weekend ? (string) collect($weekend)->max() : false;
-            $weekend[0] = $weekend ? $weekend[0][0] . $weekend[0][1] . ':' . $weekend[0][2] . $weekend[0][3] : false;
-            $weekend[1] = $weekend ? $weekend[1][0] . $weekend[1][1] . ':' . $weekend[1][2] . $weekend[1][3] : false;
+            $weekend[0] = $weekend ? $weekend[0][0].$weekend[0][1].':'.$weekend[0][2].$weekend[0][3] : false;
+            $weekend[1] = $weekend ? $weekend[1][0].$weekend[1][1].':'.$weekend[1][2].$weekend[1][3] : false;
         }
 
         return [
-            $weeksday ? 'Будни с ' . $weeksday[0] . ' до ' . $weeksday[1] : null,
-            $weekend ? 'Выходные С ' . $weekend[0] . ' до ' . $weekend[1] : null,
+            $weeksday ? 'Будни с '.$weeksday[0].' до '.$weeksday[1] : null,
+            $weekend ? 'Выходные С '.$weekend[0].' до '.$weekend[1] : null,
         ];
     }
-
 
     public static function getDeliveryDate($markets)
     {
@@ -297,7 +277,6 @@ class Market extends Model
         return $this->hasMany(Interval::class)->orderBy('start_time', 'asc');
     }
 
-
     /**
      * Преобразует минуты в формат HH:MM.
      */
@@ -305,26 +284,26 @@ class Market extends Model
     {
         $hours = floor($minutes / 60);
         $remainingMinutes = $minutes % 60;
+
         return sprintf('%02d:%02d', $hours, $remainingMinutes);
     }
 
     private static function intervalAvailable($interval, $currentTime)
     {
-        list($start_hour, $start_minutes) = explode(':', $interval->start_time);
+        [$start_hour, $start_minutes] = explode(':', $interval->start_time);
         $startMinutes = $start_hour * 60 + $start_minutes;
 
-        list($close_hour, $close_min) = explode(':', $interval->close_time);
+        [$close_hour, $close_min] = explode(':', $interval->close_time);
         $closeMinutes = $close_hour * 60 + $close_min;
-        
+
         $closeTimeInMinutes = $interval->close_time_behavior === 'before'
             ? $startMinutes - $closeMinutes
             : $startMinutes + $closeMinutes;
 
-
         return $currentTime < $closeTimeInMinutes;
     }
 
-    public function getAvailableIntervals(Carbon $currentTime = null): Collection
+    public function getAvailableIntervals(?Carbon $currentTime = null): Collection
     {
         // Если параметр времени не передан, используем текущее время
         $currentTime = $currentTime ?? now();
@@ -340,7 +319,7 @@ class Market extends Model
         });
     }
 
-    static function humanTimes($times)
+    public static function humanTimes($times)
     {
         $times = \Arr::undot(array_flip(\Arr::map($times, function ($line, $key) {
             return str_replace(
@@ -349,10 +328,10 @@ class Market extends Model
                 $key
             );
         })));
+
         return $times;
     }
 
-    
     private static function parseWorkingHours($workingHoursArray)
     {
         $parsedHours = [];
@@ -364,21 +343,20 @@ class Market extends Model
             $day = substr($key, 0, -4);
             $time = substr($key, -4);
 
-            if (!isset($parsedHours[$day])) {
+            if (! isset($parsedHours[$day])) {
                 $parsedHours[$day] = [];
             }
 
             // Если это начало интервала или массив для дня пуст, добавляем время
             if ($isStart) {
-                $parsedHours[$day][] = substr($time, 0, 2) . ':' . substr($time, 2);
+                $parsedHours[$day][] = substr($time, 0, 2).':'.substr($time, 2);
             }
         }
 
         return $parsedHours;
     }
 
- 
-       public static function getDeliveryTime($market, $date = null)
+    public static function getDeliveryTime($market, $date = null)
     {
         $date = $date ?? CitiesService::DateTime();
 
@@ -387,13 +365,13 @@ class Market extends Model
         $currentTimeInMinutes = $hours * 60 + $minutes;
 
         $weekMap = [
-            'sunday'    => 0,
-            'monday'    => 1,
-            'tuesday'   => 2,
+            'sunday' => 0,
+            'monday' => 1,
+            'tuesday' => 2,
             'wednesday' => 3,
-            'thursday'  => 4,
-            'friday'    => 5,
-            'saturday'  => 6,
+            'thursday' => 4,
+            'friday' => 5,
+            'saturday' => 6,
         ];
         $todayOfWeek = (int) $date->format('w');
 
@@ -416,27 +394,26 @@ class Market extends Model
             }
 
             foreach ($times as $time) {
-                list($hours, $minutes) = explode(':', $time);
+                [$hours, $minutes] = explode(':', $time);
                 $totalMinutes = $hours * 60 + $minutes;
                 $next_time = $totalMinutes + 60;
 
                 foreach ($deliveryIntervals[0] ?? [] as $interval) {
-                    list($start_hour, $start_minutes) = explode(':', $interval->start_time);
+                    [$start_hour, $start_minutes] = explode(':', $interval->start_time);
                     $startMinutes = $start_hour * 60 + $start_minutes;
-
 
                     $intervalString = [$interval->start_time, $interval->end_time];
 
                     // Добавляем в общий список
-                    if ($totalMinutes <= $startMinutes && $next_time > $startMinutes && !in_array($intervalString, $availableDeliveryTimes[$dayOfWeek] ?? [])) {
+                    if ($totalMinutes <= $startMinutes && $next_time > $startMinutes && ! in_array($intervalString, $availableDeliveryTimes[$dayOfWeek] ?? [])) {
                         $availableDeliveryTimes[$dayOfWeek][] = $intervalString;
                     }
 
                     // Добавляем в todayTimes только если это сегодня
 
-                        if( $weekDay === $todayOfWeek && !in_array($intervalString, $todayDeliveryTimes) &&self::intervalAvailable($interval, $currentTimeInMinutes)){
-                            $todayDeliveryTimes[] = $intervalString;
-                        }
+                    if ($weekDay === $todayOfWeek && ! in_array($intervalString, $todayDeliveryTimes) && self::intervalAvailable($interval, $currentTimeInMinutes)) {
+                        $todayDeliveryTimes[] = $intervalString;
+                    }
 
                 }
             }
@@ -444,10 +421,9 @@ class Market extends Model
 
         return [
             'todayTimes' => $todayDeliveryTimes,
-            'times' => $availableDeliveryTimes
+            'times' => $availableDeliveryTimes,
         ];
     }
-
 
     /**
      * Сумма средств для вывода магазина
@@ -482,11 +458,10 @@ class Market extends Model
         return $totalSum;
     }
 
-
     public function getFrozenOrders()
     {
         $returnedOrdersId = \DB::select(
-            "
+            '
         SELECT id as order_id
         FROM orders
         WHERE orders.market_id = :market_id AND
@@ -498,13 +473,13 @@ class Market extends Model
         AND
         orders.payment_status_id = (SELECT payment_statuses.id from payment_statuses where payment_statuses.code like :payment_status_code LIMIT 1)
         EXCEPT SELECT order_id
-        FROM balance_order;",
+        FROM balance_order;',
             [
-                'market_id'                   => $this->id,
+                'market_id' => $this->id,
                 'order_status_code_confirmed' => OrderStatus::CONFIRMED,
-                'order_status_code_issued'    => OrderStatus::ISSUED,
-                'order_status_code_work'      => OrderStatus::WORK,
-                'payment_status_code'         => PaymentStatus::PAID,
+                'order_status_code_issued' => OrderStatus::ISSUED,
+                'order_status_code_work' => OrderStatus::WORK,
+                'payment_status_code' => PaymentStatus::PAID,
             ]
         );
 
@@ -514,7 +489,7 @@ class Market extends Model
     public function getCompletedOrders()
     {
         $completedOrdersId = \DB::select(
-            "
+            '
         SELECT id as order_id
         FROM orders
         WHERE orders.market_id = :market_id AND
@@ -523,10 +498,10 @@ class Market extends Model
         EXCEPT SELECT order_id
         FROM balance_order
         WHERE balance_order.code = :order_status_code
-        ;",
+        ;',
             [
-                'market_id'           => $this->id,
-                'order_status_code'   => OrderStatus::COMPLETE,
+                'market_id' => $this->id,
+                'order_status_code' => OrderStatus::COMPLETE,
                 'payment_status_code' => PaymentStatus::PAID,
             ]
         );
@@ -537,7 +512,7 @@ class Market extends Model
     public function getReturnedOrders()
     {
         $returnedOrdersId = \DB::select(
-            "
+            '
         SELECT id as order_id
         FROM orders
         WHERE orders.market_id = :market_id AND
@@ -551,13 +526,13 @@ class Market extends Model
         FROM balance_order
         WHERE (balance_order.code = :order_status_code) AND
         (SELECT COUNT(order_id) from balance_order WHERE balance_order.code = :order_status_code_canceled OR balance_order.code = :order_status_code_canceled_user) = 0
-        ;",
+        ;',
             [
-                'market_id'                       => $this->id,
-                'order_status_code'               => OrderStatus::COMPLETE,
-                'order_status_code_canceled'      => OrderStatus::CANCELED,
+                'market_id' => $this->id,
+                'order_status_code' => OrderStatus::COMPLETE,
+                'order_status_code_canceled' => OrderStatus::CANCELED,
                 'order_status_code_canceled_user' => OrderStatus::CANCELED_USER,
-                'payment_status_code'             => PaymentStatus::PAID,
+                'payment_status_code' => PaymentStatus::PAID,
             ]
         );
 

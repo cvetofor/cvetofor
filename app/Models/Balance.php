@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-
 use A17\Twill\Models\Model;
 
 class Balance extends Model
 {
     const STATUS = [
-        'APPROVED'     => 'APPROVED',
+        'APPROVED' => 'APPROVED',
         'WAIT_APPROVE' => 'WAIT_APPROVE',
     ];
 
@@ -40,5 +39,4 @@ class Balance extends Model
     {
         return $query->where('status', 'like', self::STATUS['WAIT_APPROVE']);
     }
-
 }

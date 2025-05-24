@@ -5,10 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\Color;
-use App\Models\Category;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use App\Repositories\ColorRepository;
 
 class ColorsSeeder extends Seeder
 {
@@ -24,91 +21,91 @@ class ColorsSeeder extends Seeder
             $colorRepository = new Color;
 
             $colorRepository->create([
-                'title'     => 'Красные',
+                'title' => 'Красные',
                 'data' => [
                     'rgb' => '#FF0000',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Белые',
+                'title' => 'Белые',
                 'data' => [
                     'rgb' => '#f2f3f4',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Кремовые',
+                'title' => 'Кремовые',
                 'data' => [
                     'rgb' => '#f2ddc6',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Нежно-розовые',
+                'title' => 'Нежно-розовые',
                 'data' => [
                     'rgb' => '#ffa9c3',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Желтые',
+                'title' => 'Желтые',
                 'data' => [
                     'rgb' => '#FFFF00',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Оранжевые',
+                'title' => 'Оранжевые',
                 'data' => [
                     'rgb' => '#FFA500',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Персиковые',
+                'title' => 'Персиковые',
                 'data' => [
                     'rgb' => '#FFDAB9',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Ярко-розовые',
+                'title' => 'Ярко-розовые',
                 'data' => [
                     'rgb' => '#dc2d63',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Фиолетовые',
+                'title' => 'Фиолетовые',
                 'data' => [
                     'rgb' => '#8b00ff',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Зеленые',
+                'title' => 'Зеленые',
                 'data' => [
                     'rgb' => '#228B22',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Коралловые',
+                'title' => 'Коралловые',
                 'data' => [
                     'rgb' => '#FF7F50',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Ярко-сиреневые',
+                'title' => 'Ярко-сиреневые',
                 'data' => [
                     'rgb' => '#ff00ff',
                 ],
                 'published' => true,
             ]);
             $colorRepository->create([
-                'title'     => 'Нежно-сиреневые',
+                'title' => 'Нежно-сиреневые',
                 'data' => [
                     'rgb' => '#c8a2c8',
                 ],

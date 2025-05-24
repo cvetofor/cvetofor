@@ -3,15 +3,15 @@
 namespace App\Models;
 
 use A17\Twill\Models\Behaviors\HasRelated;
-use A17\Twill\Models\Model;
 use A17\Twill\Models\Behaviors\HasRevisions;
+use A17\Twill\Models\Model;
 use A17\Twill\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PaymentDetail extends Model
 {
-    use HasRevisions;
     use HasRelated;
+    use HasRevisions;
 
     protected $fillable = [
         'user_id',
@@ -33,13 +33,12 @@ class PaymentDetail extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-
-    function getPublishedAttribute()
+    public function getPublishedAttribute()
     {
         return $this->approved;
     }
 
-    function setPublishedAttribute($value)
+    public function setPublishedAttribute($value)
     {
         $this->approved = $value;
     }

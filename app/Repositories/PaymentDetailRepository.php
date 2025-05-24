@@ -2,16 +2,12 @@
 
 namespace App\Repositories;
 
-use Gate;
-use A17\Twill\Models\User;
-use Illuminate\Support\Arr;
-use App\Models\PaymentDetail;
-use Illuminate\Support\Collection;
-use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Repositories\ModuleRepository;
 use A17\Twill\Models\Contracts\TwillModelContract;
+use A17\Twill\Models\User;
 use A17\Twill\Repositories\Behaviors\HandleRevisions;
-use A17\Twill\Repositories\Behaviors\HandleTranslations;
+use A17\Twill\Repositories\ModuleRepository;
+use App\Models\PaymentDetail;
+use Illuminate\Support\Arr;
 
 class PaymentDetailRepository extends ModuleRepository
 {
@@ -26,9 +22,8 @@ class PaymentDetailRepository extends ModuleRepository
         'user' => [
             'moduleName' => 'Users',
             'related' => 'user',
-        ]
+        ],
     ];
-
 
     // Prepare the fields.
 
@@ -73,7 +68,7 @@ class PaymentDetailRepository extends ModuleRepository
                     'id' => $user->id,
                     'name' => $user->email,
                     'edit' => moduleRoute('users', '', 'edit', $user->id),
-                    "endpointType" => User::class,
+                    'endpointType' => User::class,
                 ],
             ])->toArray();
         }

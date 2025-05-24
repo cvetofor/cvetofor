@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('categories',function (Blueprint $table){
+        Schema::table('categories', function (Blueprint $table) {
             $table->boolean('is_visible')->default(false)->comment('Категория товаров доступна для выбора в букетах, но невидима покупателю');
             $table->boolean('is_visible_menu')->default(false)->comment('Показывает элементы в меню');
             $table->boolean('is_additional_product')->default(false)->comment('Товар можно положить в корзину без букета');
@@ -27,7 +27,7 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('categories',function (Blueprint $table){
+        Schema::table('categories', function (Blueprint $table) {
             $table->dropColumn('is_visible');
             $table->dropColumn('is_visible_menu');
         });

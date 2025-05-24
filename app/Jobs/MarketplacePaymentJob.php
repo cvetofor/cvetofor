@@ -3,13 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\Balance;
-use App\Models\DeliveryStatus;
 use App\Models\Market;
 use App\Models\Order;
-use App\Models\OrderStatus;
-use App\Models\PaymentStatus;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -51,11 +47,11 @@ class MarketplacePaymentJob implements ShouldQueue
                 $orders = array_merge($cOrders, $rOrders);
 
                 $balance = Balance::create([
-                    'published'   => true,
-                    'title'       => 'Перевод на р/с',
-                    'total'       => $market->withdrawalFunds(),
-                    'market_id'   => $market->id,
-                    'status'      => Balance::STATUS['WAIT_APPROVE'],
+                    'published' => true,
+                    'title' => 'Перевод на р/с',
+                    'total' => $market->withdrawalFunds(),
+                    'market_id' => $market->id,
+                    'status' => Balance::STATUS['WAIT_APPROVE'],
                     'description' => '',
                 ]);
 
@@ -71,7 +67,4 @@ class MarketplacePaymentJob implements ShouldQueue
         }
 
     }
-
-
-
 }

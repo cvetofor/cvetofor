@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\OrderDeliveryChanged;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 
 class OrderDeliveryChangedListener
 {
@@ -21,7 +19,6 @@ class OrderDeliveryChangedListener
     /**
      * Handle the event.
      *
-     * @param  \App\Events\OrderDeliveryChanged  $event
      * @return void
      */
     public function handle(OrderDeliveryChanged $event)

@@ -2,17 +2,12 @@
 
 namespace App\Repositories;
 
-use App\Models\City;
-use Illuminate\Support\Arr;
-use A17\Twill\Repositories\ModuleRepository;
-use A17\Twill\Repositories\Behaviors\HandleFiles;
-use A17\Twill\Repositories\Behaviors\HandleSlugs;
 use A17\Twill\Models\Contracts\TwillModelContract;
-use A17\Twill\Repositories\Behaviors\HandleBlocks;
-use A17\Twill\Repositories\Behaviors\HandleMedias;
-use A17\Twill\Repositories\Behaviors\HandleRevisions;
-use A17\Twill\Repositories\Behaviors\HandleTranslations;
+use A17\Twill\Repositories\Behaviors\HandleSlugs;
+use A17\Twill\Repositories\ModuleRepository;
+use App\Models\City;
 use App\Models\Region;
+use Illuminate\Support\Arr;
 
 class CityRepository extends ModuleRepository
 {
@@ -21,7 +16,7 @@ class CityRepository extends ModuleRepository
     protected $relatedBrowsers = [
         'province' => [
             'moduleName' => 'regions',
-            'relation' => 'province'
+            'relation' => 'province',
         ],
     ];
 
@@ -29,7 +24,6 @@ class CityRepository extends ModuleRepository
     {
         $this->model = $model;
     }
-
 
     // Prepare the fields.
 
@@ -61,9 +55,6 @@ class CityRepository extends ModuleRepository
         return $fields;
     }
 
-
-
-
     // Set the browser value to our morphed data.
     public function getFormFields(TwillModelContract $object): array
     {
@@ -77,7 +68,7 @@ class CityRepository extends ModuleRepository
                     'id' => $province->id,
                     'name' => $province->name_with_type,
                     'edit' => moduleRoute($object->province->getTable(), '', 'edit', $province->id),
-                    "endpointType" => Region::class,
+                    'endpointType' => Region::class,
                 ],
             ])->toArray();
         }

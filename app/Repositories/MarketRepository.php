@@ -15,9 +15,9 @@ use Illuminate\Support\Arr;
 
 class MarketRepository extends ModuleRepository
 {
-    use HandleRevisions;
     use HandleBlocks;
     use HandleJsonRepeaters;
+    use HandleRevisions;
 
     protected $jsonRepeaters = [
         'additional_addresses',
@@ -32,18 +32,18 @@ class MarketRepository extends ModuleRepository
     protected $relatedBrowsers = [
         'user' => [
             'moduleName' => 'Users',
-            'relation'   => 'user',
+            'relation' => 'user',
         ],
         'city' => [
             'moduleName' => 'City',
-            'relation'   => 'city',
+            'relation' => 'city',
         ],
     ];
 
     public function filter($query, array $scopes = []): Builder
     {
 
-        if (!\Gate::allows('is_owner')) {
+        if (! \Gate::allows('is_owner')) {
             $query = $query->whereIn('id', auth()->user()->getMarketIds());
         }
 
@@ -58,6 +58,7 @@ class MarketRepository extends ModuleRepository
 
         Arr::set($fields, 'blocks', null);
         Arr::set($fields, 'browsers', null);
+
         return $fields;
     }
     // On save we set the linkable id and type.
@@ -77,6 +78,7 @@ class MarketRepository extends ModuleRepository
         }
 
         Arr::set($fields, 'browsers', null);
+
         return $fields;
     }
 
@@ -113,7 +115,7 @@ class MarketRepository extends ModuleRepository
 
         }
 
-        if (!auth()->user()->can('is_owner')) {
+        if (! auth()->user()->can('is_owner')) {
             Arr::set($fields, 'browsers.user', null);
             Arr::set($fields, 'browsers.work_times', null);
             Arr::set($fields, 'browsers.delivery_times', null);
@@ -123,9 +125,6 @@ class MarketRepository extends ModuleRepository
 
         parent::beforeSave($object, $fields);
     }
-
-
-
 
     // Set the browser value to our morphed data.
     public function getFormFields(TwillModelContract $object): array
@@ -137,10 +136,10 @@ class MarketRepository extends ModuleRepository
         if ($user) {
             $fields['browsers']['user'] = collect([
                 [
-                    'id'           => $user->id,
-                    'name'         => $user->email,
-                    'edit'         => moduleRoute('users', '', 'edit', $user->id),
-                    "endpointType" => User::class,
+                    'id' => $user->id,
+                    'name' => $user->email,
+                    'edit' => moduleRoute('users', '', 'edit', $user->id),
+                    'endpointType' => User::class,
                 ],
             ])->toArray();
         }
@@ -150,10 +149,10 @@ class MarketRepository extends ModuleRepository
         if ($user && $city) {
             $fields['browsers']['city'] = collect([
                 [
-                    'id'           => $city->id,
-                    'name'         => $city->city,
-                    'edit'         => moduleRoute($object->city->getTable(), '', 'edit', $city->id),
-                    "endpointType" => City::class,
+                    'id' => $city->id,
+                    'name' => $city->city,
+                    'edit' => moduleRoute($object->city->getTable(), '', 'edit', $city->id),
+                    'endpointType' => City::class,
                 ],
             ])->toArray();
         }
@@ -163,10 +162,10 @@ class MarketRepository extends ModuleRepository
         if ($work_times) {
             $fields['browsers']['work_times'] = collect([
                 [
-                    'id'           => $work_times->id,
-                    'name'         => $work_times->title,
-                    'edit'         => moduleRoute($object->work_times->getTable(), '', 'edit', $work_times->id),
-                    "endpointType" => MarketWorkTime::class,
+                    'id' => $work_times->id,
+                    'name' => $work_times->title,
+                    'edit' => moduleRoute($object->work_times->getTable(), '', 'edit', $work_times->id),
+                    'endpointType' => MarketWorkTime::class,
                 ],
             ])->toArray();
         }
@@ -176,10 +175,10 @@ class MarketRepository extends ModuleRepository
         if ($delivery_times) {
             $fields['browsers']['delivery_times'] = collect([
                 [
-                    'id'           => $delivery_times->id,
-                    'name'         => $delivery_times->title,
-                    'edit'         => moduleRoute($object->delivery_times->getTable(), '', 'edit', $delivery_times->id),
-                    "endpointType" => MarketWorkTime::class,
+                    'id' => $delivery_times->id,
+                    'name' => $delivery_times->title,
+                    'edit' => moduleRoute($object->delivery_times->getTable(), '', 'edit', $delivery_times->id),
+                    'endpointType' => MarketWorkTime::class,
                 ],
             ])->toArray();
         }
@@ -188,61 +187,62 @@ class MarketRepository extends ModuleRepository
             $fields['blocksFields'] = $this->prepareFields($object->employees()->get());
             $fields['blocks'] = $this->prepareBlocks($object->employees()->get());
         }
+
         return $fields;
     }
 
-    function prepareFields(\Illuminate\Support\Collection $users)
+    public function prepareFields(\Illuminate\Support\Collection $users)
     {
         return \Arr::collapse($users->transform(
             function ($e) {
                 return [
                     [
-                        'name'  => 'blocks[' . $e->id . '][role]',
-                        "value" => $e->role->code ?? 'manager',
+                        'name' => 'blocks['.$e->id.'][role]',
+                        'value' => $e->role->code ?? 'manager',
                     ],
                     [
-                        'name'  => 'blocks[' . $e->id . '][name]',
-                        "value" => $e->name,
+                        'name' => 'blocks['.$e->id.'][name]',
+                        'value' => $e->name,
                     ],
                     [
-                        'name'  => 'blocks[' . $e->id . '][email]',
-                        "value" => $e->email,
+                        'name' => 'blocks['.$e->id.'][email]',
+                        'value' => $e->email,
                     ],
                     [
-                        'name'  => 'blocks[' . $e->id . '][phone]',
-                        "value" => $e->phone,
+                        'name' => 'blocks['.$e->id.'][phone]',
+                        'value' => $e->phone,
                     ],
                     [
-                        'name'  => 'blocks[' . $e->id . '][second_name]',
-                        "value" => $e->second_name,
+                        'name' => 'blocks['.$e->id.'][second_name]',
+                        'value' => $e->second_name,
                     ],
                     [
-                        'name'  => 'blocks[' . $e->id . '][last_name]',
-                        "value" => $e->last_name,
+                        'name' => 'blocks['.$e->id.'][last_name]',
+                        'value' => $e->last_name,
                     ],
                 ];
             }
         )
             ->toArray());
     }
-    function prepareBlocks(\Illuminate\Support\Collection $users)
+
+    public function prepareBlocks(\Illuminate\Support\Collection $users)
     {
         return [
-            'default' =>
-                $users->transform(
-                    function ($e) {
-                        return [
-                            "id"              => $e->id,
-                            "type"            => "a17-block-employers",
-                            "title"           => "Сотрудник",
-                            "name"            => "default",
-                            "titleField"      => "name",
-                            "hideTitlePrefix" => true,
-                            "attributes"      => [],
-                            "icon"            => "add",
-                        ];
-                    }
-                )->toArray(),
+            'default' => $users->transform(
+                function ($e) {
+                    return [
+                        'id' => $e->id,
+                        'type' => 'a17-block-employers',
+                        'title' => 'Сотрудник',
+                        'name' => 'default',
+                        'titleField' => 'name',
+                        'hideTitlePrefix' => true,
+                        'attributes' => [],
+                        'icon' => 'add',
+                    ];
+                }
+            )->toArray(),
         ];
     }
 }

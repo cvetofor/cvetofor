@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class Interval extends Model
 {
@@ -30,13 +30,8 @@ class Interval extends Model
         return $this->minutesToTime($value);
     }
 
-
-
     /**
      * Проверяет доступность интервала на основе текущего времени.
-     *
-     * @param Carbon $currentTime
-     * @return bool
      */
     public function isAvailable(Carbon $currentTime): bool
     {
@@ -57,12 +52,8 @@ class Interval extends Model
         return $currentTime->lessThan($closeTime);
     }
 
-
     /**
      * Преобразует количество минут в строку времени (H:i).
-     *
-     * @param int $minutes
-     * @return string
      */
     private function minutesToTime(int $minutes): string
     {
@@ -71,7 +62,6 @@ class Interval extends Model
 
         return sprintf('%02d:%02d', $hours, $minutes);
     }
-
 
     /**
      * Связь с моделью Market.
@@ -85,13 +75,11 @@ class Interval extends Model
 
     /**
      * Преобразует интервал в строку времени (например, "с 00:00 до 23:00").
-     *
-     * @return string
      */
     public function formatInterval(): string
     {
         if ($this->start_time >= $this->end_time) {
-            return "Некорректный интервал времени";
+            return 'Некорректный интервал времени';
         }
 
         $startFormatted = $this->minutesToTime($this->start_time);

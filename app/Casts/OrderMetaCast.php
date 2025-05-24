@@ -17,12 +17,13 @@ class OrderMetaCast implements CastsAttributes
      */
     public function get($model, $key, $value, $attributes)
     {
-        if (!$value) {
+        if (! $value) {
             return null;
         }
 
         return json_decode($value, true);
     }
+
     /**
      * Prepare the given value for storage.
      *
@@ -34,8 +35,8 @@ class OrderMetaCast implements CastsAttributes
      */
     public function set($model, $key, $value, $attributes)
     {
-        if (!$value instanceof OrderMeta) {
-            throw new \Exception("The provided value must be an instance of " . OrderMeta::class);
+        if (! $value instanceof OrderMeta) {
+            throw new \Exception('The provided value must be an instance of '.OrderMeta::class);
         }
 
         return json_encode($value);

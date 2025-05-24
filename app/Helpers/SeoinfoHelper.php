@@ -4,50 +4,55 @@ namespace App\Helpers;
 
 class SeoinfoHelper
 {
-	private $seoData = [];
+    private $seoData = [];
 
-	private static $instance = null;
+    private static $instance = null;
 
-	public static function getInstance() {
+    public static function getInstance()
+    {
         if (self::$instance === null) {
-            self::$instance = new self();
+            self::$instance = new self;
         }
 
         return self::$instance;
     }
 
-    private function __construct() {
-    	$file = fopen(base_path() . '/seo.csv', 'r');
-		$outData = [];
+    private function __construct()
+    {
+        $file = fopen(base_path().'/seo.csv', 'r');
+        $outData = [];
 
-		fgetcsv($file, 10000, ",");
+        fgetcsv($file, 10000, ',');
 
-		while (($data = fgetcsv($file, 10000, ',')) !== false) {
-		    $outData[$data[0]] = [
-		    	'title' => $data[1],
-		    	'desc' => $data[2],
-		    	'keywords' => $data[3],
-		    	'h1' => $data[4],
-		    	'text' => $data[5],
-		    ];
-		}
+        while (($data = fgetcsv($file, 10000, ',')) !== false) {
+            $outData[$data[0]] = [
+                'title' => $data[1],
+                'desc' => $data[2],
+                'keywords' => $data[3],
+                'h1' => $data[4],
+                'text' => $data[5],
+            ];
+        }
 
-		fclose($file);
+        fclose($file);
 
-		$this->seoData = $outData;
+        $this->seoData = $outData;
     }
 
-	public function getSeoData(){
-		return $this->seoData;
-	}
+    public function getSeoData()
+    {
+        return $this->seoData;
+    }
 
-	public function prepareUrl($url){
-		return str_replace(' ', '+', urldecode($url));
-	}
+    public function prepareUrl($url)
+    {
+        return str_replace(' ', '+', urldecode($url));
+    }
 
-	public function getSeoForUrl($url){
-		$url = $this->prepareUrl($url);
+    public function getSeoForUrl($url)
+    {
+        $url = $this->prepareUrl($url);
 
-		return (!empty($this->seoData[$url])) ? $this->seoData[$url] : false;
-	}
+        return (! empty($this->seoData[$url])) ? $this->seoData[$url] : false;
+    }
 }

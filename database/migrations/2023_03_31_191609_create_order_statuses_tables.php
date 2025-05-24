@@ -26,11 +26,6 @@ class CreateOrderStatusesTables extends Migration
             // $table->timestamp('publish_end_date')->nullable();
         });
 
-
-
-
-
-
     }
 
     public function down()

@@ -2,11 +2,11 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
 use A17\Twill\Facades\TwillAppSettings;
-use Illuminate\Notifications\Notification;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class OrderMovedToTenderNotification extends Notification implements ShouldQueue
 {
@@ -18,6 +18,7 @@ class OrderMovedToTenderNotification extends Notification implements ShouldQueue
      * @var [\App\Models\Order]
      */
     public $order;
+
     /**
      * Create a new notification instance.
      *
@@ -65,9 +66,9 @@ class OrderMovedToTenderNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
 
-            ->subject('Новый заказ № ' . $this->order->num_order . ' в Тендеры Цветофор.рф')
-            ->greeting("Здравствуйте Коллеги!")
-            ->line('У нас освободился новый заказ № ' . $this->order->num_order . '')
+            ->subject('Новый заказ № '.$this->order->num_order.' в Тендеры Цветофор.рф')
+            ->greeting('Здравствуйте Коллеги!')
+            ->line('У нас освободился новый заказ № '.$this->order->num_order.'')
             ->line('Давайте посмотрим, что заказали и контактные данные: ')
             ->markdown('emails.market.order.tender', compact('order', 'deliveryPrice'));
     }

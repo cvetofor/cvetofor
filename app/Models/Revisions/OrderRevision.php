@@ -6,5 +6,5 @@ use A17\Twill\Models\Revision;
 
 class OrderRevision extends Revision
 {
-    protected $table = "order_revisions";
+    protected $table = 'order_revisions';
 }

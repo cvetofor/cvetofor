@@ -10,7 +10,8 @@ use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class ResetPasswordController extends Controller {
+class ResetPasswordController extends Controller
+{
     /*
     |--------------------------------------------------------------------------
     | Password Reset Controller
@@ -31,13 +32,14 @@ class ResetPasswordController extends Controller {
      */
     protected $redirectTo = RouteServiceProvider::HOME;
 
-    public function resetPassword(Request $request) {
-        $phone = '+' . preg_replace('/[^0-9]/', '', $request->phone);
+    public function resetPassword(Request $request)
+    {
+        $phone = '+'.preg_replace('/[^0-9]/', '', $request->phone);
 
         $user = User::where('phone', $phone)->first();
 
         if (isset($user)) {
-            $rc = new RegisterController();
+            $rc = new RegisterController;
             $password = $rc->password(6, false, true, false);
             $user->password = Hash::make($password);
             $user->save();

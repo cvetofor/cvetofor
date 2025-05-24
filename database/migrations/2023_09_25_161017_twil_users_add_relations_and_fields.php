@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      *
@@ -19,7 +20,7 @@ return new class extends Migration {
                 $twillUsersTable,
                 function (Blueprint $table) use ($twillUsersTable) {
 
-                    $table->bigInteger("master_user_id")->nullable();
+                    $table->bigInteger('master_user_id')->nullable();
                     $table->foreign('master_user_id')
                         ->references('id')->on($twillUsersTable)->cascadeOnDelete();
                 }
@@ -33,7 +34,7 @@ return new class extends Migration {
                     ->bigIncrements('id');
 
                 $table
-                    ->bigInteger("market_id");
+                    ->bigInteger('market_id');
 
                 $table
                     ->foreign('market_id')
@@ -42,7 +43,7 @@ return new class extends Migration {
                     ->cascadeOnDelete();
 
                 $table
-                    ->bigInteger("user_id");
+                    ->bigInteger('user_id');
 
                 $table
                     ->foreign('user_id')
@@ -51,7 +52,6 @@ return new class extends Migration {
                     ->cascadeOnDelete();
             }
         );
-
 
     }
 
@@ -67,7 +67,7 @@ return new class extends Migration {
         Schema::table(
             $twillUsersTable,
             function (Blueprint $table) {
-                $table->dropColumn("master_user_id");
+                $table->dropColumn('master_user_id');
             }
         );
 
