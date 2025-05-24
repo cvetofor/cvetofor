@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\OrderPaymentReceived;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Notifications\OrderPaymentReceivedNotification;
 
 class OrderPaymentReceivedListener
@@ -28,6 +26,6 @@ class OrderPaymentReceivedListener
     public function handle(OrderPaymentReceived $event)
     {
         $event->order->user->notify(new OrderPaymentReceivedNotification($event->order));
-        $event->order->load('market')->market?->employees()->where('send_notify_email', true)->whereHas('role', fn($q) => $q->where('code', 'manager'))->get()?->notify(new OrderPaymentReceivedNotification($event->order));
+        $event->order->load('market')->market?->employees()->where('send_notify_email', true)->whereHas('role', fn ($q) => $q->where('code', 'manager'))->get()?->notify(new OrderPaymentReceivedNotification($event->order));
     }
 }

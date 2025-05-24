@@ -4,9 +4,9 @@ namespace App\Notifications;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class OrderCreatedMarketNotification extends Notification implements ShouldQueue
 {
@@ -55,12 +55,12 @@ class OrderCreatedMarketNotification extends Notification implements ShouldQueue
         $order = $this->order;
         $deliveryPrice = $this->order->delivery->price;
 
-        \Log::channel('marketplace')->info('Отправлено письмо магазину о новом заказе №' . $this->order->num_order, ['deliveryPrice' => $deliveryPrice]);
+        \Log::channel('marketplace')->info('Отправлено письмо магазину о новом заказе №'.$this->order->num_order, ['deliveryPrice' => $deliveryPrice]);
 
         return (new MailMessage)
-            ->subject('Новый заказ № ' . $this->order->num_order . ' с сайта Цветофор.рф')
-            ->greeting("Здравствуйте Коллеги!")
-            ->line('У нас оформленный новый заказ №' . $this->order->num_order . ' ')
+            ->subject('Новый заказ № '.$this->order->num_order.' с сайта Цветофор.рф')
+            ->greeting('Здравствуйте Коллеги!')
+            ->line('У нас оформленный новый заказ №'.$this->order->num_order.' ')
             ->markdown('emails.market.order.created', compact('order', 'deliveryPrice'));
     }
 

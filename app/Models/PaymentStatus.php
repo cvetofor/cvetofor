@@ -21,5 +21,4 @@ class PaymentStatus extends Model implements Sortable
         'position',
         'code',
     ];
-
 }

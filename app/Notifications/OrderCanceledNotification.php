@@ -2,17 +2,17 @@
 
 namespace App\Notifications;
 
-use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class OrderCanceledNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
     public $order;
+
     /**
      * Create a new notification instance.
      *
@@ -54,7 +54,7 @@ class OrderCanceledNotification extends Notification implements ShouldQueue
         $deliveryPrice = 0.0;
 
         if ($order->parent_id != null) {
-             #  Теории такого не должно случится, чтобы основной заказ был отменён
+            //  Теории такого не должно случится, чтобы основной заказ был отменён
 
             $ch = $order->childs;
             foreach ($ch as $child) {
@@ -65,14 +65,14 @@ class OrderCanceledNotification extends Notification implements ShouldQueue
         }
 
         return (new MailMessage)
-            ->subject('Отмена заказа № ' . $this->order->num_order . ' с сайта Цветофор.рф')
-            ->greeting("Здравствуйте!")
+            ->subject('Отмена заказа № '.$this->order->num_order.' с сайта Цветофор.рф')
+            ->greeting('Здравствуйте!')
             ->line('Меня зовут Екатерина - менеджер по продаже цветов и букетов маркет-плейса Цветофор. ')
-            ->line('Отвечаю за то, чтобы оформленный ранее Вами заказ № ' . $this->order->num_order . ' был отменен а деньги вернулись на ваш счет в срок, до 7 рабочих дней, но обычно все гораздо быстрее.')
+            ->line('Отвечаю за то, чтобы оформленный ранее Вами заказ № '.$this->order->num_order.' был отменен а деньги вернулись на ваш счет в срок, до 7 рабочих дней, но обычно все гораздо быстрее.')
             ->line('Давайте посмотрим, что Вы заказали ранее и сверим контактные данные:')
 
             ->with('Если все данные верны, вам нужно немного подождать возврат.')
-            ->with('Если данные не верны или заказ отменен без вашего согласования, напишите нам или позвоните по телефону: ' . $phone)
+            ->with('Если данные не верны или заказ отменен без вашего согласования, напишите нам или позвоните по телефону: '.$phone)
             ->salutation('Надеемся увидеть вас снова в нашем замечательном маркет-плейсе цветов “Цветофор”.')
             ->markdown('emails.user.order.changestatus', compact('order', 'deliveryPrice'));
     }

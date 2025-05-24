@@ -2,13 +2,13 @@
 
 namespace A17\Twill\Models;
 
-use Illuminate\Support\Str;
+use A17\Twill\Services\MediaLibrary\ImageService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Rennokki\QueryCache\Traits\QueryCacheable;
-use A17\Twill\Services\MediaLibrary\ImageService;
+use Illuminate\Support\Str;
 
-class Media extends Model {
+class Media extends Model
+{
     public $timestamps = true;
 
     protected $fillable = [
@@ -25,7 +25,8 @@ class Media extends Model {
         'market_id',
     ];
 
-    public function __construct(array $attributes = []) {
+    public function __construct(array $attributes = [])
+    {
         $this->fillable(array_merge($this->fillable, Collection::make(config('twill.media_library.extra_metadatas_fields'))->map(function ($field) {
             return $field['name'];
         })->toArray()));
@@ -37,17 +38,20 @@ class Media extends Model {
         parent::__construct($attributes);
     }
 
-    public function scopeUnused($query) {
+    public function scopeUnused($query)
+    {
         $usedIds = DB::table(config('twill.mediables_table'))->pluck('media_id');
 
         return $query->whereNotIn('id', $usedIds->toArray())->get();
     }
 
-    public function getDimensionsAttribute() {
-        return $this->width . 'x' . $this->height;
+    public function getDimensionsAttribute()
+    {
+        return $this->width.'x'.$this->height;
     }
 
-    public function altTextFrom($filename) {
+    public function altTextFrom($filename)
+    {
         $filename = pathinfo($filename, PATHINFO_FILENAME);
         if (Str::endsWith($filename, '@2x')) {
             $filename = substr($filename, 0, -2);
@@ -56,15 +60,18 @@ class Media extends Model {
         return ucwords(preg_replace('/[^a-zA-Z0-9]/', ' ', sanitizeFilename($filename)));
     }
 
-    public function canDeleteSafely() {
+    public function canDeleteSafely()
+    {
         return DB::table(config('twill.mediables_table', 'twill_mediables'))->where('media_id', $this->id)->count() === 0;
     }
 
-    public function isReferenced() {
+    public function isReferenced()
+    {
         return DB::table(config('twill.mediables_table', 'twill_mediables'))->where('media_id', $this->id)->count() > 0;
     }
 
-    public function usedIn($id) {
+    public function usedIn($id)
+    {
         $usedItems = DB::table(config('twill.mediables_table'))->where('media_id', $id)->get()->transform(function ($e) {
             if (class_exists($e->mediable_type)) {
                 $class = new $e->mediable_type;
@@ -72,8 +79,9 @@ class Media extends Model {
             } else {
                 return false;
             }
+
             return [
-                'id'   => $e->mediable_id,
+                'id' => $e->mediable_id,
                 'href' => moduleRoute($table, '', 'edit', $e->mediable_id),
             ];
         })->filter();
@@ -81,43 +89,45 @@ class Media extends Model {
         return $usedItems;
     }
 
-    public function toCmsArray() {
+    public function toCmsArray()
+    {
         return [
-            'id'            => $this->id,
-            'name'          => $this->filename,
-            'thumbnail'     => ImageService::getCmsUrl($this->uuid, ['h' => '256']),
-            'original'      => ImageService::getRawUrl($this->uuid),
-            'medium'        => ImageService::getUrl($this->uuid, ['h' => '430']),
-            'width'         => $this->width,
-            'height'        => $this->height,
-            'tags'          => $this->tags->map(function ($tag) {
+            'id' => $this->id,
+            'name' => $this->filename,
+            'thumbnail' => ImageService::getCmsUrl($this->uuid, ['h' => '256']),
+            'original' => ImageService::getRawUrl($this->uuid),
+            'medium' => ImageService::getUrl($this->uuid, ['h' => '430']),
+            'width' => $this->width,
+            'height' => $this->height,
+            'tags' => $this->tags->map(function ($tag) {
                 return $tag->name;
             }),
-            'usedIn'        => $this->usedIn($this->id),
-            'deleteUrl'     => $this->canDeleteSafely() ? moduleRoute('medias', 'media-library', 'destroy', $this->id) : null,
-            'updateUrl'     => route('twill.media-library.medias.single-update'),
+            'usedIn' => $this->usedIn($this->id),
+            'deleteUrl' => $this->canDeleteSafely() ? moduleRoute('medias', 'media-library', 'destroy', $this->id) : null,
+            'updateUrl' => route('twill.media-library.medias.single-update'),
             'updateBulkUrl' => route('twill.media-library.medias.bulk-update'),
             'deleteBulkUrl' => route('twill.media-library.medias.bulk-delete'),
-            'metadatas'     => [
+            'metadatas' => [
                 'default' => [
                     'caption' => $this->caption,
                     'altText' => $this->alt_text,
-                    'video'   => null,
+                    'video' => null,
                 ] + Collection::make(config('twill.media_library.extra_metadatas_fields'))->mapWithKeys(function ($field) {
                     return [
                         $field['name'] => $this->{$field['name']},
                     ];
                 })->toArray(),
-                'custom'  => [
+                'custom' => [
                     // 'caption' => null,
                     'altText' => null,
-                    'video'   => null,
+                    'video' => null,
                 ],
             ],
         ];
     }
 
-    public function getMetadata($name, $fallback = null) {
+    public function getMetadata($name, $fallback = null)
+    {
         $metadatas = (object) json_decode($this->pivot->metadatas);
         $language = app()->getLocale();
 
@@ -150,7 +160,8 @@ class Media extends Model {
         return $metadatas->$name ?? $fallbackValue ?? '';
     }
 
-    public function replace($fields) {
+    public function replace($fields)
+    {
         $prevHeight = $this->height;
         $prevWidth = $this->width;
 
@@ -171,7 +182,8 @@ class Media extends Model {
         }
     }
 
-    public function delete() {
+    public function delete()
+    {
         if ($this->canDeleteSafely()) {
             return parent::delete();
         }
@@ -179,7 +191,8 @@ class Media extends Model {
         return false;
     }
 
-    public function getTable() {
+    public function getTable()
+    {
         return config('twill.medias_table', 'twill_medias');
     }
 }

@@ -4,12 +4,6 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Database\Seeders\TagsSeeder;
-use Database\Seeders\ColorsSeeder;
-use Database\Seeders\PaymentsSeeder;
-use Database\Seeders\ProductsSeeder;
-use Database\Seeders\StatusesSeeder;
-use Database\Seeders\CategoriesSeeder;
 
 class DatabaseSeeder extends Seeder
 {

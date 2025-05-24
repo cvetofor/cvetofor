@@ -3,18 +3,21 @@
 namespace App\Services\Yookassa;
 
 use App\Models\Delivery;
-use Illuminate\Support\Facades\Log;
 
-class Payment {
+class Payment
+{
     private $fields = [];
-    public function __construct($shopId, $apiKey) {
+
+    public function __construct($shopId, $apiKey)
+    {
         $this->fields['shopId'] = $shopId;
         $this->fields['apiKey'] = $apiKey;
     }
 
-    public function getPaymentUrl($order) {
+    public function getPaymentUrl($order)
+    {
         $headers = [
-            'Idempotence-Key: ' . $order->id . time(),
+            'Idempotence-Key: '.$order->id.time(),
             'Content-Type: application/json',
         ];
 
@@ -23,10 +26,10 @@ class Payment {
                 'description' => $product['name'],
                 'amount' => [
                     'value' => number_format($product['price'], 2, '.', ''),
-                    'currency' => 'RUB'
+                    'currency' => 'RUB',
                 ],
                 'vat_code' => $order->payment->vat,
-                'quantity' => $product['quantity']
+                'quantity' => $product['quantity'],
             ];
         }
 
@@ -37,10 +40,10 @@ class Payment {
                 'description' => 'Доставка',
                 'amount' => [
                     'value' => number_format($delivery->price, 2, '.', ''),
-                    'currency' => 'RUB'
+                    'currency' => 'RUB',
                 ],
                 'vat_code' => $order->payment->vat,
-                'quantity' => 1
+                'quantity' => 1,
             ]);
         }
 
@@ -58,16 +61,16 @@ class Payment {
             'receipt' => [
                 'customer' => [
                     'email' => $order->email,
-                    'phone' => preg_replace('/[^0-9]/', '', $order->phone)
+                    'phone' => preg_replace('/[^0-9]/', '', $order->phone),
                 ],
                 'items' => $items,
-                'tax_system_code' => $order->payment->tax_system_code
+                'tax_system_code' => $order->payment->tax_system_code,
             ],
             'capture' => true,
-            'description' => 'Оплата заказа #' . $order->num_order . ', для ' . $customerName,
-            'metadata' => array(
+            'description' => 'Оплата заказа #'.$order->num_order.', для '.$customerName,
+            'metadata' => [
                 'order_id' => $order->id,
-            )
+            ],
         ];
 
         $data = json_encode($params, JSON_UNESCAPED_UNICODE);
@@ -75,7 +78,7 @@ class Payment {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_USERPWD, $this->fields['shopId'] . ':' . $this->fields['apiKey']);
+        curl_setopt($ch, CURLOPT_USERPWD, $this->fields['shopId'].':'.$this->fields['apiKey']);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);

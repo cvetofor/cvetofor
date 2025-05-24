@@ -18,11 +18,9 @@ use Illuminate\Support\Str;
 
 class AuthorizedBaseModuleController extends BaseModuleController
 {
-
-
     protected function setUpController(): void
     {
-        if (!\Gate::allows('is_owner')) {
+        if (! \Gate::allows('is_owner')) {
             $this->disablePublish();
             $this->disableBulkPublish();
             $this->disableRestore();
@@ -60,13 +58,14 @@ class AuthorizedBaseModuleController extends BaseModuleController
     public function reorder()
     {
         abort_unless(auth()->user()->can('is_owner'), 403);
+
         return parent::reorder();
     }
-
 
     public function duplicate(int|TwillModelContract $id, ?int $submoduleId = null): JsonResponse
     {
         abort_unless(auth()->user()->can('is_owner'), 403);
+
         return parent::duplicate($id, $submoduleId);
     }
 
@@ -84,12 +83,14 @@ class AuthorizedBaseModuleController extends BaseModuleController
     public function forceDelete()
     {
         abort_unless(auth()->user()->can('is_owner'), 403);
+
         return parent::forceDelete();
     }
 
     public function preview(int $id): IlluminateView
     {
         abort_unless(auth()->user()->can('edit', $this->repository->getBaseModel()->where('id', $id)->first()), 403);
+
         return parent::preview($id);
     }
 
@@ -103,17 +104,17 @@ class AuthorizedBaseModuleController extends BaseModuleController
         return parent::restore();
     }
 
-
-
     public function bulkDelete()
     {
         abort_unless(auth()->user()->can('is_owner'), 403);
+
         return parent::bulkDelete();
     }
 
     public function bulkFeature()
     {
         abort_unless(auth()->user()->can('is_owner'), 403);
+
         return parent::bulkFeature();
     }
 
@@ -123,6 +124,7 @@ class AuthorizedBaseModuleController extends BaseModuleController
     public function bulkForceDelete()
     {
         abort_unless(auth()->user()->can('is_owner'), 403);
+
         return parent::bulkForceDelete();
     }
 
@@ -143,15 +145,14 @@ class AuthorizedBaseModuleController extends BaseModuleController
     public function bulkRestore()
     {
         abort_unless(auth()->user()->can('is_owner'), 403);
+
         return parent::bulkRestore();
     }
-
 
     /**
      * When set to true and the model is translatable, the language prefix will not be shown in the permalink.
      */
     private bool $withoutLanguageInPermalink = false;
-
 
     private ?\A17\Twill\Services\Breadcrumbs $breadcrumbs = null;
 
@@ -172,7 +173,6 @@ class AuthorizedBaseModuleController extends BaseModuleController
         ];
     }
 
-
     private function getTableColumns(string $type): TableColumns
     {
         if ($type === 'index') {
@@ -187,7 +187,7 @@ class AuthorizedBaseModuleController extends BaseModuleController
                     $module = Str::singular(last(explode('.', $this->moduleName)));
 
                     return moduleRoute(
-                        "$this->moduleName." . $column->getField(),
+                        "$this->moduleName.".$column->getField(),
                         $this->routePrefix,
                         'index',
                         [$module => $this->getItemIdentifier($model)]

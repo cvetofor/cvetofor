@@ -13,8 +13,8 @@ class CreateAttributesTables extends Migration
             createDefaultTableFields($table);
 
             $table->text('label')->nullable();
-            $table->boolean('is_variable')->default(false)->comment("Показатель вариативности продукта");
-            $table->dateTime('variable_generated_at')->nullable()->comment("Дата генерации вариативного товара");
+            $table->boolean('is_variable')->default(false)->comment('Показатель вариативности продукта');
+            $table->dateTime('variable_generated_at')->nullable()->comment('Дата генерации вариативного товара');
 
             $table->bigInteger('product_id')->index()->unsigned()->nullable();
             $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();

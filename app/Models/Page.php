@@ -2,22 +2,20 @@
 
 namespace App\Models;
 
-use A17\Twill\Models\Model;
-use A17\Twill\Models\Behaviors\HasSlug;
 use A17\Twill\Models\Behaviors\HasBlocks;
 use A17\Twill\Models\Behaviors\HasMedias;
 use A17\Twill\Models\Behaviors\HasNesting;
 use A17\Twill\Models\Behaviors\HasPosition;
 use A17\Twill\Models\Behaviors\HasRevisions;
+use A17\Twill\Models\Behaviors\HasSlug;
+use A17\Twill\Models\Model;
 use CwsDigital\TwillMetadata\Models\Behaviours\HasMetadata;
 
 class Page extends Model
 {
-    use HasBlocks, HasRevisions, HasPosition, HasNesting, HasSlug;
-
-    use HasMetadata;
+    use HasBlocks, HasNesting, HasPosition, HasRevisions, HasSlug;
     use HasMedias;
-
+    use HasMetadata;
 
     public $metadataFallbacks = [];
 

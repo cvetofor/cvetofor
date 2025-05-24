@@ -16,7 +16,7 @@ class ColorResource extends JsonResource
     {
         return [
             'price' => $this->price,
-            'quantity_from' => $this->quantity_from
+            'quantity_from' => $this->quantity_from,
         ];
     }
 

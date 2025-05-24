@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-
 use A17\Twill\Models\Model;
 
 class LegalAccount extends Model
 {
-
-
     protected $fillable = [
         'title',
         'recipient',
@@ -22,10 +19,8 @@ class LegalAccount extends Model
         'order_id',
     ];
 
-
     public function order()
     {
         return $this->belongsTo(Order::class, 'order_id');
     }
-
 }

@@ -4,15 +4,10 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-use App\Models\Color;
-use App\Models\Category;
-use A17\Twill\Models\Tag;
-use Illuminate\Support\Str;
 use App\Models\GroupProduct;
-use Illuminate\Database\Seeder;
 use Cartalyst\Tags\IlluminateTag;
-use Illuminate\Support\Facades\DB;
-use App\Repositories\ColorRepository;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class TagsSeeder extends Seeder
 {

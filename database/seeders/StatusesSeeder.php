@@ -4,13 +4,13 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\DeliveryStatus;
 use App\Models\OrderStatus;
 use App\Models\PaymentStatus;
-use App\Models\DeliveryStatus;
-use Illuminate\Database\Seeder;
+use App\Repositories\DeliveryStatusRepository;
 use App\Repositories\OrderStatusRepository;
 use App\Repositories\PaymentStatusRepository;
-use App\Repositories\DeliveryStatusRepository;
+use Illuminate\Database\Seeder;
 
 class StatusesSeeder extends Seeder
 {

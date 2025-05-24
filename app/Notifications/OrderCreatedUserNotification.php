@@ -2,19 +2,19 @@
 
 namespace App\Notifications;
 
+use A17\Twill\Facades\TwillAppSettings;
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use A17\Twill\Facades\TwillAppSettings;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class OrderCreatedUserNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-
     public $order;
+
     /**
      * Create a new notification instance.
      *
@@ -60,16 +60,16 @@ class OrderCreatedUserNotification extends Notification implements ShouldQueue
             $deliveryPrice += $child->delivery->price;
         }
 
-        \Log::channel('marketplace')->info('Отправлено письмо покупателю о новом заказе №' . $this->order->num_order);
+        \Log::channel('marketplace')->info('Отправлено письмо покупателю о новом заказе №'.$this->order->num_order);
 
         return (new MailMessage)
-            ->subject('Новый заказ № ' . $this->order->num_order . ' с сайта Цветофор.рф')
-            ->greeting("Здравствуйте!")
+            ->subject('Новый заказ № '.$this->order->num_order.' с сайта Цветофор.рф')
+            ->greeting('Здравствуйте!')
             ->line('Меня зовут Екатерина - менеджер по продаже цветов и букетов маркет-плейса “Цветофор”.')
-            ->line('Отвечаю за то, чтобы оформленный Вами заказ №' . $this->order->num_order . ' в целости и сохранности попал к вам в руки.')
+            ->line('Отвечаю за то, чтобы оформленный Вами заказ №'.$this->order->num_order.' в целости и сохранности попал к вам в руки.')
             ->line('')
             ->line('Давайте посмотрим, что Вы заказали и сверим контактные данные: ')
-            ->salutation('По всем вопросам вы можете звонить по телефону ' . $phone . ' или написать нам почту. ')
+            ->salutation('По всем вопросам вы можете звонить по телефону '.$phone.' или написать нам почту. ')
             ->markdown('emails.user.order.created', compact('order', 'deliveryPrice'));
     }
 

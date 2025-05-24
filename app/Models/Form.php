@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-
 use A17\Twill\Models\Model;
 
 class Form extends Model
 {
-
-
     protected $fillable = [
         'published',
         'title',
@@ -21,5 +18,4 @@ class Form extends Model
         'city_id',
         'published',
     ];
-
 }

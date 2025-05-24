@@ -2,24 +2,16 @@
 
 namespace App\Http\Controllers\Twill;
 
-use App\Models\Market;
-use A17\Twill\Models\Model;
-use A17\Twill\Services\Forms\Form;
-use Barryvdh\Debugbar\Facades\Debugbar;
-use Illuminate\Database\Eloquent\Builder;
+use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 use A17\Twill\Services\Forms\Fields\Input;
+use A17\Twill\Services\Forms\Form;
 use A17\Twill\Services\Listings\Columns\Text;
-use A17\Twill\Services\Listings\TableColumns;
-use A17\Twill\Services\Listings\Columns\Relation;
-use A17\Twill\Models\Contracts\TwillModelContract;
-use A17\Twill\Services\Listings\Filters\BasicFilter;
+use A17\Twill\Services\Listings\Filters\BelongsToFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
 use A17\Twill\Services\Listings\Filters\TableFilters;
-use A17\Twill\Services\Listings\Filters\BooleanFilter;
-use A17\Twill\Services\Listings\Filters\BelongsToFilter;
-use A17\Twill\Services\Listings\Filters\FieldSelectFilter;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Services\Listings\TableColumns;
+use App\Models\Market;
 
 class RemainController extends BaseModuleController
 {
@@ -67,6 +59,7 @@ class RemainController extends BaseModuleController
     {
         $form = Form::make();
         $form->add(Input::make()->name('quantity')->label('Количество')->type('number'));
+
         return $form;
     }
 
@@ -78,13 +71,13 @@ class RemainController extends BaseModuleController
 
         $table->push(
             Text::make()->field('product_id')->title('Продукт')->customRender(function ($model) {
-                return $model->product?->title ?? "";
+                return $model->product?->title ?? '';
             })
         );
 
         $table->push(
             Text::make()->field('market_id')->title('Магазин')->customRender(function ($model) {
-                return $model->market?->name ?? "";
+                return $model->market?->name ?? '';
             })
         );
 

@@ -10,7 +10,7 @@ class DeliveryStatus extends Model implements Sortable
 {
     use HasPosition;
 
-    //Передан курьеру
+    // Передан курьеру
     public const TRANSFERRED = 'HC';
 
     // Доставлен
@@ -26,5 +26,4 @@ class DeliveryStatus extends Model implements Sortable
         'position',
         'code',
     ];
-
 }

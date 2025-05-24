@@ -41,12 +41,13 @@ class RegionsImport extends Command
 
             if ($i == 0) {
                 $header = $line;
+
                 continue;
             }
 
             $arrs = [];
             foreach ($line as $j => $attr) {
-                $arrs[$header[$j]] = $attr ? : null;
+                $arrs[$header[$j]] = $attr ?: null;
             }
             if (filled($arrs['name'])) {
                 $city = $repository->firstOrCreate($arrs);
@@ -55,6 +56,7 @@ class RegionsImport extends Command
                 $city->save();
             }
         }
+
         return Command::SUCCESS;
     }
 }

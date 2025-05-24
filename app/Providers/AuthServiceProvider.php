@@ -9,11 +9,11 @@ use App\Models\Market;
 use App\Models\MarketWorkTime;
 use App\Policies\ProductPolicy;
 use Illuminate\Auth\Notifications\VerifyEmail;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Notifications\Messages\MailMessage;
 
-class AuthServiceProvider extends ServiceProvider {
+class AuthServiceProvider extends ServiceProvider
+{
     /**
      * The model to policy mappings for the application.
      *
@@ -29,16 +29,14 @@ class AuthServiceProvider extends ServiceProvider {
      *
      * @return void
      */
-    public function boot() {
+    public function boot()
+    {
         $this->registerPolicies();
-
-
-
 
         VerifyEmail::toMailUsing(function ($notifiable, $url) {
             return (new MailMessage)
                 ->subject('Подтвердите Email адрес')
-                ->greeting("Добро пожаловать!")
+                ->greeting('Добро пожаловать!')
                 ->line('До завершения регистрации остался всего один шаг. Так мы точно будем знать, что это ваш верный адрес электронной почты. Сюда будут приходить важные новости и информация о ваших покупках. Для подтверждения перейдите по ссылке.')
                 ->line('Если вы не регистрировались на нашем сайте, просто проигнорируйте это письмо. ')
                 ->action('Подтвердить', $url)

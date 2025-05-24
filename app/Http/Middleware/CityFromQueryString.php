@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\City;
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\City;
 
 class CityFromQueryString
 {

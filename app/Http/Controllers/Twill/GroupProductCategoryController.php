@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Twill;
 
+use A17\Twill\Http\Controllers\Admin\NestedModuleController as BaseModuleController;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Listings\Columns\Text;
 use A17\Twill\Services\Listings\TableColumns;
-use A17\Twill\Services\Forms\Fields\Input;
-use A17\Twill\Services\Forms\Form;
-use A17\Twill\Http\Controllers\Admin\NestedModuleController as BaseModuleController;
 
 class GroupProductCategoryController extends BaseModuleController
 {
     protected $moduleName = 'groupProductCategories';
+
     protected $showOnlyParentItemsInBrowsers = true;
+
     protected $nestedItemsDepth = 1;
+
     /**
      * This method can be used to enable/disable defaults. See setUpController in the docs for available options.
      */
@@ -31,7 +32,6 @@ class GroupProductCategoryController extends BaseModuleController
             'metadata_og_type_options' => config('metadata.opengraph_type_options'),
         ];
     }
-
 
     /**
      * This is an example and can be removed if no modifications are needed to the table.
@@ -52,12 +52,10 @@ class GroupProductCategoryController extends BaseModuleController
 
         $item = $this->repository->getById($id, $this->formWith, $this->formWithCount);
 
-
-
-        $this->permalinkBase .= '/' . $item->ancestorsSlug;
+        $this->permalinkBase .= '/'.$item->ancestorsSlug;
         $this->permalinkBase = str_replace('//', '/', $this->permalinkBase);
 
-        $this->permalinkBase = rtrim($this->permalinkBase,'/');
+        $this->permalinkBase = rtrim($this->permalinkBase, '/');
 
         return parent::form($id, $item);
     }

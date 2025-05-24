@@ -1,6 +1,7 @@
 <?php
 
 namespace App\ViewModel\CatalogController;
+
 use A17\Twill\Models\Tag;
 
 class MainPageTagsModel
@@ -14,5 +15,4 @@ class MainPageTagsModel
         $this->tag = $tag;
         $this->prices = $prices;
     }
-
 }

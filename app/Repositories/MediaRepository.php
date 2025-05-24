@@ -5,19 +5,22 @@ namespace A17\Twill\Repositories;
 use A17\Twill\Models\Media;
 use A17\Twill\Repositories\Behaviors\HandleTags;
 use A17\Twill\Services\MediaLibrary\ImageService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Database\Eloquent\Builder;
 
-class MediaRepository extends ModuleRepository {
+class MediaRepository extends ModuleRepository
+{
     use HandleTags;
 
-    public function __construct(Media $model) {
+    public function __construct(Media $model)
+    {
         $this->model = $model;
     }
 
-    public function afterDelete($object): void {
+    public function afterDelete($object): void
+    {
         $storageId = $object->uuid;
         if (Config::get('twill.media_library.cascade_delete')) {
             Storage::disk(Config::get('twill.media_library.disk'))->delete($storageId);
@@ -29,16 +32,17 @@ class MediaRepository extends ModuleRepository {
         }
     }
 
-    public function filter($query, array $scopes = []): Builder {
-        if (!\Gate::allows('is_owner')) {
+    public function filter($query, array $scopes = []): Builder
+    {
+        if (! \Gate::allows('is_owner')) {
             $query->where('market_id', '=', auth()->guard('twill_users')->user()->getMarketId());
         }
-
 
         return parent::filter($query, $scopes);
     }
 
-    public function prepareFieldsBeforeCreate(array $fields): array {
+    public function prepareFieldsBeforeCreate(array $fields): array
+    {
         if (Config::get('twill.media_library.init_alt_text_from_filename', true)) {
             $fields['alt_text'] = $this->model->altTextFrom($fields['filename']);
         }
@@ -48,7 +52,7 @@ class MediaRepository extends ModuleRepository {
         }
 
         // if we were not able to determine dimensions with the browser File API, let's ask the Image service
-        if (!isset($fields['width'], $fields['height'])) {
+        if (! isset($fields['width'], $fields['height'])) {
             $dimensions = ImageService::getDimensions($fields['uuid']);
             $fields['width'] = $dimensions['width'] ?? 0;
             $fields['height'] = $dimensions['height'] ?? 0;

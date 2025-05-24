@@ -2,22 +2,18 @@
 
 namespace App\Http\Controllers\Twill;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Response;
-use A17\Twill\Services\Listings\TableColumns;
+use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Services\Listings\TableColumns;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class RegionController extends BaseModuleController
 {
     protected $moduleName = 'regions';
 
     protected $indexOptions = [];
-
 
     protected $titleColumnKey = 'name_with_type';
 
@@ -61,7 +57,6 @@ class RegionController extends BaseModuleController
         ]);
     }
 
-
     protected function getIndexTableColumns(): TableColumns
     {
         $table = parent::getIndexTableColumns();
@@ -84,7 +79,7 @@ class RegionController extends BaseModuleController
             QuickFilter::make()
                 ->label(twillTrans('twill::lang.listing.filter.all-items'))
                 ->queryString('all')
-                ->amount(fn() => $this->repository->getCountByStatusSlug('all', $scope)),
+                ->amount(fn () => $this->repository->getCountByStatusSlug('all', $scope)),
         ]);
     }
 }

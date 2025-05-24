@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use A17\Twill\Models\Model;
 use App\Services\CitiesService;
 
@@ -24,7 +23,7 @@ class Hollyday extends Model
     public static function isHollyDays()
     {
         return \Cache::remember(
-            'isHollyDays_' . CitiesService::getCity()->id,
+            'isHollyDays_'.CitiesService::getCity()->id,
             360,
             function () {
                 $date = \Carbon\Carbon::create(CitiesService::DateTime());
@@ -44,13 +43,13 @@ class Hollyday extends Model
                 foreach ($hollydays as $key => $hollyday) {
                     if ($hollyday->begin_at->month == $date->month && $hollyday->begin_at->day <= $date->day) {
                         $isHollyDays = true;
-                    } else if ($hollyday->begin_at->month == $date->month && $hollyday->begin_at->day >= $date->day) {
+                    } elseif ($hollyday->begin_at->month == $date->month && $hollyday->begin_at->day >= $date->day) {
                         $isHollyDays = false;
                     }
                 }
+
                 return $isHollyDays;
             }
         );
     }
-
 }

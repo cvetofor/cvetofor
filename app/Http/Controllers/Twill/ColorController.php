@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Twill;
 
-use A17\Twill\Services\Forms\Form;
-use A17\Twill\Services\Forms\Fields\Color;
-use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Forms\Fields\Input;
-use App\Http\Resources\ColorResource;
+use A17\Twill\Services\Forms\Form;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
 
 class ColorController extends BaseModuleController
 {
     protected $moduleName = 'colors';
+
     /**
      * This method can be used to enable/disable defaults. See setUpController in the docs for available options.
      */
@@ -38,8 +37,6 @@ class ColorController extends BaseModuleController
         return $form;
     }
 
-
-
     public function getBrowserData($prependScope = []): array
     {
         $data = parent::getBrowserData($prependScope);
@@ -48,7 +45,7 @@ class ColorController extends BaseModuleController
 
             $request = json_decode($this->request->get('connectedBrowserIds'));
             if (is_array($request)) {
-                $productId = (int)$request[0];
+                $productId = (int) $request[0];
 
                 if (is_numeric($productId)) {
                     $repository = new ProductRepository(new Product);
@@ -56,12 +53,11 @@ class ColorController extends BaseModuleController
                     $colors = $product->getRelated('colors');
 
                     foreach ($data['data'] as $key => $color) {
-                        if (!in_array($color['id'], $colors->pluck('id')->toArray())) {
+                        if (! in_array($color['id'], $colors->pluck('id')->toArray())) {
                             unset($data['data'][$key]);
                         }
 
-                        if( ! auth()->user()->can('edit-module', 'colors'))
-                        {
+                        if (! auth()->user()->can('edit-module', 'colors')) {
                             $data['data'][$key]['edit'] = false;
                         }
 

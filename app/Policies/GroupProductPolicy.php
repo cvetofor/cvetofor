@@ -25,13 +25,12 @@ class GroupProductPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\GroupProduct  $groupProduct
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user, GroupProduct $groupProduct)
     {
         return $user->can('is_owner') || $groupProduct->is_public ||
-            (in_array($groupProduct->created_by_market_id, $user->getMarketIds()) && $user->can('edit-module', 'groupProducts')) ;
+            (in_array($groupProduct->created_by_market_id, $user->getMarketIds()) && $user->can('edit-module', 'groupProducts'));
     }
 
     /**
@@ -49,7 +48,6 @@ class GroupProductPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\GroupProduct  $groupProduct
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function update(User $user, GroupProduct $groupProduct)
@@ -62,7 +60,6 @@ class GroupProductPolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\GroupProduct  $groupProduct
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function delete(User $user, GroupProduct $groupProduct)
@@ -74,7 +71,6 @@ class GroupProductPolicy
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\GroupProduct  $groupProduct
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function restore(User $user, GroupProduct $groupProduct)
@@ -86,7 +82,6 @@ class GroupProductPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\GroupProduct  $groupProduct
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function forceDelete(User $user, GroupProduct $groupProduct)

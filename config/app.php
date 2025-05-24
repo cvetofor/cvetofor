@@ -30,7 +30,6 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
-
     'yandex_api' => env('YANDEX_APIKEY'),
 
     /*
@@ -214,7 +213,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'Meta'    => Eusonlito\LaravelMeta\Facade::class,
+        'Meta' => Eusonlito\LaravelMeta\Facade::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         // 'ExampleClass' => App\Example\ExampleClass::class,
     ])->toArray(),

@@ -40,8 +40,6 @@ class OrderStatus extends Model implements Sortable
      */
     public const CANCELED = 'AN';
 
-
-
     protected $fillable = [
         'published',
         'title',
@@ -54,5 +52,4 @@ class OrderStatus extends Model implements Sortable
     {
         return $this->hasMany(Order::class, 'order_status_id');
     }
-
 }

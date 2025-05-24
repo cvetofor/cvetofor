@@ -4,7 +4,6 @@ namespace App\Models;
 
 use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Attribute extends Model
 {
@@ -19,7 +18,7 @@ class Attribute extends Model
 
     protected $casts = [
         'values' => 'array',
-        'variable_generated_at' => 'datetime'
+        'variable_generated_at' => 'datetime',
     ];
 
     public function products()

@@ -2,13 +2,13 @@
 
 namespace App\Repositories;
 
-use App\Models\Product;
 use A17\Twill\Models\Block;
-use App\Models\GroupProduct;
-use App\Models\ProductPrice;
-use A17\Twill\Repositories\ModuleRepository;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Repositories\Behaviors\HandleRevisions;
+use A17\Twill\Repositories\ModuleRepository;
+use App\Models\GroupProduct;
+use App\Models\Product;
+use App\Models\ProductPrice;
 
 class ProductPriceRepository extends ModuleRepository
 {
@@ -19,11 +19,9 @@ class ProductPriceRepository extends ModuleRepository
         $this->model = $model;
     }
 
-
     public function afterSave(TwillModelContract $model, array $fields): void
     {
         self::recalculate($model);
-
 
         parent::afterSave($model, $fields);
     }
@@ -36,11 +34,9 @@ class ProductPriceRepository extends ModuleRepository
         $product = is_a($model, ProductPrice::class) ? $model->product : $model;
         $marketId = $marketId ?: auth('twill_users')->user()->getMarketId();
 
-
-
         if ($product && $model->published && $marketId) {
 
-            # Обновим все цветы, у которых есть данный продукт
+            // Обновим все цветы, у которых есть данный продукт
 
             $groupProductsId = Block::where('type', 'products')->where('content->browsers->products->0', $product->id)->get()->pluck('blockable_id');
 
@@ -50,14 +46,14 @@ class ProductPriceRepository extends ModuleRepository
 
                 $priceObj = $groupProduct->priceObj()->whereMarketId($marketId)->first();
 
-                if ($priceObj && !$priceObj->is_custom_price) {
+                if ($priceObj && ! $priceObj->is_custom_price) {
 
                     $total = 0.0;
                     $blocks = $groupProduct->blocks()->where('type', 'products')->get();
 
                     $blocks = $blocks->transform(function ($block) {
                         return [
-                            'count'   => \Arr::get($block->content, 'count'),
+                            'count' => \Arr::get($block->content, 'count'),
                             'product' => \Arr::get($block->content, 'browsers.products.0'),
                         ];
                     })->filter()->toArray();
@@ -71,11 +67,10 @@ class ProductPriceRepository extends ModuleRepository
                             ->get()->sortByDesc(function ($l, $r) {
                                 return $l->quantity_from;
                             })->filter(function ($e) use ($block) {
-                            return $block['count'] >= $e->quantity_from;
-                        })->first();
+                                return $block['count'] >= $e->quantity_from;
+                            })->first();
 
-
-                        if (!$blocPrice) {
+                        if (! $blocPrice) {
                             $total = false;
                             break;
                         }

@@ -2,21 +2,18 @@
 
 namespace App\Models;
 
-use App\Models\Market;
-use App\Models\Product;
+use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Model;
 use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Models\Behaviors\HasRevisions;
-use Rennokki\QueryCache\Traits\QueryCacheable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Remain extends Model
 {
     use HasRevisions;
-
     use QueryCacheable;
 
-     /**
+    /**
      * Specify the amount of time to cache queries.
      * Do not specify or set it to null to disable caching.
      *
@@ -41,11 +38,11 @@ class Remain extends Model
     public $cachePrefix = 'remains_';
 
     /**
-    * Invalidate the cache automatically
-    * upon update in the database.
-    *
-    * @var bool
-    */
+     * Invalidate the cache automatically
+     * upon update in the database.
+     *
+     * @var bool
+     */
     protected static $flushCacheOnUpdate = true;
 
     protected $fillable = [
@@ -57,10 +54,10 @@ class Remain extends Model
     ];
 
     protected $hidden =
-    [
-        'product_id',
-        'group_product_id',
-    ];
+        [
+            'product_id',
+            'group_product_id',
+        ];
 
     public function product(): BelongsTo
     {

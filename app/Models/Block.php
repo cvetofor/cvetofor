@@ -5,32 +5,30 @@ namespace A17\Twill\Models;
 use A17\Twill\Facades\TwillUtil;
 use A17\Twill\Models\Behaviors\HasFiles;
 use A17\Twill\Models\Behaviors\HasMedias;
-use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Models\Behaviors\HasRelated;
 use A17\Twill\Models\Behaviors\HasPresenter;
-use Rennokki\QueryCache\Traits\QueryCacheable;
+use A17\Twill\Models\Behaviors\HasRelated;
 use A17\Twill\Models\Contracts\TwillModelContract;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model as BaseModel;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Database\Eloquent\Model as BaseModel;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Block extends BaseModel implements TwillModelContract
 {
-    use HasMedias;
     use HasFiles;
+    use HasMedias;
     use HasPresenter;
     use HasRelated;
-
     use QueryCacheable;
 
     /**
-    * Invalidate the cache automatically
-    * upon update in the database.
-    *
-    * @var bool
-    */
+     * Invalidate the cache automatically
+     * upon update in the database.
+     *
+     * @var bool
+     */
     protected static $flushCacheOnUpdate = true;
-
 
     /**
      * Specify the amount of time to cache queries.
@@ -91,7 +89,7 @@ class Block extends BaseModel implements TwillModelContract
     {
         return $this->hasMany(twillModel('block'), 'parent_id')
             ->orderBy(
-                $this->getTable() . '.position',
+                $this->getTable().'.position',
                 'asc'
             );
     }
@@ -111,17 +109,17 @@ class Block extends BaseModel implements TwillModelContract
         return $this->content[$name] ?? null;
     }
 
-    public function translatedInput(string $name, bool $forceLocale = null): mixed
+    public function translatedInput(string $name, ?bool $forceLocale = null): mixed
     {
         $value = $this->content[$name] ?? null;
 
         $locale = $forceLocale ?? (
-        config('translatable.use_property_fallback', false) && (! array_key_exists(
-            app()->getLocale(),
-            array_filter($value ?? []) ?? []
-        ))
-            ? config('translatable.fallback_locale')
-            : app()->getLocale()
+            config('translatable.use_property_fallback', false) && (! array_key_exists(
+                app()->getLocale(),
+                array_filter($value ?? []) ?? []
+            ))
+                ? config('translatable.fallback_locale')
+                : app()->getLocale()
         );
 
         return $value[$locale] ?? null;

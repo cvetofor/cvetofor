@@ -2,23 +2,22 @@
 
 namespace App\Models;
 
-use A17\Twill\Models\Model;
-use A17\Twill\Models\Behaviors\HasSlug;
-use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Behaviors\HasMedias;
 use A17\Twill\Models\Behaviors\HasNesting;
 use A17\Twill\Models\Behaviors\HasPosition;
 use A17\Twill\Models\Behaviors\HasRevisions;
-use Rennokki\QueryCache\Traits\QueryCacheable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use A17\Twill\Models\Behaviors\HasSlug;
+use A17\Twill\Models\Behaviors\Sortable;
+use A17\Twill\Models\Model;
 use CwsDigital\TwillMetadata\Models\Behaviours\HasMetadata;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Rennokki\QueryCache\Traits\QueryCacheable;
 
-class GroupProductCategory extends Model implements Sortable {
-    use HasSlug, HasMedias, HasRevisions, HasPosition, HasNesting;
+class GroupProductCategory extends Model implements Sortable
+{
+    use HasMedias, HasNesting, HasPosition, HasRevisions, HasSlug;
     use HasMetadata;
-
     use QueryCacheable;
-
 
     public static function boot()
     {
@@ -66,6 +65,7 @@ class GroupProductCategory extends Model implements Sortable {
     protected static $flushCacheOnUpdate = true;
 
     public $metadataFallbacks = [];
+
     public function scopeAvailable($query)
     {
         return $query->where(function ($q) {
@@ -77,16 +77,17 @@ class GroupProductCategory extends Model implements Sortable {
                 });
         });
     }
+
     public function isAvailable(): bool
     {
-        if (!$this->is_category_limited) {
+        if (! $this->is_category_limited) {
             return true; // Если ограничение не включено, категория доступна всегда
         }
 
         $today = now()->toDateString();
+
         return $this->limit_start_date <= $today && $this->limit_end_date >= $today;
     }
-
 
     protected $fillable = [
         'published',
@@ -133,7 +134,8 @@ class GroupProductCategory extends Model implements Sortable {
         'title',
     ];
 
-    public function products(): HasMany {
+    public function products(): HasMany
+    {
         return $this->hasMany(GroupProduct::class, 'category_id');
     }
 }

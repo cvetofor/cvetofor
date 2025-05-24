@@ -2,10 +2,9 @@
 
 namespace App\Repositories;
 
-
-use App\Models\Color;
-use A17\Twill\Repositories\ModuleRepository;
 use A17\Twill\Models\Contracts\TwillModelContract;
+use A17\Twill\Repositories\ModuleRepository;
+use App\Models\Color;
 
 class ColorRepository extends ModuleRepository
 {
@@ -15,9 +14,7 @@ class ColorRepository extends ModuleRepository
         ],
     ];
 
-
-
-    # The below can be setup optionally, documented below.
+    // The below can be setup optionally, documented below.
 
     public bool $fieldsGroupsFormFieldNamesAutoPrefix = true;
 

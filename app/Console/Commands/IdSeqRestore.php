@@ -28,21 +28,22 @@ class IdSeqRestore extends Command
     public function handle()
     {
 
-        if ($this->option("print")) {
+        if ($this->option('print')) {
             $this->print();
         } else {
             $this->_run();
         }
+
         return Command::SUCCESS;
     }
 
     public function print()
     {
         $tables = \DB::select('SELECT * FROM pg_catalog.pg_tables    WHERE schemaname != \'pg_catalog\' AND         schemaname != \'information_schema\';');
-        $result = "";
+        $result = '';
         foreach ($tables as $key => $t) {
             $array = get_object_vars($t);
-            $table = $array['schemaname'] . '.' . $array['tablename'];
+            $table = $array['schemaname'].'.'.$array['tablename'];
 
             $result .= "SELECT MAX(id) FROM ${table};
                 SELECT nextval('${table}_id_seq');
@@ -58,11 +59,11 @@ class IdSeqRestore extends Command
     public function _run()
     {
         $tables = \DB::select('SELECT * FROM pg_catalog.pg_tables    WHERE schemaname != \'pg_catalog\' AND         schemaname != \'information_schema\';');
-        $result = "";
+        $result = '';
         foreach ($tables as $key => $t) {
             $result = '';
             $array = get_object_vars($t);
-            $table = $array['schemaname'] . '.' . $array['tablename'];
+            $table = $array['schemaname'].'.'.$array['tablename'];
 
             $result .= "SELECT MAX(id) FROM ${table};
 

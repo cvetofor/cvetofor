@@ -2,18 +2,18 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
 use A17\Twill\Facades\TwillAppSettings;
-use Illuminate\Notifications\Notification;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class SendPasswordAfterRegisterNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-
     protected string $password;
+
     /**
      * Create a new notification instance.
      *
@@ -65,12 +65,12 @@ class SendPasswordAfterRegisterNotification extends Notification implements Shou
 
         return (new MailMessage)
             ->subject('Регистрация на сайте')
-            ->greeting("Здравствуйте!")
+            ->greeting('Здравствуйте!')
             ->line('Вы были успешно зарегистрированы. ')
             ->line('Благодарим вас за выбор нашего маркет-плейса!')
             ->line('Надеемся, вам понравится работать с нами и вы будете довольны сервисом.')
             ->line('По всем вопросам вы можете звонить по телефону '.$phone.' или написать нам почту. ')
-            ->line('Ваш пароль: ' . $this->password);
+            ->line('Ваш пароль: '.$this->password);
     }
 
     /**

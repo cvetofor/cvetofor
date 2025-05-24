@@ -2,26 +2,25 @@
 
 namespace App\Repositories;
 
-use App\Models\Delivery;
-use App\Models\OrderStatus;
-use App\Models\DeliveryStatus;
-use App\Repositories\OrderRepository;
-use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Repositories\ModuleRepository;
 use A17\Twill\Models\Contracts\TwillModelContract;
-use A17\Twill\Repositories\Behaviors\HandleRevisions;
+use A17\Twill\Repositories\ModuleRepository;
 use App\Events\OrderDeliveryChanged;
+use App\Models\Delivery;
+use App\Models\DeliveryStatus;
+use Illuminate\Database\Eloquent\Builder;
 
 class DeliveryRepository extends ModuleRepository
 {
-
     public function __construct(Delivery $model)
     {
         $this->model = $model;
     }
+
     public function hasBehavior(string $behavior): bool
     {
-        if ($behavior == 'revisions') return false;
+        if ($behavior == 'revisions') {
+            return false;
+        }
 
         return parent::hasBehavior($behavior);
     }
@@ -31,7 +30,7 @@ class DeliveryRepository extends ModuleRepository
         $query->whereHas('order', function ($q) {
             return $q
                 ->where('market_id', auth('twill_users')->user()->getMarketId())
-                ->where('delivery_status_id','<>',null);
+                ->where('delivery_status_id', '<>', null);
         });
 
         return parent::filter(
@@ -39,6 +38,7 @@ class DeliveryRepository extends ModuleRepository
             $scopes
         );
     }
+
     public function getFormFields(TwillModelContract $object): array
     {
         $fields = parent::getFormFields($object);
@@ -48,8 +48,8 @@ class DeliveryRepository extends ModuleRepository
                 [
                     'id' => $deliveryStatus->id,
                     'name' => $deliveryStatus->title,
-                    #'edit' => moduleRoute($object->deliveryStatus->getTable(), '', 'edit', $deliveryStatus->id),
-                    "endpointType" => DeliveryStatus::class,
+                    // 'edit' => moduleRoute($object->deliveryStatus->getTable(), '', 'edit', $deliveryStatus->id),
+                    'endpointType' => DeliveryStatus::class,
                 ],
             ])->toArray();
         }
@@ -63,12 +63,13 @@ class DeliveryRepository extends ModuleRepository
         $fields['delivery_date'] = $object->order->delivery_date;
         $fields['delivery_time'] = $object->order->delivery_time;
         $fields['total_price'] = $object->price;
+
         return $fields;
     }
 
     public function prepareFieldsBeforeSave(TwillModelContract $object, array $fields): array
     {
-        #$fields =  parent::prepareFieldsBeforeSave($object, $fields);
+        // $fields =  parent::prepareFieldsBeforeSave($object, $fields);
 
         if (\Arr::get($fields, 'browsers.order_deliveryStatus.0.id', null)) {
 
@@ -77,7 +78,7 @@ class DeliveryRepository extends ModuleRepository
             $order = app(OrderRepository::class);
 
             $order->update($object->order->id, [
-                'delivery_status_id' => $fields['delivery_status_id']
+                'delivery_status_id' => $fields['delivery_status_id'],
             ]);
 
             event(new OrderDeliveryChanged($object->order));

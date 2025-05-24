@@ -37,6 +37,7 @@ class OrderUpdatedCrmListener implements ShouldQueue
     use InteractsWithQueue;
 
     private AmoCRMApiClient $client;
+
     private string $prefix = 'amocrm.opt03';
 
     /**
@@ -49,16 +50,19 @@ class OrderUpdatedCrmListener implements ShouldQueue
     {
         $amocrmLogger = logger()->channel('amocrm');
         $amocrmLogger->debug('Начали обработку заказа', ['order_id' => $event->order->id]);
-        if (App::isLocal()) $this->prefix = 'amocrm.testfloweramocrmru';
+        if (App::isLocal()) {
+            $this->prefix = 'amocrm.testfloweramocrmru';
+        }
 
-        $this->client = (new AmoCRMApiClient())
+        $this->client = (new AmoCRMApiClient)
             ->setAccountBaseDomain(config("$this->prefix.domain"))
             ->setAccessToken((new LongLivedAccessToken(config("$this->prefix.token"))));
 
         $order = $event->order;
         $childOrderMarketIds = $order->childs->pluck('market_id');
-        if ($order->market_id != 1 && !in_array(1, $childOrderMarketIds->toArray())) {
+        if ($order->market_id != 1 && ! in_array(1, $childOrderMarketIds->toArray())) {
             $amocrmLogger->debug('Закончили обработку заказа. Заказ привязан не к магазину Цветофор Улан-Удэ');
+
             return;
         } // Заказ привязан не к магазину Цветофор Улан-Удэ
 
@@ -76,10 +80,11 @@ class OrderUpdatedCrmListener implements ShouldQueue
                     'message' => $e->getMessage(),
                     'request' => Arr::except($e->getLastRequestInfo(), ['curl_call', 'jquery_call']),
                 ]);
+
                 return;
             }
         } else {
-            $amocrmLogger->debug("Статус оплаты: " . $order->paymentStatus->title);
+            $amocrmLogger->debug('Статус оплаты: '.$order->paymentStatus->title);
         }
     }
 
@@ -91,7 +96,7 @@ class OrderUpdatedCrmListener implements ShouldQueue
     private function findLead(string $id): ?LeadModel
     {
         try {
-            $leadsFilter = (new LeadsFilter())
+            $leadsFilter = (new LeadsFilter)
                 ->setQuery($id);
 
             $lead = $this->client->leads()
@@ -99,6 +104,7 @@ class OrderUpdatedCrmListener implements ShouldQueue
         } catch (AmoCRMApiNoContentException) {
             return null;
         }
+
         return $lead->first();
     }
 
@@ -107,7 +113,7 @@ class OrderUpdatedCrmListener implements ShouldQueue
      */
     protected function makeLeadModel(Order $order, int $leadId): LeadModel
     {
-        return (new LeadModel())
+        return (new LeadModel)
             ->setId($leadId)
             ->setTags($this->makeTagsCollection($order, $leadId))
             ->setCustomFieldsValues($this->makeLeadCustomFields($order));
@@ -115,10 +121,10 @@ class OrderUpdatedCrmListener implements ShouldQueue
 
     protected function makeTagsCollection(Order $order, int $leadId): TagsCollection
     {
-        $tagsCollection = $this->client->leads()->getOne($leadId)->getTags() ?? new TagsCollection();
+        $tagsCollection = $this->client->leads()->getOne($leadId)->getTags() ?? new TagsCollection;
 
         if ($order->paymentStatus->title == 'Оплачено') {
-            $tagsCollection->add((new TagModel())->setName('Оплачено'));
+            $tagsCollection->add((new TagModel)->setName('Оплачено'));
         }
 
         return $tagsCollection;
@@ -129,21 +135,20 @@ class OrderUpdatedCrmListener implements ShouldQueue
      */
     protected function makeLeadCustomFields(Order $order): CustomFieldsValuesCollection
     {
-        $cf = new CustomFieldsValuesCollection();
+        $cf = new CustomFieldsValuesCollection;
 
         // Работа с полями требующими приведения или строгих типов
-        $cf->add((new SelectCustomFieldValuesModel())
+        $cf->add((new SelectCustomFieldValuesModel)
             ->setFieldId(config("$this->prefix.cf.payment_status"))
-            ->setValues((new SelectCustomFieldValueCollection())
-                ->add((new SelectCustomFieldValueModel())
+            ->setValues((new SelectCustomFieldValueCollection)
+                ->add((new SelectCustomFieldValueModel)
                     ->setValue($order->paymentStatus->title == 'Оплачено' ? 'Оплачен' : 'НЕ ОПЛАЧЕН'))));
 
         $paymentMethodId = config("$this->prefix.cf.payment_method_map.{$order->payment->code}");
-        $cf->add((new SelectCustomFieldValuesModel())
+        $cf->add((new SelectCustomFieldValuesModel)
             ->setFieldId(config("$this->prefix.cf.payment_method"))
-            ->setValues((new SelectCustomFieldValueCollection())
-                ->add((new SelectCustomFieldValueModel())->setEnumId($paymentMethodId))));
-
+            ->setValues((new SelectCustomFieldValueCollection)
+                ->add((new SelectCustomFieldValueModel)->setEnumId($paymentMethodId))));
 
         return $cf;
     }
@@ -151,22 +156,23 @@ class OrderUpdatedCrmListener implements ShouldQueue
     protected function getDeliveryPrice(Order $order): mixed
     {
         $deliveryOrderPrice = Delivery::where('order_id', $order->id)->first();
+
         return $deliveryOrderPrice && isset($deliveryOrderPrice->price) ? $deliveryOrderPrice->price : 0;
     }
 
     protected function makeAdminOrderUrl(Order $order): string
     {
-        return !empty($order->parent_id)
+        return ! empty($order->parent_id)
             ? "https://цветофор.рф/hub/orders/$order->id/edit"
             : '';
     }
 
     protected function makeDeliveryAddressValue(Order $order): string
     {
-        return !empty($order->address)
+        return ! empty($order->address)
             ? implode(', ', array_filter(array_merge(
-                (array)str_replace('Республика Бурятия, ', '', data_get($order->address, 'address')),
-                !empty(data_get($order->address, 'apartament_number')) ? [data_get($order->address, 'apartament_number')] : [],
+                (array) str_replace('Республика Бурятия, ', '', data_get($order->address, 'address')),
+                ! empty(data_get($order->address, 'apartament_number')) ? [data_get($order->address, 'apartament_number')] : [],
             )))
             : 'Уточнить у получателя';
     }
@@ -174,13 +180,13 @@ class OrderUpdatedCrmListener implements ShouldQueue
     protected function extractProductsInformation(Order $order): array
     {
         $cartItems = $order->cart;
-        $orderStructure = "";
-        $receipt = "";
+        $orderStructure = '';
+        $receipt = '';
         $lastIndex = count($cartItems) - 1;
         $currentIndex = 0;
         $packaging = 0;
 
-        if (!empty($cartItems)) {
+        if (! empty($cartItems)) {
             foreach ($cartItems as $cartItem) {
                 $bouquetName = data_get($cartItem, 'name');
                 $bouquetQuantity = data_get($cartItem, 'quantity');
@@ -200,7 +206,7 @@ class OrderUpdatedCrmListener implements ShouldQueue
                         $componentProduct = data_get($componentBouquet, 'product');
                         $componentBouquetCount = data_get($componentBouquet, 'count');
 
-                        $orderStructure .= "- $bouquetTitle: " . trim(($componentBouquetCount ?: '') . ($componentBouquetCount && $bouquetColor?->title ? ', ' : '') . ($bouquetColor?->title ?: '')) . "\n";
+                        $orderStructure .= "- $bouquetTitle: ".trim(($componentBouquetCount ?: '').($componentBouquetCount && $bouquetColor?->title ? ', ' : '').($bouquetColor?->title ?: ''))."\n";
                         if (preg_match('/^Упаковка\.?$|^Упаковка \/ [\p{L}]+$/u', $bouquetTitle)) {
                             $packagingPrice = ProductPrice::where('product_id', $componentProduct)->first();
                             $packaging = ($packagingPrice && $packagingPrice->price)
@@ -212,6 +218,7 @@ class OrderUpdatedCrmListener implements ShouldQueue
                 }
             }
         }
+
         return [$orderStructure, $receipt, $packaging];
     }
 
@@ -222,18 +229,18 @@ class OrderUpdatedCrmListener implements ShouldQueue
      */
     private function createContact(Order $order): ContactModel
     {
-        return $this->client->contacts()->addOne((new ContactModel())
-            ->setName($order->user->last_name . ' ' . $order->user->name . ' ' . $order->user->second_name)
+        return $this->client->contacts()->addOne((new ContactModel)
+            ->setName($order->user->last_name.' '.$order->user->name.' '.$order->user->second_name)
             ->setCustomFieldsValues($this->makeContactCustomFields($order)));
     }
 
     protected function makeContactCustomFields(Order $order): CustomFieldsValuesCollection
     {
-        return (new CustomFieldsValuesCollection())
-            ->add((new MultitextCustomFieldValuesModel())
+        return (new CustomFieldsValuesCollection)
+            ->add((new MultitextCustomFieldValuesModel)
                 ->setFieldCode('PHONE')
-                ->setValues((new MultitextCustomFieldValueCollection())
-                    ->add((new MultitextCustomFieldValueModel())->setValue("$order->phone")),
+                ->setValues((new MultitextCustomFieldValueCollection)
+                    ->add((new MultitextCustomFieldValueModel)->setValue("$order->phone")),
                 ),
             );
     }

@@ -2,26 +2,29 @@
 
 namespace App\Http\Controllers\Twill;
 
+use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
 use A17\Twill\Services\Listings\Columns\Text;
-use A17\Twill\Services\Listings\TableColumns;
 use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Services\Listings\TableColumns;
 
-class PaymentDetailController extends BaseModuleController {
+class PaymentDetailController extends BaseModuleController
+{
     protected $moduleName = 'paymentDetails';
+
     protected $perPage = 100;
 
-
-    public function setUpController(): void {
+    public function setUpController(): void
+    {
 
         $this->setSearchColumns(['company_name', 'inn', 'kpp']);
         $this->setTitleColumnKey('fio');
         $this->disablePermalink();
     }
 
-    protected function getIndexTableColumns(): TableColumns {
-        $columns = new TableColumns();
+    protected function getIndexTableColumns(): TableColumns
+    {
+        $columns = new TableColumns;
 
         $title = Text::make()->field('fio')->title('Название компании');
         $title->linkToEdit(true);
@@ -59,7 +62,8 @@ class PaymentDetailController extends BaseModuleController {
     /**
      * The quick filters to apply to the listing table.
      */
-    public function quickFilters(): QuickFilters {
+    public function quickFilters(): QuickFilters
+    {
         $scope = ($this->submodule ? [
             $this->getParentModuleForeignKey() => $this->submoduleParentId,
         ] : []);
@@ -68,10 +72,9 @@ class PaymentDetailController extends BaseModuleController {
             QuickFilter::make()
                 ->label(twillTrans('twill::lang.listing.filter.all-items'))
                 ->queryString('all')
-                ->amount(fn() => $this->repository->getCountByStatusSlug('all', $scope)),
+                ->amount(fn () => $this->repository->getCountByStatusSlug('all', $scope)),
         ]);
     }
-
 
     /*
      * Columns of the browser view for this module when browsed from another module

@@ -7,16 +7,16 @@ use avadim\FastExcelLaravel\Excel;
 
 class CsvPriceExport
 {
-
     private $excel;
 
     public function __construct()
     {
         // Create workbook...
-        $this->excel = Excel::create('export-' . date('d-m-Y_h_i'));
+        $this->excel = Excel::create('export-'.date('d-m-Y_h_i'));
         $this->excel->setAuthor(env('APP_NAME'));
 
     }
+
     public $header = [
         'ID',
         'Наличие Y/N',
@@ -26,7 +26,6 @@ class CsvPriceExport
         '51 Шт',
         '101 Шт',
     ];
-
 
     public function build($marketId)
     {
@@ -73,6 +72,6 @@ class CsvPriceExport
 
     public function send()
     {
-        return $this->excel->download(auth()->user()->market->name ?? 'export-' . date('d-m-Y_h_i'));
+        return $this->excel->download(auth()->user()->market->name ?? 'export-'.date('d-m-Y_h_i'));
     }
 }

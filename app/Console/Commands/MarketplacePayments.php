@@ -32,15 +32,13 @@ class MarketplacePayments extends Command
      */
     public function handle()
     {
-        \Log::channel('marketplace')->info('Выплаты магазину от'. now()->format('d.m.Y h:i'));
+        \Log::channel('marketplace')->info('Выплаты магазину от'.now()->format('d.m.Y h:i'));
 
         $markets = Market::all();
 
-        foreach($markets as $market)
-        {
+        foreach ($markets as $market) {
             MarketplacePaymentJob::dispatch($market);
         }
-
 
         return Command::SUCCESS;
     }

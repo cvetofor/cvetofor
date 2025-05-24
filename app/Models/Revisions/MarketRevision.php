@@ -6,5 +6,5 @@ use A17\Twill\Models\Revision;
 
 class MarketRevision extends Revision
 {
-    protected $table = "market_revisions";
+    protected $table = 'market_revisions';
 }

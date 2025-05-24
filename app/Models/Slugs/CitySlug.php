@@ -6,5 +6,5 @@ use A17\Twill\Models\Model;
 
 class CitySlug extends Model
 {
-    protected $table = "city_slugs";
+    protected $table = 'city_slugs';
 }

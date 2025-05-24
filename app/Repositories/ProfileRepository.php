@@ -2,17 +2,13 @@
 
 namespace App\Repositories;
 
-
-use App\Models\Profile;
-use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Repositories\ModuleRepository;
 use A17\Twill\Models\Contracts\TwillModelContract;
+use A17\Twill\Repositories\ModuleRepository;
 use App\Models\Order;
+use App\Models\Profile;
 
 class ProfileRepository extends ModuleRepository
 {
-
-
     public function __construct(Profile $model)
     {
         $this->model = $model;
@@ -38,11 +34,10 @@ class ProfileRepository extends ModuleRepository
                     'id' => $e->id,
                     'name' => $e->title,
                     'edit' => moduleRoute($e->getTable(), '', 'edit', $e->id),
-                    "endpointType" => Order::class,
+                    'endpointType' => Order::class,
                 ];
             }))->toArray();
         }
-
 
         return $fields;
     }

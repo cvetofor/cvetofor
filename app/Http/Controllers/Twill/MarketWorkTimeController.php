@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Twill;
 
-use A17\Twill\Services\Listings\TableColumns;
 use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
-use A17\Twill\Http\Controllers\Admin\ModuleController as BaseModuleController;
+use A17\Twill\Services\Listings\TableColumns;
 
 class MarketWorkTimeController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleController
 {
@@ -21,7 +20,7 @@ class MarketWorkTimeController extends \App\Http\Controllers\Twill\AuthorizedBas
         $this->disableCreate();
 
         $this->disableCreate();
-        #$this->disableEdit();
+        // $this->disableEdit();
         $this->disableSortable();
         $this->disablePublish();
         $this->disableBulkPublish();
@@ -49,12 +48,12 @@ class MarketWorkTimeController extends \App\Http\Controllers\Twill\AuthorizedBas
         return QuickFilters::make([
             QuickFilter::make()
                 ->label(twillTrans('twill::lang.listing.filter.all-items'))
-                ->queryString('all')
-                #->amount(fn () => $this->repository->getCountByStatusSlug('all', $scope)),
+                ->queryString('all'),
+            // ->amount(fn () => $this->repository->getCountByStatusSlug('all', $scope)),
         ]);
     }
 
-        /**
+    /**
      * Дополнительные поля в списке
      */
     protected function getIndexTableColumns(): TableColumns

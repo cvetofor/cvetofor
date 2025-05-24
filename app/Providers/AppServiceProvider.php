@@ -2,20 +2,13 @@
 
 namespace App\Providers;
 
-use App\Models\Category;
-use A17\Twill\Models\Block;
-use App\Services\CitiesService;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Cache;
-use Laravel\Dusk\DuskServiceProvider;
-use A17\Twill\Facades\TwillNavigation;
-use Illuminate\Support\Facades\Schema;
 use A17\Twill\Facades\TwillAppSettings;
 use A17\Twill\Models\Tag;
-use Illuminate\Support\ServiceProvider;
-use A17\Twill\Services\Settings\SettingsGroup;
-use A17\Twill\View\Components\Navigation\NavigationLink;
 use App\Models\GroupProduct;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\ServiceProvider;
+use Laravel\Dusk\DuskServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,9 +32,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
 
-
         Blade::directive('isPageActive', function ($expression) {
-            list($pattern, $class) = explode(',', str_replace(['(', ')', ' ', "'"], '', $expression));
+            [$pattern, $class] = explode(',', str_replace(['(', ')', ' ', "'"], '', $expression));
+
             return "<?= request()->is('$pattern') ? '$class' : ''; ?>";
         });
 
@@ -60,7 +53,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('moneyRu', function ($money) {
             return "<?php echo ' '.number_format($money, 0); ?>";
         });
-        if (!app()->runningInConsole()) {
+        if (! app()->runningInConsole()) {
             $ttl = 60;
             $_menuHeader = Cache::remember('_menuHeader', $ttl, function () {
                 return TwillAppSettings::get('public.public.header_menu') ?? [];
@@ -82,10 +75,9 @@ class AppServiceProvider extends ServiceProvider
             });
             view()->share('_flowers_menu', $_flowers_menu);
 
-
             view()->composer('*', function ($view) {
 
-                $groupProductTags = \Cache::remember('tags_header|' . \App\Services\CitiesService::getCity()->id ?? '', now()->addMinutes(3), fn() => \A17\Twill\Models\Tag::whereHas('groupProducts', function ($q) {
+                $groupProductTags = \Cache::remember('tags_header|'.\App\Services\CitiesService::getCity()->id ?? '', now()->addMinutes(3), fn () => \A17\Twill\Models\Tag::whereHas('groupProducts', function ($q) {
 
                     $markets = \App\Models\Market::published()->where('city_id', \App\Services\CitiesService::getCity()->id)->pluck('id');
 

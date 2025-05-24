@@ -2,34 +2,32 @@
 
 namespace App\Repositories;
 
-use Arr;
-use App\Models\Color;
-use App\Models\Product;
-use App\Models\Category;
-use A17\Twill\Models\Block;
-use App\Models\GroupProduct;
-use A17\Twill\Models\RelatedItem;
-use Illuminate\Database\Eloquent\Builder;
 use A17\Twill\Models\Behaviors\HasRelated;
-use A17\Twill\Repositories\ModuleRepository;
-use Illuminate\Database\Eloquent\Collection;
-use A17\Twill\Repositories\Behaviors\HandleSlugs;
 use A17\Twill\Models\Contracts\TwillModelContract;
+use A17\Twill\Models\RelatedItem;
 use A17\Twill\Repositories\Behaviors\HandleMedias;
-use A17\Twill\Repositories\Behaviors\HandleNesting;
-use A17\Twill\Repositories\Behaviors\HandleRevisions;
-use A17\Twill\Repositories\Behaviors\HandleJsonRepeaters;
+use A17\Twill\Repositories\Behaviors\HandleSlugs;
+use A17\Twill\Repositories\ModuleRepository;
+use App\Models\Category;
+use App\Models\GroupProduct;
+use App\Models\Product;
 use App\Models\Remain;
+use Arr;
+use Gate;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use function getLikeOperator;
+use function json_decode;
 
 class ProductRepository extends ModuleRepository
 {
-    use HandleSlugs, HandleMedias, HasRelated;
+    use HandleMedias, HandleSlugs, HasRelated;
     //  use HandleRevisions;
 
     protected $relatedBrowsers = [
         'colors' => [
             'moduleName' => 'color',
-            'relation'   => 'colors',
+            'relation' => 'colors',
         ],
     ];
 
@@ -47,7 +45,7 @@ class ProductRepository extends ModuleRepository
             $query = $query->whereIn('category_id', $categoris->pluck('id')->toArray());
         }
 
-        if (!auth()->user()->can('is_owner') || (\json_decode(request()->get('filter') ?? '{}')->status ?? false) !== 'trash') {
+        if (! auth()->user()->can('is_owner') || (json_decode(request()->get('filter') ?? '{}')->status ?? false) !== 'trash') {
             $query = $query->where(function ($q) {
                 return $q->where('parent_id', null)->orWhere('parent_id', 0);
             });
@@ -57,8 +55,7 @@ class ProductRepository extends ModuleRepository
             });
         }
 
-
-        if (!\Gate::allows('is_owner')) {
+        if (! Gate::allows('is_owner')) {
             $query = $query->where(function ($q) {
                 return $q->where('is_market_public', '=', true)->orWhere('market_id', auth()->user()->getMarketId() ?? false);
             });
@@ -66,17 +63,16 @@ class ProductRepository extends ModuleRepository
 
         $query->orderBy('title');
 
-        #$query = $query->where('market_id', '=', auth()->guard('twill_users')->user()->getMarketId());
+        // $query = $query->where('market_id', '=', auth()->guard('twill_users')->user()->getMarketId());
 
         return parent::filter($query, $scopes);
     }
 
-
     public function beforeSave(TwillModelContract $object, array $fields): void
     {
-        # abort_if($object->parent_id !== null, 403);
+        // abort_if($object->parent_id !== null, 403);
 
-        if (!auth()->user()->can('is_owner') && in_array($object->market_id, auth()->user()->getMarketIds()) && $object->verefied_at !== null) {
+        if (! auth()->user()->can('is_owner') && in_array($object->market_id, auth()->user()->getMarketIds()) && $object->verefied_at !== null) {
             $fields['verified_at'] = null;
         }
 
@@ -95,25 +91,25 @@ class ProductRepository extends ModuleRepository
             if ($model->skus->count() == 0) {
                 foreach ($colors as $color) {
                     $skuProduct = $this->create([
-                        'parent_id'        => $model->id,
-                        'category_id'      => $model->category_id,
-                        'title'            => $model->title . ' / ' . $color->title,
-                        'published'        => true,
+                        'parent_id' => $model->id,
+                        'category_id' => $model->category_id,
+                        'title' => $model->title.' / '.$color->title,
+                        'published' => true,
                         'is_market_public' => true,
-                        'verified_at'      => now(),
+                        'verified_at' => now(),
                     ]);
 
                     RelatedItem::create([
-                        'subject_id'   => $skuProduct->getKey(),
+                        'subject_id' => $skuProduct->getKey(),
                         'subject_type' => $skuProduct->getMorphClass(),
-                        'related_id'   => $color->id,
+                        'related_id' => $color->id,
                         'related_type' => $color::class,
                         'browser_name' => 'colors',
-                        'position'     => $color->id + 1,
+                        'position' => $color->id + 1,
                     ]);
                 }
             }
-            # Обновить старые и добавить новые
+            // Обновить старые и добавить новые
             else {
                 $skus = $model->skus;
                 $exists = [];
@@ -123,7 +119,7 @@ class ProductRepository extends ModuleRepository
                     if ($color) {
                         if (in_array($color->id, $colors->pluck('id')->toArray())) {
                             $sku->update([
-                                'title'       => $model->title . ' / ' . $color->title,
+                                'title' => $model->title.' / '.$color->title,
                                 'category_id' => $model->category_id,
                             ]);
                             $exists[] = $color->id;
@@ -135,24 +131,25 @@ class ProductRepository extends ModuleRepository
 
                 foreach ($colors as $color) {
 
-                    if (in_array($color->id, $exists))
+                    if (in_array($color->id, $exists)) {
                         continue;
+                    }
 
                     $skuProduct = $this->create([
-                        'parent_id'        => $model->id,
-                        'category_id'      => $model->category_id,
-                        'title'            => $model->title . ' / ' . $color->title,
-                        'published'        => true,
+                        'parent_id' => $model->id,
+                        'category_id' => $model->category_id,
+                        'title' => $model->title.' / '.$color->title,
+                        'published' => true,
                         'is_market_public' => true,
-                        'verified_at'      => now(),
+                        'verified_at' => now(),
                     ]);
                     RelatedItem::create([
-                        'subject_id'   => $skuProduct->getKey(),
+                        'subject_id' => $skuProduct->getKey(),
                         'subject_type' => $skuProduct->getMorphClass(),
-                        'related_id'   => $color->id,
+                        'related_id' => $color->id,
                         'related_type' => $color::class,
                         'browser_name' => 'colors',
-                        'position'     => $color->id + 1,
+                        'position' => $color->id + 1,
                     ]);
                 }
             }
@@ -164,16 +161,16 @@ class ProductRepository extends ModuleRepository
      */
     public static function changeAccessibilityOnGroupProducts(Product $product, $marketId = null)
     {
-        $marketId = $marketId ?  : auth('twill_users')->user()->getMarketId();
+        $marketId = $marketId ?: auth('twill_users')->user()->getMarketId();
 
         $groupProducts = GroupProduct::whereHas('blocks', function ($q) use ($product) {
             if ($product->parent) {
                 $q = $q->whereJsonContains('content->browsers->color', [$product->colors()->first()->id ?? false]);
             }
+
             return $q
                 ->whereJsonContains('content->browsers->products', [$product->parent ? $product->parent->id : $product->id]);
         })->pluck('id');
-
 
         if (
             $product->published == false ||
@@ -187,26 +184,21 @@ class ProductRepository extends ModuleRepository
                 );
         } else {
 
-            # Если обновляется главный товар, то букеты с неактивным цветом должны остаться неактивными
+            // Если обновляется главный товар, то букеты с неактивным цветом должны остаться неактивными
             $skus = $product->skus;
             foreach ($skus as $key => $sku) {
                 self::changeAccessibilityOnGroupProducts($sku);
             }
         }
 
-
-
-
     }
 
-    public function cmsSearch(string $search, array $fields = []): Collection
+    public function cmsSearch(string $search, array $fields = [], ?callable $query = null): Collection
     {
-        $query = $this->model;
-        $query = $this->filter($query, []);
-        $builder = $query;
+        $builder = $this->filter($this->model, []);
 
         foreach ($fields as $field) {
-            $builder->where($field, \getLikeOperator(), "%$search%");
+            $builder->where($field, getLikeOperator(), "%$search%");
         }
 
         return $builder->get();
@@ -233,16 +225,15 @@ class ProductRepository extends ModuleRepository
 
         $fields = $this->getFormFieldsForRepeater($object, $fields, 'skus', 'Product', 'product-childrens');
 
-
         $category = $object->category;
 
         if ($category) {
             $fields['browsers']['categories'] = collect([
                 [
-                    'id'           => $category->id,
-                    'name'         => $category->title,
-                    'edit'         => moduleRoute($object->category->getTable(), '', 'edit', $category->id),
-                    "endpointType" => Category::class,
+                    'id' => $category->id,
+                    'name' => $category->title,
+                    'edit' => moduleRoute($object->category->getTable(), '', 'edit', $category->id),
+                    'endpointType' => Category::class,
                 ],
             ])->toArray();
         }
@@ -251,7 +242,7 @@ class ProductRepository extends ModuleRepository
     }
 
     /**
-     * @return array|<missing>
+     * @return array
      */
     public function prepareFieldsBeforeCreate(array $fields): array
     {

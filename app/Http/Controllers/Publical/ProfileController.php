@@ -2,25 +2,29 @@
 
 namespace App\Http\Controllers\Publical;
 
-use App\Models\User;
+use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Review;
+use App\Models\User;
+use App\Notifications\ChangeEmailNotification;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\ChangeEmailNotification;
 
-class ProfileController extends Controller {
-    public function __construct() {
+class ProfileController extends Controller
+{
+    public function __construct()
+    {
         $this->middleware(['auth']);
     }
 
-    public function index() {
+    public function index()
+    {
         return view('profile.index');
     }
 
-    public function update(Request $request) {
+    public function update(Request $request)
+    {
         if ($request->has('phone')) {
             $request['phone'] = str_replace(['(', ')', '-', ' '], ['', '', '', ''], $request['phone']);
         }
@@ -40,13 +44,15 @@ class ProfileController extends Controller {
 
             if (Hash::check($request->password, auth()->user()->password)) {
                 auth()->user()->fill([
-                    'password' => Hash::make($request->new_password)
+                    'password' => Hash::make($request->new_password),
                 ])->save();
 
                 $request->session()->flash('success', 'Пароль измёнен');
+
                 return redirect()->back();
             } else {
                 $request->session()->flash('error', 'Пароли не совпадают');
+
                 return redirect()->back();
             }
         } else {
@@ -55,7 +61,7 @@ class ProfileController extends Controller {
                 'name' => 'required|string',
                 'second_name' => '',
                 'last_name' => 'required|string',
-                'phone' => 'unique:users,phone,' . auth()->user()->id,
+                'phone' => 'unique:users,phone,'.auth()->user()->id,
             ], [
                 'name.required' => 'Имя обязательное поле',
                 'last_name.required' => 'Фамилия обязательное поле',
@@ -66,30 +72,33 @@ class ProfileController extends Controller {
         }
 
         auth()->user()->update($data);
+
         return back();
     }
 
-    public function orders(Request $request) {
+    public function orders(Request $request)
+    {
         $orders = auth()->user()->orders()->paginate();
 
         return view('profile.orders', compact('orders'));
     }
 
-    public function review(Request $request) {
+    public function review(Request $request)
+    {
         $data = $this->validate(
             $request,
             [
-                'order_id' => "exists:orders,id",
-                'description' => 'required|string|max:1000'
+                'order_id' => 'exists:orders,id',
+                'description' => 'required|string|max:1000',
             ]
         );
         $data['user_id'] = auth()->user()->profile->id;
 
         $order = Order::where('id', $data['order_id'])->where('parent_id', null)->first();
-        if (!$order || $order->user->id !== auth()->user()->id) {
+        if (! $order || $order->user->id !== auth()->user()->id) {
             return response()->json(
                 [
-                    'message' => 'Вы не можете обновить данные чужого заказа'
+                    'message' => 'Вы не можете обновить данные чужого заказа',
                 ],
                 403
             );
@@ -97,24 +106,28 @@ class ProfileController extends Controller {
 
         $review = Review::where('user_id', auth()->user()->id)->where('order_id', $data['order_id'])->first();
 
-        if (!$review) {
-            return ['status' => !!Review::create($data)];
+        if (! $review) {
+            return ['status' => (bool) Review::create($data)];
         } else {
             $review->update(['description' => $data['description']]);
             $review->save();
-            return ['status' => !!$review];
+
+            return ['status' => (bool) $review];
         }
     }
 
-    public function changePassword() {
+    public function changePassword()
+    {
         return view('profile.changePassword');
     }
 
-    public function changeEmail() {
+    public function changeEmail()
+    {
         return view('profile.changeEmail');
     }
 
-    public function changeEmailRequest(Request $request) {
+    public function changeEmailRequest(Request $request)
+    {
         $data = $this->validate(
             $request,
             [
@@ -132,9 +145,9 @@ class ProfileController extends Controller {
         return back()->with('success', 'Email изменен');
     }
 
-
-    public function changeEmailConfirm(Request $request, User $user, string $email) {
-        if (!$request->hasValidSignature()) {
+    public function changeEmailConfirm(Request $request, User $user, string $email)
+    {
+        if (! $request->hasValidSignature()) {
             abort(401);
         }
 

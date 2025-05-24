@@ -7,16 +7,16 @@ use avadim\FastExcelLaravel\Excel;
 
 class ExcelPriceExport
 {
-
     private $excel;
 
     public function __construct()
     {
         // Create workbook...
-        $this->excel = Excel::create('export-' . date('d-m-Y_h_i'));
+        $this->excel = Excel::create('export-'.date('d-m-Y_h_i'));
         $this->excel->setAuthor(env('APP_NAME'));
 
     }
+
     public $header = [
         'ID',
         'Наличие Y/N',
@@ -27,7 +27,6 @@ class ExcelPriceExport
         '25 Шт',
         '51 Шт',
     ];
-
 
     public function build($marketId)
     {
@@ -61,7 +60,7 @@ class ExcelPriceExport
                             $item->product->title,
                         ];
 
-                        $data[$item->product->id][(int)($item->quantity_from + 2)] = $item->price;
+                        $data[$item->product->id][(int) ($item->quantity_from + 2)] = $item->price;
                     }
                 }
             );
@@ -73,6 +72,6 @@ class ExcelPriceExport
 
     public function send()
     {
-        return $this->excel->download(auth()->user()->market->name ?? 'export-' . date('d-m-Y_h_i'));
+        return $this->excel->download(auth()->user()->market->name ?? 'export-'.date('d-m-Y_h_i'));
     }
 }

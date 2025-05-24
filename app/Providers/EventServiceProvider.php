@@ -2,20 +2,20 @@
 
 namespace App\Providers;
 
-use App\Events\OrderCreated;
 use App\Events\OrderChangeStatus;
+use App\Events\OrderCreated;
 use App\Events\OrderDeliveryChanged;
 use App\Events\OrderPaymentReceived;
-use App\Listeners\OrderCreatedCrmListener;
-use App\Listeners\OrderUpdatedCrmListener;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Auth\Events\Registered;
-use App\Listeners\OrderCreatedListener;
 use App\Listeners\OrderChangeStatusListener;
+use App\Listeners\OrderCreatedCrmListener;
+use App\Listeners\OrderCreatedListener;
 use App\Listeners\OrderDeliveryChangedListener;
 use App\Listeners\OrderPaymentReceivedListener;
+use App\Listeners\OrderUpdatedCrmListener;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -26,22 +26,22 @@ class EventServiceProvider extends ServiceProvider
      */
     protected $listen = [
         Registered::class => [
-            SendEmailVerificationNotification::class
+            SendEmailVerificationNotification::class,
         ],
         OrderChangeStatus::class => [
             OrderChangeStatusListener::class,
         ],
         OrderCreated::class => [
             OrderCreatedListener::class,
-            OrderCreatedCrmListener::class
+            OrderCreatedCrmListener::class,
         ],
         OrderDeliveryChanged::class => [
             OrderDeliveryChangedListener::class,
         ],
         OrderPaymentReceived::class => [
             OrderPaymentReceivedListener::class,
-            OrderUpdatedCrmListener::class
-        ]
+            OrderUpdatedCrmListener::class,
+        ],
     ];
 
     /**

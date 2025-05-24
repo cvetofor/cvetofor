@@ -3,12 +3,11 @@
 namespace A17\Twill\Repositories;
 
 use A17\Twill\Models\File;
-use Illuminate\Support\Str;
+use A17\Twill\Repositories\Behaviors\HandleTags;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Repositories\Behaviors\HandleTags;
-use A17\Twill\Models\Contracts\TwillModelContract;
+use Illuminate\Support\Str;
 
 class FileRepository extends ModuleRepository
 {
@@ -22,11 +21,9 @@ class FileRepository extends ModuleRepository
     public function filter($query, array $scopes = []): Builder
     {
 
-        if( ! \Gate::allows('is_owner'))
-        {
+        if (! \Gate::allows('is_owner')) {
             $query->where('market_id', '=', auth()->guard('twill_users')->user()->getMarketId());
         }
-
 
         return parent::filter($query, $scopes);
     }
@@ -46,12 +43,12 @@ class FileRepository extends ModuleRepository
 
     public function prepareFieldsBeforeCreate(array $fields): array
     {
-        if (!isset($fields['size'])) {
+        if (! isset($fields['size'])) {
             $uuid = str_replace(Config::get('filesystems.disks.twill_file_library.root'), '', $fields['uuid']);
             $fields['size'] = Storage::disk(Config::get('twill.file_library.disk'))->size($uuid);
         }
 
-        if(auth()->guard('twill_users')->user()->getMarketId()) {
+        if (auth()->guard('twill_users')->user()->getMarketId()) {
             $fields['market_id'] = auth()->guard('twill_users')->user()->getMarketId();
         }
 

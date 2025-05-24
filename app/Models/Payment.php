@@ -2,17 +2,13 @@
 
 namespace App\Models;
 
-use A17\Twill\Models\Behaviors\HasBlocks;
-use A17\Twill\Models\Behaviors\HasTranslation;
-use A17\Twill\Models\Behaviors\HasSlug;
 use A17\Twill\Models\Behaviors\HasMedias;
-use A17\Twill\Models\Behaviors\HasFiles;
-use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasPosition;
 use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Model;
 
-class Payment extends Model implements Sortable {
+class Payment extends Model implements Sortable
+{
     use HasMedias, HasPosition, HasPosition;
 
     protected $fillable = [
@@ -21,12 +17,15 @@ class Payment extends Model implements Sortable {
         'code',
         'position',
         'vat',
-        'tax_system_code'
+        'tax_system_code',
     ];
 
     public const ACCOUNT = 'account';
+
     public const CASH = 'cash';
+
     public const ROBOKASSA = 'robokassa';
+
     public const YOOKASSA = 'yookassa';
 
     public $mediasParams = [
@@ -36,7 +35,7 @@ class Payment extends Model implements Sortable {
                     'name' => 'default',
                     'ratio' => null,
                 ],
-            ]
+            ],
         ],
     ];
 }

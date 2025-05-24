@@ -31,7 +31,7 @@ class Profile extends Model
 
     public function getTitleAttribute()
     {
-        return $this->user?->last_name ?? '' .' '. $this->user?->name ?? '' .' '. $this->user?->second_name ?? '';
+        return $this->user?->last_name ?? ''.' '.$this->user?->name ?? ''.' '.$this->user?->second_name ?? '';
     }
 
     public function setNameAttribute($value)
@@ -45,7 +45,6 @@ class Profile extends Model
         return $this->user->orders();
     }
 
-
     public function getSecondNameAttribute()
     {
         return $this->user->second_name;
@@ -56,6 +55,7 @@ class Profile extends Model
         $this->user->second_name = $value;
         $this->user->save();
     }
+
     public function getLastNameAttribute()
     {
         return $this->user->last_name;
@@ -66,6 +66,7 @@ class Profile extends Model
         $this->user->last_name = $value;
         $this->user->save();
     }
+
     public function getEmailAttribute()
     {
         return $this->user->email;
@@ -76,6 +77,7 @@ class Profile extends Model
         $this->user->email = $value;
         $this->user->save();
     }
+
     public function getPhoneAttribute()
     {
         return $this->user->phone;
@@ -83,7 +85,7 @@ class Profile extends Model
 
     public function setPhoneAttribute($value)
     {
-        $this->user->phone = str_replace(['(',')','-',' '], ['','','',''], $value);
+        $this->user->phone = str_replace(['(', ')', '-', ' '], ['', '', '', ''], $value);
         $this->user->save();
     }
 

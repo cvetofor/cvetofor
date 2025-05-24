@@ -6,5 +6,5 @@ use A17\Twill\Models\Revision;
 
 class MarketWorkTimeRevision extends Revision
 {
-    protected $table = "market_work_time_revisions";
+    protected $table = 'market_work_time_revisions';
 }

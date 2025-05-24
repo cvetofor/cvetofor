@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      *
@@ -13,7 +14,7 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('markets', function (Blueprint $table) {
-            $table->json("deliveries_radius")->nullable();
+            $table->json('deliveries_radius')->nullable();
             $table->decimal('price_i_dont_know_address')->nullable();
             $table->string('telegram_bot_market_username')->nullable();
         });
@@ -41,9 +42,9 @@ return new class extends Migration {
     public function down()
     {
         Schema::table('markets', function (Blueprint $table) {
-            $table->dropColumn("deliveries_radius");
-            $table->dropColumn("price_i_dont_know_address");
-            $table->dropColumn("telegram_bot_market_username");
+            $table->dropColumn('deliveries_radius');
+            $table->dropColumn('price_i_dont_know_address');
+            $table->dropColumn('telegram_bot_market_username');
         });
 
         Schema::dropIfExists('telegram_chat_users');

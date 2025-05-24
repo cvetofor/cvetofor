@@ -8,14 +8,17 @@ use App\Services\PriceService;
 /**
  * Проверяет товары перед покупкой
  */
-class ProductPriceDefender {
+class ProductPriceDefender
+{
     protected $priceService;
 
-    public function __construct(PriceService $priceService) {
+    public function __construct(PriceService $priceService)
+    {
         $this->priceService = $priceService;
     }
 
-    function checkRottenProducts(\Darryldecode\Cart\CartCollection $cart, &$canGoToNextStepOrder = true) {
+    public function checkRottenProducts(\Darryldecode\Cart\CartCollection $cart, &$canGoToNextStepOrder = true)
+    {
         $this->removePostCard($cart);
         $canGoToNextStepOrder = true;
         foreach ($cart as $item) {
@@ -55,17 +58,17 @@ class ProductPriceDefender {
                 }
 
                 if ((float) $price->public_price !== (float) $item->getPriceSum() * $item->quantity) {
-                    # Смотрим цену и чтобы композиция была одинаковой
-                    if (!$price->is_custom_price) {
+                    // Смотрим цену и чтобы композиция была одинаковой
+                    if (! $price->is_custom_price) {
                         $calculated = $this->priceService->calc($price, $item['attributes']['composition']);
 
                         if ((float) $calculated->total !== (float) $item->getPriceSum() * $item->quantity) {
                             \Cart::update(
                                 $item->id,
-                                array(
-                                    'price'      => $calculated->total,
-                                    'conditions' => $calculated->condition ?? null
-                                )
+                                [
+                                    'price' => $calculated->total,
+                                    'conditions' => $calculated->condition ?? null,
+                                ]
                             );
                         }
                     }
@@ -76,7 +79,8 @@ class ProductPriceDefender {
         return \Cart::getContent();
     }
 
-    function removePostCard($cart) {
+    public function removePostCard($cart)
+    {
         foreach ($cart as $item) {
             if ($item->name == 'Открытка') {
                 \Cart::remove($item->id);
@@ -84,7 +88,8 @@ class ProductPriceDefender {
         }
     }
 
-    function isProductNotPublished($price) {
-        return $price->published === false || !$price->market->isActive() || $price->remain->first()->published === false;
+    public function isProductNotPublished($price)
+    {
+        return $price->published === false || ! $price->market->isActive() || $price->remain->first()->published === false;
     }
 }

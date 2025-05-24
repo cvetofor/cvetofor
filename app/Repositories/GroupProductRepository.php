@@ -2,36 +2,32 @@
 
 namespace App\Repositories;
 
-use App\Repositories\ProductPriceRepository;
-use Exception;
-use App\Models\Product;
-use Illuminate\Support\Arr;
-use App\Models\GroupProduct;
-use App\Http\Resources\ColorResource;
-use App\Repositories\ProductRepository;
-use A17\Twill\Repositories\ModuleRepository;
-use A17\Twill\Repositories\Behaviors\HandleTags;
-use A17\Twill\Repositories\Behaviors\HandleFiles;
-use A17\Twill\Repositories\Behaviors\HandleSlugs;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Repositories\Behaviors\HandleBlocks;
+use A17\Twill\Repositories\Behaviors\HandleFiles;
 use A17\Twill\Repositories\Behaviors\HandleMedias;
 use A17\Twill\Repositories\Behaviors\HandleNesting;
 use A17\Twill\Repositories\Behaviors\HandleRevisions;
-use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Repositories\Behaviors\HandleTranslations;
+use A17\Twill\Repositories\Behaviors\HandleSlugs;
+use A17\Twill\Repositories\Behaviors\HandleTags;
+use A17\Twill\Repositories\ModuleRepository;
+use App\Http\Resources\ColorResource;
+use App\Models\GroupProduct;
+use App\Models\Product;
 use CwsDigital\TwillMetadata\Repositories\Behaviours\HandleMetadata;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 class GroupProductRepository extends ModuleRepository
 {
     use HandleBlocks;
-    use HandleSlugs;
-    use HandleMedias;
     use HandleFiles;
-    use HandleTags;
+    use HandleMedias;
     use HandleMetadata;
     use HandleRevisions;
-    #use HandleNesting;
+    use HandleSlugs;
+    use HandleTags;
+    // use HandleNesting;
 
     public function __construct(GroupProduct $model)
     {
@@ -40,8 +36,9 @@ class GroupProductRepository extends ModuleRepository
 
     public function hasBehavior(string $behavior): bool
     {
-        if ($behavior == 'revisions')
+        if ($behavior == 'revisions') {
             return false;
+        }
 
         return parent::hasBehavior($behavior);
     }
@@ -56,18 +53,17 @@ class GroupProductRepository extends ModuleRepository
             $fieldKey = str_replace('[products]', '', $key);
 
             $blocksFields[] = [
-                'name'  => $fieldKey . '[__title]',
+                'name' => $fieldKey.'[__title]',
                 'value' => $title,
             ];
 
             $blocksFields[] = [
-                'name'  => $fieldKey . '[__is_category_avalible]',
+                'name' => $fieldKey.'[__is_category_avalible]',
                 'value' => optional(Product::with('category')->find($blockBrowser[0]['id']))->category->is_visible ?? true,
             ];
         }
 
         $fields['blocksFields'] = $blocksFields;
-
 
         return $fields;
     }
@@ -75,7 +71,6 @@ class GroupProductRepository extends ModuleRepository
     public function getFormFields(TwillModelContract $object): array
     {
         $fields = parent::getFormFields($object);
-
 
         if (isset($fields['blocksBrowsers']) && is_array($fields['blocksBrowsers'])) {
             $fields = $this->prepareProductTitle($fields);
@@ -93,11 +88,11 @@ class GroupProductRepository extends ModuleRepository
                     $product = $repository->getById($block['id']);
                     $fields['blocksBrowsers'][$key][0]['prices'] = ColorResource::collection($product->prices()->currentMarketProductPrice()->get());
 
-                    if (!$product->published) {
-                        $fields['blocksBrowsers'][$key][0]['name'] .= "  (Нет в наличии)";
+                    if (! $product->published) {
+                        $fields['blocksBrowsers'][$key][0]['name'] .= '  (Нет в наличии)';
                     }
 
-                    $fields['blocksBrowsers'][$key][0]['edit'] = moduleRoute($product->getTable(), '', 'index') . '?filter={"status":"all","search":"' . $product->title . '"}';
+                    $fields['blocksBrowsers'][$key][0]['edit'] = moduleRoute($product->getTable(), '', 'index').'?filter={"status":"all","search":"'.$product->title.'"}';
                 }
             }
         }
@@ -107,22 +102,20 @@ class GroupProductRepository extends ModuleRepository
         if ($category) {
             $fields['browsers']['group_categories'] = collect([
                 [
-                    'id'           => $category->id,
-                    'name'         => $category->title,
-                    'edit'         => moduleRoute($object->category->getTable(), '', 'edit', $category->id),
-                    "endpointType" => Category::class,
+                    'id' => $category->id,
+                    'name' => $category->title,
+                    'edit' => moduleRoute($object->category->getTable(), '', 'edit', $category->id),
+                    'endpointType' => Category::class,
                 ],
             ])->toArray();
         }
 
-
         return $fields;
     }
 
-
     public function filter($query, array $scopes = []): Builder
     {
-        if (!\Gate::allows('is_owner')) {
+        if (! \Gate::allows('is_owner')) {
             $query = $query->where(
                 function ($q) {
                     return $q
@@ -137,12 +130,11 @@ class GroupProductRepository extends ModuleRepository
         return parent::filter($query, $scopes);
     }
 
-
     public function prepareFieldsBeforeSave(TwillModelContract $object, $fields): array
     {
         unset($fields['created_by_market_id']);
 
-        if (!\Gate::allows('update', $object)) {
+        if (! \Gate::allows('update', $object)) {
 
             // ЭТО ОБЯЗАТЕЛЬНО!
             \DB::rollback();
@@ -152,8 +144,8 @@ class GroupProductRepository extends ModuleRepository
 
                     $r = new ProductPriceRepository($object->currentMarketPriceObj);
                     $r->update($object->currentMarketPriceObj->id, [
-                        'is_promo'        => $fields['is_promo'],
-                        'price'           => $fields['price'],
+                        'is_promo' => $fields['is_promo'],
+                        'price' => $fields['price'],
                         'is_custom_price' => $this->isCustomPrice($object, $fields),
                     ]);
 
@@ -165,14 +157,14 @@ class GroupProductRepository extends ModuleRepository
 
                 } catch (\Throwable $th) {
                     response()->json([
-                        'message' => "Ошибка! Не удалось обновить",
-                        'variant' => "error",
+                        'message' => 'Ошибка! Не удалось обновить',
+                        'variant' => 'error',
                     ], 200)->send();
                     exit();
                 }
                 response()->json([
-                    'message' => "Успешно!",
-                    'variant' => "success",
+                    'message' => 'Успешно!',
+                    'variant' => 'success',
                 ], 200)->send();
             });
 
@@ -180,19 +172,18 @@ class GroupProductRepository extends ModuleRepository
         }
 
         // Очистить тэги, которые не создал админ
-        if (isset($fields['tags']) && $fields['tags'] && !\Gate::allows('is_owner')) {
+        if (isset($fields['tags']) && $fields['tags'] && ! \Gate::allows('is_owner')) {
 
             $tags = is_array($fields['tags']) ? $fields['tags'] : explode(',', $fields['tags']);
             $tags = array_filter($tags);
 
             $allowedTags = GroupProduct::allTags()->whereIn('name', $tags)->get();
 
-
-            if (!empty($allowedTags)) {
+            if (! empty($allowedTags)) {
                 $allowedTags = $allowedTags->pluck('name')->toArray();
 
                 foreach ($tags as $i => $tag) {
-                    if (!in_array($tag, $allowedTags)) {
+                    if (! in_array($tag, $allowedTags)) {
                         unset($tags[$i]);
                     }
                 }
@@ -200,14 +191,12 @@ class GroupProductRepository extends ModuleRepository
             }
         }
 
-
         $fields = parent::prepareFieldsBeforeSave($object, $fields);
         $id = Arr::get($fields, 'browsers.group_categories.0.id', null);
 
-        # Arr::set($fields, 'browsers.group_categories', null);
+        // Arr::set($fields, 'browsers.group_categories', null);
 
         $fields['category_id'] = $id;
-
 
         $fields['is_custom_price'] = $this->isCustomPrice($object, $fields);
 
@@ -225,7 +214,6 @@ class GroupProductRepository extends ModuleRepository
     {
         parent::afterSave($model, $fields);
 
-
         // отключить букет, если он перестал быть публичным у других магазинов
         if ($model->is_public == false) {
             \App\Models\Remain::where('group_product_id', $model->id)
@@ -241,16 +229,13 @@ class GroupProductRepository extends ModuleRepository
 
     public function isCustomPrice($object, $fields)
     {
-        if (!isset($fields['price'])) {
+        if (! isset($fields['price'])) {
             return false;
         }
 
         $proposedPrice = $fields['price'];
 
-
         $total = self::calcBLocksPrice($object, $fields);
-
-
 
         return (float) $proposedPrice !== (float) $total;
     }
@@ -265,7 +250,7 @@ class GroupProductRepository extends ModuleRepository
 
                     $count = Arr::get($block, 'content.count', null);
                     $prices = array_filter(Arr::get($block, 'browsers.products.0.prices', []), function ($item) {
-                        return isset($item['price']) && $item['price'] && !empty($item['price']) && \is_numeric($item['price']);
+                        return isset($item['price']) && $item['price'] && ! empty($item['price']) && \is_numeric($item['price']);
                     });
                     usort($prices, function ($l, $r) {
                         return $l['quantity_from'] >= $r['quantity_from'];
@@ -288,6 +273,7 @@ class GroupProductRepository extends ModuleRepository
                 }
             }
         }
+
         return $total;
     }
 }

@@ -2,12 +2,11 @@
 
 namespace App\Repositories;
 
+use A17\Twill\Models\Contracts\TwillModelContract;
+use A17\Twill\Repositories\Behaviors\HandleRevisions;
+use A17\Twill\Repositories\ModuleRepository;
 use App\Models\Stock;
 use Illuminate\Database\Eloquent\Builder;
-use A17\Twill\Repositories\ModuleRepository;
-use A17\Twill\Models\Contracts\TwillModelContract;
-use A17\Twill\Repositories\Behaviors\HandleBlocks;
-use A17\Twill\Repositories\Behaviors\HandleRevisions;
 
 class StockRepository extends ModuleRepository
 {
@@ -19,7 +18,6 @@ class StockRepository extends ModuleRepository
     {
         $this->model = $model;
     }
-
 
     public function filter($query, array $scopes = []): Builder
     {
