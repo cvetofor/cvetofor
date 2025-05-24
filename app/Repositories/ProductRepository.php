@@ -199,7 +199,7 @@ class ProductRepository extends ModuleRepository
 
     }
 
-    public function cmsSearch(string $search, array $fields = []): Collection
+    public function cmsSearch(string $search, array $fields = [], callable $query = null): Collection
     {
         $query = $this->model;
         $query = $this->filter($query, []);
