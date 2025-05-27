@@ -88,7 +88,7 @@ class OrderCreatedCrmListener implements ShouldQueue
         if (empty($contact)) {
             $contact = $this->createContact($order);
         }
-        $amocrmLogger->debug('Нашли/создали контакт', ['contact_id' => $contact->id]);
+        $amocrmLogger->debug('Нашли/создали контакт', ['contact_id' => $contact->getId()]);
 
         $deliveryPrice = $this->getDeliveryPrice($order);
         $leadModel = $this->makeLeadModel($order, $deliveryPrice);
@@ -96,7 +96,7 @@ class OrderCreatedCrmListener implements ShouldQueue
 
         try {
             $lead = $this->client->leads()->addOne($leadModel);
-            $amocrmLogger->debug('Создали сделку');
+            $amocrmLogger->debug('Создали сделку', ['lead_id' => $lead->getId()]);
         } catch (AmoCRMApiErrorResponseException $e) {
             $amocrmLogger->error('Произошла ошибка при попытке создания сделки', [
                 'message' => $e->getMessage(),
@@ -107,7 +107,7 @@ class OrderCreatedCrmListener implements ShouldQueue
         }
 
         $this->client->leads()->link($lead, (new LinksCollection)->add($contact));
-        $amocrmLogger->debug('Привязали контакта к сделке');
+        $amocrmLogger->debug('Привязали контакта к сделке', ['lead_id' => $lead->getId(), 'contact_id' => $contact->getId()]);
 
     }
 
@@ -170,7 +170,7 @@ class OrderCreatedCrmListener implements ShouldQueue
         return (new LeadModel)
             ->setName("Заказ #$order->num_order")
             ->setPrice($order->total_price + $deliveryPrice)
-            ->setPipelineId(config('amocrm.pipeline_id'))
+            ->setPipelineId(config("$this->prefix.pipeline_id"))
             ->setStatusId(config("$this->prefix.status_id"))
             ->setTags($this->makeTagsCollection($order))
             ->setCustomFieldsValues($this->makeLeadCustomFields($order, $deliveryPrice));
