@@ -23,7 +23,7 @@ use AmoCRM\Models\CustomFieldsValues\ValueModels\SelectCustomFieldValueModel;
 use AmoCRM\Models\LeadModel;
 use AmoCRM\Models\TagModel;
 use App;
-use App\Events\OrderPaymentReceived;
+use App\Events\OrderAmocrmUpdate;
 use App\Models\Color;
 use App\Models\Delivery;
 use App\Models\Order;
@@ -46,7 +46,7 @@ class OrderUpdatedCrmListener implements ShouldQueue
      * @throws AmoCRMApiException
      * @throws AmoCRMMissedTokenException
      */
-    public function handle(OrderPaymentReceived $event): void
+    public function handle(OrderAmocrmUpdate $event): void
     {
         $amocrmLogger = logger()->channel('amocrm');
         $amocrmLogger->debug('Начали обработку заказа', ['order_id' => $event->order->id]);
