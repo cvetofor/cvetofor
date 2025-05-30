@@ -4,6 +4,7 @@ namespace App\Models;
 
 use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Model;
+use App\Events\OrderAmocrmUpdate;
 use App\Events\OrderChangeStatus;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -11,6 +12,15 @@ class Order extends Model
 {
     use HasRevisions;
 
+    public $hidden = [
+        'published',
+        'uuid',
+        'email',
+        'is_policy_accepted',
+        'cart',
+        'parent_id',
+        'user_id',
+    ];
     protected $fillable = [
         'title',
         'uuid',
@@ -44,22 +54,6 @@ class Order extends Model
         'num_order',
         'source',
     ];
-
-    public $hidden = [
-        'published',
-        'uuid',
-        'email',
-        'is_policy_accepted',
-        'cart',
-        'parent_id',
-        'user_id',
-    ];
-
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
-
     protected $casts = [
         'address' => 'array',
         'cart' => 'array',
@@ -78,9 +72,19 @@ class Order extends Model
             if ($order->order_status_id != $order->getOriginal('order_status_id')) {
                 event(new OrderChangeStatus($order));
             }
+
+            if ($order->order_payment_status_id == 2) {
+                event(new OrderAmocrmUpdate($order));
+            }
+
         });
 
         parent::boot();
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 
     public function delivery()
@@ -138,17 +142,17 @@ class Order extends Model
         return $this->hasOne(Review::class, 'order_id');
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
     public function scopeTender($builder): Builder
     {
         return $builder
             ->where('market_id', null)
             ->where('parent_id', '<>', null)
             ->where('city_id', auth('twill_users')->user()->market->city->id ?? null);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function scopeCurrentMarket($builder): Builder
@@ -233,10 +237,10 @@ class Order extends Model
         }
 
         if ($this->orderStatus?->code == OrderStatus::COMPLETE) {
-            return 'Архив. Заказ №'.$numOrder;
+            return 'Архив. Заказ №' . $numOrder;
         }
 
-        return 'Заказ №'.$numOrder;
+        return 'Заказ №' . $numOrder;
     }
 
     public function getDeliveryPriceAttribute()
@@ -244,7 +248,9 @@ class Order extends Model
         return $this->delivery->price ?? 0.0;
     }
 
-    public function setDeliveryPriceAttribute($value) {}
+    public function setDeliveryPriceAttribute($value)
+    {
+    }
 
     public function getMarketplaceComission()
     {

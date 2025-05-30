@@ -40,6 +40,8 @@ class EventServiceProvider extends ServiceProvider
         ],
         OrderPaymentReceived::class => [
             OrderPaymentReceivedListener::class,
+        ],
+        OrderUpdatedCrmListener::class => [
             OrderUpdatedCrmListener::class,
         ],
     ];
