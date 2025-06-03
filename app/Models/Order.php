@@ -73,7 +73,7 @@ class Order extends Model
                 event(new OrderChangeStatus($order));
             }
 
-            if ($order->order_payment_status_id == 2) {
+            if ($order->payment_status_id == 2) {
                 event(new OrderAmocrmUpdate($order));
             }
 

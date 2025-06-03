@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Events\OrderAmocrmUpdate;
 use App\Events\OrderChangeStatus;
 use App\Events\OrderCreated;
 use App\Events\OrderDeliveryChanged;
@@ -41,7 +42,7 @@ class EventServiceProvider extends ServiceProvider
         OrderPaymentReceived::class => [
             OrderPaymentReceivedListener::class,
         ],
-        OrderUpdatedCrmListener::class => [
+        OrderAmocrmUpdate::class => [
             OrderUpdatedCrmListener::class,
         ],
     ];
