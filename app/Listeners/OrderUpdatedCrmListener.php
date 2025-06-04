@@ -31,6 +31,7 @@ use App\Models\ProductPrice;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Arr;
+use phpDocumentor\Reflection\Types\Collection;
 
 class OrderUpdatedCrmListener implements ShouldQueue
 {
@@ -67,11 +68,16 @@ class OrderUpdatedCrmListener implements ShouldQueue
         } // Заказ привязан не к магазину Цветофор Улан-Удэ
 
         if ($order->paymentStatus->title == 'Оплачено') {
-            $amocrmLogger->debug('Начали поиск сделки');
-            $lead = $this->findLead($order->num_order);
-            $amocrmLogger->debug('Нашли сделку', ['lead_id' => $lead->id]);
+            $amocrmLogger->debug('Начали поиск сделки', ['query' => "Заказ #$order->num_order"]);
+            $lead = $this->findLead("Заказ #$order->num_order");
+            if (empty($lead)) {
+                $amocrmLogger->warning('Не смогли найти сделку в системе');
+                return;
+            }
 
-            $leadModel = $this->makeLeadModel($order, $lead->id);
+            $amocrmLogger->debug('Нашли сделку', ['lead_id' => $lead->getId()]);
+
+            $leadModel = $this->makeLeadModel($order, $lead->getId());
             try {
                 $this->client->leads()->updateOne($leadModel);
                 $amocrmLogger->debug('Обновили сделку');
@@ -93,19 +99,19 @@ class OrderUpdatedCrmListener implements ShouldQueue
      * @throws AmoCRMoAuthApiException
      * @throws AmoCRMMissedTokenException
      */
-    private function findLead(string $id): ?LeadModel
+    private function findLead(string $name): ?LeadModel
     {
         try {
-            $leadsFilter = (new LeadsFilter)
-                ->setQuery($id);
+            $leadsFilter = (new LeadsFilter)->setQuery($name);
 
-            $lead = $this->client->leads()
-                ->get($leadsFilter);
+            $leads = $this->client->leads()->get($leadsFilter);
         } catch (AmoCRMApiNoContentException) {
             return null;
         }
 
-        return $lead->first();
+
+        return collect($leads->getIterator())
+            ->first(fn(LeadModel $lead) => $lead->getName() === $name);
     }
 
     /**
