@@ -332,7 +332,7 @@ class OrderCreatedCrmListener implements ShouldQueue
                 }
             }
         }
-
+        $orderStructure .= !empty($order->postcard_text) ? "\nОткрытка:\n" . $order->postcard_text : '';
         return [$orderStructure, $receipt, $packaging];
     }
 }
