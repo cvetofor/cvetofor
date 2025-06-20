@@ -4,8 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 
-class SMSController extends Controller
-{
+class SMSController extends Controller {
     private $phone;
 
     private $password;
@@ -14,17 +13,15 @@ class SMSController extends Controller
 
     private $name;
 
-    public function __construct($phone, $password, $isNew, $name)
-    {
+    public function __construct($phone, $password, $isNew, $name) {
         $this->phone = $phone;
         $this->password = $password;
         $this->isNew = $isNew;
         $this->name = $name;
     }
 
-    public function sendPaymentCurlSMS(string $order_numb, string $payment_linl)
-    {
-        $message = 'Ваш заказ №'.$order_numb.' на сайте цветофор.рф не оплачен. Чтобы мы взяли его в работу оплатите заказ по ссылке - '.$payment_linl;
+    public function sendPaymentCurlSMS(string $order_numb, string $payment_linl) {
+        $message = 'Ваш заказ №' . $order_numb . ' на сайте цветофор.рф не оплачен. Чтобы мы взяли его в работу оплатите заказ по ссылке - ' . $payment_linl;
 
         $params = [
             'login' => 'cvetuly',
@@ -36,13 +33,12 @@ class SMSController extends Controller
         $this->sendCurl('https://smsc.ru/sys/send.php?', $params);
     }
 
-    public function sendSMS()
-    {
+    public function sendSMS() {
         if ($this->isNew) {
-            $message = 'Пароль для входа в ЛК на цветофор.рф - '.$this->password;
+            $message = 'Пароль для входа в личный кабинет на цветофор.рф - ' . $this->password;
             $this->saveContact();
         } elseif ($this->isNew == false) {
-            $message = 'Новый пароль для входа в ЛК на цветофор.рф - '.$this->password;
+            $message = 'Новый пароль для входа в личный кабинет на цветофор.рф - ' . $this->password;
         }
 
         $params = [
@@ -56,8 +52,7 @@ class SMSController extends Controller
         $this->sendCurl('https://smsc.ru/sys/send.php?', $params);
     }
 
-    private function saveContact()
-    {
+    private function saveContact() {
         $params = [
             'add' => 1,
             'login' => 'cvetuly',
@@ -69,9 +64,8 @@ class SMSController extends Controller
         $this->sendCurl('https://smsc.ru/sys/phones.php?', $params);
     }
 
-    private function sendCurl($url, $params)
-    {
-        $ch = curl_init($url.http_build_query($params));
+    private function sendCurl($url, $params) {
+        $ch = curl_init($url . http_build_query($params));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_HEADER, false);
