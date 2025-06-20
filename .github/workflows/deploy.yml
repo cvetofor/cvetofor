@@ -1,44 +1,40 @@
-name: Deploy cvetofor.ru
+name: Deploy Laravel via SSH
 
-on: 
-  push:
-    branches:
-      - main
-    paths:
-      - 'app/**'
-      - 'bootstrap/**'
-      - 'config/**'
-      - 'database/**'
-      - 'lang/**'
-      - 'public/**'
-      - 'resources/**'
-      - 'routes/**'
-      - 'composer.json'
-      - 'composer.lock'
+on:
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      # - name: Install dependencies
-      #   run: composer install --prefer-dist --no-progress --no-suggest
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      # - name: Run migrations
-      #   run: php artisan make migrate --force
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v42
+      with:
+        since_last_remote_commit: 'true'
 
-      - name: Install sshpass
-        run: sudo apt-get install -y sshpass
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
 
-      - name: Deploy to server
-        env:
-          SERVER_IP : ${{ secrets.SERVER_IP  }}
-          SERVER_USER : ${{ secrets.SERVER_USER  }}
-          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-
-        run: |
-          sshpass -p "$SERVER_PASSWORD" rsync -avz -e "ssh -o StrictHostKeyChecking=no" ./ $SERVER_USER@$SERVER_IP:$DEPLOY_PATH
+    - name: Rsync changed files
+      run: |
+        # Установка rsync
+        sudo apt-get update && sudo apt-get install -y rsync
+        
+        # Создание строки с измененными файлами
+        CHANGED_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ')
+        
+        # Команда rsync для отправки только измененных файлов
+        rsync -avz --delete --relative \
+          -e "ssh -o StrictHostKeyChecking=no" \
+          $CHANGED_FILES \
+          ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.REMOTE_PATH }}
