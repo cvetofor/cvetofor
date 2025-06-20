@@ -11,7 +11,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 0  
 
     - name: Get changed files
       id: changed-files
@@ -34,7 +34,7 @@ jobs:
         CHANGED_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr '\n' ' ')
         
         # Команда rsync для отправки только измененных файлов
-        rsync -avz --delete --relative \
+        rsync -avz --no-times --no-perms --no-owner --no-group --relative \
           -e "ssh -o StrictHostKeyChecking=no" \
           $CHANGED_FILES \
           ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.REMOTE_PATH }}
