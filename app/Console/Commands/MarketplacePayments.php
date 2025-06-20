@@ -9,8 +9,7 @@ use Illuminate\Console\Command;
 /**
  * Создание выплат для всех магазинов
  */
-class MarketplacePayments extends Command
-{
+class MarketplacePayments extends Command {
     /**
      * The name and signature of the console command.
      *
@@ -30,9 +29,8 @@ class MarketplacePayments extends Command
      *
      * @return int
      */
-    public function handle()
-    {
-        \Log::channel('marketplace')->info('Выплаты магазину от'.now()->format('d.m.Y h:i'));
+    public function handle() {
+        \Log::channel('marketplace')->info('Выплаты магазину от' . now()->format('d.m.Y H:i (МСК)'));
 
         $markets = Market::all();
 

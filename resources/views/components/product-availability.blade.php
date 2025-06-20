@@ -11,7 +11,7 @@
             <tr>
                 <td>{{ optional(json_decode($revision->payload))->published ? 'В наличии' : 'Нет в наличии' }}</td>
                 <td>{{ optional($revision->user)->last_name }} {{ optional($revision->user)->name }}</td>
-                <td>{{ $revision->created_at->format('d.m.Y H:i') }}</td>
+                <td>{{ $revision->created_at->format('d.m.Y H:i (МСК)') }}</td>
             </tr>
         @endforeach
     </table>

@@ -5,20 +5,19 @@ namespace App\Providers;
 use A17\Twill\Facades\TwillAppSettings;
 use A17\Twill\Models\Tag;
 use App\Models\GroupProduct;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Dusk\DuskServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
-{
+class AppServiceProvider extends ServiceProvider {
     /**
      * Register any application services.
      *
      * @return void
      */
-    public function register()
-    {
+    public function register() {
         if ($this->app->environment('local', 'testing')) {
             $this->app->register(DuskServiceProvider::class);
         }
@@ -29,8 +28,8 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
+    public function boot() {
+
 
         Blade::directive('isPageActive', function ($expression) {
             [$pattern, $class] = explode(',', str_replace(['(', ')', ' ', "'"], '', $expression));
@@ -53,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
         Blade::directive('moneyRu', function ($money) {
             return "<?php echo ' '.number_format($money, 0); ?>";
         });
+
         if (! app()->runningInConsole()) {
             $ttl = 60;
             $_menuHeader = Cache::remember('_menuHeader', $ttl, function () {
@@ -77,14 +77,13 @@ class AppServiceProvider extends ServiceProvider
 
             view()->composer('*', function ($view) {
 
-                $groupProductTags = \Cache::remember('tags_header|'.\App\Services\CitiesService::getCity()->id ?? '', now()->addMinutes(3), fn () => \A17\Twill\Models\Tag::whereHas('groupProducts', function ($q) {
+                $groupProductTags = \Cache::remember('tags_header|' . \App\Services\CitiesService::getCity()->id ?? '', now()->addMinutes(3), fn() => \A17\Twill\Models\Tag::whereHas('groupProducts', function ($q) {
 
                     $markets = \App\Models\Market::published()->where('city_id', \App\Services\CitiesService::getCity()->id)->pluck('id');
 
                     return $q->whereHas('remains', function ($qr) use ($markets) {
                         return $qr->where('published', true)->whereIn('market_id', $markets);
                     });
-
                 })->get());
 
                 $view->with('groupProductTags', $groupProductTags);

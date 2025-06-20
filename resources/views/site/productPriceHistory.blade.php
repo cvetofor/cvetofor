@@ -23,8 +23,7 @@
         <a17-custom-tabs :tabs="{{ json_encode($tabs) }}">
 
             @foreach ($prices as $key => $price)
-                <div
-                    class="custom-tab custom-tab--quantity_{{ (int) $price->quantity_from }}">
+                <div class="custom-tab custom-tab--quantity_{{ (int) $price->quantity_from }}">
                     <table class="table table-striped ">
                         @if ($price->revisions)
                             @foreach ($price->revisions as $key => $revision)
@@ -32,7 +31,7 @@
                                     <td>₽ @money(optional(json_decode($revision->payload))->price) </td>
                                     <td>{{ optional($revision->user)->last_name }}
                                         {{ optional($revision->user)->name }}</td>
-                                    <td>{{ $revision->created_at->format('d.m.Y H:i') }}
+                                    <td>{{ $revision->created_at->format('d.m.Y H:i (МСК)') }}
                                     </td>
                                 </tr>
                             @endforeach
