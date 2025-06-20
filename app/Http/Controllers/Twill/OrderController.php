@@ -15,12 +15,10 @@ use App\Repositories\OrderRepository;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
-class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleController
-{
+class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleController {
     protected $moduleName = 'orders';
 
-    public function setUpController(): void
-    {
+    public function setUpController(): void {
         $this->setSearchColumns(['parent_id']);
         $this->disableCreate();
         // $this->disableEdit();
@@ -40,8 +38,7 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
         $this->modelTitle = 'Заказ';
     }
 
-    public function index(?int $parentModuleId = null): mixed
-    {
+    public function index(?int $parentModuleId = null): mixed {
         if ((auth()->user()->role->code ?? false) == 'courier') {
             return redirect()->route('twill.deliveries.index');
         }
@@ -52,39 +49,38 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
     /**
      * The quick filters to apply to the listing table.
      */
-    public function quickFilters(): QuickFilters
-    {
+    public function quickFilters(): QuickFilters {
 
         return QuickFilters::make([
             QuickFilter::make()
                 ->label('Новые')
                 ->queryString('issued')
                 ->scope('issued')
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->issued()->count()),
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->issued()->count()),
 
             QuickFilter::make()
                 ->label('Принятые')
                 ->queryString('accepted')
                 ->scope('accepted')
                 // ->onlyEnableWhen($this->getIndexOption('publish'))
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->accepted()->count()),
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->accepted()->count()),
 
             QuickFilter::make()
                 ->label('Завершенные')
                 ->queryString('succesfuled')
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->succesfuled()->count())
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->succesfuled()->count())
                 ->scope('succesfuled'),
 
             QuickFilter::make()
                 ->label('Отклоненные')
                 ->queryString('closed')
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->closed()->count())
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->closed()->count())
                 ->scope('closed'),
 
             QuickFilter::make()
                 ->label('Тендер')
                 ->queryString('tender')
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->tender()->count())
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->tender()->count())
                 ->scope('tender'),
         ]);
     }
@@ -111,8 +107,7 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
     /**
      * This is an example and can be removed if no modifications are needed to the table.
      */
-    protected function getIndexTableColumns(): TableColumns
-    {
+    protected function getIndexTableColumns(): TableColumns {
         $table = TableColumns::make();
 
         $table->add(
@@ -143,7 +138,7 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
 
         $table->add(
             Text::make()->field('created_at')->title('Дата создания')->renderHtml()->customRender(function ($item) {
-                return $item->created_at->format('d.m.y h:i');
+                return $item->created_at->format('d.m.Y H:i (МСК)');
             })->sortable()
         );
 
@@ -167,8 +162,8 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
                 $table->add(
                     Text::make()->field('order_status_id')->title($actionName)->renderHtml()->customRender(function ($item) {
                         return '
-                        <form method="POST" action="'.route('twill.orders.status', ['order' => $item->id]).'">
-                                 '.csrf_field().'
+                        <form method="POST" action="' . route('twill.orders.status', ['order' => $item->id]) . '">
+                                 ' . csrf_field() . '
                                  <input type="hidden" name="action" value="take">
                                 <button class="button button--green">Взять в работу</button>
                         </form>
@@ -178,8 +173,8 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
             } elseif ($filter === 'accepted') {
                 $table->add(
                     Text::make()->field('order_status_id')->title($actionName)->renderHtml()->customRender(function ($item) {
-                        return '<form method="POST" action="'.route('twill.orders.status', ['order' => $item->id]).'">
-                                 '.csrf_field().'
+                        return '<form method="POST" action="' . route('twill.orders.status', ['order' => $item->id]) . '">
+                                 ' . csrf_field() . '
                                  <input type="hidden" name="action" value="complete">
                                  <button class="button button--green" onclick="return confirm(\'Вы уверены ?\')" type="submit">Завершить заказ</button>
                         </form>';
@@ -203,8 +198,7 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
         return $table;
     }
 
-    public function changeOrderStatus(Request $request, $order)
-    {
+    public function changeOrderStatus(Request $request, $order) {
 
         $data = $this->validate($request, [
             'order_id' => 'exists:order,id',
@@ -237,7 +231,7 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
             ]);
             $order->Save();
 
-            \Log::channel('marketplace')->log('info', 'Магазин '.auth('twill_users')->user()->getMarketId().' взял заказ');
+            \Log::channel('marketplace')->log('info', 'Магазин ' . auth('twill_users')->user()->getMarketId() . ' взял заказ');
         }
         //  else if ($data['action'] == 'refuse') {
         //     $result = $repository->update($order->id,[

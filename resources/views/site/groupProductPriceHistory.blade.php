@@ -15,21 +15,23 @@
 
             <tbody>
                 @foreach ($revisions as $revision)
-                    @if (isset(optional(json_decode($revision->payload))
-                    ->price))
+                    @if (isset(optional(json_decode($revision->payload))->price))
                         <tr>
                             <td>₽ @money(json_decode($revision->payload)->price)</td>
                             <td>{{ optional($revision->user)->last_name }} {{ optional($revision->user)->name }}</td>
-                            <td>{{ $revision->created_at->format('d.m.Y H:i') }}</td>
+                            <td>{{ $revision->created_at->format('d.m.Y H:i (МСК)') }}</td>
                         </tr>
-                    @elseif(isset(optional(json_decode($revision->payload))
-                    ->is_custom_price))
+                    @elseif(isset(optional(json_decode($revision->payload))->is_custom_price))
                         <tr>
-                            <td>@if(optional(json_decode($revision->payload))
-                                ->is_custom_price) Установлена пользовательская цена товара @else Пользовательская цена отменена @endif
+                            <td>
+                                @if (optional(json_decode($revision->payload))->is_custom_price)
+                                    Установлена пользовательская цена товара
+                                @else
+                                    Пользовательская цена отменена
+                                @endif
                             </td>
                             <td>{{ optional($revision->user)->last_name }} {{ optional($revision->user)->name }}</td>
-                            <td>{{ $revision->created_at->format('d.m.Y H:i') }}</td>
+                            <td>{{ $revision->created_at->format('d.m.Y H:i (МСК)') }}</td>
                         </tr>
                     @endif
                 @endforeach
