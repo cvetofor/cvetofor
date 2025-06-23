@@ -147,43 +147,6 @@
                                 @include('product.normal')
                             @endif
 
-                            @if ($couponCanBeApplied)
-                                <div class="product-detail__discount-wrap">
-                                    <div class="product-detail__discount">
-                                        <svg class="product-detail__discount-icon">
-                                            <use href="#icon-discount">
-
-                                            </use>
-                                        </svg>
-                                        <span class="product-detail__discount-title">Доступна скидка</span>
-                                    </div>
-                                    <div class="product-detail__discount-condition">
-                                        <span class="product-detail__discount-condition__title">Скидка
-                                            дается при добавлении (на
-                                            выбор):</span>
-                                        <span class="product-detail__discount-condition__content">
-                                            @foreach ($compositions as $j => $block)
-                                                @foreach ($block as $i => $product)
-                                                    @if ($product->prices->count() > 1 && optional($product->couponFrom)->quantity_from)
-                                                        @if ($product->color && $groupProduct->isMono())
-                                                            <span>
-                                                                <div class="counter__color"
-                                                                    style="width:13px; height:13px;background: {{ $product->color->data['rgb'] }};">
-                                                                </div>
-                                                            </span>
-                                                        @else
-                                                            <span>{{ $product->title }}</span>
-                                                        @endif
-                                                        <span>@money($product->couponFrom->quantity_from)
-                                                            шт.,</span>
-                                                    @endif
-                                                @endforeach
-                                            @endforeach
-                                        </span>
-                                    </div>
-                                </div>
-                            @endif
-
                             @if ($price->price == null || $price->price == 0 || $price->published === false || !$canPutToCart)
                                 <button class="button button--green button--width-165 add-to-cart-button disabled">В
                                     корзину</button>
