@@ -18,8 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
-class GroupProduct extends Model
-{
+class GroupProduct extends Model {
     use HasBlocks;
     use HasFiles;
     use HasMedias;
@@ -62,11 +61,11 @@ class GroupProduct extends Model
 
     public $metadataFallbacks = [];
 
-    protected static function boot()
-    {
+    protected static function boot() {
         parent::boot();
 
-        static::retrieved(function ($model) {});
+        static::retrieved(function ($model) {
+        });
     }
 
     protected $fillable = [
@@ -104,48 +103,39 @@ class GroupProduct extends Model
 
     public $filesParams = ['preview'];
 
-    public function remains(): HasMany
-    {
+    public function remains(): HasMany {
         return $this->hasMany(Remain::class, 'group_product_id');
     }
 
-    public function category(): BelongsTo
-    {
+    public function category(): BelongsTo {
         return $this->belongsTo(GroupProductCategory::class, 'category_id');
     }
 
-    public function groupProductCategory(): BelongsTo
-    {
+    public function groupProductCategory(): BelongsTo {
         return $this->belongsTo(GroupProductCategory::class, 'category_id');
     }
 
-    public function priceObj(): HasOne
-    {
+    public function priceObj(): HasOne {
         return $this->hasOne(ProductPrice::class, 'group_product_id');
     }
 
-    public function prices(): HasMany
-    {
+    public function prices(): HasMany {
         return $this->hasMany(ProductPrice::class, 'group_product_id');
     }
 
-    public function currentMarketPriceObj(): HasOne
-    {
+    public function currentMarketPriceObj(): HasOne {
         return $this->hasOne(ProductPrice::class, 'group_product_id')->whereMarketIdAndGroupProductId(auth('twill_users')->user()->getMarketId(), $this->id);
     }
 
-    public function getPriceAttribute()
-    {
+    public function getPriceAttribute() {
         return $this->priceObj ? $this->priceObj->whereMarketIdAndGroupProductId(auth('twill_users')->user()->getMarketId(), $this->id)->first()->price ?? '' : null;
     }
 
-    public function getPublicPriceAttribute()
-    {
+    public function getPublicPriceAttribute() {
         return $this->priceObj ? $this->priceObj->whereMarketIdAndGroupProductId(auth('twill_users')->user()->getMarketId(), $this->id)->first()->public_price ?? '' : null;
     }
 
-    public function setPriceAttribute($value)
-    {
+    public function setPriceAttribute($value) {
 
         if (! app()->runningInConsole()) {
 
@@ -159,13 +149,11 @@ class GroupProduct extends Model
         }
     }
 
-    public function getIsCustomPriceAttribute()
-    {
+    public function getIsCustomPriceAttribute() {
         return $this->priceObj()->whereMarketIdAndGroupProductId(auth()->guard('twill_users')->user()->getMarketId(), $this->id)->first()->is_custom_price;
     }
 
-    public function setIsCustomPriceAttribute($value)
-    {
+    public function setIsCustomPriceAttribute($value) {
         if (! app()->runningInConsole()) {
 
             if (auth()->guard('twill_users')->user()->getMarketId()) {
@@ -178,8 +166,7 @@ class GroupProduct extends Model
         }
     }
 
-    public function getPublishedAttribute()
-    {
+    public function getPublishedAttribute() {
         if (auth()->guard('twill_users')->check()) {
             return $this->remains()->whereMarketIdAndGroupProductId(auth()->guard('twill_users')->user()->getMarketId(), $this->id)->first()->published ?? false;
         }
@@ -187,8 +174,7 @@ class GroupProduct extends Model
         return $this->attributes['published'];
     }
 
-    public function setPublishedAttribute($value)
-    {
+    public function setPublishedAttribute($value) {
         if (! isset($this->attributes['published'])) {
             $this->attributes['published'] = $value;
         }
@@ -214,8 +200,7 @@ class GroupProduct extends Model
      *
      * @return bool
      */
-    public function isMono()
-    {
+    public function isMono() {
         $blocks = $this->blocks()->select('content->browsers->products as product')->where('type', 'products')->get();
 
         $blocks = $blocks->pluck('product');
@@ -247,8 +232,7 @@ class GroupProduct extends Model
      *
      * @return bool
      */
-    public function getIsPromoAttribute()
-    {
+    public function getIsPromoAttribute() {
         return $this->currentMarketPriceObj->is_promo ?? false;
     }
 
@@ -257,16 +241,14 @@ class GroupProduct extends Model
      *
      * @return bool
      */
-    public function setIsPromoAttribute(bool $value)
-    {
+    public function setIsPromoAttribute(bool $value) {
         // $this->currentMarketPriceObj->is_promo = $value;
         // $this->currentMarketPriceObj->save();
     }
 
     // /////////////-SCOPES-///////////////
 
-    public function scopeDraft($query): Builder
-    {
+    public function scopeDraft($query): Builder {
         return $query
             ->whereHas(
                 'remains',
@@ -276,8 +258,7 @@ class GroupProduct extends Model
             );
     }
 
-    public function scopeSearch($query): Builder
-    {
+    public function scopeSearch($query): Builder {
         if (request()->has('filter')) {
             $json = json_decode(request()->get('filter'), true);
 
@@ -293,7 +274,7 @@ class GroupProduct extends Model
                         return $q->where('sku', $json['search']);
                     });
                 } else {
-                    $query->where('title', 'ilike', '%'.$json['search'].'%');
+                    $query->where('title', 'ilike', '%' . $json['search'] . '%');
                 }
             }
         }
@@ -306,8 +287,7 @@ class GroupProduct extends Model
      *
      * @return void
      */
-    public function scopeCurrentMarket($query): Builder
-    {
+    public function scopeCurrentMarket($query): Builder {
         return $query->where('created_by_market_id', auth('twill_users')->user()->getMarketId());
     }
 
@@ -316,8 +296,7 @@ class GroupProduct extends Model
      *
      * @return void
      */
-    public function scopeCommon($query): Builder
-    {
+    public function scopeCommon($query): Builder {
         return $query->where('is_public', true)->where('created_by_market_id', '<>', auth('twill_users')->user()->getMarketId());
     }
 
@@ -326,8 +305,7 @@ class GroupProduct extends Model
      *
      * @return void
      */
-    public function scopeAllGroupPoruductBelongsMarket($query): Builder
-    {
+    public function scopeAllGroupPoruductBelongsMarket($query): Builder {
         return $query
             // убираем текущий магазин
             // ->where('created_by_market_id', '<>', auth('twill_users')->user()->getMarketId())
@@ -341,15 +319,13 @@ class GroupProduct extends Model
      *
      * @return void
      */
-    public function scopeAll($query): Builder
-    {
+    public function scopeAll($query): Builder {
         return $query
             ->whereIn('created_by_market_id', auth('twill_users')->user()->getMarketIds())
             ->common();
     }
 
-    public function scopePublished($query): Builder
-    {
+    public function scopePublished($query): Builder {
         return $query->whereHas('priceObj', function ($q) {
             $q->where('market_id', auth('twill_users')->user()->getMarketId());
         })
@@ -358,8 +334,7 @@ class GroupProduct extends Model
             });
     }
 
-    public function scopeInStock($query): Builder
-    {
+    public function scopeInStock($query): Builder {
         return $query
             ->whereHas(
                 'remains',
@@ -369,8 +344,7 @@ class GroupProduct extends Model
             );
     }
 
-    public function scopeCurrentCity($query)
-    {
+    public function scopeCurrentCity($query) {
         return $query->with(['priceObj'])->whereHas('priceObj', function ($qp) {
             return $qp->whereHas('market', function ($qm) {
                 return $qm->where('city_id', CitiesService::getCity()->id);

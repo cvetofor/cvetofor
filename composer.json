@@ -33,6 +33,7 @@
     "pragmarx/google2fa-qrcode": "*",
     "predis/predis": "^2.2",
     "rennokki/laravel-eloquent-query-cache": "^3.4",
+    "spatie/array-to-xml": "*",
     "spatie/laravel-backup": "^8.2",
     "spatie/laravel-cookie-consent": "^3.2",
     "spatie/laravel-route-attributes": "^1.18",

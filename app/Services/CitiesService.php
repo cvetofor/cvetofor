@@ -4,14 +4,12 @@ namespace App\Services;
 
 use App\Models\City;
 
-class CitiesService
-{
-    public static function getCity()
-    {
+class CitiesService {
+    public static function getCity() {
         if (session()->has('city_id')) {
             $city_id = session('city_id');
             if (is_numeric($city_id)) {
-                $city = cache('city_'.$city_id, function () use ($city_id) {
+                $city = cache('city_' . $city_id, function () use ($city_id) {
                     return City::where('id', $city_id)->first();
                 });
                 if ($city) {
@@ -33,7 +31,7 @@ class CitiesService
         if (request()->hasCookie('city_id')) {
             $city_id = request()->cookie('city_id');
             if (is_numeric($city_id)) {
-                $city = cache('city_'.$city_id, function () use ($city_id) {
+                $city = cache('city_' . $city_id, function () use ($city_id) {
                     return City::where('id', $city_id)->first();
                 });
                 if ($city) {
@@ -51,8 +49,7 @@ class CitiesService
         return $city;
     }
 
-    public static function DateTime()
-    {
+    public static function DateTime() {
         $utc = str_replace('UTC', '', self::getCity()->timezone);
         $utc = (int) $utc;
         $original = new \DateTime('now', new \DateTimeZone('UTC'));
@@ -62,15 +59,13 @@ class CitiesService
         return $modified;
     }
 
-    public static function getActiveCities()
-    {
+    public static function getActiveCities() {
         return City::active()->take(24)->get();
     }
 
-    public function filter($name)
-    {
+    public function filter($name) {
         $name = Helpers::changeKeymap(mb_strtolower($name));
 
-        return City::active()->where('city', 'ilike', $name.'%')->get();
+        return City::active()->where('city', 'ilike', $name . '%')->get();
     }
 }

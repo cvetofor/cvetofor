@@ -317,10 +317,15 @@ session()->forget('order_delivery_radius_km');
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const urlHasCityParam = new URLSearchParams(window.location.search).has('city');
-            const citySelected = document.cookie.includes('city_id=');
-
-            // Показываем модалку, если нет параметра city в URL и нет куки с городом
-            if (!urlHasCityParam && !citySelected && window.location.pathname === '/' && !sessionStorage.getItem('modalShown')) {
+            const citySelected = sessionStorage.getItem('city_id');
+            const path = window.location.pathname;
+            // Показываем модалку на страницах /, /catalog... и /search..., если город не выбран
+            if (
+                !urlHasCityParam &&
+                !citySelected &&
+                (path === '/' || path.startsWith('/catalog') || path.startsWith('/search')) &&
+                !sessionStorage.getItem('modalShown')
+            ) {
                 modal.show('city');
                 sessionStorage.setItem('modalShown', 'true');
             }

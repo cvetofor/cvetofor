@@ -90,8 +90,6 @@ Route::group(
     }
 );
 
-
-
 Route::group(
     ['prefix' => '/profile', 'as' => 'profile.'],
     function () {
