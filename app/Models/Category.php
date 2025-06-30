@@ -11,8 +11,7 @@ use A17\Twill\Models\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
-class Category extends Model implements Sortable
-{
+class Category extends Model implements Sortable {
     use HasMedias, HasNesting, HasPosition, HasSlug;
     use QueryCacheable;
 
@@ -62,8 +61,7 @@ class Category extends Model implements Sortable
         'title',
     ];
 
-    public function products(): HasMany
-    {
-        return $this->hasMany(CategoryProduct::class, 'category_id');
+    public function products(): HasMany {
+        return $this->hasMany(Category::class, 'id');
     }
 }

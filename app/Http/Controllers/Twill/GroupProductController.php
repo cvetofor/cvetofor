@@ -22,21 +22,17 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Str;
 use stdClass;
 
-class GroupProductController extends BaseModuleController
-{
+class GroupProductController extends BaseModuleController {
     protected $moduleName = 'groupProducts';
 
-    protected function setUpController(): void
-    {
+    protected function setUpController(): void {
         $this->labels['listing.filter.all-items'] = __('Все');
         $this->labels['listing.filter.draft'] = __('Нет в наличии');
 
         $this->setTitleColumnKey('title');
 
         // так и должно быть. Поиск проходит в репозитории
-        $this->setSearchColumns([
-
-        ]);
+        $this->setSearchColumns([]);
         $this->modelTitle = 'Букет';
 
         $this->disableEditor();
@@ -47,7 +43,6 @@ class GroupProductController extends BaseModuleController
         $this->disableBulkDelete();
         $this->disableBulkEdit();
         $this->disableBulkForceDelete();
-
     }
 
     protected $indexOptions = [];
@@ -56,8 +51,7 @@ class GroupProductController extends BaseModuleController
 
     protected $nestedItemsDepth = 4;
 
-    public function publish(): JsonResponse
-    {
+    public function publish(): JsonResponse {
         try {
             $data = $this->validate($this->request, [
                 'id' => 'integer|required',
@@ -72,7 +66,7 @@ class GroupProductController extends BaseModuleController
                 activity()->performedOn(
                     $this->repository->getById($data['id'])
                 )->log(
-                    ($this->request->get('active') ? 'un' : '').'published'
+                    ($this->request->get('active') ? 'un' : '') . 'published'
                 );
 
                 $this->fireEvent();
@@ -96,16 +90,14 @@ class GroupProductController extends BaseModuleController
         );
     }
 
-    public function edit(TwillModelContract|int $id): mixed
-    {
+    public function edit(TwillModelContract|int $id): mixed {
         [$item, $id] = $this->itemAndIdFromRequest($id);
         abort_unless(auth()->user()->can('view', $item), 403);
 
         return parent::edit($id);
     }
 
-    private function itemAndIdFromRequest(TwillModelContract|int $id): array
-    {
+    private function itemAndIdFromRequest(TwillModelContract|int $id): array {
         if ($id instanceof TwillModelContract) {
             $item = $id;
             $id = $item->id;
@@ -121,8 +113,7 @@ class GroupProductController extends BaseModuleController
         ];
     }
 
-    public function update(int|TwillModelContract $id, ?int $submoduleId = null): JsonResponse
-    {
+    public function update(int|TwillModelContract $id, ?int $submoduleId = null): JsonResponse {
         if (! \request('browsers.group_categories.0')) {
             return $this->respondWithError(
                 __('Категория - обязательное поле')
@@ -135,8 +126,7 @@ class GroupProductController extends BaseModuleController
     /**
      * The quick filters to apply to the listing table.
      */
-    public function quickFilters(): QuickFilters
-    {
+    public function quickFilters(): QuickFilters {
         $scope = ($this->submodule ? [
             $this->getParentModuleForeignKey() => $this->submoduleParentId,
         ] : []);
@@ -145,27 +135,27 @@ class GroupProductController extends BaseModuleController
             QuickFilter::make()
                 ->label(\Str::ucfirst(auth()->user()->market->name ?? 'Магазин'))
                 ->queryString('currentMarket')
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->currentMarket()->count())
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->currentMarket()->count())
                 ->scope('currentMarket'),
 
             QuickFilter::make()
                 ->label('В наличии')
                 ->queryString('published')
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->inStock()->count())
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->inStock()->count())
                 ->scope('inStock'),
 
             QuickFilter::make()
                 ->label($this->getTransLabel('listing.filter.draft'))
                 ->queryString('draft')
                 ->scope('draft')
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->draft()->count())
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->draft()->count())
                 ->onlyEnableWhen($this->getIndexOption('publish')),
         ];
 
         if (count(auth('twill_users')->user()->getMarketIds()) > 1) {
             $filter[] = QuickFilter::make()
                 ->label('Всех магазинов')
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->allGroupPoruductBelongsMarket()->count())
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->allGroupPoruductBelongsMarket()->count())
                 ->queryString('allGroupPoruductBelongsMarket')
                 ->scope('allGroupPoruductBelongsMarket');
         }
@@ -173,7 +163,7 @@ class GroupProductController extends BaseModuleController
         $filter[] = QuickFilter::make()
             ->label('Букеты сети')
             ->queryString('common')
-            ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->common()->count())
+            ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->common()->count())
             ->scope('common');
 
         $filter[] = QuickFilter::make()
@@ -187,31 +177,28 @@ class GroupProductController extends BaseModuleController
                 ->queryString('trash')
                 ->scope('onlyTrashed')
                 ->onlyEnableWhen(auth()->user()->can('is_owner'))
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->onlyTrashed()->count());
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->onlyTrashed()->count());
         }
 
         return QuickFilters::make($filter);
     }
 
-    public function filters(): TableFilters
-    {
+    public function filters(): TableFilters {
         return TableFilters::make([
             BelongsToFilter::make()->field('GroupProductCategory')->default('all')->label('Категории'),
             BasicFilter::make()
                 ->queryString('tags')
                 ->options(collect(app(GroupProduct::class)->allTags()->pluck('name', 'id')))
                 ->apply(function (Builder $builder, string $value) {
-                    $builder->whereHas('tags', fn ($q) => $q->where('tag_id', $value));
+                    $builder->whereHas('tags', fn($q) => $q->where('tag_id', $value));
                 })->label('Тэги'),
         ]);
-
     }
 
-    public function history(GroupProduct $groupProduct)
-    {
+    public function history(GroupProduct $groupProduct) {
         abort_if(
             ! \Gate::allows('edit-module', 'groupProducts') ||
-            ! \Gate::allows('edit', $groupProduct->priceObj),
+                ! \Gate::allows('edit', $groupProduct->priceObj),
             403
         );
         $groupProduct->priceObj->load('revisions');
@@ -222,8 +209,7 @@ class GroupProductController extends BaseModuleController
             ->with('revisions', $groupProduct->priceObj()->currentMarketGroupProductPrice()->first()->revisions);
     }
 
-    protected function getIndexTableColumns(): TableColumns
-    {
+    protected function getIndexTableColumns(): TableColumns {
         $table = parent::getIndexTableColumns();
         $table->get(1)->title('Название');
 
@@ -237,7 +223,7 @@ class GroupProductController extends BaseModuleController
             Text::make()->field('price')->title(__('Стоимость'))->renderHtml(true)->customRender(function ($model) {
                 $gray = $model->currentMarketPriceObj->is_custom_price ?? false ? 'style="color:gray" title="Стоимость указана вручную"' : '';
 
-                return '<span '.$gray.'>₽ '.round((float) $model->price).'</span>';
+                return '<span ' . $gray . '>₽ ' . round((float) $model->price) . '</span>';
             })
         );
 
@@ -245,7 +231,7 @@ class GroupProductController extends BaseModuleController
             Text::make()->field('public_price')->title(__('Стоимость на сайте'))->renderHtml(true)->customRender(function ($model) {
                 $gray = $model->currentMarketPriceObj->is_custom_price ?? false ? 'style="color:gray" title="Стоимость указана вручную"' : '';
 
-                return '<span '.$gray.'>₽ '.round((float) $model->public_price).'</span>';
+                return '<span ' . $gray . '>₽ ' . round((float) $model->public_price) . '</span>';
             })
         );
 
@@ -262,7 +248,7 @@ class GroupProductController extends BaseModuleController
                 $model->load('priceObj');
                 $link = route('twill.history.groupProduct.price', ['groupProduct' => $model->id]);
 
-                return '<a href="'.$link.'" target="_blank">'.__('Открыть').'</a>';
+                return '<a href="' . $link . '" target="_blank">' . __('Открыть') . '</a>';
             })
         );
 
@@ -270,8 +256,7 @@ class GroupProductController extends BaseModuleController
     }
 
     // META SEO
-    protected function formData($request)
-    {
+    protected function formData($request) {
         $return = [
             'metadata_card_type_options' => config('metadata.card_type_options'),
             'metadata_og_type_options' => config('metadata.opengraph_type_options'),
@@ -305,14 +290,13 @@ class GroupProductController extends BaseModuleController
         return $return;
     }
 
-    protected function form(?int $id, ?TwillModelContract $item = null): array
-    {
+    protected function form(?int $id, ?TwillModelContract $item = null): array {
         if ($id) {
             $item = $this->repository->getById($id, $this->formWith, $this->formWithCount);
 
             if ($item->category) {
 
-                $this->permalinkBase .= '/'.$item->category->nestedSlug;
+                $this->permalinkBase .= '/' . $item->category->nestedSlug;
             }
 
             $this->permalinkBase = str_replace('//', '/', $this->permalinkBase);
@@ -323,8 +307,7 @@ class GroupProductController extends BaseModuleController
         return parent::form($id, $item);
     }
 
-    protected function createRemainsIfNotExist()
-    {
+    protected function createRemainsIfNotExist() {
         if ($marketId = auth('twill_users')->user()->getMarketId()) {
             if (
                 Remain::dontCache()->whereMarketId($marketId)->where('product_id', '<>', null)->count() != GroupProduct::dontCache()->count()
@@ -350,13 +333,12 @@ class GroupProductController extends BaseModuleController
         }
     }
 
-    protected function createPricesIfNotExist()
-    {
+    protected function createPricesIfNotExist() {
         if ($marketId = auth('twill_users')->user()->getMarketId()) {
 
             if (
                 ProductPrice::whereMarketId($marketId)
-                    ->where('product_id', '<>', null)->where('quantity_from', 1)->count() != GroupProduct::dontCache()->count()
+                ->where('product_id', '<>', null)->where('quantity_from', 1)->count() != GroupProduct::dontCache()->count()
 
             ) {
                 $products = GroupProduct::dontCache()->whereDoesntHave('priceObj', function ($q) use ($marketId) {
@@ -400,8 +382,7 @@ class GroupProductController extends BaseModuleController
         }
     }
 
-    protected function getIndexData(array $prependScope = []): array
-    {
+    protected function getIndexData(array $prependScope = []): array {
         $data = parent::getIndexData($prependScope);
         foreach ($data['tableData'] as $i => $item) {
             if (
@@ -419,8 +400,7 @@ class GroupProductController extends BaseModuleController
     /**
      * @return IlluminateView|JsonResponse
      */
-    public function index(?int $parentModuleId = null): mixed
-    {
+    public function index(?int $parentModuleId = null): mixed {
         $this->createRemainsIfNotExist();
         $this->createPricesIfNotExist();
 
