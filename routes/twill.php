@@ -43,7 +43,10 @@ TwillRoutes::module('categories');
 
 # TwillRoutes::module('attributes');
 
-TwillRoutes::module('productPrices');
+Route::name('stats.')->group(function () {
+    Route::get('/stats', [\App\Http\Controllers\Twill\StatController::class, 'index'])->name('index');
+});
+
 TwillRoutes::module('markets');
 Route::post('/markets/auth/{marketId}', [MarketController::class, 'authBy'])->name('markets.auth');
 Route::post('/markets/delete/{marketId}', [MarketController::class, 'delete'])->name('markets.delete');

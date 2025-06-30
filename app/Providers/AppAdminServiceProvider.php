@@ -11,15 +11,13 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Dusk\DuskServiceProvider;
 
-class AppAdminServiceProvider extends ServiceProvider
-{
+class AppAdminServiceProvider extends ServiceProvider {
     /**
      * Register any application services.
      *
      * @return void
      */
-    public function register()
-    {
+    public function register() {
         if ($this->app->environment('local', 'testing')) {
             $this->app->register(DuskServiceProvider::class);
         }
@@ -30,34 +28,33 @@ class AppAdminServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
-    {
+    public function boot() {
         TwillAppSettings::registerSettingsGroups(
-            SettingsGroup::make()->name('seo')->label(trans('twill-metadata::form.titles.fieldset'))->availableWhen(fn () => \Auth::user()->can('edit-settings')),
+            SettingsGroup::make()->name('seo')->label(trans('twill-metadata::form.titles.fieldset'))->availableWhen(fn() => \Auth::user()->can('edit-settings')),
         );
 
         TwillAppSettings::registerSettingsGroups(
             SettingsGroup::make()
                 ->name('main-page')
                 ->label('Главная страница')
-                ->availableWhen(fn () => \Auth::user()->can('edit-settings')),
+                ->availableWhen(fn() => \Auth::user()->can('edit-settings')),
             // Example access control.
             SettingsGroup::make()
                 ->name('help-page')
                 ->label('Страница помощи')
-                ->availableWhen(fn () => \Auth::user()->can('edit-settings')),
+                ->availableWhen(fn() => \Auth::user()->can('edit-settings')),
             SettingsGroup::make()
                 ->name('public')
                 ->label('Публичная часть')
-                ->availableWhen(fn () => \Auth::user()->can('edit-settings')),
+                ->availableWhen(fn() => \Auth::user()->can('edit-settings')),
             SettingsGroup::make()
                 ->name('legal')
                 ->label('Данные юр.лица')
-                ->availableWhen(fn () => \Auth::user()->can('edit-settings')),
+                ->availableWhen(fn() => \Auth::user()->can('edit-settings')),
             SettingsGroup::make()
                 ->name('resource')
                 ->label('Ресурс')
-                ->availableWhen(fn () => \Gate::allows('is_owner')),
+                ->availableWhen(fn() => \Gate::allows('is_owner')),
         );
 
         if (Schema::hasTable('categories')) {
@@ -67,7 +64,7 @@ class AppAdminServiceProvider extends ServiceProvider
             $links1 = collect();
             $links1->add(
                 NavigationLink::make()
-                    ->onlyWhen(fn () => \Auth::user()->can('view-module', 'groupProducts'))
+                    ->onlyWhen(fn() => \Auth::user()->can('view-module', 'groupProducts'))
                     ->forModule('groupProducts')
                     ->title('Букеты')
             );
@@ -88,7 +85,7 @@ class AppAdminServiceProvider extends ServiceProvider
 
             TwillNavigation::addLink(
                 NavigationLink::make()
-                    ->onlyWhen(fn () => \Auth::user()->can('view-module', 'products'))
+                    ->onlyWhen(fn() => \Auth::user()->can('view-module', 'products'))
                     ->forModule('products')
                     ->doNotAddSelfAsFirstChild()
                     ->title('Каталог')
@@ -103,121 +100,113 @@ class AppAdminServiceProvider extends ServiceProvider
                 ->title('Магазин')
                 ->setChildren(
                     [
-
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'orders'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'orders'))
                             ->forModule('orders')
                             ->title('Заказы'),
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'deliveries'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'deliveries'))
                             ->forModule('deliveries')
                             ->title('Доставки'),
-
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'markets'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'markets'))
                             ->forModule('markets')
                             ->title('Магазины')
                             ->setChildren(
                                 [
-                                    // NavigationLink::make()->forModule('paymentDetails')->title('Платежные реквизиты'),
-                                    // NavigationLink::make()
-                                    //     ->onlyWhen(fn() => \Auth::user()->can('view-module', 'marketWorkTimes'))
-                                    //     ->forModule('marketWorkTimes')->title('Время работы & доставки'),
-                                    // NavigationLink::make()->forModule('stocks')->title('Скидки'),
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'balances'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'balances'))
                                         ->forModule('balances')->title('Вывод средств'),
-                                    // NavigationLink::make()->forModule('remains')->title('Остатки'),
-                                    // NavigationLink::make()->forModule('attributes')->title('Характеристики')->doNotAddSelfAsFirstChild()->setChildren([
-                                    //     NavigationLink::make()->forModule('attributes')->title('Характеристики'),
-                                    // ]),
-                                    // NavigationLink::make()->forModule('productPrices')->title('Цены'),
                                 ]
                             ),
+                        NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'stats'))
+                            ->forRoute('twill.stats.index')
+                            ->title('Статистика'),
                     ]
                 )
         );
 
         TwillNavigation::addLink(
             NavigationLink::make()
-                ->onlyWhen(fn () => \Auth::user()->can('view-module', 'pages'))
+                ->onlyWhen(fn() => \Auth::user()->can('view-module', 'pages'))
                 ->doNotAddSelfAsFirstChild()
                 ->forModule('pages')
                 ->title('Сайт')
                 ->setChildren(
                     [
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'pages'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'pages'))
                             ->forModule('pages')->doNotAddSelfAsFirstChild()->title('Страницы'),
 
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'payments'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'payments'))
                             ->forModule('payments')->title('Платежные системы'),
 
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'hollydays'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'hollydays'))
                             ->forModule('hollydays')->title('Праздники'),
 
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'tags'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'tags'))
                             ->forModule('tags')->title('Поводы'),
 
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'paymentStatuses'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'paymentStatuses'))
                             ->forModule('paymentStatuses')->doNotAddSelfAsFirstChild()->title('Статусы')->setChildren(
                                 [
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'orderStatuses'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'orderStatuses'))
                                         ->forModule('orderStatuses')->title('Статусы заказа'),
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'paymentStatuses'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'paymentStatuses'))
                                         ->forModule('paymentStatuses')->title('Статусы платежа'),
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'deliveryStatuses'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'deliveryStatuses'))
                                         ->forModule('deliveryStatuses')->title('Статусы доставки'),
                                 ]
                             ),
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'categories'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'categories'))
                             ->forModule('categories')->title('Категории товаров'),
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'groupProductCategories'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'groupProductCategories'))
                             ->forModule('groupProductCategories')->title('Категории букетов'),
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'colors'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'colors'))
                             ->forModule('colors')->title('Палитра цветов'),
 
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'regions'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'regions'))
                             ->forRoute('twill.regions.index')->doNotAddSelfAsFirstChild()->title('Регионы')->setChildren(
                                 [
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'regions'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'regions'))
                                         ->forModule('regions')->title('Регионы'),
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'cities'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'cities'))
                                         ->forModule('cities')->title('Города'),
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'cities'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'cities'))
                                         ->forRoute('twill.areas.import')->title('Импорт'),
                                 ]
                             ),
 
                         NavigationLink::make()
-                            ->onlyWhen(fn () => \Auth::user()->can('view-module', 'profiles'))
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'profiles'))
                             ->forRoute('twill.profiles.index')->doNotAddSelfAsFirstChild()->title('Дополнительная информация')->setChildren(
                                 [
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'profiles'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'profiles'))
                                         ->forModule('profiles')->title('Покупатели'),
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'legalAccounts'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'legalAccounts'))
                                         ->forModule('legalAccounts')->title('Юр.лица'),
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'reviews'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'reviews'))
                                         ->forModule('reviews')->title('Отзывы'),
                                     NavigationLink::make()
-                                        ->onlyWhen(fn () => \Auth::user()->can('view-module', 'forms'))
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'forms'))
                                         ->forModule('forms')->title('Форма обратной связи'),
                                 ]
                             ),
