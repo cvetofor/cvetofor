@@ -15,6 +15,9 @@ class StatController extends Controller {
         $startDate = $request->input('start_date', Carbon::now()->subDays(30)->toDateString());
         $endDate = $request->input('end_date', Carbon::now()->toDateString());
         $marketId = $request->input('market_id');
+        $bouquetSearch = $request->input('bouquet_search');
+        $sortBy = $request->input('sort_by', 'total_quantity');
+        $sortDir = $request->input('sort_dir', 'desc');
 
         $ordersQuery = Order::query()
             ->where('order_status_id', 4) // Статус "Выполнен"
@@ -50,7 +53,33 @@ class StatController extends Controller {
             }
         }
 
-        arsort($bouquetsStats);
+        // Фильтрация по названию
+        if ($bouquetSearch) {
+            $bouquetsStats = array_filter($bouquetsStats, function ($b) use ($bouquetSearch) {
+                return mb_stripos($b['title'], $bouquetSearch) !== false;
+            });
+        }
+
+        // Сортировка
+        if ($sortBy === 'total_quantity' || $sortBy === 'total_revenue') {
+            uasort($bouquetsStats, function ($a, $b) use ($sortBy, $sortDir) {
+                if ($a[$sortBy] == $b[$sortBy]) return 0;
+                if ($sortDir === 'asc') {
+                    return ($a[$sortBy] < $b[$sortBy]) ? -1 : 1;
+                } else {
+                    return ($a[$sortBy] > $b[$sortBy]) ? -1 : 1;
+                }
+            });
+        } else {
+            uasort($bouquetsStats, function ($a, $b) use ($sortDir) {
+                if ($a['title'] == $b['title']) return 0;
+                if ($sortDir === 'asc') {
+                    return ($a['title'] < $b['title']) ? -1 : 1;
+                } else {
+                    return ($a['title'] > $b['title']) ? -1 : 1;
+                }
+            });
+        }
 
         // --- Pagination Logic ---
         $perPage = 25;
@@ -58,7 +87,7 @@ class StatController extends Controller {
         $bouquetsCollection = new Collection($bouquetsStats);
         $currentPageItems = $bouquetsCollection->slice(($currentPage - 1) * $perPage, $perPage)->all();
         $paginatedBouquets = new LengthAwarePaginator($currentPageItems, count($bouquetsCollection), $perPage);
-        $paginatedBouquets->withPath($request->url())->withQueryString();
+        $paginatedBouquets->withPath($request->url())->appends($request->all());
         // --- End Pagination Logic ---
 
         $markets = Market::published()->get();

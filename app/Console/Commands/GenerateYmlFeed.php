@@ -19,7 +19,7 @@ class GenerateYmlFeed extends Command {
 
     public function handle() {
         $cities = app(\App\Services\CitiesService::class)->getActiveCities();
-        foreach ($cities as $key => $city) {
+        foreach ($cities as $city) {
             $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><yml_catalog date="' . date('Y-m-d\TH:i:sP') . '"></yml_catalog>');
             $shop = $xml->addChild('shop');
 
@@ -38,9 +38,39 @@ class GenerateYmlFeed extends Command {
                 $category = $categories->addChild('category', $productCategory->title);
                 $category->addAttribute('id', $productCategory->id);
             }
+            if ($city->id == 98) {
+                $category = $categories->addChild('category', 'Букеты из роз Кения');
+                $category->addAttribute('id', 16);
+
+                $category = $categories->addChild('category', 'День всех влюбленных');
+                $category->addAttribute('id', 1);
+
+                $category = $categories->addChild('category', 'Букеты из Эустом');
+                $category->addAttribute('id', 23);
+            } else if ($city->id == 96) {
+                $category = $categories->addChild('category', 'День всех влюбленных');
+                $category->addAttribute('id', 1);
+
+                $category = $categories->addChild('category', 'Букеты из кустовых роз');
+                $category->addAttribute('id', 22);
+
+                $category = $categories->addChild('category', 'Букеты из Эустом');
+                $category->addAttribute('id', 23);
+
+                $category = $categories->addChild('category', 'Букеты из диантусов');
+                $category->addAttribute('id', 24);
+
+                $category = $categories->addChild('category', 'Букеты из гортензии');
+                $category->addAttribute('id', 26);
+
+                $category = $categories->addChild('category', 'Букеты с лилиями');
+                $category->addAttribute('id', 27);
+
+                $category = $categories->addChild('category', 'Букеты с лилиями');
+                $category->addAttribute('id', 27);
+            }
 
             $offers = $shop->addChild('offers');
-
             $marketId = Market::where('city_id', $city->id)->first()->id;
             $products = GroupProduct::whereHas('remains', function ($query) use ($marketId) {
                 $query->where('market_id', $marketId);
@@ -61,9 +91,20 @@ class GenerateYmlFeed extends Command {
                     $offer->addChild('vendor', $this->SITE_NAME);
                     $offer->addChild('sales_notes', 'Онлайн-оплата');
 
-                    if (isset($product->description)) {
-                        $offer->addChild('description', htmlspecialchars($product->description, ENT_XML1 | ENT_QUOTES, 'UTF-8'));
+                    // Получаем состав букета через сервис CompositeProducts
+                    $compositeProducts = app(\App\Services\CompositeProducts::class);
+                    $priceObj = $product->priceObj()->where('market_id', $marketId)->first();
+                    $compositionBlocks = $compositeProducts->get($priceObj);
+                    $compositionText = '';
+                    if ($compositionBlocks) {
+                        foreach ($compositionBlocks as $block) {
+                            foreach ($block as $item) {
+                                $compositionText .= $item->title . ' — ' . $item->count . ' шт.; ';
+                            }
+                        }
                     }
+
+                    $offer->addChild('description', htmlspecialchars($compositionText, ENT_XML1 | ENT_QUOTES, 'UTF-8'));
                 }
             }
             $xmlContent = $xml->asXML();
@@ -150,57 +191,3 @@ class GenerateYmlFeed extends Command {
         return strtr($text, $replace);
     }
 }
-
-
-
-
-// <yml_catalog date="2024-06-29 12:00">
-//   <shop>
-//     <name>Название вашего магазина</name>
-//     <company>Название компании</company>
-//     <url>https://example.com</url>
-//     <currencies>
-//       <currency id="RUR" rate="1"/>
-//     </currencies>
-    
-// <categories>
-//       <category id="1">Электроника</category>
-//       <category id="2">Смартфоны</category>
-    
-// </categories>
-    
-// <offers>
-//       <offer id="123" available="true">
-//         <url>https://example.com/product123</url>
-//         <price>10000</price>
-//         <currencyId>RUR</currencyId>
-//         <categoryId>2</categoryId>
-//         <picture>https://example.com/image123.jpg</picture>
-//         <name>Смартфон Xiaomi Redmi Note 10 Pro</name>
-//         <vendor>Xiaomi</vendor>
-//         <model>Redmi Note 10 Pro</model>
-//         <description>Смартфон Xiaomi Redmi Note 10 Pro с 6.67-дюймовым AMOLED-экраном, процессором Snapdragon 732G и камерой 108 Мп.</description>
-//       </offer>
-//        <offer id="456" available="false">
-//         <url>https://example.com/product456</url>
-//         <price>25000</price>
-//         <currencyId>RUR</currencyId>
-//         <categoryId>1</categoryId>
-//         <picture>https://example.com/image456.jpg</picture>
-//         <name>Телевизор Samsung UE55AU7100UXCE</name>
-//         <vendor>Samsung</vendor>
-//         <model>UE55AU7100UXCE</model>
-//         <description>55-дюймовый LED-телевизор Samsung UE55AU7100UXCE с разрешением 4K.</description>
-//       </offer>
-    
-// </offers>
-//   </shop>
-// </yml_catalog>
-
-// <yml_catalog>: Корневой элемент фида.
-// <shop>: Блок с информацией о магазине.
-// <name>: Название магазина.
-// <company>: Название компании.
-// <url>: URL магазина.
-// <currencies>: Блок с валютами.
-// <currency>: Информация о валюте (например, RUR).

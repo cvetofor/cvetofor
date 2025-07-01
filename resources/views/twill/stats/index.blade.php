@@ -2,7 +2,6 @@
 
 @section('content')
     <div class="stats-container">
-        
         <a17-title-editor title="Статистика"></a17-title-editor>
         <form action="{{ route('twill.stats.index') }}" method="GET" class="stats-form">
             <div>
@@ -27,6 +26,9 @@
             <div>
                 <button type="submit" class="btn">Применить</button>
             </div>
+            <input type="hidden" name="bouquet_search" id="bouquet_search" value="{{ request('bouquet_search', '') }}">
+            <input type="hidden" name="sort_by" id="sort_by" value="{{ request('sort_by', '') }}">
+            <input type="hidden" name="sort_dir" id="sort_dir" value="{{ request('sort_dir', 'desc') }}">
         </form>
 
         <div class="table-container">
@@ -50,14 +52,31 @@
             </table>
         </div>
 
-        <h3 style="text-align: center; margin-top: 40px; margin-bottom: 20px;">Детализация по букетам</h3>
+        <h3 class="bouquet-detail-title">Детализация по букетам</h3>
+        <div class="table-filter" style="margin-bottom: 10px; display: flex; gap: 10px; justify-content: flex-start;">
+            <input type="text" id="bouquetSearch" class="form-control" style="max-width: 200px;" placeholder="Поиск по названию..." value="{{ request('bouquet_search', '') }}">
+        </div>
         <div class="table-container">
-            <table class="table">
+            <table class="table" id="bouquetsTable">
                 <thead>
                     <tr>
                         <th>Название букета</th>
-                        <th>Продано (шт.)</th>
-                        <th>Сумма</th>
+                        <th id="thQuantity" style="cursor:pointer;">
+                            Продано (шт.)
+                            <span id="arrowQuantity">
+                                @if(request('sort_by') === 'total_quantity')
+                                    {{ request('sort_dir', 'desc') === 'asc' ? '▲' : '▼' }}
+                                @endif
+                            </span>
+                        </th>
+                        <th id="thSum" style="cursor:pointer;">
+                            Сумма
+                            <span id="arrowSum">
+                                @if(request('sort_by') === 'total_revenue')
+                                    {{ request('sort_dir', 'desc') === 'asc' ? '▲' : '▼' }}
+                                @endif
+                            </span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -205,5 +224,35 @@
             border-top-right-radius: .25rem;
             border-bottom-right-radius: .25rem;
         }
+        .bouquet-detail-title {
+            text-align: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 2.0rem;
+            font-weight: bold;
+        }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Поиск по названию
+            document.getElementById('bouquetSearch').addEventListener('input', function() {
+                document.getElementById('bouquet_search').value = this.value;
+                document.querySelector('.stats-form').submit();
+            });
+            // Сортировка по количеству
+            document.getElementById('thQuantity').addEventListener('click', function() {
+                document.getElementById('sort_by').value = 'total_quantity';
+                let dir = document.getElementById('sort_dir').value;
+                document.getElementById('sort_dir').value = (dir === 'asc' ? 'desc' : 'asc');
+                document.querySelector('.stats-form').submit();
+            });
+            // Сортировка по сумме
+            document.getElementById('thSum').addEventListener('click', function() {
+                document.getElementById('sort_by').value = 'total_revenue';
+                let dir = document.getElementById('sort_dir').value;
+                document.getElementById('sort_dir').value = (dir === 'asc' ? 'desc' : 'asc');
+                document.querySelector('.stats-form').submit();
+            });
+        });
+    </script>
 @endpush
