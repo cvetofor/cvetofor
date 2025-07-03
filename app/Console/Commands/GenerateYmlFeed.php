@@ -33,41 +33,10 @@ class GenerateYmlFeed extends Command {
             $currency->addAttribute('rate', '1');
 
             $categories = $shop->addChild('categories');
-            $productCategories = app(\App\Services\CatalogService::class)->getPublishedCategoriesFeed($city->id);
+            $productCategories = GroupProductCategory::published()->get();
             foreach ($productCategories as $productCategory) {
                 $category = $categories->addChild('category', $productCategory->title);
                 $category->addAttribute('id', $productCategory->id);
-            }
-            if ($city->id == 98) {
-                $category = $categories->addChild('category', 'Букеты из роз Кения');
-                $category->addAttribute('id', 16);
-
-                $category = $categories->addChild('category', 'День всех влюбленных');
-                $category->addAttribute('id', 1);
-
-                $category = $categories->addChild('category', 'Букеты из Эустом');
-                $category->addAttribute('id', 23);
-            } else if ($city->id == 96) {
-                $category = $categories->addChild('category', 'День всех влюбленных');
-                $category->addAttribute('id', 1);
-
-                $category = $categories->addChild('category', 'Букеты из кустовых роз');
-                $category->addAttribute('id', 22);
-
-                $category = $categories->addChild('category', 'Букеты из Эустом');
-                $category->addAttribute('id', 23);
-
-                $category = $categories->addChild('category', 'Букеты из диантусов');
-                $category->addAttribute('id', 24);
-
-                $category = $categories->addChild('category', 'Букеты из гортензии');
-                $category->addAttribute('id', 26);
-
-                $category = $categories->addChild('category', 'Букеты с лилиями');
-                $category->addAttribute('id', 27);
-
-                $category = $categories->addChild('category', 'Букеты с лилиями');
-                $category->addAttribute('id', 27);
             }
 
             $offers = $shop->addChild('offers');
