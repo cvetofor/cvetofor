@@ -19,8 +19,7 @@ use Illuminate\Database\Eloquent\Collection;
 use function getLikeOperator;
 use function json_decode;
 
-class ProductRepository extends ModuleRepository
-{
+class ProductRepository extends ModuleRepository {
     use HandleMedias, HandleSlugs, HasRelated;
     //  use HandleRevisions;
 
@@ -31,13 +30,11 @@ class ProductRepository extends ModuleRepository
         ],
     ];
 
-    public function __construct(Product $model)
-    {
+    public function __construct(Product $model) {
         $this->model = $model;
     }
 
-    public function filter($query, array $scopes = []): Builder
-    {
+    public function filter($query, array $scopes = []): Builder {
 
         if (request()?->route()->parameters() && isset(request()?->route()->parameters()['category'])) {
             $category_id = request()?->route()->parameters()['category'];
@@ -68,8 +65,7 @@ class ProductRepository extends ModuleRepository
         return parent::filter($query, $scopes);
     }
 
-    public function beforeSave(TwillModelContract $object, array $fields): void
-    {
+    public function beforeSave(TwillModelContract $object, array $fields): void {
         // abort_if($object->parent_id !== null, 403);
 
         if (! auth()->user()->can('is_owner') && in_array($object->market_id, auth()->user()->getMarketIds()) && $object->verefied_at !== null) {
@@ -79,8 +75,7 @@ class ProductRepository extends ModuleRepository
         parent::beforeSave($object, $fields);
     }
 
-    public function afterSave(TwillModelContract $model, array $fields): void
-    {
+    public function afterSave(TwillModelContract $model, array $fields): void {
         parent::afterSave($model, $fields);
 
         // Создаем либо удаляем товары зависимые от цвета
@@ -93,7 +88,7 @@ class ProductRepository extends ModuleRepository
                     $skuProduct = $this->create([
                         'parent_id' => $model->id,
                         'category_id' => $model->category_id,
-                        'title' => $model->title.' / '.$color->title,
+                        'title' => $model->title . ' / ' . $color->title,
                         'published' => true,
                         'is_market_public' => true,
                         'verified_at' => now(),
@@ -119,7 +114,7 @@ class ProductRepository extends ModuleRepository
                     if ($color) {
                         if (in_array($color->id, $colors->pluck('id')->toArray())) {
                             $sku->update([
-                                'title' => $model->title.' / '.$color->title,
+                                'title' => $model->title . ' / ' . $color->title,
                                 'category_id' => $model->category_id,
                             ]);
                             $exists[] = $color->id;
@@ -138,7 +133,7 @@ class ProductRepository extends ModuleRepository
                     $skuProduct = $this->create([
                         'parent_id' => $model->id,
                         'category_id' => $model->category_id,
-                        'title' => $model->title.' / '.$color->title,
+                        'title' => $model->title . ' / ' . $color->title,
                         'published' => true,
                         'is_market_public' => true,
                         'verified_at' => now(),
@@ -159,17 +154,19 @@ class ProductRepository extends ModuleRepository
     /**
      * Отключить букеты, товары или цвета которых отсуствуют
      */
-    public static function changeAccessibilityOnGroupProducts(Product $product, $marketId = null)
-    {
+    public static function changeAccessibilityOnGroupProducts(Product $product, $marketId = null) {
         $marketId = $marketId ?: auth('twill_users')->user()->getMarketId();
 
         $groupProducts = GroupProduct::whereHas('blocks', function ($q) use ($product) {
             if ($product->parent) {
-                $q = $q->whereJsonContains('content->browsers->color', [$product->colors()->first()->id ?? false]);
+                // Если это SKU продукт (конкретный цвет), ищем букеты с этим цветом
+                $colorId = $product->getRelated('colors')->first()->id ?? null;
+                if ($colorId) {
+                    $q->whereJsonContains('content->browsers->color', [$colorId]);
+                }
             }
 
-            return $q
-                ->whereJsonContains('content->browsers->products', [$product->parent ? $product->parent->id : $product->id]);
+            return $q->whereJsonContains('content->browsers->products', [$product->parent ? $product->parent->id : $product->id]);
         })->pluck('id');
 
         if (
@@ -190,11 +187,9 @@ class ProductRepository extends ModuleRepository
                 self::changeAccessibilityOnGroupProducts($sku);
             }
         }
-
     }
 
-    public function cmsSearch(string $search, array $fields = [], ?callable $query = null): Collection
-    {
+    public function cmsSearch(string $search, array $fields = [], ?callable $query = null): Collection {
         $builder = $this->filter($this->model, []);
 
         foreach ($fields as $field) {
@@ -204,8 +199,7 @@ class ProductRepository extends ModuleRepository
         return $builder->get();
     }
 
-    public function prepareFieldsBeforeSave(TwillModelContract $object, $fields): array
-    {
+    public function prepareFieldsBeforeSave(TwillModelContract $object, $fields): array {
 
         $fields = parent::prepareFieldsBeforeSave($object, $fields);
         $id = Arr::get($fields, 'browsers.categories.0.id', null);
@@ -219,8 +213,7 @@ class ProductRepository extends ModuleRepository
         return $fields;
     }
 
-    public function getFormFields(TwillModelContract $object): array
-    {
+    public function getFormFields(TwillModelContract $object): array {
         $fields = parent::getFormFields($object);
 
         $fields = $this->getFormFieldsForRepeater($object, $fields, 'skus', 'Product', 'product-childrens');
@@ -244,8 +237,7 @@ class ProductRepository extends ModuleRepository
     /**
      * @return array
      */
-    public function prepareFieldsBeforeCreate(array $fields): array
-    {
+    public function prepareFieldsBeforeCreate(array $fields): array {
         $fields = parent::prepareFieldsBeforeCreate($fields);
         $fields['market_id'] = auth()->guard('twill_users')->user()->getMarketId();
 

@@ -6,8 +6,7 @@ use App\Http\Middleware\AdminDebugBar;
 use App\Http\Middleware\IsCanViewLogs;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
-class Kernel extends HttpKernel
-{
+class Kernel extends HttpKernel {
     /**
      * The application's global HTTP middleware stack.
      *
