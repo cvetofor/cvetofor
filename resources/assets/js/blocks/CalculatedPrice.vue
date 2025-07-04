@@ -79,89 +79,43 @@ export default {
     // Стоимость зависит от количества [1..24],[25..50][51,100][101..]
     calc: function () {
       let total = 0.0;
-
-      // hiddentCount - скрытое количество товара
-      let hiddenCounts = {};
+      // Проходим по всем выбранным товарам (blocks)
       for (let key in this.form) {
         if (Object.hasOwnProperty.call(this.form, key)) {
           const element = this.form[key];
-          let productKey = element.name.replace("[count]", "[products]");
-
-          if (this.selected[productKey] && this.selected[productKey][0]) {
-            let product = this.selected[productKey][0];
-            let productId = product.id; // Используем идентификатор товара
-
-            // Определение hiddenCount
-            hiddenCounts[productId] = hiddenCounts[productId] || 0;
-            hiddenCounts[productId] += Number.parseInt(element.value);
-          }
-        }
-      }
-
-      for (let key in this.form) {
-        if (Object.hasOwnProperty.call(this.form, key)) {
-          const element = this.form[key];
-
           let count = Number.parseInt(element.value);
-
           let productKey = element.name.replace("[count]", "[products]");
-
           if (this.selected[productKey] && this.selected[productKey][0]) {
             let prices = this.selected[productKey][0].prices;
-
-            let price = 0.0;
-
-            let range = [];
-
-            for (let index = 0; index < prices.length; index++) {
-              const priceObj = prices[index];
-              if (priceObj.price !== null) {
-                range.push(Number.parseInt(priceObj.quantity_from));
-              }
-            }
-
-            if (range.length == 0) {
-              this.$store.commit(NOTIFICATION.SET_NOTIF, {
-                message:
-                  'У товара "' +
-                  this.selected[productKey][0].name +
-                  '" не установлены цены',
-                variant: "error",
-              });
-            }
-
-            range.push(Number.MAX_VALUE);
-
-            range = range.sort((a, b) => a > b);
-
-            if (range.length % 2 !== 0) {
-              range.push(Number.MAX_VALUE);
-            }
-
-            let quantityFrom;
-            for (let index = 0; index < range.length; index++) {
-              for (let j = 0; j < range.length; j++) {
-                const r1 = range[index];
-                const r2 = range[j];
-
-                if (this.between(hiddenCounts[product.id], r1, r2)) {
-                  quantityFrom = r1;
+            // Оставляем только валидные цены
+            prices = prices.filter(
+              (item) =>
+                item.price !== undefined &&
+                item.price !== null &&
+                item.price !== "" &&
+                !isNaN(item.price)
+            );
+            // Сортируем по quantity_from по возрастанию
+            prices.sort((a, b) => a.quantity_from - b.quantity_from);
+            // Выбираем подходящую цену
+            let price = 0;
+            let _current = 0;
+            if (prices.length > 0) {
+              for (let i = 0; i < prices.length; i++) {
+                if (prices[i].quantity_from <= count) {
+                  _current = i;
                 }
               }
+              price = Number.parseFloat(prices[_current].price);
+              total += price * count;
+            } else {
+              // Если нет цен, пропускаем
+              continue;
             }
-
-            let priceObj = prices.filter(
-              (e) => e.quantity_from == quantityFrom
-            );
-            if (priceObj[0]) {
-              price = Number.parseFloat(priceObj[0].price);
-            }
-            total += hiddenCounts[product.id] * price;
           }
         }
       }
       total = Number.parseFloat(total).toFixed(2);
-
       this.updateValue(total);
       return total;
     },
