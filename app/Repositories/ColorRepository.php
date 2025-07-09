@@ -6,8 +6,7 @@ use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Repositories\ModuleRepository;
 use App\Models\Color;
 
-class ColorRepository extends ModuleRepository
-{
+class ColorRepository extends ModuleRepository {
     protected array $fieldsGroups = [
         'data' => [
             'rgb',
@@ -20,13 +19,11 @@ class ColorRepository extends ModuleRepository
 
     public string $fieldsGroupsFormFieldNameSeparator = '_';
 
-    public function __construct(Color $model)
-    {
+    public function __construct(Color $model) {
         $this->model = $model;
     }
 
-    public function prepareFieldsBeforeSave(TwillModelContract $object, array $fields): array
-    {
+    public function prepareFieldsBeforeSave(TwillModelContract $object, array $fields): array {
         return parent::prepareFieldsBeforeSave($object, $fields);
     }
 }

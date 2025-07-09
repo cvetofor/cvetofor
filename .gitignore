@@ -1,7 +1,7 @@
 /node_modules
 /public/build
-/public/hot
-/public/dist
+/public/hot 
+/public/vendor
 /storage/framework/sessions/*
 /public/storage
 public/assets/twill/*
@@ -25,7 +25,6 @@ yarn-error.log
 *.pdf
 *.psd
 *.sublime*
-node_modules/
-/public/dist/
+node_modules/ 
 npm-debug.*
 Thumbs.db
