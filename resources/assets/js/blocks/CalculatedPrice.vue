@@ -79,13 +79,15 @@ export default {
     // Стоимость зависит от количества [1..24],[25..50][51,100][101..]
     calc: function () {
       let total = 0.0;
-      // Проходим по всем выбранным товарам (blocks)
+      // Сначала группируем по product_id
+      let products = {};
       for (let key in this.form) {
         if (Object.hasOwnProperty.call(this.form, key)) {
           const element = this.form[key];
           let count = Number.parseInt(element.value);
           let productKey = element.name.replace("[count]", "[products]");
           if (this.selected[productKey] && this.selected[productKey][0]) {
+            let productId = this.selected[productKey][0].id;
             let prices = this.selected[productKey][0].prices;
             // Оставляем только валидные цены
             prices = prices.filter(
@@ -95,24 +97,36 @@ export default {
                 item.price !== "" &&
                 !isNaN(item.price)
             );
-            // Сортируем по quantity_from по возрастанию
-            prices.sort((a, b) => a.quantity_from - b.quantity_from);
-            // Выбираем подходящую цену
-            let price = 0;
-            let _current = 0;
-            if (prices.length > 0) {
-              for (let i = 0; i < prices.length; i++) {
-                if (prices[i].quantity_from <= count) {
-                  _current = i;
-                }
-              }
-              price = Number.parseFloat(prices[_current].price);
-              total += price * count;
-            } else {
-              // Если нет цен, пропускаем
-              continue;
+            if (!productId || count <= 0 || prices.length === 0) continue;
+            if (!products[productId]) {
+              products[productId] = {
+                count: 0,
+                prices: prices,
+              };
             }
+            products[productId].count += count;
           }
+        }
+      }
+      // Теперь считаем сумму по каждому продукту
+      for (let productId in products) {
+        let count = products[productId].count;
+        let prices = products[productId].prices;
+        // Сортируем цены по quantity_from ASC
+        prices.sort((a, b) => a.quantity_from - b.quantity_from);
+        // Находим подходящую цену
+        let currentPrice = null;
+        for (let i = 0; i < prices.length; i++) {
+          if (prices[i].quantity_from <= count) {
+            currentPrice = prices[i].price;
+          }
+        }
+        // Если не нашли цену, берем минимальную (или пропускаем)
+        if (currentPrice === null && prices.length > 0) {
+          currentPrice = prices[0].price;
+        }
+        if (currentPrice !== null) {
+          total += Number.parseFloat(currentPrice) * count;
         }
       }
       total = Number.parseFloat(total).toFixed(2);
