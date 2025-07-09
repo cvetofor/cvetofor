@@ -268,38 +268,57 @@ class GroupProductRepository extends ModuleRepository {
 
         $proposedPrice = $fields['price'];
 
-        $total = self::calcBLocksPrice($object, $fields);
+        $total = self::calcBlocksPrice($object, $fields);
 
         return (float) $proposedPrice !== (float) $total;
     }
 
-    public static function calcBLocksPrice($object, $fields) {
+    public static function calcBlocksPrice($object, $fields) {
         $total = 0.0;
         $blocks = Arr::get($fields, 'blocks', null);
         if ($blocks) {
+            // Сначала группируем по product_id
+            $products = [];
             foreach ($blocks as $block) {
                 if ($block['type'] === 'a17-block-products') {
-                    $count = Arr::get($block, 'content.count', null);
+                    $productId = Arr::get($block, 'browsers.products.0.id');
+                    $count = (int)Arr::get($block, 'content.count', 0);
                     $prices = array_filter(Arr::get($block, 'browsers.products.0.prices', []), function ($item) {
-                        return isset($item['price']) && $item['price'] && ! empty($item['price']) && \is_numeric($item['price']);
+                        return isset($item['price']) && $item['price'] && !empty($item['price']) && is_numeric($item['price']);
                     });
-                    usort($prices, function ($l, $r) {
-                        return $l['quantity_from'] >= $r['quantity_from'];
-                    });
-
-                    if (isset(array_keys($prices)[0])) {
-
-                        $_current = array_keys($prices)[0];
-
-                        foreach ($prices as $key => $price) {
-                            if ($price['quantity_from'] <= $count) {
-                                $_current = $key;
-                            }
-                        }
-                    } else {
-                        return true;
+                    if (!$productId || $count <= 0 || empty($prices)) {
+                        continue;
                     }
-                    $total += $prices[$_current]['price'] * $count;
+                    if (!isset($products[$productId])) {
+                        $products[$productId] = [
+                            'count' => 0,
+                            'prices' => $prices,
+                        ];
+                    }
+                    $products[$productId]['count'] += $count;
+                }
+            }
+            // Теперь считаем сумму по каждому продукту
+            foreach ($products as $product) {
+                $count = $product['count'];
+                $prices = $product['prices'];
+                // Сортируем цены по quantity_from ASC
+                usort($prices, function ($l, $r) {
+                    return $l['quantity_from'] <=> $r['quantity_from'];
+                });
+                // Находим подходящую цену
+                $currentPrice = null;
+                foreach ($prices as $price) {
+                    if ($price['quantity_from'] <= $count) {
+                        $currentPrice = $price['price'];
+                    }
+                }
+                // Если не нашли цену, берем минимальную (или пропускаем)
+                if ($currentPrice === null && count($prices) > 0) {
+                    $currentPrice = $prices[0]['price'];
+                }
+                if ($currentPrice !== null) {
+                    $total += $currentPrice * $count;
                 }
             }
         }
