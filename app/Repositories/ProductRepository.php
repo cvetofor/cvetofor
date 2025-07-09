@@ -156,7 +156,6 @@ class ProductRepository extends ModuleRepository {
      */
     public static function changeAccessibilityOnGroupProducts(Product $product, $marketId = null) {
         $marketId = $marketId ?: auth('twill_users')->user()->getMarketId();
-
         $groupProducts = GroupProduct::whereHas('blocks', function ($q) use ($product) {
             if ($product->parent) {
                 // Если это SKU продукт (конкретный цвет), ищем букеты с этим цветом
@@ -180,12 +179,54 @@ class ProductRepository extends ModuleRepository {
                     ]
                 );
         } else {
-
             // Если обновляется главный товар, то букеты с неактивным цветом должны остаться неактивными
             $skus = $product->skus;
             foreach ($skus as $key => $sku) {
                 self::changeAccessibilityOnGroupProducts($sku);
             }
+        }
+
+        // Если это SKU (цвет), то при активации/деактивации меняем статус всех связанных букетов
+        if ($product->parent) {
+            // Для каждого букета проверяем, что все цветки с нужным цветом доступны
+            foreach ($groupProducts as $groupProductId) {
+                $groupProduct = GroupProduct::find($groupProductId);
+                // if (!$groupProduct) continue;
+
+                $allAvailable = true;
+                $blocks = $groupProduct->blocks()->where('type', 'products')->get();
+                foreach ($blocks as $block) {
+                    $blockContent = $block->content;
+                    $blockProductId = \Arr::get($blockContent, 'browsers.products.0');
+                    $blockColorId = \Arr::get($blockContent, 'browsers.color.0');
+
+                    if ($blockProductId && $blockColorId) {
+                        // Получаем SKU продукта (конкретный цвет) и проверяем его публикацию
+                        $skuProduct = Product::where('parent_id', $blockProductId)
+                            ->whereExists(function ($query) use ($blockColorId) {
+                                $query->select(\DB::raw(1))
+                                    ->from('related')
+                                    ->whereRaw('related.subject_id = products.id')
+                                    ->where('related.subject_type', Product::class)
+                                    ->where('related.related_id', $blockColorId)
+                                    ->where('related.related_type', \App\Models\Color::class)
+                                    ->where('related.browser_name', 'colors');
+                            })
+                            ->first();
+
+                        // Если SKU не найден или не опубликован - отмечаем проблему
+                        if (!$skuProduct || !$skuProduct->published) {
+                            $allAvailable = false;
+                            break;
+                        }
+                    }
+                }
+
+                // Если все цветки с нужным цветом доступны, включаем букет, иначе выключаем
+                Remain::where('group_product_id', $groupProductId)
+                    ->update(['published' => $allAvailable]);
+            }
+            return;
         }
     }
 
@@ -200,7 +241,6 @@ class ProductRepository extends ModuleRepository {
     }
 
     public function prepareFieldsBeforeSave(TwillModelContract $object, $fields): array {
-
         $fields = parent::prepareFieldsBeforeSave($object, $fields);
         $id = Arr::get($fields, 'browsers.categories.0.id', null);
 

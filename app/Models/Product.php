@@ -13,8 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
-class Product extends Model
-{
+class Product extends Model {
     use HasMedias, HasRelated, HasRevisions, HasSlug;
     use QueryCacheable;
 
@@ -50,11 +49,11 @@ class Product extends Model
      */
     protected static $flushCacheOnUpdate = true;
 
-    protected static function boot()
-    {
+    protected static function boot() {
         parent::boot();
 
-        static::retrieved(function ($model) {});
+        static::retrieved(function ($model) {
+        });
     }
 
     public $mediasParams = [
@@ -94,33 +93,27 @@ class Product extends Model
         'price' => 'float',
     ];
 
-    public function remains(): HasMany
-    {
+    public function remains(): HasMany {
         return $this->hasMany(Remain::class, 'product_id');
     }
 
-    public function colors()
-    {
+    public function colors() {
         return $this->getRelated('colors');
     }
 
-    public function category(): BelongsTo
-    {
+    public function category(): BelongsTo {
         return $this->belongsTo(Category::class, 'category_id');
     }
 
-    public function prices(): HasMany
-    {
+    public function prices(): HasMany {
         return $this->hasMany(ProductPrice::class);
     }
 
-    public function skus(): HasMany
-    {
+    public function skus(): HasMany {
         return $this->hasMany(Product::class, 'parent_id');
     }
 
-    public function parent(): BelongsTo
-    {
+    public function parent(): BelongsTo {
         return $this->belongsTo(Product::class, 'parent_id');
     }
 
@@ -129,22 +122,19 @@ class Product extends Model
     //     return $this->hasMany(Attribute::class, 'product_id');
     // }
 
-    public function scopeDraft($query): Builder
-    {
+    public function scopeDraft($query): Builder {
         return $query->whereHas('remains', function ($q) {
             $q->where('published', false)->where('market_id', auth('twill_users')->user()->getMarketId());
         });
     }
 
-    public function scopeInStock($query): Builder
-    {
+    public function scopeInStock($query): Builder {
         return $query->whereHas('remains', function ($q) {
             $q->where('published', true)->where('market_id', auth('twill_users')->user()->getMarketId());
         });
     }
 
-    public function scopeWaitToCheckAdmin($query): Builder
-    {
+    public function scopeWaitToCheckAdmin($query): Builder {
         $query = $query->where('verified_at', null);
 
         if (! auth()->user()->can('is_owner')) {
@@ -154,15 +144,13 @@ class Product extends Model
         return $query;
     }
 
-    public function scopePublished($query): Builder
-    {
+    public function scopePublished($query): Builder {
         return $query->whereHas('remains', function ($q) {
             $q->where('published', true);
         });
     }
 
-    public function getPublishedAttribute()
-    {
+    public function getPublishedAttribute() {
         if (auth()->guard('twill_users')->check()) {
             return $this->remains()->whereMarketIdAndProductId(auth()->guard('twill_users')->user()->getMarketId(), $this->id)->first()->published ?? false;
         }
@@ -170,8 +158,7 @@ class Product extends Model
         return $this->attributes['published'];
     }
 
-    public function setPublishedAttribute($value)
-    {
+    public function setPublishedAttribute($value) {
         if (! isset($this->attributes['published'])) {
             $this->attributes['published'] = $value;
         }

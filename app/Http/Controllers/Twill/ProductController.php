@@ -17,19 +17,17 @@ use App\Models\ProductPrice;
 use App\Models\Remain;
 use App\Models\Revisions\ProductPriceRevision;
 use App\Repositories\ProductPriceRepository;
+use App\Repositories\ProductRepository;
 use App\Services\Market\ExcelPriceExport;
 use Illuminate\Contracts\View\View as IlluminateView;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class ProductController extends BaseModuleController
-{
+class ProductController extends BaseModuleController {
     protected $moduleName = 'products';
 
-    public function publish(): JsonResponse
-    {
+    public function publish(): JsonResponse {
         // $data['id'] - Product->id
-
         try {
             $data = $this->validate($this->request, [
                 'id' => 'integer|required',
@@ -52,14 +50,16 @@ class ProductController extends BaseModuleController
                 activity()->performedOn(
                     $item
                 )->log(
-                    ($this->request->get('active') ? 'un' : '').'published'
+                    ($this->request->get('active') ? 'un' : '') . 'published'
                 );
 
                 $this->fireEvent();
 
-                ChangeAccessibilityOnGroupProducts::dispatch(Product::where('id', $data['id'])->first(), auth()->user()->getMarketId());
+                // ChangeAccessibilityOnGroupProducts::dispatch(Product::where('id', $data['id'])->first(), auth()->user()->getMarketId());
 
                 Product::flushQueryCache();
+
+                ProductRepository::changeAccessibilityOnGroupProducts(Product::where('id', $data['id'])->first(), auth()->user()->getMarketId());
 
                 if ($data['active']) {
                     return $this->respondWithSuccess(
@@ -85,13 +85,12 @@ class ProductController extends BaseModuleController
      *
      * @return void
      */
-    public function history(Product $product)
-    {
+    public function history(Product $product) {
 
         abort_if(
 
             ! \Gate::allows('edit-module', 'products') ||
-            ! auth()->user()->can('viewHistory', $product),
+                ! auth()->user()->can('viewHistory', $product),
             403
         );
 
@@ -102,7 +101,7 @@ class ProductController extends BaseModuleController
         abort_if(! \Gate::allows('is_owner') && (! $prices || optional($prices->first())->market_id !== auth()->user()->getMarketId()), 403, 'Этот магазин не может просматривать историю изменений');
 
         $tabs = $prices->map(function ($e) {
-            return ['name' => 'quantity_'.(int) $e->quantity_from, 'label' => 'от '.$e->quantity_from.' шт'];
+            return ['name' => 'quantity_' . (int) $e->quantity_from, 'label' => 'от ' . $e->quantity_from . ' шт'];
         });
 
         return view('site.productPriceHistory')
@@ -117,8 +116,7 @@ class ProductController extends BaseModuleController
      *
      * @return void
      */
-    public function changePrice()
-    {
+    public function changePrice() {
         abort_unless(\Gate::allows('edit-module', 'products'), 403);
 
         $data = $this->validate($this->request, [
@@ -137,8 +135,7 @@ class ProductController extends BaseModuleController
     /**
      * This method can be used to enable/disable defaults. See setUpController in the docs for available options.
      */
-    protected function setUpController(): void
-    {
+    protected function setUpController(): void {
         $this->modelTitle = 'Товар';
         $this->labels['listing.filter.all-items'] = __('Все');
         $this->labels['listing.filter.draft'] = __('Нет в наличии');
@@ -149,8 +146,7 @@ class ProductController extends BaseModuleController
         $this->disablePermalink();
     }
 
-    protected function createRemainsIfNotExist()
-    {
+    protected function createRemainsIfNotExist() {
         if ($marketId = auth('twill_users')->user()->getMarketId()) {
 
             $products = Product::dontCache()->whereDoesntHave('remains', function ($q) use ($marketId) {
@@ -168,12 +164,10 @@ class ProductController extends BaseModuleController
             }
             Remain::insert($inserts);
             Remain::flushQueryCache();
-
         }
     }
 
-    protected function createPricesIfNotExist()
-    {
+    protected function createPricesIfNotExist() {
         if ($marketId = auth('twill_users')->user()->getMarketId()) {
 
             $products = Product::dontCache()->whereDoesntHave('prices', function ($q) use ($marketId) {
@@ -198,8 +192,7 @@ class ProductController extends BaseModuleController
         }
     }
 
-    public function list()
-    {
+    public function list() {
         abort_unless(\Gate::allows('edit-module', 'products'), 403);
 
         $this->createRemainsIfNotExist();
@@ -211,16 +204,14 @@ class ProductController extends BaseModuleController
     /**
      * @return IlluminateView|JsonResponse
      */
-    public function index(?int $parentModuleId = null): mixed
-    {
+    public function index(?int $parentModuleId = null): mixed {
         $this->createRemainsIfNotExist();
         $this->createPricesIfNotExist();
 
         return parent::index($parentModuleId);
     }
 
-    public function update(int|TwillModelContract $id, ?int $submoduleId = null): JsonResponse
-    {
+    public function update(int|TwillModelContract $id, ?int $submoduleId = null): JsonResponse {
         $this->authorize('edit', Product::where('id', $id)->first());
         if (! \request('browsers.categories.0')) {
             return $this->respondWithError(
@@ -231,8 +222,7 @@ class ProductController extends BaseModuleController
         return parent::update($id, $submoduleId);
     }
 
-    public function edit(TwillModelContract|int $id): mixed
-    {
+    public function edit(TwillModelContract|int $id): mixed {
         $product = Product::where('id', $id)->firstOrFail();
         $this->authorize('edit', $product);
 
@@ -242,8 +232,7 @@ class ProductController extends BaseModuleController
     /**
      * Быстрый фильтр на панели
      */
-    public function quickFilters(): QuickFilters
-    {
+    public function quickFilters(): QuickFilters {
         $scope = ($this->submodule ? [
             $this->getParentModuleForeignKey() => $this->submoduleParentId,
         ] : []);
@@ -252,14 +241,14 @@ class ProductController extends BaseModuleController
         $filter[] = QuickFilter::make()
             ->label('В наличии')
             ->queryString('inStock')
-            ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->inStock()->count())
+            ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->inStock()->count())
             ->scope('inStock');
 
         $filter[] = QuickFilter::make()
             ->label($this->getTransLabel('listing.filter.draft'))
             ->queryString('draft')
             ->scope('draft')
-            ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->draft()->count())
+            ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->draft()->count())
             ->onlyEnableWhen($this->getIndexOption('publish'));
 
         $filter[] = QuickFilter::make()
@@ -269,7 +258,7 @@ class ProductController extends BaseModuleController
         $filter[] = QuickFilter::make()
             ->label('Ожидает проверки')
             ->queryString('waitToCheckAdmin')
-            ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->waitToCheckAdmin()->count())
+            ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->waitToCheckAdmin()->count())
             ->scope('waitToCheckAdmin');
 
         if (auth()->user()->can('is_owner')) {
@@ -279,7 +268,7 @@ class ProductController extends BaseModuleController
                 ->queryString('trash')
                 ->scope('onlyTrashed')
                 ->onlyEnableWhen(auth()->user()->can('is_owner'))
-                ->amount(fn () => $this->repository->filter($this->repository->getBaseModel())->onlyTrashed()->count());
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->onlyTrashed()->count());
         }
 
         return QuickFilters::make(
@@ -290,8 +279,7 @@ class ProductController extends BaseModuleController
     /**
      * Дополнительные поля в списке
      */
-    protected function getIndexTableColumns(): TableColumns
-    {
+    protected function getIndexTableColumns(): TableColumns {
         $table = parent::getIndexTableColumns();
 
         // У флориста не показывается статус публикации и количество элементов = 1
@@ -363,7 +351,7 @@ class ProductController extends BaseModuleController
                 Text::make()->field('history')->title(__('История изменений'))->renderHtml(true)->customRender(function ($model) {
                     $link = route('twill.history.product.price', ['product' => $model->id]);
 
-                    return '<a href="'.$link.'" target="_blank">Открыть</a>';
+                    return '<a href="' . $link . '" target="_blank">Открыть</a>';
                 })->optional()
             );
         }
@@ -371,8 +359,7 @@ class ProductController extends BaseModuleController
         return $table->merge($after);
     }
 
-    public function getBrowserData($prependScope = []): array
-    {
+    public function getBrowserData($prependScope = []): array {
         $data = parent::getBrowserData($prependScope);
 
         $repository = $this->getRepository();
@@ -399,8 +386,7 @@ class ProductController extends BaseModuleController
         return $data;
     }
 
-    protected function getIndexData(array $prependScope = []): array
-    {
+    protected function getIndexData(array $prependScope = []): array {
         $data = parent::getIndexData($prependScope);
 
         foreach ($data['tableData'] as $i => $item) {
@@ -417,8 +403,7 @@ class ProductController extends BaseModuleController
         return $data;
     }
 
-    public function additionalTableActions()
-    {
+    public function additionalTableActions() {
         if (auth()->user()->can('edit-module', 'products')) {
             return [
                 'exportAction' => [
@@ -456,11 +441,9 @@ class ProductController extends BaseModuleController
         }
 
         return [];
-
     }
 
-    public function export(ExcelPriceExport $csvExport, Request $request)
-    {
+    public function export(ExcelPriceExport $csvExport, Request $request) {
         abort_unless(auth()->user()->can('edit-module', 'products'), 403);
 
         \DebugBar::disable();
@@ -473,8 +456,7 @@ class ProductController extends BaseModuleController
         return $csvExport->send();
     }
 
-    public function import(Request $request)
-    {
+    public function import(Request $request) {
         $file = $request->validate(['import' => 'file|mimes:xls,xlsx']);
 
         abort_unless(auth()->user()->can('edit-module', 'products'), 403);
@@ -508,10 +490,10 @@ class ProductController extends BaseModuleController
 
                 foreach ([1, 9, 15, 25, 51] as $q) {
 
-                    if (${'q'.$q}) {
+                    if (${'q' . $q}) {
 
                         $updateData = [
-                            'price' => ${'q'.$q},
+                            'price' => ${'q' . $q},
                         ];
 
                         $query = ProductPrice::where('product_id', $productId)
@@ -541,7 +523,6 @@ class ProductController extends BaseModuleController
                             'updated_at' => now(),
                         ]);
                     }
-
                 }
 
                 if ($availability) {
@@ -551,7 +532,6 @@ class ProductController extends BaseModuleController
                         $falseRemainsId[] = $remainId;
                     }
                 }
-
             }
 
             Remain::whereIn('id', $trueRemainsId)

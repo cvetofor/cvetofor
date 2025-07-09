@@ -41,9 +41,12 @@ class GenerateYmlFeed extends Command {
 
             $offers = $shop->addChild('offers');
             $marketId = Market::where('city_id', $city->id)->first()->id;
-            $products = GroupProduct::whereHas('remains', function ($query) use ($marketId) {
-                $query->where('market_id', $marketId);
+            $products = GroupProduct::whereHas('remains', function ($query) {
+                $query->where('market_id', 1)
+                    ->where('published', true);
             })->get();
+
+            $count = 0;
             foreach ($products as $product) {
                 $price = $product->priceObj()->where('market_id', $marketId)->first()->price;
                 if ($price > 0) {
