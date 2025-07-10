@@ -41,10 +41,13 @@ class GenerateYmlFeed extends Command {
 
             $offers = $shop->addChild('offers');
             $marketId = Market::where('city_id', $city->id)->first()->id;
-            $products = GroupProduct::whereHas('remains', function ($query) {
-                $query->where('market_id', 1)
-                    ->where('published', true);
-            })->get();
+            $products = GroupProduct::whereHas('priceObj', function ($q) use ($marketId) {
+                $q->where('market_id', $marketId);
+            })
+                ->whereHas('remains', function ($q) use ($marketId) {
+                    $q->where('published', true)->where('market_id', $marketId);
+                })
+                ->get();
             $count = 0;
             foreach ($products as $product) {
                 $priceObj = $product->priceObj()->where('market_id', $marketId)->first();
@@ -79,7 +82,7 @@ class GenerateYmlFeed extends Command {
                     $count++;
                 }
             }
-            dump($count);
+
             $xmlContent = $xml->asXML();
             $fileName = $this->transliterate($city->city);
             $filePath = "public/export/$fileName.xml";
