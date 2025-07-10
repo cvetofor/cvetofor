@@ -45,16 +45,15 @@ class GenerateYmlFeed extends Command {
                 $query->where('market_id', 1)
                     ->where('published', true);
             })->get();
-
             $count = 0;
             foreach ($products as $product) {
-                $price = $product->priceObj()->where('market_id', $marketId)->first()->price;
-                if ($price > 0) {
+                $priceObj = $product->priceObj()->where('market_id', $marketId)->first();
+                if (isset($priceObj->price) && $priceObj->price > 0) {
                     $offer = $offers->addChild('offer');
                     $offer->addAttribute('id', $product->id);
                     $offer->addAttribute('available', 'true');
                     $offer->addChild('url', $this->SITE_URL . $product->priceObj->link);
-                    $offer->addChild('price', $price);
+                    $offer->addChild('price', $priceObj->price);
                     $offer->addChild('currencyId', 'RUR');
                     $offer->addChild('categoryId', $product->category_id);
                     $offer->addChild('picture', htmlspecialchars($product->image('cover')));
@@ -77,10 +76,11 @@ class GenerateYmlFeed extends Command {
                     }
 
                     $offer->addChild('description', htmlspecialchars($compositionText, ENT_XML1 | ENT_QUOTES, 'UTF-8'));
+                    $count++;
                 }
             }
+            dump($count);
             $xmlContent = $xml->asXML();
-
             $fileName = $this->transliterate($city->city);
             $filePath = "public/export/$fileName.xml";
             Storage::put($filePath, $xmlContent);
