@@ -4,6 +4,9 @@
 <div class="heading heading--big-banner">
     <div class="container">
         <div class="heading__row">
+            @include('components.breadcrumbs', [ 
+                'breadcrumbs' => $breadcrumbs,
+            ])
             <div class="title-page">
                 <h1 class="h1">{{ $category->title }}</h1>
             </div>
@@ -18,7 +21,12 @@
         <div class="products__wrap">
             @foreach ($products as $product)
                 @php
-                    $price = $product->prices()->published()->first();
+                        $price = $product->prices()->published()
+                            ->where('price', '<>', null)
+                            ->where('price', '<>', 0)
+                            ->orderBy('quantity_from', 'ASC')
+                            ->orderBy('price', 'ASC')
+                            ->first();
                 @endphp
                 @if($price)
                     @php
@@ -36,7 +44,7 @@
                             @if ($price->is_promo)
                                 <span class="product__label">Акция</span>
                             @endif
-                        </a>
+                        </a> 
                         <a class="product__title" href="{{ $url ?: '#' }}">{{ $product->title }}</a>
                         <div class="product__bottom">
                             <div class="product__prices-wrap">
@@ -59,10 +67,7 @@
                     </div>
                 @endif
             @endforeach
-        </div>
-        {{-- <div class="mt-4">
-            {{ $products->links() }}
-        </div> --}}
+        </div> 
     </div>
 </div>
 @endsection 

@@ -179,7 +179,6 @@ class CatalogController extends Controller {
         $slug,
         Request $request,
     ) {
-
         // Ищем категорию по slug в таблице category_slugs
         $categorySlug = \DB::table('category_slugs')
             ->where('slug', $slug)
@@ -222,9 +221,40 @@ class CatalogController extends Controller {
 
             $products = $productsQuery->get();
 
+            // Генерируем breadcrumbs
+            $breadcrumbs = [];
+
+            // Добавляем "Каталог"
+            $catalog = new stdClass;
+            $catalog->nestedSlug = '';
+            $catalog->title = 'Каталог';
+            $breadcrumbs[] = $catalog;
+
+            // Добавляем категорию (текущая страница)
+            $categoryItem = new stdClass;
+            $categoryItem->nestedSlug = '';
+            $categoryItem->title = $category->title;
+            $breadcrumbs[] = $categoryItem;
+
+            // Устанавливаем метаданные
+            SEOTools::setTitle($category->title);
+            SEOTools::setDescription($category->description ?? $category->title);
+
+            $currentCity = \App\Services\CitiesService::getCity()->parent_case;
+            $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
+
+            if (!empty($seoHelper['title'])) {
+                SEOTools::setTitle(str_replace('%city%', $currentCity, $seoHelper['title']));
+            }
+
+            if (!empty($seoHelper['desc'])) {
+                SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
+            }
+
             return view('additional_category', [
                 'category' => $category,
-                'products' => $products
+                'products' => $products,
+                'breadcrumbs' => $breadcrumbs
             ]);
         }
 
@@ -233,11 +263,11 @@ class CatalogController extends Controller {
 
     public function additionalProduct(
         $slug,
-        $price,
+        $sku,
         ProductPriceDefender $productPriceDefender,
     ) {
         // Находим цену по SKU или ID
-        $priceModel = ProductPrice::where('sku', $price)->orWhere('id', $price)->first();
+        $priceModel = ProductPrice::where('sku', $sku)->orWhere('id', $sku)->first();
 
         if (!$priceModel) {
             abort(404);
@@ -261,93 +291,26 @@ class CatalogController extends Controller {
             abort(404);
         }
 
-        $canPutToCart = !$productPriceDefender->isProductNotPublished($priceModel);
+        // Генерируем breadcrumbs
+        $breadcrumbs = [];
 
-        // Устанавливаем метаданные
-        SEOTools::setTitle($product->title);
-        SEOTools::setDescription($product->description ?? $product->title);
+        // Добавляем "Каталог"
+        $catalog = new stdClass;
+        $catalog->nestedSlug = '';
+        $catalog->title = 'Каталог';
+        $breadcrumbs[] = $catalog;
 
-        $currentCity = \App\Services\CitiesService::getCity()->parent_case;
-        $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
+        // Добавляем категорию
+        $categoryItem = new stdClass;
+        $categoryItem->nestedSlug = 'categories/' . $categorySlug->slug;
+        $categoryItem->title = $category->title;
+        $breadcrumbs[] = $categoryItem;
 
-        if (!empty($seoHelper['title'])) {
-            SEOTools::setTitle(str_replace('%city%', $currentCity, $seoHelper['title']));
-        }
-
-        if (!empty($seoHelper['desc'])) {
-            SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
-        }
-
-        return view('additional_product', compact('priceModel', 'product', 'category', 'canPutToCart'));
-    }
-
-    public function additionalProductSingle(
-        $slug,
-        ProductPriceDefender $productPriceDefender,
-    ) {
-        // Отладочная информация
-        \Log::info('AdditionalProductSingle Debug', [
-            'slug' => $slug,
-            'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown'
-        ]);
-
-        // Разбираем slug: category_slug/product_id/price_id
-        $parts = explode('/', $slug);
-
-        if (count($parts) !== 3) {
-            \Log::info('Invalid slug format', ['parts_count' => count($parts)]);
-            abort(404);
-        }
-
-        $categorySlug = $parts[0];
-        $productId = $parts[1];
-        $priceId = $parts[2];
-
-        \Log::info('Parsed slug parts', [
-            'category_slug' => $categorySlug,
-            'product_id' => $productId,
-            'price_id' => $priceId
-        ]);
-
-        // Находим цену по ID
-        $priceModel = ProductPrice::where('id', $priceId)->first();
-
-        if (!$priceModel) {
-            \Log::info('Price not found', ['price_id' => $priceId]);
-            abort(404);
-        }
-
-        // Проверяем, что это дополнительный товар
-        if (!$priceModel->product || !$priceModel->product->category || !$priceModel->product->category->is_additional_product) {
-            \Log::info('Not additional product');
-            abort(404);
-        }
-
-        $product = $priceModel->product;
-        $category = $product->category;
-
-        // Проверяем, что ID товара совпадает
-        if ($product->id != $productId) {
-            \Log::info('Product ID mismatch', [
-                'expected' => $productId,
-                'actual' => $product->id
-            ]);
-            abort(404);
-        }
-
-        // Проверяем slug категории
-        $expectedCategorySlug = \App\Models\Slugs\CategorySlug::where('category_id', $category->id)
-            ->where('locale', 'ru')
-            ->where('active', true)
-            ->first();
-
-        if (!$expectedCategorySlug || $expectedCategorySlug->slug !== $categorySlug) {
-            \Log::info('Category slug mismatch', [
-                'expected' => $expectedCategorySlug ? $expectedCategorySlug->slug : 'not_found',
-                'actual' => $categorySlug
-            ]);
-            abort(404);
-        }
+        // Добавляем товар
+        $productItem = new stdClass;
+        $productItem->nestedSlug = '';
+        $productItem->title = $product->title;
+        $breadcrumbs[] = $productItem;
 
         $canPutToCart = !$productPriceDefender->isProductNotPublished($priceModel);
 
@@ -366,7 +329,7 @@ class CatalogController extends Controller {
             SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
         }
 
-        return view('additional_product', compact('priceModel', 'product', 'category', 'canPutToCart'));
+        return view('additional_product', compact('priceModel', 'product', 'category', 'canPutToCart', 'breadcrumbs'));
     }
 
     public function tags(
