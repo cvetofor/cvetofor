@@ -3,7 +3,10 @@
 
 @php
 $categories = $catalogService->getPublishedCategories();
-
+$additionalCategories = \App\Models\Category::published()
+                                                ->where('is_additional_product', 1)
+                                                ->where('is_visible_catalog', 1)
+                                                ->get();
 # Получаем старые значения платежных реквизитов
 $oldOrderAccount = auth('web')->check()
 ? auth('web')
@@ -440,6 +443,53 @@ $oldLegalAccount = $oldOrderAccount->legalAccount;
                     </ul>
                 </div>
             </div>
+            @endif         
+            @if ($additionalCategories->count() > 0)
+                <div class="modal__category">
+                    <div class="modal__category-heading" data-category-open="data-category-open">
+                        <div class="modal__category-title">Дополнительные товары</div>
+                        <svg class="arrow">
+                            <use href="#icon-arrow-menu">
+
+                            </use>
+                        </svg>
+                    </div>
+                    <div class="modal__category-list__wrap" data-category="data-category">
+                        <div class="modal__category-list__heading">
+                            <div class="modal__category-return" data-category-close="data-category-close">
+                                <div class="arrow-return">
+                                    <svg>
+                                        <use href="#icon-arrow-return">
+
+                                        </use>
+                                    </svg>
+                                </div>
+                                <span class="modal__category-return__title">Дополнительные товары</span>
+                            </div>
+                            <div class="modal__category-close modal__close" data-modal-close="">
+
+                            </div>
+                        </div>
+                        <ul class="modal__category-list">        
+                            @foreach ($additionalCategories as $category)
+                            @php
+                                $categorySlug = \App\Models\Slugs\CategorySlug::where('category_id', $category->id)
+                                    ->where('locale', 'ru')
+                                    ->where('active', true)
+                                    ->first();
+                            @endphp
+                            <li class="modal__category-list__item">
+                                @if ($categorySlug)
+                                <a class="modal__category-list__link"
+                                    href="{{ route('catalog.additional', ['slug' => $categorySlug->slug]) }}">{{ $category->title }}</a>
+                                @else
+                                <span class="modal__category-list__link">{{ $category->title }}</span>
+                                @endif
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
             @endif
         </div>
     </div>

@@ -10,15 +10,13 @@ use App\Repositories\CategoryRepository;
 use App\Repositories\GroupProductCategoryRepository;
 use Illuminate\Database\Seeder;
 
-class CategoriesSeeder extends Seeder
-{
+class CategoriesSeeder extends Seeder {
     /**
      * Seed the application's database.
      *
      * @return void
      */
-    public function run()
-    {
+    public function run() {
         if (Category::count() == 0) {
 
             $categoryRepository = new CategoryRepository(new Category);

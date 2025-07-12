@@ -55,6 +55,7 @@ class Category extends Model implements Sortable {
         'is_visible',
         'is_visible_menu',
         'is_additional_product',
+        'is_visible_catalog'
     ];
 
     public $slugAttributes = [

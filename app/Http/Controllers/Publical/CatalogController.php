@@ -7,6 +7,7 @@ use A17\Twill\Models\Tag;
 use App\Helpers\SeoinfoHelper;
 use App\Http\Controllers\Controller;
 use App\Models\GroupProductCategory;
+use App\Models\Product;
 use App\Models\ProductPrice;
 use App\Repositories\GroupProductCategoryRepository;
 use App\Repositories\GroupProductRepository;
@@ -21,14 +22,12 @@ use Illuminate\Support\Arr;
 use morphos\Russian\GeographicalNamesInflection;
 use stdClass;
 
-class CatalogController extends Controller
-{
+class CatalogController extends Controller {
     use SetsMetadata;
 
     protected $ttl = 0;
 
-    public function index(Request $request, CatalogService $catalogService)
-    {
+    public function index(Request $request, CatalogService $catalogService) {
         $categories = GroupProductCategory::published()->has('products')->get();
 
         $banner = TwillAppSettings::get('main-page.main_page.banner');
@@ -49,15 +48,14 @@ class CatalogController extends Controller
             )
         );
 
-        $prices = \Cache::remember('index|'.$unique, now()->addMinutes(1), fn () => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
+        $prices = \Cache::remember('index|' . $unique, now()->addMinutes(1), fn() => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
 
         $city = GeographicalNamesInflection::getCase(CitiesService::getCity()->city, 'предложный');
 
         return view('welcome', compact('prices', 'banner', 'city'));
     }
 
-    public function welcome(Request $request, CatalogService $catalogService)
-    {
+    public function welcome(Request $request, CatalogService $catalogService) {
         $categories = TwillAppSettings::get('main-page.main_page.categories');
 
         $banner = TwillAppSettings::get('main-page.main_page.banner');
@@ -66,7 +64,7 @@ class CatalogController extends Controller
 
             $_categories = [];
             foreach ($categories->pluck('id')->toArray() as $cagegory) {
-                if (request()->has('category_'.$cagegory)) {
+                if (request()->has('category_' . $cagegory)) {
                     $_categories[] = $cagegory;
                 }
             }
@@ -120,7 +118,7 @@ class CatalogController extends Controller
                         )
                     )
                 );
-                $prices = \Cache::remember('welcome_categories_tags|'.$unique, now()->addMinutes(1), fn () => $catalogService->findByTag($tag));
+                $prices = \Cache::remember('welcome_categories_tags|' . $unique, now()->addMinutes(1), fn() => $catalogService->findByTag($tag));
                 $mainPageTagsModel[] = new MainPageTagsModel($tag, $prices);
             }
         }
@@ -141,7 +139,7 @@ class CatalogController extends Controller
 
             $city = GeographicalNamesInflection::getCase(CitiesService::getCity()->city, 'предложный');
             $selectedCity = CitiesService::getCity();
-            $prices = \Cache::remember('welcome_categories_prices|'.$unique, now()->addMinutes(1), fn () => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
+            $prices = \Cache::remember('welcome_categories_prices|' . $unique, now()->addMinutes(1), fn() => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
         }
 
         SEOTools::setTitle('Доставка цветов в Улан-Удэ заказать букет с доставкой недорого по цене магазина Цветофор');
@@ -177,6 +175,200 @@ class CatalogController extends Controller
         abort(404);
     }
 
+    public function additionalCategory(
+        $slug,
+        Request $request,
+    ) {
+
+        // Ищем категорию по slug в таблице category_slugs
+        $categorySlug = \DB::table('category_slugs')
+            ->where('slug', $slug)
+            ->where('active', 1)
+            ->first();
+
+        if (!$categorySlug) {
+            abort(404);
+        }
+
+        $category = \App\Models\Category::published()
+            ->where('id', $categorySlug->category_id)
+            ->where('is_additional_product', true)
+            ->first();
+        if ($category) {
+            // Получаем отфильтрованные цены товаров
+            $filteredPrices = \App\Models\ProductPrice::published()
+                ->whereHas('product', function ($q) use ($category) {
+                    $q->where('category_id', $category->id);
+                })
+                ->with(['product', 'market'])
+                ->priceFilter()
+                ->orderByPrice()
+                ->get();
+
+            // Получаем ID продуктов, которые имеют отфильтрованные цены
+            $productIds = $filteredPrices->pluck('product_id')->unique();
+
+            // Получаем продукты для отображения
+            $productsQuery = Product::published()
+                ->where('category_id', $category->id)
+                ->whereIn('id', $productIds);
+
+            // Применяем сортировку по названию
+            if (request()->input('order.title') && in_array(request()->input('order.title'), ['asc', 'desc'], true)) {
+                $productsQuery = $productsQuery->orderBy('title', strtoupper(request()->input('order.title')));
+            } else {
+                $productsQuery = $productsQuery->orderBy('title', 'ASC');
+            }
+
+            $products = $productsQuery->get();
+
+            return view('additional_category', [
+                'category' => $category,
+                'products' => $products
+            ]);
+        }
+
+        abort(404);
+    }
+
+    public function additionalProduct(
+        $slug,
+        $price,
+        ProductPriceDefender $productPriceDefender,
+    ) {
+        // Находим цену по SKU или ID
+        $priceModel = ProductPrice::where('sku', $price)->orWhere('id', $price)->first();
+
+        if (!$priceModel) {
+            abort(404);
+        }
+
+        // Проверяем, что это дополнительный товар
+        if (!$priceModel->product || !$priceModel->product->category || !$priceModel->product->category->is_additional_product) {
+            abort(404);
+        }
+
+        $product = $priceModel->product;
+        $category = $product->category;
+
+        // Проверяем правильность slug (теперь используем ID товара)
+        $categorySlug = \App\Models\Slugs\CategorySlug::where('category_id', $category->id)
+            ->where('locale', 'ru')
+            ->where('active', true)
+            ->first();
+
+        if (!$categorySlug || $slug !== $categorySlug->slug . '/' . $product->id) {
+            abort(404);
+        }
+
+        $canPutToCart = !$productPriceDefender->isProductNotPublished($priceModel);
+
+        // Устанавливаем метаданные
+        SEOTools::setTitle($product->title);
+        SEOTools::setDescription($product->description ?? $product->title);
+
+        $currentCity = \App\Services\CitiesService::getCity()->parent_case;
+        $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
+
+        if (!empty($seoHelper['title'])) {
+            SEOTools::setTitle(str_replace('%city%', $currentCity, $seoHelper['title']));
+        }
+
+        if (!empty($seoHelper['desc'])) {
+            SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
+        }
+
+        return view('additional_product', compact('priceModel', 'product', 'category', 'canPutToCart'));
+    }
+
+    public function additionalProductSingle(
+        $slug,
+        ProductPriceDefender $productPriceDefender,
+    ) {
+        // Отладочная информация
+        \Log::info('AdditionalProductSingle Debug', [
+            'slug' => $slug,
+            'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown'
+        ]);
+
+        // Разбираем slug: category_slug/product_id/price_id
+        $parts = explode('/', $slug);
+
+        if (count($parts) !== 3) {
+            \Log::info('Invalid slug format', ['parts_count' => count($parts)]);
+            abort(404);
+        }
+
+        $categorySlug = $parts[0];
+        $productId = $parts[1];
+        $priceId = $parts[2];
+
+        \Log::info('Parsed slug parts', [
+            'category_slug' => $categorySlug,
+            'product_id' => $productId,
+            'price_id' => $priceId
+        ]);
+
+        // Находим цену по ID
+        $priceModel = ProductPrice::where('id', $priceId)->first();
+
+        if (!$priceModel) {
+            \Log::info('Price not found', ['price_id' => $priceId]);
+            abort(404);
+        }
+
+        // Проверяем, что это дополнительный товар
+        if (!$priceModel->product || !$priceModel->product->category || !$priceModel->product->category->is_additional_product) {
+            \Log::info('Not additional product');
+            abort(404);
+        }
+
+        $product = $priceModel->product;
+        $category = $product->category;
+
+        // Проверяем, что ID товара совпадает
+        if ($product->id != $productId) {
+            \Log::info('Product ID mismatch', [
+                'expected' => $productId,
+                'actual' => $product->id
+            ]);
+            abort(404);
+        }
+
+        // Проверяем slug категории
+        $expectedCategorySlug = \App\Models\Slugs\CategorySlug::where('category_id', $category->id)
+            ->where('locale', 'ru')
+            ->where('active', true)
+            ->first();
+
+        if (!$expectedCategorySlug || $expectedCategorySlug->slug !== $categorySlug) {
+            \Log::info('Category slug mismatch', [
+                'expected' => $expectedCategorySlug ? $expectedCategorySlug->slug : 'not_found',
+                'actual' => $categorySlug
+            ]);
+            abort(404);
+        }
+
+        $canPutToCart = !$productPriceDefender->isProductNotPublished($priceModel);
+
+        // Устанавливаем метаданные
+        SEOTools::setTitle($product->title);
+        SEOTools::setDescription($product->description ?? $product->title);
+
+        $currentCity = \App\Services\CitiesService::getCity()->parent_case;
+        $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
+
+        if (!empty($seoHelper['title'])) {
+            SEOTools::setTitle(str_replace('%city%', $currentCity, $seoHelper['title']));
+        }
+
+        if (!empty($seoHelper['desc'])) {
+            SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
+        }
+
+        return view('additional_product', compact('priceModel', 'product', 'category', 'canPutToCart'));
+    }
+
     public function tags(
         $tag,
         CatalogService $catalogService,
@@ -200,7 +392,7 @@ class CatalogController extends Controller
         }
 
         $prices = $catalogService->findByTag($tagModel);
-        SEOTools::setTitle($tagModel->name.' В '.$citiesService::getCity()->parent_case);
+        SEOTools::setTitle($tagModel->name . ' В ' . $citiesService::getCity()->parent_case);
 
         $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
 
@@ -239,7 +431,7 @@ class CatalogController extends Controller
         $canPutToCart = ! $productPriceDefender->isProductNotPublished($price);
 
         abort_if(
-            ($groupProduct->category && $slug !== $groupProduct->category->nestedSlug.'/'.$groupProduct->slug
+            ($groupProduct->category && $slug !== $groupProduct->category->nestedSlug . '/' . $groupProduct->slug
                 || ! $price->market->isActive()
             ),
             404
@@ -273,8 +465,7 @@ class CatalogController extends Controller
         return view('product', compact('price', 'groupProduct', 'breadcrumbs', 'canPutToCart', 'seoText'));
     }
 
-    public function search(Request $request, CatalogService $catalogService)
-    {
+    public function search(Request $request, CatalogService $catalogService) {
         $data = $this->validate($request, [
             'q' => 'required_if:product,""|min:2',
             'product' => 'required_if:q,""|min:1',
@@ -290,7 +481,7 @@ class CatalogController extends Controller
                 'data' => ['category_search' => view('components.category', ['paginator' => $catalogService->{$method}($search)])->render()],
             ]);
         }
-        SEOTools::setTitle('Поиск по сайту: '.$search);
+        SEOTools::setTitle('Поиск по сайту: ' . $search);
 
         $result = $catalogService->{$method}($search);
 
@@ -319,8 +510,7 @@ class CatalogController extends Controller
         return view('search', compact('result', 'search', 'seoText', 'seoH1'));
     }
 
-    public function searchFast(Request $request, CatalogService $catalogService)
-    {
+    public function searchFast(Request $request, CatalogService $catalogService) {
         $data = $this->validate($request, [
             'q' => 'required|min:2',
         ]);
@@ -339,15 +529,14 @@ class CatalogController extends Controller
         ]);
     }
 
-    protected function breadcrumbs($item)
-    {
+    protected function breadcrumbs($item) {
         $parent = $item;
         if ($item) {
             $breadcrumbs[] = $item;
         }
         if ($parent && $parent->parent) {
             while ($parent = $parent->parent) {
-                $parent->nestedSlug = 'catalog/'.$parent->nestedSlug;
+                $parent->nestedSlug = 'catalog/' . $parent->nestedSlug;
                 $breadcrumbs[] = $parent;
             }
         }
@@ -360,11 +549,10 @@ class CatalogController extends Controller
         return $breadcrumbs;
     }
 
-    protected function ajaxResponse($categories, $catalogService, $paginate = 4)
-    {
+    protected function ajaxResponse($categories, $catalogService, $paginate = 4) {
         $_categories = [];
         foreach ($categories as $cagegory) {
-            if (request()->has('category_'.$cagegory)) {
+            if (request()->has('category_' . $cagegory)) {
                 $_categories[] = $cagegory;
             }
         }

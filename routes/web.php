@@ -66,10 +66,12 @@ Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index
 
 Route::get('/catalog/tags/{tag}', [CatalogController::class, 'tags'])->name('catalog.tags');
 
-
 Route::get('catalog/{slug}/{price}', [CatalogController::class, 'product'])->where('slug', '.*')->name('catalog.product');
+
 Route::get('catalog/{slug}', [CatalogController::class, 'category'])->where('slug', '.*')->name('catalog.category');
 
+Route::get('/categories/{slug}/{price}', [CatalogController::class, 'additionalProduct'])->where('slug', '.*')->name('catalog.additional.product');
+Route::get('/categories/{slug}', [CatalogController::class, 'additionalCategory'])->where('slug', '.*')->name('catalog.additional');
 
 Route::group(
     ['prefix' => '/cart', 'as' => 'cart.'],
