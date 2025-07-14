@@ -7,8 +7,7 @@ use A17\Twill\Models\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ProductPrice extends Model
-{
+class ProductPrice extends Model {
     use HasRevisions;
 
     protected $fillable = [
@@ -30,18 +29,15 @@ class ProductPrice extends Model
 
     protected $appends = ['public_price'];
 
-    public function product(): BelongsTo
-    {
+    public function product(): BelongsTo {
         return $this->belongsTo(Product::class);
     }
 
-    public function groupProduct(): BelongsTo
-    {
+    public function groupProduct(): BelongsTo {
         return $this->belongsTo(GroupProduct::class);
     }
 
-    public function remain()
-    {
+    public function remain() {
         if ($this->attributes['product_id'] > 0) {
             return $this->product->remains()->where('market_id', $this->attributes['market_id']);
         }
@@ -49,23 +45,19 @@ class ProductPrice extends Model
         return $this->groupProduct->remains()->where('market_id', $this->attributes['market_id']);
     }
 
-    public function market(): BelongsTo
-    {
+    public function market(): BelongsTo {
         return $this->belongsTo(Market::class);
     }
 
-    public function scopeCurrentMarketGroupProductPrice($query, $marketId = null): Builder
-    {
+    public function scopeCurrentMarketGroupProductPrice($query, $marketId = null): Builder {
         return $query->whereMarketId($marketId ?? auth()->guard('twill_users')->user()->getMarketId());
     }
 
-    public function scopeCurrentMarketProductPrice($query, $marketId = null): Builder
-    {
+    public function scopeCurrentMarketProductPrice($query, $marketId = null): Builder {
         return $query->whereMarketId($marketId ?? auth()->guard('twill_users')->user()->getMarketId());
     }
 
-    public function scopePriceFilter($query)
-    {
+    public function scopePriceFilter($query) {
         $from = request()->input('price.from');
         $to = request()->input('price.to');
 
@@ -100,8 +92,7 @@ class ProductPrice extends Model
         return $query;
     }
 
-    public function scopeOrderByPrice($query)
-    {
+    public function scopeOrderByPrice($query) {
         if (
             request()->input('order.price') && in_array(request()->input('order.price'), [
                 'asc',
@@ -116,24 +107,21 @@ class ProductPrice extends Model
         return $query;
     }
 
-    public function getRouteKeyName()
-    {
+    public function getRouteKeyName() {
         return 'sku';
     }
 
     /**
      * Получить стоимость доставки у конкретного магазина, в зависимости от стоимость букета
      */
-    public function getDeliveryPriceAttribute()
-    {
+    public function getDeliveryPriceAttribute() {
         return $this->market->getDeliveryPriceAttribute($this->public_price);
     }
 
     /**
      * комиссия ресурса
      */
-    public function getMarketplaceComission()
-    {
+    public function getMarketplaceComission() {
         return
             \Cache::remember(
                 'comission',
@@ -151,8 +139,7 @@ class ProductPrice extends Model
     /**
      * Наценка на праздники
      */
-    public function getMarketComission()
-    {
+    public function getMarketComission() {
         if (\App\Models\Hollyday::isHollyDays() && $this->market->holidays_percent > 0) {
             return $this->market->holidays_percent;
         }
@@ -163,8 +150,7 @@ class ProductPrice extends Model
     /**
      * Посчитать все наценки, которые могут быть
      */
-    public function extraCharge(float|int|null $price = 0): float
-    {
+    public function extraCharge(float|int|null $price = 0): float {
         $comission = 0;
 
         $comission += $this->getMarketplaceComission();
@@ -181,8 +167,7 @@ class ProductPrice extends Model
     /**
      * Эта цена показывается пользователям при покупке
      */
-    public function getPublicPriceAttribute()
-    {
+    public function getPublicPriceAttribute() {
         $price = $this->extraCharge($this->attributes['price']);
 
         // Прибавляем к цене фиксированное значение 5
@@ -190,17 +175,37 @@ class ProductPrice extends Model
         return round($price, 2);
     }
 
-    public function getLinkAttribute()
-    {
-        $slug = '';
-        if ($this->groupProduct->category) {
-            $slug = $this->groupProduct->category->nestedSlug.'/'.$this->groupProduct->slug.'/';
-        } else {
-            $slug = $this->groupProduct->slug.'/';
+    public function getLinkAttribute() {
+        // Если это дополнительный товар (Product)
+        if ($this->product) {
+            $categorySlug = \App\Models\Slugs\CategorySlug::where('category_id', $this->product->category_id)
+                ->where('locale', 'ru')
+                ->where('active', true)
+                ->first();
+
+            if ($categorySlug) {
+                // Используем ID товара вместо slug'а
+                $slug = $categorySlug->slug . '/' . $this->product->id;
+                $priceId = $this->sku ?: $this->id; // Используем SKU если есть, иначе ID цены
+                $link = str_replace('//', '/', route('catalog.additional.product', ['slug' => $slug, 'price' => $priceId], false));
+                return $link;
+            }
         }
 
-        $link = str_replace('//', '/', route('catalog.product', ['slug' => $slug, 'price' => $this->sku], false));
+        // Если это букет (GroupProduct)
+        if ($this->groupProduct) {
+            $slug = '';
+            if ($this->groupProduct->category) {
+                $slug = $this->groupProduct->category->nestedSlug . '/' . $this->groupProduct->slug . '/';
+            } else {
+                $slug = $this->groupProduct->slug . '/';
+            }
 
-        return $link;
+            $link = str_replace('//', '/', route('catalog.product', ['slug' => $slug, 'price' => $this->sku], false));
+            return $link;
+        }
+
+        // Если ни один из вариантов не подходит, возвращаем пустую строку
+        return '';
     }
 }

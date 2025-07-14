@@ -252,11 +252,9 @@ const LoadMore = function (child = null) {
     });
   }
 
-  // Кнопка добавить в корзине
-
-
 }
 
+// Кнопка добавить в корзине
 const PutToCart = function () {
   const cartButtons = document.querySelectorAll('[data-put-cart-sku],[data-cart-additional-item-add]');
 

@@ -178,12 +178,26 @@ class ProductController extends BaseModuleController {
 
             foreach ($products as $product) {
                 foreach ([1, 9, 15, 25, 51] as $count) {
+                    $market = \App\Models\Market::find($marketId);
+                    $marketName = $market?->name ?? '';
+                    $regionName = $market?->city?->province?->geoname_name ?? '';
+                    $cityName = $market?->city?->city ?? '';
+                    $sku = \App\Services\CatalogService::generateSku(
+                        \Str::slug(mb_strtolower($marketName), true),
+                        $regionName,
+                        \Str::slug($cityName, true),
+                        $marketId,
+                        $product->id
+                    );
+                    $sku .= '-' . $count; // <-- делаем уникальным для каждой quantity_from
+
                     $inserts[] = [
                         'product_id' => $product->id,
                         'created_at' => \now(),
                         'market_id' => $marketId,
                         'published' => true,
                         'quantity_from' => $count,
+                        'sku' => $sku,
                     ];
                 }
             }

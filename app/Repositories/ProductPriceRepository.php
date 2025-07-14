@@ -10,17 +10,14 @@ use App\Models\GroupProduct;
 use App\Models\Product;
 use App\Models\ProductPrice;
 
-class ProductPriceRepository extends ModuleRepository
-{
+class ProductPriceRepository extends ModuleRepository {
     use HandleRevisions;
 
-    public function __construct(ProductPrice $model)
-    {
+    public function __construct(ProductPrice $model) {
         $this->model = $model;
     }
 
-    public function afterSave(TwillModelContract $model, array $fields): void
-    {
+    public function afterSave(TwillModelContract $model, array $fields): void {
         self::recalculate($model);
 
         parent::afterSave($model, $fields);
@@ -29,8 +26,7 @@ class ProductPriceRepository extends ModuleRepository
     /**
      * Пересчитать стоимость товаров
      */
-    public static function recalculate(ProductPrice|Product $model, $marketId = null)
-    {
+    public static function recalculate(ProductPrice|Product $model, $marketId = null) {
         $product = is_a($model, ProductPrice::class) ? $model->product : $model;
         $marketId = $marketId ?: auth('twill_users')->user()->getMarketId();
 
