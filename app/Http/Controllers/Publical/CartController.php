@@ -10,10 +10,8 @@ use App\Services\PriceService;
 use Artesaos\SEOTools\Facades\SEOTools;
 use Illuminate\Http\Request;
 
-class CartController extends Controller
-{
-    public function index(ProductPriceDefender $productPriceDefender)
-    {
+class CartController extends Controller {
+    public function index(ProductPriceDefender $productPriceDefender) {
         SEOTools::setTitle('Корзина');
         SEOTools::metatags()->setRobots('noindex, nofollow');
 
@@ -36,8 +34,7 @@ class CartController extends Controller
         return view('cart', compact('cart', 'cartByMarket', 'totalDeliveryPrice', 'recomendations', 'canGoToNext'));
     }
 
-    public function putAdditional($id)
-    {
+    public function putAdditional($id) {
         $items = \Cart::getContent();
         $price = ProductPrice::find($id);
 
@@ -72,8 +69,7 @@ class CartController extends Controller
         return response()->json(['data' => $price->sku, 'count' => \Cart::getTotalQuantity()]);
     }
 
-    public function put(ProductPrice $price, Request $request, ProductPriceDefender $productPriceDefender, PriceService $priceService)
-    {
+    public function put(ProductPrice $price, Request $request, ProductPriceDefender $productPriceDefender, PriceService $priceService) {
         $items = \Cart::getContent();
 
         if (! $price->published || ! $price->price || $productPriceDefender->isProductNotPublished($price)) {
@@ -101,7 +97,7 @@ class CartController extends Controller
 
         \Cart::add([
             'id' => $id,
-            'name' => $price->groupProduct->title,
+            'name' => $price->groupProduct->title ?? $price->product->title ?? 'Товар',
             'price' => $totalPrice,
             'quantity' => 1,
             'attributes' => [
@@ -124,15 +120,13 @@ class CartController extends Controller
         return response()->json(['data' => $price->sku, 'count' => \Cart::getTotalQuantity()]);
     }
 
-    public function clear()
-    {
+    public function clear() {
         \Cart::clearCartConditions();
 
         return response()->json(['status' => \Cart::clear(), 'count' => \Cart::getTotalQuantity()]);
     }
 
-    public function plus($price)
-    {
+    public function plus($price) {
         \Cart::update($price, [
             'quantity' => 1,
         ]);
@@ -140,8 +134,7 @@ class CartController extends Controller
         return response()->json(['data' => $price, 'count' => \Cart::getTotalQuantity()]);
     }
 
-    public function minus($price)
-    {
+    public function minus($price) {
         \Cart::update($price, [
             'quantity' => -1,
         ]);
@@ -149,8 +142,7 @@ class CartController extends Controller
         return response()->json(['data' => $price, 'count' => \Cart::getTotalQuantity()]);
     }
 
-    public function remove($price)
-    {
+    public function remove($price) {
         \Cart::remove($price);
 
         return response()->json(['data' => $price, 'count' => \Cart::getTotalQuantity()]);

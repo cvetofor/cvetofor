@@ -195,10 +195,13 @@ class CatalogController extends Controller {
             ->first();
         if ($category) {
             // Получаем отфильтрованные цены товаров
+            $market = CitiesService::getCity()->markets()->published()->first();
+
             $filteredPrices = \App\Models\ProductPrice::published()
                 ->whereHas('product', function ($q) use ($category) {
                     $q->where('category_id', $category->id);
                 })
+                ->where('market_id', $market->id)
                 ->with(['product', 'market'])
                 ->priceFilter()
                 ->orderByPrice()
@@ -267,7 +270,7 @@ class CatalogController extends Controller {
         ProductPriceDefender $productPriceDefender,
     ) {
         // Находим цену по SKU или ID
-        $priceModel = ProductPrice::where('sku', $sku)->orWhere('id', $sku)->first();
+        $priceModel = ProductPrice::where('sku', $sku)->first();
 
         if (!$priceModel) {
             abort(404);

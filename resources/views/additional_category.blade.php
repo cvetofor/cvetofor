@@ -21,7 +21,9 @@
         <div class="products__wrap">
             @foreach ($products as $product)
                 @php
+                        $activeMarket = \App\Services\CitiesService::getCity()->markets()->published()->first();
                         $price = $product->prices()->published()
+                            ->where('market_id', $activeMarket->id)
                             ->where('price', '<>', null)
                             ->where('price', '<>', 0)
                             ->orderBy('quantity_from', 'ASC')

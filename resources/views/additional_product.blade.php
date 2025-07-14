@@ -15,12 +15,14 @@
     </div>
 
     @php
-    $price = $product->prices()->published()
-        ->where('price', '<>', null)
-        ->where('price', '<>', 0)
-        ->orderBy('quantity_from', 'ASC')
-        ->orderBy('price', 'ASC')
-        ->first();
+        $activeMarket = \App\Services\CitiesService::getCity()->markets()->published()->first();
+        $price = $product->prices()->published()
+            ->where('market_id', $activeMarket->id)
+            ->where('price', '<>', null)
+            ->where('price', '<>', 0)
+            ->orderBy('quantity_from', 'ASC')
+            ->orderBy('price', 'ASC')
+            ->first();
     @endphp
     
     <div class="page">
@@ -28,7 +30,7 @@
             <div class="container">
                 <div class="product-detail">
                     <div class="slider slider--product-detail">
-                        @if ($price->is_promo)
+                        @if (isset($price->is_promo) && $price->is_promo)
                             <span class="product-detail__label">Акция</span>
                         @endif
 
@@ -74,13 +76,13 @@
                     <div class="box box--no-margin box--padding-40 box--padding-mobile-30 box--border-radius-36">
                         <div class="product-detail__info">
                             <div class="product-detail__info-top">
-                                @if ($price->price == null || $price->price == 0 || $price->published === false || !$canPutToCart)
+                                @if (!isset($price->sku) || $price->price == null || $price->price == 0 || $price->published === false || !$canPutToCart)
                                     <span class="product-detail__price">Нет в наличии</span>
                                 @else
                                     <span class="product-detail__price">@money(round($price->public_price)) р.</span>
                                 @endif
                                 <div class="product-detail__delivery">
-                                    @if (optional($price->market)->delivery_price !== null)
+                                    @if (isset($price->sku) && optional($price->market)->delivery_price !== null)
                                         <svg class="product-detail__delivery-icon">
                                             <use href="#icon-car"></use>
                                         </svg>
@@ -89,16 +91,13 @@
                                     @endif
                                 </div>
                             </div>
-                            
                             @if ($price->price == null || $price->price == 0 || $price->published === false || !$canPutToCart)
-                                <button class="button button--green button--width-165 add-to-cart-button disabled">
-                                    В корзину
-                                </button>
+                                <button class="button button--green button--width-165 add-to-cart-button disabled">В
+                                    корзину</button>
                             @else
-                                <button class="button button--green button--width-165 add-to-cart-button" 
-                                        data-put-cart-sku="{{ $price->sku }}">
-                                    В корзину
-                                </button>
+                                <button class="button button--green button--width-165 add-to-cart-button"
+                                    data-sku="{{ $price->sku }}">В
+                                    корзину</button>
                             @endif
                         </div>
                     </div>
