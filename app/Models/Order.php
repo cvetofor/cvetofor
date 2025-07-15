@@ -8,8 +8,7 @@ use App\Events\OrderAmocrmUpdate;
 use App\Events\OrderChangeStatus;
 use Illuminate\Database\Eloquent\Builder;
 
-class Order extends Model
-{
+class Order extends Model {
     use HasRevisions;
 
     public $hidden = [
@@ -53,6 +52,7 @@ class Order extends Model
         'meta',
         'num_order',
         'source',
+        'uds_points'
     ];
     protected $casts = [
         'address' => 'array',
@@ -65,8 +65,7 @@ class Order extends Model
         'meta' => 'array',
     ];
 
-    protected static function boot()
-    {
+    protected static function boot() {
         static::updated(function ($order) {
 
             if ($order->order_status_id != $order->getOriginal('order_status_id')) {
@@ -76,19 +75,16 @@ class Order extends Model
             if ($order->payment_status_id == 2) {
                 event(new OrderAmocrmUpdate($order));
             }
-
         });
 
         parent::boot();
     }
 
-    public function getRouteKeyName()
-    {
+    public function getRouteKeyName() {
         return 'uuid';
     }
 
-    public function delivery()
-    {
+    public function delivery() {
         return $this->hasOne(Delivery::class, 'order_id');
     }
 
@@ -97,74 +93,61 @@ class Order extends Model
      *
      * @return void
      */
-    public function legalAccount()
-    {
+    public function legalAccount() {
         return $this->hasOne(LegalAccount::class, 'order_id');
     }
 
-    public function payment()
-    {
+    public function payment() {
         return $this->belongsTo(Payment::class, 'payment_id');
     }
 
-    public function childs()
-    {
+    public function childs() {
         return $this->hasMany(Order::class, 'parent_id');
     }
 
-    public function parent()
-    {
+    public function parent() {
         return $this->belongsTo(Order::class, 'parent_id');
     }
 
-    public function orderStatus()
-    {
+    public function orderStatus() {
         return $this->belongsTo(OrderStatus::class, 'order_status_id');
     }
 
-    public function deliveryStatus()
-    {
+    public function deliveryStatus() {
         return $this->belongsTo(DeliveryStatus::class, 'delivery_status_id');
     }
 
-    public function paymentStatus()
-    {
+    public function paymentStatus() {
         return $this->belongsTo(PaymentStatus::class, 'payment_status_id');
     }
 
-    public function market()
-    {
+    public function market() {
         return $this->belongsTo(Market::class, 'market_id');
     }
 
-    public function review()
-    {
+    public function review() {
         return $this->hasOne(Review::class, 'order_id');
     }
 
-    public function scopeTender($builder): Builder
-    {
+    public function scopeTender($builder): Builder {
         return $builder
             ->where('market_id', null)
             ->where('parent_id', '<>', null)
             ->where('city_id', auth('twill_users')->user()->market->city->id ?? null);
     }
 
-    public function user()
-    {
+    public function user() {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function scopeCurrentMarket($builder): Builder
-    {
+    public function scopeCurrentMarket($builder): Builder {
         return $builder->where('market_id', auth('twill_users')->user()->getMarketId());
     }
 
     /**
      * Заказы со статусом оформлен
      */
-    public function scopeIssued($builder): Builder
-    {
+    public function scopeIssued($builder): Builder {
         return $builder
             ->currentMarket()
             ->where('market_id', '<>', null)
@@ -179,8 +162,7 @@ class Order extends Model
     /**
      * Отменен
      */
-    public function scopeClosed($builder): Builder
-    {
+    public function scopeClosed($builder): Builder {
         return $builder
             ->currentMarket()
             ->whereHas('orderStatus', function ($q) {
@@ -195,8 +177,7 @@ class Order extends Model
     /**
      * Заказ со статусом выполнен
      */
-    public function scopeSuccesfuled($builder): Builder
-    {
+    public function scopeSuccesfuled($builder): Builder {
         return $builder
             ->currentMarket()
             ->whereHas('orderStatus', function ($q) {
@@ -207,8 +188,7 @@ class Order extends Model
     /**
      * Заказ со статусом доставлен
      */
-    public function scopeDeliveried($builder): Builder
-    {
+    public function scopeDeliveried($builder): Builder {
         return $builder
             ->currentMarket()
             ->whereHas('deliveryStatus', function ($q) {
@@ -216,8 +196,7 @@ class Order extends Model
             });
     }
 
-    public function scopeAccepted($builder): Builder
-    {
+    public function scopeAccepted($builder): Builder {
         return $builder
             ->currentMarket()
             ->whereHas('orderStatus', function ($q) {
@@ -225,8 +204,7 @@ class Order extends Model
             });
     }
 
-    public function getTitleAttribute()
-    {
+    public function getTitleAttribute() {
 
         if ($this->num_order) {
             $numOrder = $this->num_order;
@@ -243,19 +221,17 @@ class Order extends Model
         return 'Заказ №' . $numOrder;
     }
 
-    public function getDeliveryPriceAttribute()
-    {
+    public function getDeliveryPriceAttribute() {
         return $this->delivery->price ?? 0.0;
     }
 
-    public function setDeliveryPriceAttribute($value)
-    {
+    public function setDeliveryPriceAttribute($value) {
     }
 
-    public function getMarketplaceComission()
-    {
+    public function getMarketplaceComission() {
 
-        if (isset($this->meta['basePrice'])
+        if (
+            isset($this->meta['basePrice'])
             && $this->meta['basePrice'] > 0
             && isset($this->meta['comissions'])
         ) {
@@ -274,13 +250,11 @@ class Order extends Model
     }
 
     // ///////////////
-    public function isPaymentByInvoce()
-    {
+    public function isPaymentByInvoce() {
         return $this->payment->code === 'account';
     }
 
-    public function getAvailabelOrderStatuses()
-    {
+    public function getAvailabelOrderStatuses() {
         return OrderStatus::published()->get()->transform(function ($e) {
             return [
                 'value' => $e->id,
@@ -289,8 +263,7 @@ class Order extends Model
         })->toArray();
     }
 
-    public function getAvailabelDeliveryStatuses()
-    {
+    public function getAvailabelDeliveryStatuses() {
         return DeliveryStatus::published()->get()->transform(function ($e) {
             return [
                 'value' => $e->id,
@@ -299,8 +272,7 @@ class Order extends Model
         })->toArray();
     }
 
-    public function getAvailabelPaymentStatuses()
-    {
+    public function getAvailabelPaymentStatuses() {
         return PaymentStatus::published()->get()->transform(function ($e) {
             return [
                 'value' => $e->id,
