@@ -504,6 +504,8 @@
             const promo = $(this).data('promo');
             const points = $(this).data('points');
             const btn = $(this);
+            // Получаем старую сумму из data-total
+            const oldTotal = $('.cart__summary-total').data('total');
             btn.prop('disabled', true).text('Списываем...');
             $.ajax({
                 url: '/uds/create',
@@ -511,6 +513,7 @@
                 data: {
                     uds_promo: promo,
                     points: points,
+                    old_total: oldTotal,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(resp) {
