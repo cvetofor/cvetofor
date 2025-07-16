@@ -869,10 +869,23 @@ async function calcDelivery(points, isKnowAdress) {
 
 
     } else {
-      document.querySelector('.cart__summary-total').setAttribute('data-total', response.totalPrice);
-      let totalt = new Intl.NumberFormat("ru-RU").format(response.totalPrice)
-      document.querySelector('.cart__summary-total').innerHTML = 'Итого: ' + totalt + ' р.';
-
+      const totalBlock = document.querySelector('.cart__summary-total');
+      totalBlock.setAttribute('data-total', response.totalPrice);
+      let totalt = new Intl.NumberFormat("ru-RU").format(response.totalPrice);
+      // Проверяем, применены ли бонусы (есть ли кнопка отмены)
+      if (totalBlock.querySelector('.uds-reset-bonuses')) {
+        // Обновляем только сумму в span с классом, если есть
+        const newTotalSpan = totalBlock.querySelector('span[style*="color:#71be38"]');
+        const oldTotalSpan = totalBlock.querySelector('span[style*="text-decoration:line-through"]');
+        // Используем newTotal и oldTotal из ответа, если они есть
+        const newTotal = response.newTotal !== undefined ? response.newTotal : response.totalPrice;
+        const oldTotal = response.oldTotal !== undefined ? response.oldTotal : response.totalPrice;
+        if (newTotalSpan) newTotalSpan.textContent = new Intl.NumberFormat("ru-RU").format(newTotal) + ' р.';
+        if (oldTotalSpan) oldTotalSpan.textContent = new Intl.NumberFormat("ru-RU").format(oldTotal) + ' р.';
+      } else {
+        // Как раньше: полностью перезаписываем, если бонусов нет
+        totalBlock.innerHTML = 'Итого: ' + totalt + ' р.';
+      }
 
       let delivery = new Intl.NumberFormat("ru-RU").format(response.totalDeliveryPrice)
       document.querySelector('[data-delivery-price="true"]').innerHTML = delivery + ' р.';

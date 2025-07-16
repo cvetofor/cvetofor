@@ -16,6 +16,7 @@ use App\Http\Controllers\Publical\ProfileController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Publical\Payments\RobokassaController;
 use App\Http\Controllers\Publical\Payments\YookassaController;
+use App\Http\Controllers\Publical\UDSController;
 
 /*
 |--------------------------------------------------------------------------
@@ -140,7 +141,19 @@ Route::get('/search', [CatalogController::class, 'search'])->name('catalog.searc
 
 Route::post('/form', [FormController::class, 'form'])->name('form')->middleware(['throttle:6,1']);
 
+
+Route::get('{slug}', [PageController::class, 'show'])->where('slug', '.*');
+
+
 /**
  * Страницы
  */
-Route::get('{slug}', [PageController::class, 'show'])->where('slug', '.*');
+Route::group(['prefix' => '/uds', 'as' => 'uds.'], function () {
+    Route::post('/check', [UDSController::class, 'check'])->name('check');
+
+    Route::post('/create', [UDSController::class, 'create'])->name('create');
+
+    Route::post('/reward', [UDSController::class, 'reward'])->name('reward');
+
+    Route::post('/reset', [UDSController::class, 'reset'])->name('reset');
+});

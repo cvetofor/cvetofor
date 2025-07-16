@@ -4,20 +4,17 @@ namespace App\Services\Yookassa;
 
 use App\Models\Delivery;
 
-class Payment
-{
+class Payment {
     private $fields = [];
 
-    public function __construct($shopId, $apiKey)
-    {
+    public function __construct($shopId, $apiKey) {
         $this->fields['shopId'] = $shopId;
         $this->fields['apiKey'] = $apiKey;
     }
 
-    public function getPaymentUrl($order)
-    {
+    public function getPaymentUrl($order) {
         $headers = [
-            'Idempotence-Key: '.$order->id.time(),
+            'Idempotence-Key: ' . $order->id . time(),
             'Content-Type: application/json',
         ];
 
@@ -47,6 +44,55 @@ class Payment
             ]);
         }
 
+        if (!empty($order->uds_points) && $order->uds_points > 0 && count($items) > 0) {
+            $points = $order->uds_points;
+
+            // Фильтруем только товары (исключаем доставку)
+            $productItems = array_filter($items, function ($item) {
+                return $item['description'] !== 'Доставка';
+            });
+
+            $itemCount = count($productItems);
+            if ($itemCount > 0) {
+                $pointsPerItem = floor(($points / $itemCount) * 100) / 100; // округление вниз до копеек
+                $pointsSum = 0;
+                $productIndexes = array_keys($productItems);
+
+                foreach ($productIndexes as $idx => $itemIndex) {
+                    // Для последнего товара вычитаем остаток, чтобы сумма совпала
+                    if ($idx === count($productIndexes) - 1) {
+                        $itemPoints = round($points - $pointsSum, 2);
+                    } else {
+                        $itemPoints = $pointsPerItem;
+                        $pointsSum += $itemPoints;
+                    }
+
+                    $oldValue = (float)$items[$itemIndex]['amount']['value'];
+                    $newValue = max(0, round($oldValue - $itemPoints, 2));
+                    $items[$itemIndex]['amount']['value'] = number_format($newValue, 2, '.', '');
+                }
+
+                // Корректировка последнего товара для точного совпадения суммы
+                $itemsSum = array_sum(array_map(function ($i) {
+                    return (float)$i['amount']['value'] * $i['quantity'];
+                }, $items));
+
+                $amountValue = (float)number_format($order->total_price, 2, '.', '');
+                $diff = round($amountValue - $itemsSum, 2);
+
+                if (abs($diff) > 0) {
+                    $lastProductIndex = end($productIndexes);
+                    $newLastValue = (float)$items[$lastProductIndex]['amount']['value'] + $diff;
+                    $items[$lastProductIndex]['amount']['value'] = number_format(
+                        max(0, $newLastValue),
+                        2,
+                        '.',
+                        ''
+                    );
+                }
+            }
+        }
+
         $customerName = $order->email ?? $order->phone;
 
         $params = [
@@ -67,22 +113,36 @@ class Payment
                 'tax_system_code' => $order->payment->tax_system_code,
             ],
             'capture' => true,
-            'description' => 'Оплата заказа #'.$order->num_order.', для '.$customerName,
+            'description' => 'Оплата заказа #' . $order->num_order . ', для ' . $customerName,
             'metadata' => [
                 'order_id' => $order->id,
             ],
         ];
+
 
         $data = json_encode($params, JSON_UNESCAPED_UNICODE);
         $ch = curl_init('https://api.yookassa.ru/v3/payments');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_USERPWD, $this->fields['shopId'].':'.$this->fields['apiKey']);
+        curl_setopt($ch, CURLOPT_USERPWD, $this->fields['shopId'] . ':' . $this->fields['apiKey']);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $res = curl_exec($ch);
+
+        \Log::channel('marketplace')->info('YOOKASSA_PARAMS', [
+            'amount' => $params['amount'],
+            'items' => $items,
+            'items_sum' => array_sum(array_map(function ($i) {
+                return (float)$i['amount']['value'] * $i['quantity'];
+            }, $items)),
+            'total_price' => $order->total_price,
+            'json' => $params,
+            'res' => $res,
+            'uds' => $order->uds_points
+        ]);
+
         curl_close($ch);
         if (isset(json_decode($res, true)['confirmation']['confirmation_url'])) {
             return json_decode($res, true)['confirmation']['confirmation_url'];

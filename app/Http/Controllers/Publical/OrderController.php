@@ -25,10 +25,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-class OrderController extends Controller
-{
-    public function index(ProductPriceDefender $productPriceDefender)
-    {
+class OrderController extends Controller {
+    public function index(ProductPriceDefender $productPriceDefender) {
 
         $cart = $productPriceDefender->checkRottenProducts(\Cart::getContent(), $canGoToNext);
 
@@ -71,8 +69,7 @@ class OrderController extends Controller
         );
     }
 
-    public function pay(Order $order)
-    {
+    public function pay(Order $order) {
         if ($order->payment_link) {
             return redirect()->to($order->payment_link);
         }
@@ -87,8 +84,7 @@ class OrderController extends Controller
         return back();
     }
 
-    public function paymentShortLink(int $order_num)
-    {
+    public function paymentShortLink(int $order_num) {
 
         if (! $order_num) {
             abort(404);
@@ -104,11 +100,11 @@ class OrderController extends Controller
         $paidOrders = $relatedOrders->where('payment_status_id', 2);
 
         if ($paidOrders->isNotEmpty()) {
-            return redirect()->to('https://xn--b1ag1aakjpl.xn--p1ai/order/'.$order->uuid);
+            return redirect()->to('https://xn--b1ag1aakjpl.xn--p1ai/order/' . $order->uuid);
         }
 
         $payment_link = \Cache::remember(
-            `order_payment_short_link_`.$order_num,
+            `order_payment_short_link_` . $order_num,
             600,
             function () use ($order) {
 
@@ -119,21 +115,18 @@ class OrderController extends Controller
         );
 
         return redirect()->to($payment_link);
-
     }
 
-    public function show(Order $order)
-    {
-        SEOTools::setTitle('Заказ №'.$order->id);
+    public function show(Order $order) {
+        SEOTools::setTitle('Заказ №' . $order->id);
         SEOTools::metatags()->setRobots('noindex, nofollow');
 
         return view('order.show', compact('order'));
     }
 
-    private function addToCartPostcardItem($price, $market_id)
-    {
-        if (\Cart::has(md5('Открытка_'.$market_id))) {
-            \Cart::update(md5('Открытка_'.$market_id), [
+    private function addToCartPostcardItem($price, $market_id) {
+        if (\Cart::has(md5('Открытка_' . $market_id))) {
+            \Cart::update(md5('Открытка_' . $market_id), [
                 'quantity' => [
                     'relative' => false,
                     'value' => 1,
@@ -141,7 +134,7 @@ class OrderController extends Controller
             ]);
         } else {
             \Cart::add([
-                'id' => md5('Открытка_'.$market_id),
+                'id' => md5('Открытка_' . $market_id),
                 'name' => 'Открытка',
                 'price' => $price,
                 'quantity' => 1,
@@ -155,8 +148,7 @@ class OrderController extends Controller
         }
     }
 
-    public function create(OrderRequest $orderRequest, ProductPriceDefender $productPriceDefender, PriceService $priceService)
-    {
+    public function create(OrderRequest $orderRequest, ProductPriceDefender $productPriceDefender, PriceService $priceService) {
         // Проверить текущий город с городами магазина  /  смысл есть, адреса может не быть.
         // Проверить радиусы доставки +
         // Проверить даты доставки +
@@ -249,7 +241,7 @@ class OrderController extends Controller
                 if ($market->city->id !== CitiesService::getCity()->id) {
                     return response()->json([
                         'modal' => 'delivery-area',
-                        'message' => 'Ваш город "'.CitiesService::getCity()->city."\" не совпадает с городом магазина \"{$market->name}\" - \"{$market->city->city}\"",
+                        'message' => 'Ваш город "' . CitiesService::getCity()->city . "\" не совпадает с городом магазина \"{$market->name}\" - \"{$market->city->city}\"",
                     ], 400);
                 }
             }
@@ -272,7 +264,18 @@ class OrderController extends Controller
 
             $user = auth()->check() ? auth()->user() : $this->findOrCreateUser($orderRequest);
             $orderRequest['delivery_date'] = (new \DateTime($orderRequest['delivery_date']))->format('Y-m-d H:i:s');
-            $orderRequest['total_price'] = \Cart::getTotal() + $totalDeliveryPrice;
+            // --- UDS: если были списаны баллы, используем новую сумму и записываем баллы ---
+            if (session('uds_points_used') && session('uds_points_amount') && session('uds_new_total')) {
+                $orderRequest['total_price'] = session('uds_new_total');
+                $orderRequest['uds_points'] = session('uds_points_amount');
+                $orderRequest['uds_code'] = session('uds_code');
+            } else {
+                if (session('uds_code')) {
+                    $orderRequest['uds_code'] = session('uds_code');
+                }
+
+                $orderRequest['total_price'] = \Cart::getTotal() + $totalDeliveryPrice;
+            }
             $meta['meta']['basePrice'] = 0;
 
             $orderRequest['user_id'] = $user->id;
@@ -430,7 +433,7 @@ class OrderController extends Controller
 
             \App\Jobs\SendOrderReminder::dispatch($order->id)->delay(now()->addMinutes(10));
             \session()->forget('order_delivery_radius_km');
-
+            \session()->forget(['uds_points_used', 'uds_points_amount', 'uds_new_total', 'uds_old_total', 'uds_points', 'uds_code']);
             return response()->json([
                 'redirect' => $redirect,
             ]);
@@ -439,13 +442,12 @@ class OrderController extends Controller
         \Log::channel('marketplace')->log('warnign', 'Ошибка создания заказа. Заказ небыл создан', [
             $cartByMarket,
             auth()->check() ? auth()->user() : null,
-        ], );
+        ],);
 
         return back();
     }
 
-    public function pdf(Order $order)
-    {
+    public function pdf(Order $order) {
         $order->load('legalAccount');
         $ch = $order->childs;
         $deliveryPrice = 0.0;
@@ -491,15 +493,14 @@ class OrderController extends Controller
             ])
         );
 
-        return $pdf->download('Заказ_№'.$order->num_order.'.pdf');
+        return $pdf->download('Заказ_№' . $order->num_order . '.pdf');
     }
 
     /**
      * POST
      * Проверка радиуса доставки при выборе адреса
      */
-    public function deliveryRadius(Request $request)
-    {
+    public function deliveryRadius(Request $request) {
 
         $deliveryPricesResult = [];
         $deliveryPricesResult['totalDeliveryPrice'] = 0;
@@ -511,7 +512,6 @@ class OrderController extends Controller
 
         if ($request['isKnowAdress']) {
             session()->forget('order_delivery_radius_km');
-
         }
 
         $cart = \Cart::getContent();
@@ -559,11 +559,15 @@ class OrderController extends Controller
         $deliveryPricesResult['totalPrice'] = \Cart::getTotal() + $deliveryPricesResult['totalDeliveryPrice'];
         $deliveryPricesResult['radius'] = $deliveryRadiusKm;
 
+        if (session('uds_points_used') && session('uds_old_total') && session('uds_new_total')) {
+            $deliveryPricesResult['oldTotal'] = session('uds_old_total');
+            $deliveryPricesResult['newTotal'] = session('uds_new_total');
+        }
+
         return $deliveryPricesResult;
     }
 
-    protected function findOrCreateUser(OrderRequest $data)
-    {
+    protected function findOrCreateUser(OrderRequest $data) {
 
         if ($data->filled('email2')) {
             $user = User::where('email', $data['email2'])->first();

@@ -98,7 +98,7 @@
                                             <div class="inputholder form__inputholder">
                                                 <label class="inputholder__label" data-default-label="data-default-label"><span class="required-label">Время доставки</span></label>
                                                 <div class="select" data-select="" data-close-on-select="true">
-                                                    <div class="select__active" data-select-btn="" data-select-default="" data-name="delivery_time" style="min-height: 44px">
+                                                    <div class="select__active" data-select-btn="" data-select-default="" data-name="delivery_time" style="min-height: 44px; min-width: 250px">
                                                     <span class="select__text">
                                                         <span data-select-changing="">
                                                         </span>
@@ -334,7 +334,25 @@
 
                                 </div>
                                 <div class="cart__summary-bottom">
-                                    <span class="cart__summary-total" data-total="{{ (\Cart::getTotal() + $totalDeliveryPrice) }}">Итого: @money(\Cart::getTotal() + $totalDeliveryPrice) р.</span>
+                                    @if(!(session('uds_points_used') && session('uds_old_total') && session('uds_new_total')))
+                                        <div class="cart__summary-heading"> 
+                                                <label class="inputholder__label" data-default-label="data-default-label">Введите промокод UDS</label>
+                                                <input class="inputholder__input" name="uds_promo" type="text" data-mask-number="6" inputmode="numberic" placeholder="123456">
+                                                <div class="buttonholder" data-form-trigger="">
+                                                    <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">
+                                                    <span>Проверить баллы</span>
+                                                    </button>
+                                                </div>
+                                        </div>
+                                    @endif
+                                    @if(session('uds_points_used') && session('uds_old_total') && session('uds_new_total'))
+                                        <span class="cart__summary-total" data-total="{{ session('uds_new_total') }}">
+                                            <button type="button" class="button button--purple uds-reset-bonuses" style="margin-bottom:10px;display:block;width:100%;">Отменить списание бонусов</button>
+                                            <span>Итого: <span style="text-decoration:line-through;color:#888;">@money(session('uds_old_total')) р.</span> &rarr; <span style="color:#71be38;font-weight:bold;">@money(session('uds_new_total')) р.</span></span>
+                                        </span>
+                                    @else
+                                        <span class="cart__summary-total" data-total="{{ (\Cart::getTotal() + $totalDeliveryPrice) }}">Итого: @money(\Cart::getTotal() + $totalDeliveryPrice) р.</span>
+                                    @endif
                                     @if (\Cart::getSubTotalWithoutConditions() !== \Cart::getTotal())
                                         <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() + $totalDeliveryPrice) р.</span>
                                     @endif
@@ -430,14 +448,174 @@
         window['cvetofor'].config.flatpickr.minDateTimeStamp = new Date('{{ \App\Services\CitiesService::DateTime()->format('m / d / Y ') }}');
  window['cvetofor'].config.flatpickr.times = {!!json_encode($deliveryTimes['times']) !!};
         window['cvetofor'].config.flatpickr.todayTimes = {!!json_encode($deliveryTimes['todayTimes']) !!};
-        </script>
+
+        // UDS AJAX check
+        const udsInput = $('input[name="uds_promo"]');
+        const udsButton = udsInput.closest('.cart__summary-heading').find('button[data-form-button]');
+        // Добавим контейнер для вывода результата, если его нет
+        if (!udsInput.next('.uds-check-result').length) {
+            udsInput.after('<div class="uds-check-result" style="margin-top:8px;font-size:0.95em;"></div>');
+        }
+        const udsResult = udsInput.next('.uds-check-result');
+
+        function renderUdsActions(points, promo) {
+            const spendButton = points > 0 ? `<button type="button" class="button button--green uds-spend" data-promo="${promo}" data-points="${points}">Списать</button>` : '';
+            const buttonClass = points > 0 ? '' : 'button--full-width';
+            
+            return `
+                <div class="uds-action-buttons">
+                    ${spendButton}
+                    <button type="button" class="button button--purple ${buttonClass} uds-hoard" data-promo="${promo}" data-points="${points}">Копить</button>
+                </div>
+            `;
+        }
+
+        udsButton.on('click', function(e) {
+            e.preventDefault();
+            udsResult.text('');
+            const promo = udsInput.val().trim();
+ 
+            udsButton.prop('disabled', true).text('Проверяем...');
+            $.ajax({
+                url: '/uds/check',
+                method: 'POST',
+                data: {
+                    uds_promo: promo,
+                    total: $('.cart__summary-total').attr('data-total'),
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(resp) {
+                    if (resp.success) {
+                        udsResult.html('<span style="color:#71be38;">Доступно баллов: ' + resp.points + '</span>' + renderUdsActions(resp.points, promo));
+                    } else {
+                        udsResult.html('<span style="color:red;">' + (resp.message || 'Ошибка проверки') + '</span>');
+                    }
+                },
+                error: function() {
+                    udsResult.html('<span style="color:red;">Ошибка соединения с сервером</span>');
+                },
+                complete: function() {
+                    udsButton.prop('disabled', false).text('Проверить баллы');
+                }
+            });
+        });
+
+        // Обработчик для кнопки "Списать"
+        udsResult.on('click', '.uds-spend', function() {
+            const promo = $(this).data('promo');
+            const points = $(this).data('points');
+            const btn = $(this);
+            // Получаем старую сумму из data-total
+            const oldTotal = $('.cart__summary-total').data('total');
+            btn.prop('disabled', true).text('Списываем...');
+            $.ajax({
+                url: '/uds/create',
+                method: 'POST',
+                data: {
+                    uds_promo: promo,
+                    points: points,
+                    old_total: oldTotal,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(resp) {
+                    if (resp.success) {
+                        udsResult.html('<span style="color:#71be38;">' + (resp.message || 'Баллы списаны!') + '</span>');
+                        // Мгновенно обновляем блок "Итого"
+                        const totalBlock = $('.cart__summary-total');
+                        if (totalBlock.length && resp.oldTotal !== undefined && resp.newTotal !== undefined) {
+                            totalBlock.html('<button type="button" class="button button--purple uds-reset-bonuses" style="margin-bottom:10px;display:block;width:100%;">Отменить списание бонусов</button>' +
+                                '<span>Итого: <span style="text-decoration:line-through;color:#888;">' +
+                                new Intl.NumberFormat('ru-RU').format(resp.oldTotal) + ' р.</span> &rarr; <span style="color:#71be38;font-weight:bold;">' +
+                                new Intl.NumberFormat('ru-RU').format(resp.newTotal) + ' р.</span></span>'
+                            );
+                            totalBlock.attr('data-total', resp.newTotal);
+                        }
+                        // Скрываем промо-блок
+                        udsInput.closest('.cart__summary-heading').hide();
+                    } else {
+                        udsResult.html('<span style="color:red;">' + (resp.message || 'Ошибка списания') + '</span>');
+                    }
+                },
+                error: function() {
+                    udsResult.html('<span style="color:red;">Ошибка соединения с сервером</span>');
+                }
+            });
+        });
+
+        // Обработчик для кнопки "Копить"
+        udsResult.on('click', '.uds-hoard', function() {
+            const promo = $(this).data('promo');
+            const btn = $(this);
+            btn.prop('disabled', true).text('Отправляем...');
+            $.ajax({
+                url: '/uds/reward',
+                method: 'POST',
+                data: {
+                    uds_promo: promo,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(resp) {
+                    if (resp.success) {
+                        udsResult.html('<span style="color:green;">' + (resp.message || 'Баллы будут накоплены!') + '</span>');
+                    } else {
+                        udsResult.html('<span style="color:red;">' + (resp.message || 'Ошибка накопления') + '</span>');
+                    }
+                },
+                error: function() {
+                    udsResult.html('<span style="color:red;">Ошибка соединения с сервером</span>');
+                }
+            });
+        });
+
+        // Кнопка отмены списания бонусов
+        $(document).on('click', '.uds-reset-bonuses', function() {
+            const btn = $(this);
+            btn.prop('disabled', true).text('Отмена...');
+            $.ajax({
+                url: '/uds/reset',
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(resp) {
+                    // Возвращаем блок "Итого" к обычному виду без перезагрузки
+                    const totalBlock = $('.cart__summary-total');
+                    if (totalBlock.length && resp.total !== undefined) {
+                        totalBlock.html('Итого: ' + new Intl.NumberFormat('ru-RU').format(resp.total) + ' р.');
+                        totalBlock.attr('data-total', resp.total);
+                    }
+                    // Показываем промо-блок обратно (отрисовываем его заново)
+                    if ($('.cart__summary-heading').length === 0) {
+                        totalBlock.before('<div class="cart__summary-heading">\
+                            <label class="inputholder__label" data-default-label="data-default-label">Введите промокод UDS (в разработке)</label>\
+                            <input class="inputholder__input" name="uds_promo" type="text" data-mask-number="6" inputmode="numberic" placeholder="123456">\
+                            <div class="buttonholder" data-form-trigger="">\
+                                <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">\
+                                <span>Проверить баллы</span>\
+                                </button>\
+                            </div>\
+                        </div>');
+                    } else {
+                        $('.cart__summary-heading').show();
+                        $('.cart__summary-heading input[name=\'uds_promo\']').val('');
+                        $('.uds-check-result').hide()
+                    }
+                    // Убираем кнопку отмены
+                    btn.remove();
+                },
+                error: function() {
+                    btn.prop('disabled', false).text('Отменить списание бонусов');
+                    alert('Ошибка соединения с сервером');
+                }
+            });
+        });
+    </script>
 @endpush
 
 @push('styles')
     <style>
         .cart__delivery-limited-info{
             font-size: 0.775rem;
-
         }
         .required-label::after {
             content: "(обязательно)";
@@ -446,6 +624,30 @@
             margin-left: 5px;
             white-space: nowrap;
         }
-
+        .cart__summary .buttonholder {
+            width: 100%;
+            padding: 0; /* если есть лишние отступы */
+        }
+        .cart__summary .buttonholder .button {
+            width: 100%;
+            display: block;
+        }
+        .uds-check-result {
+            width: 100%;
+            display: block;
+            margin-top: 10px;
+        }
+        .uds-action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .uds-action-buttons button {
+            flex: 1 1 0;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+        }
     </style>
 @endpush
