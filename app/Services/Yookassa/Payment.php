@@ -46,35 +46,50 @@ class Payment {
 
         if (!empty($order->uds_points) && $order->uds_points > 0 && count($items) > 0) {
             $points = $order->uds_points;
-            $itemCount = count($items);
-            $pointsPerItem = floor(($points / $itemCount) * 100) / 100; // округление вниз до копеек
-            $pointsSum = 0;
-            foreach ($items as $i => $item) {
-                // Для последнего item вычитаем остаток, чтобы сумма совпала
-                if ($i === $itemCount - 1) {
-                    $itemPoints = round($points - $pointsSum, 2);
-                } else {
-                    $itemPoints = $pointsPerItem;
-                    $pointsSum += $itemPoints;
+
+            // Фильтруем только товары (исключаем доставку)
+            $productItems = array_filter($items, function ($item) {
+                return $item['description'] !== 'Доставка';
+            });
+
+            $itemCount = count($productItems);
+            if ($itemCount > 0) {
+                $pointsPerItem = floor(($points / $itemCount) * 100) / 100; // округление вниз до копеек
+                $pointsSum = 0;
+                $productIndexes = array_keys($productItems);
+
+                foreach ($productIndexes as $idx => $itemIndex) {
+                    // Для последнего товара вычитаем остаток, чтобы сумма совпала
+                    if ($idx === count($productIndexes) - 1) {
+                        $itemPoints = round($points - $pointsSum, 2);
+                    } else {
+                        $itemPoints = $pointsPerItem;
+                        $pointsSum += $itemPoints;
+                    }
+
+                    $oldValue = (float)$items[$itemIndex]['amount']['value'];
+                    $newValue = max(0, round($oldValue - $itemPoints, 2));
+                    $items[$itemIndex]['amount']['value'] = number_format($newValue, 2, '.', '');
                 }
-                $oldValue = (float)$items[$i]['amount']['value'];
-                $newValue = max(0, round($oldValue - $itemPoints, 2));
-                $items[$i]['amount']['value'] = number_format($newValue, 2, '.', '');
-            }
-            // Корректировка последнего item для точного совпадения суммы
-            $itemsSum = array_sum(array_map(function ($i) {
-                return $i['amount']['value'] * $i['quantity'];
-            }, $items));
-            $amountValue = (float)number_format($order->total_price, 2, '.', '');
-            $diff = round($amountValue - $itemsSum, 2);
-            if (abs($diff) > 0) {
-                $lastIdx = count($items) - 1;
-                $items[$lastIdx]['amount']['value'] = number_format(
-                    (float)$items[$lastIdx]['amount']['value'] + $diff,
-                    2,
-                    '.',
-                    ''
-                );
+
+                // Корректировка последнего товара для точного совпадения суммы
+                $itemsSum = array_sum(array_map(function ($i) {
+                    return (float)$i['amount']['value'] * $i['quantity'];
+                }, $items));
+
+                $amountValue = (float)number_format($order->total_price, 2, '.', '');
+                $diff = round($amountValue - $itemsSum, 2);
+
+                if (abs($diff) > 0) {
+                    $lastProductIndex = end($productIndexes);
+                    $newLastValue = (float)$items[$lastProductIndex]['amount']['value'] + $diff;
+                    $items[$lastProductIndex]['amount']['value'] = number_format(
+                        max(0, $newLastValue),
+                        2,
+                        '.',
+                        ''
+                    );
+                }
             }
         }
 
@@ -120,7 +135,7 @@ class Payment {
             'amount' => $params['amount'],
             'items' => $items,
             'items_sum' => array_sum(array_map(function ($i) {
-                return $i['amount']['value'] * $i['quantity'];
+                return (float)$i['amount']['value'] * $i['quantity'];
             }, $items)),
             'total_price' => $order->total_price,
             'json' => $params,

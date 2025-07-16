@@ -336,7 +336,7 @@
                                 <div class="cart__summary-bottom">
                                     @if(!(session('uds_points_used') && session('uds_old_total') && session('uds_new_total')))
                                         <div class="cart__summary-heading"> 
-                                                <label class="inputholder__label" data-default-label="data-default-label">Введите промокод UDS (в разработке)</label>
+                                                <label class="inputholder__label" data-default-label="data-default-label">Введите промокод UDS</label>
                                                 <input class="inputholder__input" name="uds_promo" type="text" data-mask-number="6" inputmode="numberic" placeholder="123456">
                                                 <div class="buttonholder" data-form-trigger="">
                                                     <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">
@@ -459,10 +459,13 @@
         const udsResult = udsInput.next('.uds-check-result');
 
         function renderUdsActions(points, promo) {
+            const spendButton = points > 0 ? `<button type="button" class="button button--green uds-spend" data-promo="${promo}" data-points="${points}">Списать</button>` : '';
+            const buttonClass = points > 0 ? '' : 'button--full-width';
+            
             return `
                 <div class="uds-action-buttons">
-                    <button type="button" class="button button--green uds-spend" data-promo="${promo}" data-points="${points}">Списать</button>
-                    <button type="button" class="button button--purple button--full-width uds-hoard" data-promo="${promo}" data-points="${points}">Копить</button>
+                    ${spendButton}
+                    <button type="button" class="button button--purple ${buttonClass} uds-hoard" data-promo="${promo}" data-points="${points}">Копить</button>
                 </div>
             `;
         }
@@ -471,16 +474,14 @@
             e.preventDefault();
             udsResult.text('');
             const promo = udsInput.val().trim();
-            if (!promo) {
-                udsResult.text('Введите промокод.');
-                return;
-            }
+ 
             udsButton.prop('disabled', true).text('Проверяем...');
             $.ajax({
                 url: '/uds/check',
                 method: 'POST',
                 data: {
                     uds_promo: promo,
+                    total: $('.cart__summary-total').attr('data-total'),
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(resp) {
@@ -544,15 +545,13 @@
         // Обработчик для кнопки "Копить"
         udsResult.on('click', '.uds-hoard', function() {
             const promo = $(this).data('promo');
-            const points = $(this).data('points');
             const btn = $(this);
             btn.prop('disabled', true).text('Отправляем...');
             $.ajax({
-                url: '/uds/hoard',
+                url: '/uds/reward',
                 method: 'POST',
                 data: {
                     uds_promo: promo,
-                    points: points,
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(resp) {

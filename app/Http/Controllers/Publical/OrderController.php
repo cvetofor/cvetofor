@@ -265,10 +265,15 @@ class OrderController extends Controller {
             $user = auth()->check() ? auth()->user() : $this->findOrCreateUser($orderRequest);
             $orderRequest['delivery_date'] = (new \DateTime($orderRequest['delivery_date']))->format('Y-m-d H:i:s');
             // --- UDS: если были списаны баллы, используем новую сумму и записываем баллы ---
-            if (session('uds_points_used') && session('uds_old_total') && session('uds_new_total')) {
+            if (session('uds_points_used') && session('uds_points_amount') && session('uds_new_total')) {
                 $orderRequest['total_price'] = session('uds_new_total');
                 $orderRequest['uds_points'] = session('uds_points_amount');
+                $orderRequest['uds_code'] = session('uds_code');
             } else {
+                if (session('uds_code')) {
+                    $orderRequest['uds_code'] = session('uds_code');
+                }
+
                 $orderRequest['total_price'] = \Cart::getTotal() + $totalDeliveryPrice;
             }
             $meta['meta']['basePrice'] = 0;
@@ -428,7 +433,7 @@ class OrderController extends Controller {
 
             \App\Jobs\SendOrderReminder::dispatch($order->id)->delay(now()->addMinutes(10));
             \session()->forget('order_delivery_radius_km');
-            \session()->forget(['uds_points_used', 'uds_points_amount', 'uds_new_total', 'uds_old_total', 'uds_points']);
+            \session()->forget(['uds_points_used', 'uds_points_amount', 'uds_new_total', 'uds_old_total', 'uds_points', 'uds_code']);
             return response()->json([
                 'redirect' => $redirect,
             ]);

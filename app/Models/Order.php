@@ -52,7 +52,8 @@ class Order extends Model {
         'meta',
         'num_order',
         'source',
-        'uds_points'
+        'uds_points',
+        'uds_code'
     ];
     protected $casts = [
         'address' => 'array',

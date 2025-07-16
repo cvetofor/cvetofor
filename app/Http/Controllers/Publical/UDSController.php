@@ -6,15 +6,27 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class UDSController extends Controller {
-    public function check(\Illuminate\Http\Request $request) {
-        $promo = $request->input('uds_promo');
-        // Здесь должна быть логика обращения к UDS API
-        // Пока что просто пример:
+    public function check(Request $request) {
+        $total = $request->total;
+        if ($total < 1000) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Сумма заказа должна быть больше 1000 р.'
+            ]);
+        }
 
-        if ($promo === '111555') {
+        $uds = new \App\Services\UDS\Bonus();
+        $promo = $request->uds_promo;
+
+        // Сохраняем промокод в сессию
+        session(['uds_code' => $promo]);
+
+        $calcOpearation = $uds->calcCashOperation($promo, $total);
+
+        if (isset($calcOpearation->purchase)) {
             return response()->json([
                 'success' => true,
-                'points' => 1
+                'points' => $calcOpearation->purchase->points,
             ]);
         } else {
             return response()->json([
@@ -28,27 +40,30 @@ class UDSController extends Controller {
         $points = (int) $request->input('points', 0);
         $oldTotal = (float) $request->input('old_total', 0);
         $newTotal = max(0, $oldTotal - $points);
-        // Сохраняем в сессию
+        $udsCode = $request->input('uds_promo', '');
         session([
             'uds_points_used' => true,
             'uds_points_amount' => $points,
             'uds_new_total' => $newTotal,
-            'uds_old_total' => $oldTotal
+            'uds_old_total' => $oldTotal,
+            'uds_code' => $udsCode
         ]);
         return response()->json([
             'success' => true,
-            'message' => 'Баллы списаны',
+            'message' => 'Баллы будут списаны после оплаты.',
             'oldTotal' => $oldTotal,
             'newTotal' => $newTotal,
             'points' => $points
         ]);
     }
 
+
+
     public function reset(Request $request) {
         // Сначала получаем старую сумму
         $oldTotal = session('uds_old_total');
         // Потом очищаем сессию
-        session()->forget(['uds_points_used', 'uds_points_amount', 'uds_new_total', 'uds_old_total']);
+        session()->forget(['uds_points_used', 'uds_points_amount', 'uds_new_total', 'uds_old_total', 'uds_code']);
         if ($request->ajax()) {
             if ($oldTotal !== null) {
                 return response()->json([
@@ -79,5 +94,12 @@ class UDSController extends Controller {
         }
         // Если не AJAX — редиректим обратно на страницу заказа
         return redirect()->route('order.index');
+    }
+
+    public function reward(Request $request) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Бонусы будут начислены после оплаты.'
+        ]);
     }
 }

@@ -153,7 +153,7 @@ Route::group(['prefix' => '/uds', 'as' => 'uds.'], function () {
 
     Route::post('/create', [UDSController::class, 'create'])->name('create');
 
-    Route::post('/hoard', [UDSController::class, 'hoard'])->name('hoard');
+    Route::post('/reward', [UDSController::class, 'reward'])->name('reward');
 
     Route::post('/reset', [UDSController::class, 'reset'])->name('reset');
 });
