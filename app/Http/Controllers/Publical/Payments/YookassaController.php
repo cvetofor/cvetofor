@@ -26,8 +26,6 @@ class YookassaController extends Controller {
                 $res = $uds->reward($order->uds_code, $order->total_price);
             }
 
-            $order->uds_code = 0;
-            $order->uds_points = 0;
             $order->payment_status_id = 2;
             $order->save();
         } elseif (isset($order) && $json['event'] == 'refund.succeeded') {
