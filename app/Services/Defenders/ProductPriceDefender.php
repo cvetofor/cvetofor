@@ -8,17 +8,14 @@ use App\Services\PriceService;
 /**
  * Проверяет товары перед покупкой
  */
-class ProductPriceDefender
-{
+class ProductPriceDefender {
     protected $priceService;
 
-    public function __construct(PriceService $priceService)
-    {
+    public function __construct(PriceService $priceService) {
         $this->priceService = $priceService;
     }
 
-    public function checkRottenProducts(\Darryldecode\Cart\CartCollection $cart, &$canGoToNextStepOrder = true)
-    {
+    public function checkRottenProducts(\Darryldecode\Cart\CartCollection $cart, &$canGoToNextStepOrder = true) {
         $this->removePostCard($cart);
         $canGoToNextStepOrder = true;
         foreach ($cart as $item) {
@@ -79,8 +76,7 @@ class ProductPriceDefender
         return \Cart::getContent();
     }
 
-    public function removePostCard($cart)
-    {
+    public function removePostCard($cart) {
         foreach ($cart as $item) {
             if ($item->name == 'Открытка') {
                 \Cart::remove($item->id);
@@ -88,8 +84,17 @@ class ProductPriceDefender
         }
     }
 
-    public function isProductNotPublished($price)
-    {
-        return $price->published === false || ! $price->market->isActive() || $price->remain->first()->published === false;
+    public function isProductNotPublished($price) {
+        if ($price->published === false) {
+            return true;
+        }
+        if (!$price->market || !$price->market->isActive()) {
+            return true;
+        }
+        $remain = $price->remain->first();
+        if (!$remain || $remain->published === false) {
+            return true;
+        }
+        return false;
     }
 }
