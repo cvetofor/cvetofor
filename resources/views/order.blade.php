@@ -248,9 +248,6 @@
                                     <span class="cart__summary-count">Позиций: {{ $cart->count() }} шт</span>
                                 </div>
                                 <div class="cart__summary-items__wrap">
-
-
-
                                     @foreach ($cart as $item)
                                         @php
                                             $isCategoryLimited = false;
@@ -334,18 +331,16 @@
 
                                 </div>
                                 <div class="cart__summary-bottom"> 
-                                    @if(($citiesService::getCity()->id ?? null) != 216)
-                                        @if(!(session('uds_points_used') && session('uds_old_total') && session('uds_new_total')))
-                                            <div class="cart__summary-heading"> 
-                                                <label class="inputholder__label" data-default-label="data-default-label">Введите промокод UDS</label>
-                                                <input class="inputholder__input" name="uds_promo" type="text" data-mask-number="6" inputmode="numberic" placeholder="123456">
-                                                <div class="buttonholder" data-form-trigger="">
-                                                    <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">
-                                                    <span>Проверить баллы</span>
-                                                    </button>
-                                                </div>
+                                    @if(!(session('uds_points_used') && session('uds_old_total') && session('uds_new_total')))
+                                        <div class="cart__summary-heading"> 
+                                            <label class="inputholder__label" data-default-label="data-default-label">Введите промокод UDS</label>
+                                            <input class="inputholder__input" name="uds_promo" type="text" data-mask-number="6" inputmode="numberic" placeholder="123456">
+                                            <div class="buttonholder" data-form-trigger="">
+                                                <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">
+                                                <span>Проверить баллы</span>
+                                                </button>
                                             </div>
-                                        @endif
+                                        </div>
                                     @endif
                                     @if(session('uds_points_used') && session('uds_old_total') && session('uds_new_total'))
                                         <span class="cart__summary-total" data-total="{{ session('uds_new_total') }}">
@@ -472,6 +467,7 @@
             `;
         }
 
+        // Проверяем количество баллов
         udsButton.on('click', function(e) {
             e.preventDefault();
             udsResult.text('');

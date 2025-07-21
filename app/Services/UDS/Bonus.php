@@ -7,6 +7,12 @@ use DateTime;
 class Bonus {
     private const UDS_BASE_URL = 'https://api.uds.app/partner/v2';
 
+    private $marketId;
+
+    public function __construct($marketId) {
+        $this->marketId = $marketId;
+    }
+
     public function getClient($code) {
         return $this->sendRequest('customers/find?code=' . $code, 'GET');
     }
@@ -58,7 +64,13 @@ class Bonus {
     }
 
     private function sendRequest($endpoint, $method = 'POST', $data = null) {
-        $strAuth = config('uds.id') . ':' . config('uds.apiKey');
+        if ($this->marketId != 15) {
+            $strAuth = config('uds.id') . ':' . config('uds.apiKey');
+        } else {
+            // для Ангарская другие параметры
+            $strAuth = config('uds.id_angarsk') . ':' . config('uds.apiKey_angarsk');
+        }
+
         $date = new DateTime();
         $header = [
             'Accept: application/json',
