@@ -131,18 +131,6 @@ class Payment {
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $res = curl_exec($ch);
 
-        \Log::channel('marketplace')->info('YOOKASSA_PARAMS', [
-            'amount' => $params['amount'],
-            'items' => $items,
-            'items_sum' => array_sum(array_map(function ($i) {
-                return (float)$i['amount']['value'] * $i['quantity'];
-            }, $items)),
-            'total_price' => $order->total_price,
-            'json' => $params,
-            'res' => $res,
-            'uds' => $order->uds_points
-        ]);
-
         curl_close($ch);
         if (isset(json_decode($res, true)['confirmation']['confirmation_url'])) {
             return json_decode($res, true)['confirmation']['confirmation_url'];

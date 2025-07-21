@@ -15,7 +15,12 @@ class UDSController extends Controller {
             ]);
         }
 
-        $uds = new \App\Services\UDS\Bonus();
+        // Получаем market_id через CitiesService
+        $city = \App\Services\CitiesService::getCity();
+        $market = $city->markets()->published()->first();
+        $market_id = $market ? $market->id : null;
+
+        $uds = new \App\Services\UDS\Bonus($market_id);
         $promo = $request->uds_promo;
 
         // Сохраняем промокод в сессию
@@ -40,13 +45,11 @@ class UDSController extends Controller {
         $points = (int) $request->input('points', 0);
         $oldTotal = (float) $request->input('old_total', 0);
         $newTotal = max(0, $oldTotal - $points);
-        $udsCode = $request->input('uds_promo', '');
         session([
             'uds_points_used' => true,
             'uds_points_amount' => $points,
             'uds_new_total' => $newTotal,
-            'uds_old_total' => $oldTotal,
-            'uds_code' => $udsCode
+            'uds_old_total' => $oldTotal
         ]);
         return response()->json([
             'success' => true,
@@ -56,8 +59,6 @@ class UDSController extends Controller {
             'points' => $points
         ]);
     }
-
-
 
     public function reset(Request $request) {
         // Сначала получаем старую сумму
