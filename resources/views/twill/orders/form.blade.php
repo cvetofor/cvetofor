@@ -160,6 +160,10 @@
         :open="false">
         <x-twill::input name="price" type="number" prefix="₽ " label="Общая стоимость" :disabled="true" />
 
+        @if($item->uds_points)
+            <x-twill::input name="uds_points" type="number" prefix="₽ " label="Скидка UDS" :disabled="true" />
+        @endif 
+
         @if (isset($item['meta']['basePrice']) && $item['meta']['basePrice'] > 0)
             <x-twill::input name="marketplace_comission" prefix="₽ " type="number" label="Комиссия ресурса"
                 :disabled="true" />
