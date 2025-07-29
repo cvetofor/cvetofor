@@ -61,7 +61,27 @@ class Product extends Model {
             'default' => [
                 [
                     'name' => 'default',
-                    'ratio' => 16 / 9,
+                    'ratio' => null,
+                ],
+            ],
+            'mobile' => [
+                [
+                    'name' => 'mobile',
+                    'ratio' => 1,
+                ],
+            ],
+        ],
+        'cover' => [
+            'default' => [
+                [
+                    'name' => 'default',
+                    'ratio' => null,
+                ],
+            ],
+            'mobile' => [
+                [
+                    'name' => 'mobile',
+                    'ratio' => 1,
                 ],
             ],
         ],
@@ -176,5 +196,15 @@ class Product extends Model {
         } else {
             $this->attributes['published'] = $value;
         }
+    }
+
+    public function getPriceAttribute() {
+        $user = auth()->guard('twill_users')->user();
+        if (!$user) {
+            return null;
+        }
+        $marketId = $user->getMarketId();
+        $priceObj = $this->prices()->where('market_id', $marketId)->where('quantity_from', 1)->first();
+        return $priceObj ? $priceObj->price : null;
     }
 }

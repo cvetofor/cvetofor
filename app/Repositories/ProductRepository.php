@@ -78,6 +78,23 @@ class ProductRepository extends ModuleRepository {
     public function afterSave(TwillModelContract $model, array $fields): void {
         parent::afterSave($model, $fields);
 
+        // Сохраняем или обновляем цену в ProductPrice
+        if (isset($fields['price'])) {
+            $marketId = auth()->guard('twill_users')->user()->getMarketId();
+            $priceObj = $model->prices()->where('market_id', $marketId)->where('quantity_from', 1)->first();
+            if (!$priceObj) {
+                $priceObj = $model->prices()->create([
+                    'market_id' => $marketId,
+                    'quantity_from' => 1,
+                    'price' => $fields['price'],
+                    'published' => true,
+                ]);
+            } else {
+                $priceObj->price = $fields['price'];
+                $priceObj->save();
+            }
+        }
+
         // Создаем либо удаляем товары зависимые от цвета
         if ($model->parent_id == null) {
             $model->load('skus');
