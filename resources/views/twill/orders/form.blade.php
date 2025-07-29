@@ -160,7 +160,7 @@
         :open="false">
         <x-twill::input name="price" type="number" prefix="₽ " label="Общая стоимость" :disabled="true" />
 
-        @if($item->uds_points)
+        @if(isset($item->uds_points))
             <x-twill::input name="uds_points" type="number" prefix="₽ " label="Скидка UDS" :disabled="true" />
         @endif 
 
