@@ -9,10 +9,12 @@ use A17\Twill\Models\Behaviors\HasSlug;
 use A17\Twill\Models\Behaviors\Sortable;
 use A17\Twill\Models\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use CwsDigital\TwillMetadata\Models\Behaviours\HasMetadata;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Category extends Model implements Sortable {
     use HasMedias, HasNesting, HasPosition, HasSlug;
+    use HasMetadata;
     use QueryCacheable;
 
     /**
@@ -61,6 +63,25 @@ class Category extends Model implements Sortable {
     public $slugAttributes = [
         'title',
     ];
+
+    public $mediasParams = [
+        'cover' => [
+            'default' => [
+                [
+                    'name' => 'default',
+                    'ratio' => 128 / 27,
+                ],
+            ],
+            'mobile' => [
+                [
+                    'name' => 'mobile',
+                    'ratio' => 1,
+                ],
+            ],
+        ],
+    ];
+
+    public $metadataFallbacks = [];
 
     public function products(): HasMany {
         return $this->hasMany(Category::class, 'id');

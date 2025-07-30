@@ -8,8 +8,7 @@ use A17\Twill\Services\Listings\Filters\QuickFilter;
 use A17\Twill\Services\Listings\Filters\QuickFilters;
 use A17\Twill\Services\Listings\TableColumns;
 
-class CategoryController extends BaseModuleController
-{
+class CategoryController extends BaseModuleController {
     protected $moduleName = 'categories';
 
     protected $showOnlyParentItemsInBrowsers = false;
@@ -19,8 +18,7 @@ class CategoryController extends BaseModuleController
     /**
      * This method can be used to enable/disable defaults. See setUpController in the docs for available options.
      */
-    protected function setUpController(): void
-    {
+    protected function setUpController(): void {
         $this->modelTitle = 'Категория';
         $this->enableReorder();
     }
@@ -28,8 +26,7 @@ class CategoryController extends BaseModuleController
     /**
      * The quick filters to apply to the listing table.
      */
-    public function quickFilters(): QuickFilters
-    {
+    public function quickFilters(): QuickFilters {
         $scope = ($this->submodule ? [
             $this->getParentModuleForeignKey() => $this->submoduleParentId,
         ] : []);
@@ -38,15 +35,14 @@ class CategoryController extends BaseModuleController
             QuickFilter::make()
                 ->label(twillTrans('twill::lang.listing.filter.all-items'))
                 ->queryString('all')
-                ->amount(fn () => $this->repository->getCountByStatusSlug('all', $scope)),
+                ->amount(fn() => $this->repository->getCountByStatusSlug('all', $scope)),
         ]);
     }
 
     /**
      * This is an example and can be removed if no modifications are needed to the table.
      */
-    protected function additionalIndexTableColumns(): TableColumns
-    {
+    protected function additionalIndexTableColumns(): TableColumns {
         $table = parent::additionalIndexTableColumns();
 
         $table->add(
@@ -54,5 +50,12 @@ class CategoryController extends BaseModuleController
         );
 
         return $table;
+    }
+
+    protected function formData($request) {
+        return [
+            'metadata_card_type_options' => config('metadata.card_type_options'),
+            'metadata_og_type_options' => config('metadata.opengraph_type_options'),
+        ];
     }
 }

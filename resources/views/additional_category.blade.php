@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="heading heading--big-banner">
+<div class="heading heading--big-banner" style="background-image: url('{!! $category->image('cover') !!}');">
     <div class="container">
         <div class="heading__row">
             @include('components.breadcrumbs', [ 
@@ -70,6 +70,11 @@
                 @endif
             @endforeach
         </div> 
+        @if ($category->description)
+        <div class="text-page category_description">
+            <p>{!! $category->description !!}</p>
+        </div>
+    @endif
     </div>
 </div>
 @endsection 
