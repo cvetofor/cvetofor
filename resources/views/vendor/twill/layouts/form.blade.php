@@ -43,7 +43,7 @@
 
     if(!isset($customPermalink) && $item instanceof \App\Models\Product){
         $priceModel = $item->prices()->where('market_id', auth()->guard('twill_users')->user()->getMarketId())->where('quantity_from', 1)->first();
-        $customPermalink = $priceModel->link;
+        $customPermalink = $priceModel->link ?? null;
     }
 @endphp
 

@@ -203,6 +203,10 @@ class ProductRepository extends ModuleRepository {
             }
         }
 
+
+        \Log::channel('marketplace')->info('DEBUG', [$product]);
+
+
         // Если это SKU (цвет), то при активации/деактивации меняем статус всех связанных букетов
         if ($product->parent) {
             // Для каждого букета проверяем, что все цветки с нужным цветом доступны
@@ -216,6 +220,11 @@ class ProductRepository extends ModuleRepository {
                     $blockContent = $block->content;
                     $blockProductId = \Arr::get($blockContent, 'browsers.products.0');
                     $blockColorId = \Arr::get($blockContent, 'browsers.color.0');
+
+                    if ($product->parent->published == false) {
+                        $allAvailable = false;
+                        break;
+                    }
 
                     if ($blockProductId && $blockColorId) {
                         // Получаем SKU продукта (конкретный цвет) и проверяем его публикацию
