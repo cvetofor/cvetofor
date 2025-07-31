@@ -47,9 +47,9 @@ class Payment {
         if (!empty($order->uds_points) && $order->uds_points > 0 && count($items) > 0) {
             $points = $order->uds_points;
 
-            // Фильтруем только товары (исключаем доставку)
+            // Фильтруем только товары (исключаем доставку и открытку)
             $productItems = array_filter($items, function ($item) {
-                return $item['description'] !== 'Доставка';
+                return $item['description'] !== 'Доставка' && $item['description'] !== 'Открытка';
             });
 
             $itemCount = count($productItems);
