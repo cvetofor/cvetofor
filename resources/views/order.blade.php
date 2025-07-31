@@ -333,7 +333,15 @@
                                 <div class="cart__summary-bottom"> 
                                     @if(!(session('uds_points_used') && session('uds_old_total') && session('uds_new_total')))
                                         <div class="cart__summary-heading"> 
-                                            <label class="inputholder__label" data-default-label="data-default-label">Введите промокод UDS</label>
+                                            <div class="uds-promo-label-wrap">
+                                                <label class="inputholder__label" data-default-label="data-default-label">Введите код из UDS</label>
+                                                <div class="tippy-toggler" data-tippy="data-tippy" data-tippy-placement="top-start" data-tippy-content='Ваш код скидки пишется под вашим QR-кодом, набор из 6 цифр.<br><br>Получите 500 рублей на первую покупку, переходите по ссылке <a href="https://opt03.uds.app/c" target="_blank" rel="noopener" style="color:#ca4592">opt03.uds.app/c</a>' data-tippy-allowHTML="true" data-tippy-trigger="">
+                                                    <svg>
+                                                        <use href="#icon-tooltip">
+                                                        </use>
+                                                    </svg>
+                                                </div>
+                                            </div>
                                             <input class="inputholder__input" name="uds_promo" type="text" data-mask-number="6" inputmode="numberic" placeholder="123456">
                                             <div class="buttonholder" data-form-trigger="">
                                                 <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">
@@ -585,7 +593,7 @@
                     // Показываем промо-блок обратно (отрисовываем его заново)
                     if ($('.cart__summary-heading').length === 0) {
                         totalBlock.before('<div class="cart__summary-heading">\
-                            <label class="inputholder__label" data-default-label="data-default-label">Введите промокод UDS (в разработке)</label>\
+                            <label class="inputholder__label" data-default-label="data-default-label">Введите код из UDS (в разработке)</label>\
                             <input class="inputholder__input" name="uds_promo" type="text" data-mask-number="6" inputmode="numberic" placeholder="123456">\
                             <div class="buttonholder" data-form-trigger="">\
                                 <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">\
@@ -647,5 +655,14 @@
             min-width: 0;
             box-sizing: border-box;
         }
-    </style>
+       .uds-promo-label-wrap {
+           display: flex;
+           align-items: center;
+           gap: 6px;
+       }
+       .uds-promo-label-wrap .inputholder__label,
+       .uds-promo-label-wrap .tippy-toggler {
+           margin: 0;
+       }
+   </style>
 @endpush

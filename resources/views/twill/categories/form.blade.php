@@ -1,12 +1,11 @@
 @extends('twill::layouts.form')
 
 @section('contentFields')
-    @formField('input', [
-        'name' => 'description',
-        'label' => 'Description',
-        'translated' => true,
-        'maxlength' => 100,
-    ])
+<x-twill::input name="description" label="Описание" :maxlength="999" type="textarea"
+:required="true" />
+
+<x-twill::medias name="cover" :with-add-info="true" note="Добавить" label="Баннер категории" :max="1" />
+
 @stop
 
 @section('sideFieldsets')
@@ -21,3 +20,7 @@
             note="Товары этой категории будут показываться в 'Каталоге'" />
     </a17-fieldset>
 @endsection
+
+@section('fieldsets')
+    @metadataFields
+@stop

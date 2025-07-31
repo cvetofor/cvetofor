@@ -266,11 +266,15 @@ class CatalogController extends Controller {
 
     public function additionalProduct(
         $slug,
-        $sku,
+        $price,
         ProductPriceDefender $productPriceDefender,
     ) {
-        // Находим цену по SKU или ID
-        $priceModel = ProductPrice::where('sku', $sku)->first();
+        // Находим цену по SKU или ID 
+        if (is_numeric($price)) {
+            $priceModel = ProductPrice::where('id', $price)->first();
+        } else {
+            $priceModel = ProductPrice::where('sku', $price)->first();
+        }
 
         if (!$priceModel) {
             abort(404);
