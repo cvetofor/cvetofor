@@ -352,35 +352,15 @@ session()->forget('order_delivery_radius_km');
         @enderror
     @endauth
  
-    @if(isset($selectedCity) && $selectedCity->id === 98)
-        <div class="social-floating">
-            <a href="https://t.me/cvetofor_03" target="_blank" class="social-icon telegram">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-            </a>
-            <a href="https://vk.com/cvetofor03" target="_blank" class="social-icon vk">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/2/21/VK.com-logo.svg" alt="VK">
-            </a>
-            <a href="https://wa.me/79676202220" target="_blank" class="social-icon whatsapp">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-            </a>
-        </div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const socialIcons = document.querySelectorAll('.social-icon');
-                
-                socialIcons.forEach((icon, index) => {
-                    setTimeout(() => {
-                        icon.style.opacity = '1';
-                        icon.style.transform = 'translateY(0)';
-                    }, index * 100);
-                    
-                    icon.style.opacity = '0';
-                    icon.style.transform = 'translateY(20px)';
-                    icon.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                });
-            });
-        </script> 
+    @if($citiesService::getCity()->id === 98)
+        {{-- Улан-Удэ --}}
+        @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'whatsapp' => 'https://wa.me/79676202220'])
+    @elseif($citiesService::getCity()->id === 96)
+        {{-- Кяхта --}}
+        @include('components.social-widget', ['telegram' => 'https://t.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'whatsapp' => 'https://wa.me/79676212220'])
+    @elseif($citiesService::getCity()->id === 216)
+        {{-- Ангарск --}}
+        @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'whatsapp' => 'https://wa.me/79643530005'])
     @endif
 </body>
 
