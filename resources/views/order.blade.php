@@ -373,10 +373,10 @@
             @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'whatsapp' => 'https://wa.me/79676202220'])
         @elseif($citiesService::getCity()->id === 96)
             {{-- Кяхта --}}
-            @include('components.social-widget', ['telegram' => 't.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'whatsapp' => 'wa.me/79676212220'])
+            @include('components.social-widget', ['telegram' => 'https://t.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'whatsapp' => 'https://wa.me/79676212220'])
         @elseif($citiesService::getCity()->id === 216)
             {{-- Ангарск --}}
-            @include('components.social-widget', ['telegram' => 't.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'whatsapp' => 'wa.me/79643530005'])
+            @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'whatsapp' => 'https://wa.me/79643530005'])
         @endif
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

@@ -352,15 +352,15 @@ session()->forget('order_delivery_radius_km');
         @enderror
     @endauth
  
-    @if(isset($selectedCity) && $selectedCity->id === 98)
+    @if($citiesService::getCity()->id === 98)
         {{-- Улан-Удэ --}}
         @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'whatsapp' => 'https://wa.me/79676202220'])
-    @elseif(isset($selectedCity) && $selectedCity->id === 96)
+    @elseif($citiesService::getCity()->id === 96)
         {{-- Кяхта --}}
-        @include('components.social-widget', ['telegram' => 't.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'whatsapp' => 'wa.me/79676212220'])
-    @elseif(isset($selectedCity) && $selectedCity->id === 216)
+        @include('components.social-widget', ['telegram' => 'https://t.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'whatsapp' => 'https://wa.me/79676212220'])
+    @elseif($citiesService::getCity()->id === 216)
         {{-- Ангарск --}}
-        @include('components.social-widget', ['telegram' => 't.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'whatsapp' => 'wa.me/79643530005'])
+        @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'whatsapp' => 'https://wa.me/79643530005'])
     @endif
 </body>
 
