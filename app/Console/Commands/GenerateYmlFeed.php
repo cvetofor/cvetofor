@@ -87,7 +87,8 @@ class GenerateYmlFeed extends Command {
             $fileName = $this->transliterate($city->city);
             $filePath = "public/export/$fileName.xml";
             Storage::put($filePath, $xmlContent);
-            $this->info('Products exported successfully to ' . $filePath);
+            $date = date('H:i:s-m.d.y');
+            $this->info('[' . $date . '] Products exported successfully to ' . $filePath);
         }
 
         return 0;
