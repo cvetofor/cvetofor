@@ -89,16 +89,16 @@
                                                        value="{{ optional(auth()->user()->orders()->first())->person_receiving_phone }}"
                                                    @endauth id="phone4" />
                                         </div>
-                                        <div style="display:flex; gap: 30px;flexWrap:wrap">
-                                            <div class="inputholder form__inputholder">
+                                        <div class="date-time-row">
+                                            <div class="inputholder form__inputholder" id="date-holder" style="flex: 0 0 220px;">
                                                 <label class="inputholder__label" data-default-label="data-default-label"><span class="required-label">Дата</span></label>
                                                 <input class="inputholder__input" name="delivery_date" type="text" data-datepicker="data-datepicker" data-required=""
                                                        data-text-error="date" />
                                             </div>
-                                            <div class="inputholder form__inputholder">
+                                            <div class="inputholder form__inputholder" style="flex: 1 1 0;">
                                                 <label class="inputholder__label" data-default-label="data-default-label"><span class="required-label">Время доставки</span></label>
                                                 <div class="select" data-select="" data-close-on-select="true">
-                                                    <div class="select__active" data-select-btn="" data-select-default="" data-name="delivery_time" style="min-height: 44px; min-width: 250px">
+                                                    <div class="select__active" data-select-btn="" data-select-default="" data-name="delivery_time">
                                                     <span class="select__text">
                                                         <span data-select-changing="">
                                                         </span>
@@ -207,6 +207,135 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Копия side-col для мобильной версии -->
+                            <div class="side-col-mobile" style="display: none;">
+                                <div class="section" data-sticky-element="130" data-sticky-unset="1198">
+                                    <div class="box box--no-margin">
+                                        <div class="cart__summary">
+                                            <div class="cart__summary-heading">
+                                                <span class="cart__summary-title">Ваш заказ</span>
+                                                <span class="cart__summary-count">Позиций: {{ $cart->count() }} шт</span>
+                                            </div>
+                                            <div class="cart__summary-items__wrap">
+                                                @foreach ($cart as $item)
+                                                    @php
+                                                        $isCategoryLimited = false;
+                                                        $isTagLimited = false;
+
+                                                        $product = $item->associatedModel->groupProduct;
+
+                                                        if ($product) {
+                                                            // Проверяем категорию
+                                                            $category = $product->groupProductCategory;
+                                                            if ($category) {
+                                                                $category->refresh();
+                                                                $isCategoryLimited = $category->is_category_limited;
+                                                                if ($isCategoryLimited) {
+                                                                    $cart_has_limited_categories = true;
+
+                                                                    $categoryStartDate = \Carbon\Carbon::parse($category->limit_start_date);
+                                                                    $categoryEndDate = \Carbon\Carbon::parse($category->limit_end_date);
+
+                                                                    if (is_null($maxStartDate) || $categoryStartDate->gt($maxStartDate)) {
+                                                                        $maxStartDate = $categoryStartDate;
+                                                                    }
+                                                                    if (is_null($minEndDate) || $categoryEndDate->lt($minEndDate)) {
+                                                                        $minEndDate = $categoryEndDate;
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            // Проверяем теги
+                                                            foreach ($product->tags as $tag) {
+                                                                $tag->refresh();
+                                                                if ($tag->is_category_limited) {
+                                                                    $cart_has_limited_tags = true;
+                                                                    $isTagLimited = true;
+
+                                                                    $tagStartDate = \Carbon\Carbon::parse($tag->limit_start_date);
+                                                                    $tagEndDate = \Carbon\Carbon::parse($tag->limit_end_date);
+
+                                                                    if (is_null($maxStartDate) || $tagStartDate->gt($maxStartDate)) {
+                                                                        $maxStartDate = $tagStartDate;
+                                                                    }
+                                                                    if (is_null($minEndDate) || $tagEndDate->lt($minEndDate)) {
+                                                                        $minEndDate = $tagEndDate;
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            // Форматируем даты
+                                                            $limitStartDate = $maxStartDate ? $maxStartDate->format('d.m.Y') : null;
+                                                            $limitEndDate = $minEndDate ? $minEndDate->format('d.m.Y') : null;
+                                                        }
+                                                    @endphp
+
+                                                    <div class="cart__summary-item">
+                                                        <span>{{ $item->name }} @if ($item->quantity > 1) {{ $item->quantity }} @endif</span>
+                                                        <span>@money($item->getPriceSumWithConditions()) р.</span>
+                                                    </div>
+
+                                                    @if ($isCategoryLimited || $isTagLimited)
+                                                        <div class="cart__delivery-limited-info">
+                                                            Этот букет доступен для доставки только с {{ $limitStartDate }} по {{ $limitEndDate }}.
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                                @if ($totalDeliveryPrice)
+                                                    <div class="cart__summary-item">
+                                                        <span>Доставка</span>
+                                                        <span data-delivery-price="true">@money($totalDeliveryPrice) р.</span>
+                                                    </div>
+                                                @else
+                                                    <div class="cart__summary-item">
+                                                        <span>Доставка</span>
+                                                        <span data-delivery-price="true">0 р.</span>
+                                                    </div>
+                                                @endif
+
+                                                @if (\Cart::getSubTotalWithoutConditions() !== \Cart::getTotal())
+                                                    <div class="cart__summary-item"><span>Скидка</span><span class="negative">-
+                                                    {{ abs(\Cart::getSubTotalWithoutConditions() - \Cart::getTotal()) }} р.</span></div>
+                                                @endif
+
+                                            </div>
+                                            <div class="cart__summary-bottom"> 
+                                                @if(!(session('uds_points_used') && session('uds_old_total') && session('uds_new_total')))
+                                                    <div class="cart__summary-heading"> 
+                                                        <div class="uds-promo-label-wrap">
+                                                            <label class="inputholder__label" data-default-label="data-default-label">Введите код из UDS</label>
+                                                            <div class="tippy-toggler" data-tippy="data-tippy" data-tippy-placement="top-start" data-tippy-content='Ваш код скидки пишется под вашим QR-кодом, набор из 6 цифр.<br><br>Получите 500 рублей на первую покупку, переходите по ссылке <a href="https://opt03.uds.app/c" target="_blank" rel="noopener" style="color:#ca4592">opt03.uds.app/c</a>' data-tippy-allowHTML="true" data-tippy-trigger="">
+                                                                <svg>
+                                                                    <use href="#icon-tooltip">
+                                                                    </use>
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                        <input class="inputholder__input" name="uds_promo" type="text" data-mask-number="6" inputmode="numberic" placeholder="123456">
+                                                        <div class="buttonholder" data-form-trigger="">
+                                                            <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">
+                                                            <span>Проверить баллы</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                                @if(session('uds_points_used') && session('uds_old_total') && session('uds_new_total'))
+                                                    <span class="cart__summary-total" data-total="{{ session('uds_new_total') }}">
+                                                        <button type="button" class="button button--purple uds-reset-bonuses" style="margin-bottom:10px;display:block;width:100%;">Отменить списание бонусов</button>
+                                                        <span>Итого: <span style="text-decoration:line-through;color:#888;">@money(session('uds_old_total')) р.</span> &rarr; <span style="color:#71be38;font-weight:bold;">@money(session('uds_new_total')) р.</span></span>
+                                                    </span>
+                                                @else
+                                                    <span class="cart__summary-total" data-total="{{ (\Cart::getTotal() + $totalDeliveryPrice) }}">Итого: @money(\Cart::getTotal() + $totalDeliveryPrice) р.</span>
+                                                @endif
+                                                @if (\Cart::getSubTotalWithoutConditions() !== \Cart::getTotal())
+                                                    <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() + $totalDeliveryPrice) р.</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                            
                             <div class="section">
                                 <h2>Способ оплаты</h2>
                                 <div class="box">
@@ -670,9 +799,56 @@
            align-items: center;
            gap: 6px;
        }
-       .uds-promo-label-wrap .inputholder__label,
-       .uds-promo-label-wrap .tippy-toggler {
-           margin: 0;
-       }
+               .uds-promo-label-wrap .inputholder__label,
+        .uds-promo-label-wrap .tippy-toggler {
+            margin: 0;
+        }
+        
+        /* Фиксированная высота для элементов даты и времени */
+        .date-time-row {
+            display: flex;
+            gap: 30px;
+            align-items: flex-end;
+        }
+        
+        .date-time-row .inputholder__input {
+            min-height: 43.5px;
+            box-sizing: border-box;
+        }
+        
+        .date-time-row .select__active {
+            min-height: 43.5px;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+        }
+       
+        /* Мобильная версия - переупорядочивание элементов */
+        @media (max-width: 768px) {
+            .date-time-row{
+                flex-direction: column;
+            }
+            
+            .date-time-row .inputholder {
+                flex: none !important;
+                width: 100% !important;
+            }
+ 
+            .main-cols__wrap .container {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            /* Скрываем оригинальный side-col на мобильных */
+            .main-cols__wrap .side-col {
+                display: none;
+            }
+            
+            /* Показываем копию side-col для мобильных */
+            .side-col-mobile {
+                display: block !important;
+                margin-top: 50px;
+            }
+        }
    </style>
 @endpush
