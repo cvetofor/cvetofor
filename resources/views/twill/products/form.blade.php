@@ -26,15 +26,18 @@
     <x-twill::input :disabled="$disabled" name="description" label="Описание" :maxlength="999" type="textarea" />
 @stop
 
-@section('sideFieldsets')
-    <a17-fieldset title="Артикул: {{ $sku }}" id="sku">
-        <x-twill::input :disabled="$disabled" name="price" label="Цена" type="number" step="0.01" :value="old('price', $item->price)" />
-    </a17-fieldset>
-    @parent
+
+@if(isset($item->price) && $item->price !== 0)
+    @section('sideFieldsets')
+        <a17-fieldset title="Артикул: {{ $sku }}" id="sku">
+            <x-twill::input :disabled="$disabled" name="price" label="Цена" type="number" step="0.01" :value="old('price', $item->price)" />
+        </a17-fieldset>
+        @parent
 
 
-    <a17-fieldset title="Категория" id="seo">
-        <x-twill::browser module-name="categories" name="categories" label="Категория" :max="1"
-            :disabled="$disabled" />
-    </a17-fieldset>
-@endsection
+        <a17-fieldset title="Категория" id="seo">
+            <x-twill::browser module-name="categories" name="categories" label="Категория" :max="1"
+                :disabled="$disabled" />
+        </a17-fieldset>
+    @endsection
+@endif
