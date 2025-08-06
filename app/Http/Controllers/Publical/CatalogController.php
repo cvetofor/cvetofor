@@ -395,7 +395,7 @@ class CatalogController extends Controller {
 
         $item = new stdClass;
         $item->nestedSlug = '';
-        $item->title = $groupProduct->title;
+        $item->title = $groupProduct->title ?? '';
         $breadcrumbs[] = $item;
 
         $canPutToCart = ! $productPriceDefender->isProductNotPublished($price);
