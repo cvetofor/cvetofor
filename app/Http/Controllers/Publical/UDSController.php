@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class UDSController extends Controller {
     public function check(Request $request) {
-        $total = $request->total;
+        $total = $request->input('total');
         if ($total < 1000) {
             return response()->json([
                 'success' => false,
@@ -21,7 +21,7 @@ class UDSController extends Controller {
         $market_id = $market ? $market->id : null;
 
         $uds = new \App\Services\UDS\Bonus($market_id);
-        $promo = $request->uds_promo;
+        $promo = $request->input('uds_promo');
 
         // Сохраняем промокод в сессию
         session(['uds_code' => $promo]);

@@ -594,7 +594,7 @@
         window['cvetofor'].config.flatpickr.todayTimes = {!!json_encode($deliveryTimes['todayTimes']) !!};
 
         // UDS AJAX check
-        const udsInput = $('input[name="uds_promo"]');
+        const udsInput = $('.cart__summary-heading:visible').find('input[name="uds_promo"]');
         const udsButton = udsInput.closest('.cart__summary-heading').find('button[data-form-button]');
         // Добавим контейнер для вывода результата, если его нет
         if (!udsInput.next('.uds-check-result').length) {
@@ -619,7 +619,6 @@
             e.preventDefault();
             udsResult.text('');
             const promo = udsInput.val().trim();
- 
             udsButton.prop('disabled', true).text('Проверяем...');
             $.ajax({
                 url: '/uds/check',
