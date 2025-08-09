@@ -14,5 +14,8 @@ class VerifyCsrfToken extends Middleware {
         '/payments/gateway/yookassa/callback',
         '/payments/gateway/robokassa/success',
         '/profile/authenticate',
+        '/uds/api/check',
+        '/uds/api/create',
+        '/uds/api/reward'
     ];
 }

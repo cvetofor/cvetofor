@@ -3,20 +3,19 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Models\User;
-use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\Publical\CartController;
 use App\Http\Controllers\Publical\PageController;
 use App\Http\Controllers\Publical\OrderController;
-use App\Http\Controllers\Publical\SearchController;
 use App\Http\Controllers\Publical\CatalogController;
 use App\Http\Controllers\Publical\ProfileController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Publical\Payments\RobokassaController;
 use App\Http\Controllers\Publical\Payments\YookassaController;
 use App\Http\Controllers\Publical\UDSController;
+use App\Services\UDS\BonusApi;
 
 /*
 |--------------------------------------------------------------------------
@@ -145,9 +144,6 @@ Route::post('/form', [FormController::class, 'form'])->name('form')->middleware(
 Route::get('{slug}', [PageController::class, 'show'])->where('slug', '.*');
 
 
-/**
- * Страницы
- */
 Route::group(['prefix' => '/uds', 'as' => 'uds.'], function () {
     Route::post('/check', [UDSController::class, 'check'])->name('check');
 
@@ -156,4 +152,12 @@ Route::group(['prefix' => '/uds', 'as' => 'uds.'], function () {
     Route::post('/reward', [UDSController::class, 'reward'])->name('reward');
 
     Route::post('/reset', [UDSController::class, 'reset'])->name('reset');
+
+    Route::group(['prefix' => '/api', 'as' => 'api.'], function () {
+        Route::post('/check', [BonusApi::class, 'calcCashOperation'])->name('check');
+
+        Route::post('/create', [BonusApi::class, 'createOperation'])->name('create');
+
+        Route::post('/reward', [BonusApi::class, 'reward'])->name('reward');
+    });
 });

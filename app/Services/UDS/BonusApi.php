@@ -5,27 +5,21 @@ namespace App\Services\UDS;
 use DateTime;
 use Illuminate\Http\Request;
 
-class Bonus {
-    private const UDS_BASE_URL = 'https://api.uds.app/partner/v2';
+class BonusApi {
+    private const UDS_BASE_URL = 'https://api.uds.app/partner/v2/';
 
-    private $marketId;
-
-    public function __construct($marketId) {
-        $this->marketId = $marketId;
+    public function getClient(Request $request) {
+        return $this->sendRequest('customers/find?code=' . $request->code, 'GET');
     }
 
-    public function getClient($code) {
-        return $this->sendRequest('customers/find?code=' . $code, 'GET');
-    }
-
-    public function createOperation($code, $total) {
-        $calcOperation = $this->calcCashOperation($code, $total);
+    public function createOperation(Request $request) {
+        $calcOperation = $this->calcCashOperation($request);
 
         if (isset($calcOperation->purchase)) {
             $data = [
-                'code' => $code,
+                'code' => $request->code,
                 'receipt' => array(
-                    'total' => $total,
+                    'total' => $request->total,
                     'points' => $calcOperation->purchase->points,
                     'cash' => $calcOperation->purchase->cash
                 )
@@ -37,10 +31,10 @@ class Bonus {
         return $calcOperation;
     }
 
-    public function reward($code, $total) {
-        $client = $this->getClient($code);
+    public function reward(Request $request) {
+        $client = $this->getClient($request);
         if (isset($client->user->participant)) {
-            $points = $total * ($client->user->participant->membershipTier->rate / 100);
+            $points = $request->total * ($client->user->participant->membershipTier->rate / 100);
 
             $data = [
                 'points' => $points,
@@ -53,24 +47,21 @@ class Bonus {
         return "nothing..";
     }
 
-    public function calcCashOperation($code, $total) {
+    public function calcCashOperation(Request $request) {
         $data = [
-            'code' => $code,
+            'code' => $request->code,
             'receipt' => array(
-                'total' => $total
+                'total' => $request->total
             )
         ];
 
-        return $this->sendRequest('operations/calc', data: $data);
+        $a = $this->sendRequest('operations/calc', data: $data);
+
+        return $a;
     }
 
     private function sendRequest($endpoint, $method = 'POST', $data = null) {
-        if ($this->marketId != 15) {
-            $strAuth = config('uds.id') . ':' . config('uds.apiKey');
-        } else {
-            // для Ангарская другие параметры
-            $strAuth = config('uds.id_angarsk') . ':' . config('uds.apiKey_angarsk');
-        }
+        $strAuth = config('uds.id') . ':' . config('uds.apiKey');
 
         $date = new DateTime();
         $header = [
@@ -83,7 +74,7 @@ class Bonus {
         ];
 
         $curlOpt = [
-            CURLOPT_URL => self::UDS_BASE_URL . '/' . $endpoint,
+            CURLOPT_URL => self::UDS_BASE_URL . $endpoint,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_HEADER => false,

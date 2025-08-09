@@ -9,6 +9,7 @@ use App\Http\Controllers\Publical\CartController;
 use App\Http\Controllers\Publical\PageController;
 use App\Http\Controllers\Publical\CatalogController;
 use App\Http\Controllers\Publical\OrderController;
+use App\Services\UDS\Bonus;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +26,7 @@ use App\Http\Controllers\Publical\OrderController;
 
 Route::post('/cities/set/{city_id}', [CitiesController::class, 'setCity'])->name('cities.set');
 Route::post('/cities/{name}', [CitiesController::class, 'filter'])->name('cities.filter');
-Route::post('cities/',fn () => response()->json(['data' => City::active()->get()]))->name('cities.all');
+Route::post('cities/', fn() => response()->json(['data' => City::active()->get()]))->name('cities.all');
 
 
 Route::post('search', [CatalogController::class, 'searchFast'])->name('search.get');
@@ -52,7 +53,7 @@ Route::group(
 
 
 Route::middleware('logs')->get('/info', function (Request $request) {
-    $version = DB::select( DB::raw("select version()"));
+    $version = DB::select(DB::raw("select version()"));
 
     return [
         'versions' => [
