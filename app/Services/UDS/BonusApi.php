@@ -34,14 +34,17 @@ class BonusApi {
     public function reward(Request $request) {
         $client = $this->getClient($request);
         if (isset($client->user->participant)) {
-            $points = $request->total * ($client->user->participant->membershipTier->rate / 100);
+            $points = number_format($request->total * ($client->user->participant->membershipTier->rate / 100), 2, '.', '');
 
             $data = [
                 'points' => $points,
                 'participants' => [$client->user->participant->id]
             ];
 
-            return $this->sendRequest('operations/reward', data: $data);
+            return response()->json([
+                $this->sendRequest('operations/reward', data: $data),
+                'points_rewarded' => $points
+            ]);
         }
 
         return "nothing..";
@@ -55,9 +58,7 @@ class BonusApi {
             )
         ];
 
-        $a = $this->sendRequest('operations/calc', data: $data);
-
-        return $a;
+        return $this->sendRequest('operations/calc', data: $data);
     }
 
     private function sendRequest($endpoint, $method = 'POST', $data = null) {
