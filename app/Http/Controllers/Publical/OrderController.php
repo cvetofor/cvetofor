@@ -266,7 +266,7 @@ class OrderController extends Controller {
             $orderRequest['delivery_date'] = (new \DateTime($orderRequest['delivery_date']))->format('Y-m-d H:i:s');
             // --- UDS: если были списаны баллы, используем новую сумму и записываем баллы ---
             if (session('uds_points_used') && session('uds_points_amount') && session('uds_new_total')) {
-                $orderRequest['total_price'] = session('uds_new_total');
+                $orderRequest['total_price'] = \Cart::getTotal() + $totalDeliveryPrice - session('uds_points_amount');
                 $orderRequest['uds_points'] = session('uds_points_amount');
                 $orderRequest['uds_code'] = session('uds_code');
             } else {

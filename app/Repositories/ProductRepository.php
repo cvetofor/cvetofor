@@ -203,10 +203,6 @@ class ProductRepository extends ModuleRepository {
             }
         }
 
-
-        \Log::channel('marketplace')->info('DEBUG', [$product]);
-
-
         // Если это SKU (цвет), то при активации/деактивации меняем статус всех связанных букетов
         if ($product->parent) {
             // Для каждого букета проверяем, что все цветки с нужным цветом доступны
