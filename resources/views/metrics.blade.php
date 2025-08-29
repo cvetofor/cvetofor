@@ -21,6 +21,7 @@
             trackLinks: true,
             accurateTrackBounce: true,
             webvisor: true,
+            trackHash: true,
             ecommerce: "dataLayer"
         });
     </script>
@@ -29,8 +30,6 @@
         </div>
     </noscript>
     <!-- /Yandex.Metrika counter -->
-
-
 
     <!-- Top.Mail.Ru counter -->
     <script type="text/javascript">
