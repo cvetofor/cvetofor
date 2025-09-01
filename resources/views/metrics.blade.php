@@ -68,4 +68,43 @@
 (function(w,d,n,c){w.CalltouchDataObject=n;w[n]=function(){w[n]["callbacks"].push(arguments)};if(!w[n]["callbacks"]){w[n]["callbacks"]=[]}w[n]["loaded"]=false;if(typeof c!=="object"){c=[c]}w[n]["counters"]=c;for(var i=0;i<c.length;i+=1){p(c[i])}function p(cId){var a=d.getElementsByTagName("script")[0],s=d.createElement("script"),i=function(){a.parentNode.insertBefore(s,a)},m=typeof Array.prototype.find === 'function',n=m?"init-min.js":"init.js";s.async=true;s.src="https://mod.calltouch.ru/"+n+"?id="+cId;if(w.opera=="[object Opera]"){d.addEventListener("DOMContentLoaded",i,false)}else{i()}}})(window,document,"ct","m80otpet");
 </script>
 <!-- calltouch -->
+<!-- calltouch request -->
+<script>
+    Element.prototype.matches || (Element.prototype.matches = Element.prototype.matchesSelector || Element.prototype.webkitMatchesSelector || Element.prototype.mozMatchesSelector || Element.prototype.msMatchesSelector), Element.prototype.closest || (Element.prototype.closest = function (e) { for (var t = this; t;) { if (t.matches(e)) return t; t = t.parentElement } return null });
+    var ct_get_val = function (form, selector) { if (!!form.querySelector(selector)) { return form.querySelector(selector).value; } else { return ''; } }
+    document.addEventListener('mousedown', function (e) { CalltouchRequest(e) });
+    document.addEventListener('touchend', function (e) { CalltouchRequest(e) });
+    function CalltouchRequest(e) {
+        var t_el = e.target;
+        if (t_el.closest('form [type="submit"], form button[data-form-button]')) {
+            try {
+                var form = t_el.closest('form');
+                var fio = ct_get_val(form, 'input[name="fio"]');
+                var phoneNumber = ct_get_val(form, 'input[name="phone"]');
+                var email = ct_get_val(form, 'input[name*="mail"]');
+                var comment = ct_get_val(form, 'input[name="comment"]');
+                var ct_site_id = window.ct('calltracking_params', 'm80otpet').siteId;
+                var subject = 'Заявка с ' + location.hostname;
+                var ct_data = {
+                    fio: fio,
+                    phoneNumber: phoneNumber,
+                    email: email,
+                    comment: comment,
+                    subject: subject,
+                    requestUrl: location.href,
+                    sessionId: window.ct('calltracking_params', 'm80otpet').sessionId
+                };
+                var post_data = Object.keys(ct_data).reduce(function (a, k) { if (!!ct_data[k]) { a.push(k + '=' + encodeURIComponent(ct_data[k])); } return a }, []).join('&');
+                var CT_URL = 'https://api.calltouch.ru/calls-service/RestAPI/requests/' + ct_site_id + '/register/';
+                if ((!!phoneNumber || !!email) && !window.ct_snd_flag) {
+                    window.ct_snd_flag = 1; setTimeout(function () { window.ct_snd_flag = 0; }, 30000);
+                    var request = window.ActiveXObject ? new ActiveXObject("Microsoft.XMLHTTP") : new XMLHttpRequest();
+                    request.open("POST", CT_URL, true); request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    request.send(post_data);
+                }
+            } catch (e) { console.log(e); }
+        }
+    }
+</script>
+<!-- calltouch request -->
 @endif
