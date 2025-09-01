@@ -84,7 +84,7 @@
                 var email = ct_get_val(form, 'input[name*="mail"]');
                 var comment = ct_get_val(form, 'input[name="comment"]');
                 var ct_site_id = window.ct('calltracking_params', 'm80otpet').siteId;
-                var subject = 'Заявка с ' + location.hostname;
+                var subject = 'Заявка с цветофор.рф';
                 var ct_data = {
                     fio: fio,
                     phoneNumber: phoneNumber,
