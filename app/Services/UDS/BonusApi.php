@@ -4,6 +4,7 @@ namespace App\Services\UDS;
 
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class BonusApi {
     private const UDS_BASE_URL = 'https://api.uds.app/partner/v2/';
@@ -32,22 +33,17 @@ class BonusApi {
     }
 
     public function reward(Request $request) {
-        $client = $this->getClient($request);
-        if (isset($client->user->participant)) {
-            $points = number_format($request->total * ($client->user->participant->membershipTier->rate / 100), 2, '.', '');
+        $data = [
+            'code' => $request->code,
+            'nonce' => (string) Str::uuid(),
+            'receipt' => array(
+                'total' => $request->total,
+                'points' => 0,
+                'cash' => $request->total
+            )
+        ];
 
-            $data = [
-                'points' => $points,
-                'participants' => [$client->user->participant->id]
-            ];
-
-            return response()->json([
-                $this->sendRequest('operations/reward', data: $data),
-                'points_rewarded' => $points
-            ]);
-        }
-
-        return "nothing..";
+        return $this->sendRequest('operations', data: $data);
     }
 
     public function calcCashOperation(Request $request) {
