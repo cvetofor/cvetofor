@@ -19,10 +19,15 @@ class BonusApi {
         if (isset($calcOperation->purchase)) {
             $data = [
                 'code' => $request->code,
+                'cashier' => [
+                    'externalId' => 'AmoCRM',
+                    'name' => 'Интеграция с AmoCRM'
+                ],
                 'receipt' => array(
                     'total' => $request->total,
                     'points' => $calcOperation->purchase->points,
-                    'cash' => $calcOperation->purchase->cash
+                    'cash' => $calcOperation->purchase->cash,
+                    'number' => $request->lead_id
                 )
             ];
 
@@ -36,11 +41,16 @@ class BonusApi {
         $data = [
             'code' => $request->code,
             'nonce' => (string) Str::uuid(),
-            'receipt' => array(
+            'cashier' => [
+                'externalId' => 'AmoCRM',
+                'name' => 'Интеграция с AmoCRM'
+            ],
+            'receipt' => [
                 'total' => $request->total,
                 'points' => 0,
-                'cash' => $request->total
-            )
+                'cash' => $request->total,
+                'number' => $request->lead_id
+            ]
         ];
 
         return $this->sendRequest('operations', data: $data);
