@@ -15,7 +15,8 @@ class CreatePaymentsTables extends Migration
             $table->integer('position')->unsigned()->nullable();
             $table->string('name', 200)->nullable();
             $table->string('code', 200)->nullable();
-
+            $table->integer('tax_system_code')->nullable();
+            $table->string('vat' )->nullable();
             // add those 2 columns to enable publication timeframe fields (you can use publish_start_date only if you don't need to provide the ability to specify an end date)
             // $table->timestamp('publish_start_date')->nullable();
             // $table->timestamp('publish_end_date')->nullable();
