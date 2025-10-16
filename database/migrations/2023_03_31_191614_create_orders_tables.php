@@ -51,6 +51,8 @@ class CreateOrdersTables extends Migration
             $table->string('person_receiving_phone', 50)->nullable(); //
             $table->string('payment_link', 1000)->nullable(); //
             $table->json('cart')->nullable();
+            $table->decimal('uds_points', 50)->nullable(); //
+            $table->string('uds_code')->nullable(); //
             $table->nestedSet();
         });
 
