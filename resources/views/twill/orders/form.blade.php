@@ -162,9 +162,18 @@
 
         @if(isset($item->uds_points))
             <x-twill::input name="uds_points" type="number" prefix="₽ " label="Скидка UDS" :disabled="true" />
-        @endif 
+        @endif
 
-        @if (isset($item['meta']['basePrice']) && $item['meta']['basePrice'] > 0)
+        @if(isset($item->promocode_points))
+            <x-twill::input name="promocode_points" type="number" prefix="₽ " label="Скидка Промокода" :disabled="true" />
+        @endif
+
+        @if(isset($item->promocode))
+
+            <x-twill::input name="promocodevalue" type="text" label="Промокод" :disabled="true" />
+        @endif
+
+    @if (isset($item['meta']['basePrice']) && $item['meta']['basePrice'] > 0)
             <x-twill::input name="marketplace_comission" prefix="₽ " type="number" label="Комиссия ресурса"
                 :disabled="true" />
         @endif

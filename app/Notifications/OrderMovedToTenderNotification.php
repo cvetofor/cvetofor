@@ -32,7 +32,7 @@ class OrderMovedToTenderNotification extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
-     * @param  mixed  $notifiable
+     * @param mixed $notifiable
      * @return array
      */
     public function via($notifiable)
@@ -43,7 +43,7 @@ class OrderMovedToTenderNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      *
-     * @param  mixed  $notifiable
+     * @param mixed $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
@@ -63,20 +63,22 @@ class OrderMovedToTenderNotification extends Notification implements ShouldQueue
         foreach ($ch as $child) {
             $deliveryPrice += $child->delivery->price;
         }
+        try {
+            return (new MailMessage)
+                ->subject('Новый заказ № ' . $this->order->num_order . ' в Тендеры Цветофор.рф')
+                ->greeting('Здравствуйте Коллеги!')
+                ->line('У нас освободился новый заказ № ' . $this->order->num_order . '')
+                ->line('Давайте посмотрим, что заказали и контактные данные: ')
+                ->markdown('emails.market.order.tender', compact('order', 'deliveryPrice'));
+        } catch (\Exception $e) {
 
-        return (new MailMessage)
-
-            ->subject('Новый заказ № '.$this->order->num_order.' в Тендеры Цветофор.рф')
-            ->greeting('Здравствуйте Коллеги!')
-            ->line('У нас освободился новый заказ № '.$this->order->num_order.'')
-            ->line('Давайте посмотрим, что заказали и контактные данные: ')
-            ->markdown('emails.market.order.tender', compact('order', 'deliveryPrice'));
+        }
     }
 
     /**
      * Get the array representation of the notification.
      *
-     * @param  mixed  $notifiable
+     * @param mixed $notifiable
      * @return array
      */
     public function toArray($notifiable)

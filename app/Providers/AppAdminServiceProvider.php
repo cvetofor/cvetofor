@@ -136,6 +136,9 @@ class AppAdminServiceProvider extends ServiceProvider {
                 ->setChildren(
                     [
                         NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'promocods'))
+                            ->forModule('promocods')->title('Промокоды'),
+                        NavigationLink::make()
                             ->onlyWhen(fn() => \Auth::user()->can('view-module', 'pages'))
                             ->forModule('pages')->doNotAddSelfAsFirstChild()->title('Страницы'),
 

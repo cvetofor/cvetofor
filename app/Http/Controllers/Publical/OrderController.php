@@ -15,6 +15,7 @@ use App\Models\OrderStatus;
 use App\Models\Payment;
 use App\Models\PaymentStatus;
 use App\Models\ProductPrice;
+use App\Models\Promocod;
 use App\Models\User;
 use App\Services\CitiesService;
 use App\Services\Defenders\ProductPriceDefender;
@@ -25,12 +26,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-class OrderController extends Controller {
-    public function index(ProductPriceDefender $productPriceDefender) {
+class OrderController extends Controller
+{
+    public function index(ProductPriceDefender $productPriceDefender)
+    {
 
         $cart = $productPriceDefender->checkRottenProducts(\Cart::getContent(), $canGoToNext);
 
-        if (\Cart::isEmpty() || ! $canGoToNext) {
+        if (\Cart::isEmpty() || !$canGoToNext) {
             return redirect()->route('cart.index');
         }
 
@@ -53,6 +56,7 @@ class OrderController extends Controller {
         $payments = Payment::published()->orderBy('position')->get();
 
         $deliveryTimes = Market::getDeliveryTime($markets);
+        session()->forget(['promocode_used', 'promocod_id', 'promocod_used_amount', 'promocod__new_total', 'promocod__old_total', 'promocod__delivery']);
 
         return view(
             'order',
@@ -69,7 +73,8 @@ class OrderController extends Controller {
         );
     }
 
-    public function pay(Order $order) {
+    public function pay(Order $order)
+    {
         if ($order->payment_link) {
             return redirect()->to($order->payment_link);
         }
@@ -84,15 +89,16 @@ class OrderController extends Controller {
         return back();
     }
 
-    public function paymentShortLink(int $order_num) {
+    public function paymentShortLink(int $order_num)
+    {
 
-        if (! $order_num) {
+        if (!$order_num) {
             abort(404);
         }
 
         $order = Order::where('num_order', $order_num)->where('parent_id', null)->first();
 
-        if (! $order) {
+        if (!$order) {
             abort(404);
         }
 
@@ -117,14 +123,16 @@ class OrderController extends Controller {
         return redirect()->to($payment_link);
     }
 
-    public function show(Order $order) {
+    public function show(Order $order)
+    {
         SEOTools::setTitle('Заказ №' . $order->id);
         SEOTools::metatags()->setRobots('noindex, nofollow');
 
         return view('order.show', compact('order'));
     }
 
-    private function addToCartPostcardItem($price, $market_id) {
+    private function addToCartPostcardItem($price, $market_id)
+    {
         if (\Cart::has(md5('Открытка_' . $market_id))) {
             \Cart::update(md5('Открытка_' . $market_id), [
                 'quantity' => [
@@ -148,7 +156,9 @@ class OrderController extends Controller {
         }
     }
 
-    public function create(OrderRequest $orderRequest, ProductPriceDefender $productPriceDefender, PriceService $priceService) {
+    public function create(OrderRequest $orderRequest, ProductPriceDefender $productPriceDefender, PriceService $priceService)
+    {
+
         // Проверить текущий город с городами магазина  /  смысл есть, адреса может не быть.
         // Проверить радиусы доставки +
         // Проверить даты доставки +
@@ -158,7 +168,7 @@ class OrderController extends Controller {
         $meta['meta']['basePrice'] = 0;
         $meta['meta']['comissions'] = [];
 
-        if (\Cart::isEmpty() || ! $canGoToNext) {
+        if (\Cart::isEmpty() || !$canGoToNext) {
             return redirect()->route('cart.index');
         }
 
@@ -192,10 +202,10 @@ class OrderController extends Controller {
                     $categoryStartDate = \Carbon\Carbon::parse($category->limit_start_date);
                     $categoryEndDate = \Carbon\Carbon::parse($category->limit_end_date);
 
-                    if (! $minStartDate || $categoryStartDate->gt($minStartDate)) {
+                    if (!$minStartDate || $categoryStartDate->gt($minStartDate)) {
                         $minStartDate = $categoryStartDate;
                     }
-                    if (! $maxEndDate || $categoryEndDate->lt($maxEndDate)) {
+                    if (!$maxEndDate || $categoryEndDate->lt($maxEndDate)) {
                         $maxEndDate = $categoryEndDate;
                     }
                 }
@@ -205,10 +215,10 @@ class OrderController extends Controller {
                         $tagStartDate = \Carbon\Carbon::parse($tag->limit_start_date);
                         $tagEndDate = \Carbon\Carbon::parse($tag->limit_end_date);
 
-                        if (! $minStartDate || $tagStartDate->gt($minStartDate)) {
+                        if (!$minStartDate || $tagStartDate->gt($minStartDate)) {
                             $minStartDate = $tagStartDate;
                         }
-                        if (! $maxEndDate || $tagEndDate->lt($maxEndDate)) {
+                        if (!$maxEndDate || $tagEndDate->lt($maxEndDate)) {
                             $maxEndDate = $tagEndDate;
                         }
                     }
@@ -236,7 +246,7 @@ class OrderController extends Controller {
 
         if ($orderRequest->checkRadius($markets)) {
             return response()->json($orderRequest->checkRadius($markets), 400);
-        } elseif (! $orderRequest->has('coordinates')) {
+        } elseif (!$orderRequest->has('coordinates')) {
             foreach ($markets as $market) {
                 if ($market->city->id !== CitiesService::getCity()->id) {
                     return response()->json([
@@ -264,17 +274,45 @@ class OrderController extends Controller {
 
             $user = auth()->check() ? auth()->user() : $this->findOrCreateUser($orderRequest);
             $orderRequest['delivery_date'] = (new \DateTime($orderRequest['delivery_date']))->format('Y-m-d H:i:s');
+
+
+            $has_promocode=false;
+            $has_promocode_delivery=false;
+            if (session('promocode_used') && session('promocod_used_amount') && session('promocod__new_total')&& !session('uds_points_used') ) {
+                $promo=Promocod::find(session('promocod_id'));
+                if($promo) {
+                    if (in_array($promo->type_sale, [2, 3, 4])) {
+                        $totalDeliveryPrice = $totalDeliveryPrice - session('promocod_used_amount');
+                        if ($totalDeliveryPrice < 0) {
+                            $totalDeliveryPrice = 0;
+                        }
+                        $orderRequest['total_price'] = \Cart::getTotal() + $totalDeliveryPrice ;
+                        $has_promocode_delivery=true;
+                    }else{
+                        $orderRequest['total_price'] = \Cart::getTotal() + $totalDeliveryPrice - session('promocod_used_amount');
+                    }
+
+                    $orderRequest['promocode_points'] = session('promocod_used_amount');
+                    $orderRequest['promocod_id'] = session('promocod_id');
+
+                    $has_promocode = true;
+                }
+            }
+
+
             // --- UDS: если были списаны баллы, используем новую сумму и записываем баллы ---
-            if (session('uds_points_used') && session('uds_points_amount') && session('uds_new_total')) {
+            if (!session('promocode_used') && session('uds_points_used') && session('uds_points_amount') && session('uds_new_total')) {
                 $orderRequest['total_price'] = \Cart::getTotal() + $totalDeliveryPrice - session('uds_points_amount');
                 $orderRequest['uds_points'] = session('uds_points_amount');
                 $orderRequest['uds_code'] = session('uds_code');
             } else {
-                if (session('uds_code')) {
-                    $orderRequest['uds_code'] = session('uds_code');
-                }
+                if($has_promocode==false) {
+                    if (session('uds_code')) {
+                        $orderRequest['uds_code'] = session('uds_code');
+                    }
 
-                $orderRequest['total_price'] = \Cart::getTotal() + $totalDeliveryPrice;
+                    $orderRequest['total_price'] = \Cart::getTotal() + $totalDeliveryPrice;
+                }
             }
             $meta['meta']['basePrice'] = 0;
 
@@ -306,7 +344,7 @@ class OrderController extends Controller {
             $orderRequest['cart'] = $arrCart;
 
             $orderRequest['name'] = $orderRequest['fio'];
-            $orderRequest['uuid'] = (string) \Str::uuid();
+            $orderRequest['uuid'] = (string)\Str::uuid();
 
             $orderRequest['payment_status_id'] = PaymentStatus::where('code', 'WA')->orWhere('title', 'Ожидает оплаты')->first()?->id ?? null;
             // $orderRequest['delivery_status_id'] = DeliveryStatus::where('code', 'UD')->orWhere('title', 'Не доставлен')->first()->id;
@@ -395,13 +433,20 @@ class OrderController extends Controller {
                 }
                 $orderRequest['cart'] = $arrCart;
 
-                $orderRequest['uuid'] = (string) \Str::uuid();
+                $orderRequest['uuid'] = (string)\Str::uuid();
                 $orderRequest['source'] = $botName;
+               ;
                 $marketOrder = Order::create(array_merge($orderRequest->toArray(), $meta));
 
                 $marketObject = Market::find($market->first()->associatedModel->market?->id);
 
-                \Log::channel('marketplace')->info('Стоимость доставки', [$marketObject->toArray(), $marketObject?->delivery_price]);
+
+                if($has_promocode_delivery){
+                  $deliveryTotal=$totalDeliveryPrice;
+                }else{
+                    $deliveryTotal=$marketObject?->delivery_price??0;
+                }
+                \Log::channel('marketplace')->info('Стоимость доставки', [$marketObject->toArray(), $deliveryTotal]);
 
                 Delivery::create([
                     'published' => true,
@@ -409,7 +454,7 @@ class OrderController extends Controller {
                     'order_id' => $marketOrder->id,
                     'address' => $orderRequest['address'],
                     'km' => 0.0,
-                    'price' => (float) $marketObject?->delivery_price ?? 0,
+                    'price' => (float)$deliveryTotal ?? 0,
                 ]);
             }
             \Cart::clear();
@@ -433,7 +478,8 @@ class OrderController extends Controller {
 
             \App\Jobs\SendOrderReminder::dispatch($order->id)->delay(now()->addMinutes(10));
             \session()->forget('order_delivery_radius_km');
-            \session()->forget(['uds_points_used', 'uds_points_amount', 'uds_new_total', 'uds_old_total', 'uds_points', 'uds_code']);
+            \session()->forget(['uds_points_used', 'uds_points_amount', 'uds_new_total', 'uds_old_total', 'uds_points', 'uds_code','promocode_used', 'promocod_id', 'promocod_used_amount', 'promocod__new_total', 'promocod__old_total', 'promocod__delivery']);
+
             return response()->json([
                 'redirect' => $redirect,
             ]);
@@ -447,7 +493,8 @@ class OrderController extends Controller {
         return back();
     }
 
-    public function pdf(Order $order) {
+    public function pdf(Order $order)
+    {
         $order->load('legalAccount');
         $ch = $order->childs;
         $deliveryPrice = 0.0;
@@ -500,13 +547,14 @@ class OrderController extends Controller {
      * POST
      * Проверка радиуса доставки при выборе адреса
      */
-    public function deliveryRadius(Request $request) {
+    public function deliveryRadius(Request $request)
+    {
 
         $deliveryPricesResult = [];
         $deliveryPricesResult['totalDeliveryPrice'] = 0;
         @[$lat, $long] = $request['coordinates'];
 
-        if (! isset($lat) || ! isset($long) || ! $lat || ! $long) {
+        if (!isset($lat) || !isset($long) || !$lat || !$long) {
             session()->put('order_delivery_radius_km', -1);
         }
 
@@ -567,7 +615,8 @@ class OrderController extends Controller {
         return $deliveryPricesResult;
     }
 
-    protected function findOrCreateUser(OrderRequest $data) {
+    protected function findOrCreateUser(OrderRequest $data)
+    {
 
         if ($data->filled('email2')) {
             $user = User::where('email', $data['email2'])->first();

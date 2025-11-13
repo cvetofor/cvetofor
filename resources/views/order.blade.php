@@ -285,12 +285,12 @@
                                                 @if ($totalDeliveryPrice)
                                                     <div class="cart__summary-item">
                                                         <span>Доставка</span>
-                                                        <span data-delivery-price="true">@money($totalDeliveryPrice) р.</span>
+                                                        <span data-delivery-price="true" class="fordeliveryprice">@money($totalDeliveryPrice) р.</span>
                                                     </div>
                                                 @else
                                                     <div class="cart__summary-item">
                                                         <span>Доставка</span>
-                                                        <span data-delivery-price="true">0 р.</span>
+                                                        <span data-delivery-price="true" class="fordeliveryprice">0 р.</span>
                                                     </div>
                                                 @endif
 
@@ -300,9 +300,9 @@
                                                 @endif
 
                                             </div>
-                                            <div class="cart__summary-bottom"> 
+                                            <div class="cart__summary-bottom">
                                                 @if(!(session('uds_points_used') && session('uds_old_total') && session('uds_new_total')))
-                                                    <div class="cart__summary-heading"> 
+                                                    <div class="cart__summary-heading">
                                                         <div class="uds-promo-label-wrap">
                                                             <label class="inputholder__label" data-default-label="data-default-label">Введите код из UDS</label>
                                                             <div class="tippy-toggler" data-tippy="data-tippy" data-tippy-placement="top-start" data-tippy-content='Ваш код скидки пишется под вашим QR-кодом, набор из 6 цифр.<br><br>Получите 500 рублей на первую покупку, переходите по ссылке <a href="https://opt03.uds.app/c" target="_blank" rel="noopener" style="color:#ca4592">opt03.uds.app/c</a>' data-tippy-allowHTML="true" data-tippy-trigger="">
@@ -332,10 +332,33 @@
                                                     <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() + $totalDeliveryPrice) р.</span>
                                                 @endif
                                             </div>
+                                            @if(!session('use_promocode'))
+                                                <div class="cart__summary-bottom">
+
+                                                    <div class="cart__summary-heading">
+                                                        <div class="uds-promo-label-wrap">
+                                                            <label class="inputholder__label" data-default-label="data-default-label">Введите  промокод</label>
+                                                            <div class="tippy-toggler" data-tippy="data-tippy" data-tippy-placement="top-start" data-tippy-content='Введите ваш код и нажмите на кнопку «применить»"' data-tippy-allowHTML="true" data-tippy-trigger="">
+                                                                <svg>
+                                                                    <use href="#icon-tooltip">
+                                                                    </use>
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                        <input class="inputholder__input" name="promocode" type="text"    placeholder="Промокод">
+                                                        <div class="buttonholder" data-form-trigger="">
+                                                            <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">
+                                                                <span>Применить</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
-                            </div>                            
+                            </div>
                             <div class="section">
                                 <h2>Способ оплаты</h2>
                                 <div class="box">
@@ -444,12 +467,12 @@
                                     @if ($totalDeliveryPrice)
                                         <div class="cart__summary-item">
                                             <span>Доставка</span>
-                                            <span data-delivery-price="true">@money($totalDeliveryPrice) р.</span>
+                                            <span data-delivery-price="true" class="fordeliveryprice">@money($totalDeliveryPrice) р.</span>
                                         </div>
                                     @else
                                         <div class="cart__summary-item">
                                             <span>Доставка</span>
-                                            <span data-delivery-price="true">0 р.</span>
+                                            <span data-delivery-price="true" class="fordeliveryprice">0 р.</span>
                                         </div>
                                     @endif
 
@@ -459,9 +482,9 @@
                                     @endif
 
                                 </div>
-                                <div class="cart__summary-bottom"> 
+                                <div class="cart__summary-bottom">
                                     @if(!(session('uds_points_used') && session('uds_old_total') && session('uds_new_total')))
-                                        <div class="cart__summary-heading"> 
+                                        <div class="cart__summary-heading">
                                             <div class="uds-promo-label-wrap">
                                                 <label class="inputholder__label" data-default-label="data-default-label">Введите код из UDS</label>
                                                 <div class="tippy-toggler" data-tippy="data-tippy" data-tippy-placement="top-start" data-tippy-content='Ваш код скидки пишется под вашим QR-кодом, набор из 6 цифр.<br><br>Получите 500 рублей на первую покупку, переходите по ссылке <a href="https://opt03.uds.app/c" target="_blank" rel="noopener" style="color:#ca4592">opt03.uds.app/c</a>' data-tippy-allowHTML="true" data-tippy-trigger="">
@@ -479,6 +502,31 @@
                                             </div>
                                         </div>
                                     @endif
+                                </div>
+                                @if(!session('use_promocode'))
+                                <div class="cart__summary-bottom">
+
+                                            <div class="cart__summary-heading">
+                                                <div class="uds-promo-label-wrap">
+                                                    <label class="inputholder__label" data-default-label="data-default-label">Введите  промокод</label>
+                                                    <div class="tippy-toggler" data-tippy="data-tippy" data-tippy-placement="top-start" data-tippy-content='Введите ваш код и нажмите на кнопку «применить»"' data-tippy-allowHTML="true" data-tippy-trigger="">
+                                                        <svg>
+                                                            <use href="#icon-tooltip">
+                                                            </use>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <input class="inputholder__input" name="promocode" type="text"    placeholder="Промокод">
+                                                <div class="buttonholder" data-form-trigger="">
+                                                    <button type="submit" class="form__button button button--green submit-button" data-form-button="" style="width: 100%;">
+                                                        <span>Применить</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                </div>
+                                @endif
+
                                     @if(session('uds_points_used') && session('uds_old_total') && session('uds_new_total'))
                                         <span class="cart__summary-total" data-total="{{ session('uds_new_total') }}">
                                             <button type="button" class="button button--purple uds-reset-bonuses" style="margin-bottom:10px;display:block;width:100%;">Отменить списание бонусов</button>
@@ -496,7 +544,7 @@
                     </div>
                 </div>
             </div>
-        </div> 
+        </div>
         @if($citiesService::getCity()->id === 98)
             {{-- Улан-Удэ --}}
             @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'whatsapp' => 'https://wa.me/79676202220'])
@@ -595,17 +643,23 @@
 
         // UDS AJAX check
         const udsInput = $('.cart__summary-heading:visible').find('input[name="uds_promo"]');
+        const promoInput = $('.cart__summary-heading:visible').find('input[name="promocode"]');
         const udsButton = udsInput.closest('.cart__summary-heading').find('button[data-form-button]');
+        const promoButton = promoInput.closest('.cart__summary-heading').find('button[data-form-button]');
         // Добавим контейнер для вывода результата, если его нет
         if (!udsInput.next('.uds-check-result').length) {
             udsInput.after('<div class="uds-check-result" style="margin-top:8px;font-size:0.95em;"></div>');
         }
+        if (!promoInput.next('.promocode-check-result').length) {
+            promoInput.after('<div class="promocode-check-result" style="margin-top:8px;font-size:0.95em;"></div>');
+        }
         const udsResult = udsInput.next('.uds-check-result');
+        const promocodeResult = promoInput.next('.promocode-check-result');
 
         function renderUdsActions(points, promo) {
             const spendButton = points > 0 ? `<button type="button" class="button button--green uds-spend" data-promo="${promo}" data-points="${points}">Списать</button>` : '';
             const buttonClass = points > 0 ? '' : 'button--full-width';
-            
+
             return `
                 <div class="uds-action-buttons">
                     ${spendButton}
@@ -753,6 +807,60 @@
                 }
             });
         });
+
+
+        //Промокоды
+        promoButton.on('click', function(e) {
+            e.preventDefault();
+            udsResult.text('');
+            const promo = promoInput.val().trim();
+            promoButton.prop('disabled', true).text('Проверяем...');
+            $.ajax({
+                url: '/promocode/check',
+                method: 'POST',
+                data: {
+                    promocode: promo,
+                    total: $('.cart__summary-total').attr('data-total'),
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(resp) {
+                    if (resp.success) {
+
+
+
+                    promocodeResult.html('<span style="color:#71be38;">' + (resp.message || 'Промокод применен!') + '</span>');
+                            // Мгновенно обновляем блок "Итого"
+                            const totalBlock = $('.cart__summary-total');
+                            if (totalBlock.length && resp.oldTotal !== undefined && resp.newTotal !== undefined) {
+                                totalBlock.html( '<span>Итого: <span style="text-decoration:line-through;color:#888;">' +
+                                    new Intl.NumberFormat('ru-RU').format(resp.oldTotal) + ' р.</span> &rarr; <span style="color:#71be38;font-weight:bold;">' +
+                                    new Intl.NumberFormat('ru-RU').format(resp.newTotal) + ' р.</span></span>'
+                                );
+                                totalBlock.attr('data-total', resp.newTotal);
+                            }
+                            // Скрываем промо-блок
+                        promocodeResult.closest('.cart__summary-bottom').hide();
+                        udsResult.closest('.cart__summary-heading').hide();
+                        $('.fordeliveryprice').html(resp.delivery+' р.')
+
+                        promocodeResult.html('');
+
+
+                    } else {
+                        promocodeResult.html('<span style="color:red;">' + (resp.message || 'Ошибка проверки') + '</span>');
+                    }
+                },
+                error: function() {
+                    promocodeResult.html('<span style="color:red;">Ошибка соединения с сервером</span>');
+                },
+                complete: function() {
+                    promoButton.prop('disabled', false).text('Применить');
+                }
+            });
+        });
+
+
+
     </script>
 @endpush
 
@@ -781,6 +889,11 @@
             display: block;
             margin-top: 10px;
         }
+        .promocode-check-result {
+            width: 100%;
+            display: block;
+            margin-top: 10px;
+        }
         .uds-action-buttons {
             display: flex;
             gap: 10px;
@@ -802,47 +915,47 @@
         .uds-promo-label-wrap .tippy-toggler {
             margin: 0;
         }
-        
+
         /* Фиксированная высота для элементов даты и времени */
         .date-time-row {
             display: flex;
             gap: 30px;
             align-items: flex-end;
         }
-        
+
         .date-time-row .inputholder__input {
             min-height: 43.5px;
             box-sizing: border-box;
         }
-        
+
         .date-time-row .select__active {
             min-height: 43.5px;
             display: flex;
             align-items: center;
             box-sizing: border-box;
         }
-       
+
         /* Мобильная версия - переупорядочивание элементов */
         @media (max-width: 768px) {
             .date-time-row{
                 flex-direction: column;
             }
-            
+
             .date-time-row .inputholder {
                 flex: none !important;
                 width: 100% !important;
             }
- 
+
             .main-cols__wrap .container {
                 display: flex;
                 flex-direction: column;
             }
-            
+
             /* Скрываем оригинальный side-col на мобильных */
             .main-cols__wrap .side-col {
                 display: none;
             }
-            
+
             /* Показываем копию side-col для мобильных */
             .side-col-mobile {
                 display: block !important;

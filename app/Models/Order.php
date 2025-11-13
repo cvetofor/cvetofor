@@ -53,7 +53,9 @@ class Order extends Model {
         'num_order',
         'source',
         'uds_points',
-        'uds_code'
+        'uds_code',
+        'promocod_id',
+        'promocode_points'
     ];
     protected $casts = [
         'address' => 'array',
@@ -280,5 +282,14 @@ class Order extends Model {
                 'label' => $e->title,
             ];
         })->toArray();
+    }
+    public function promocode()
+    {
+        return $this->belongsTo(Promocod::class);
+    }
+    public function getPromocodeValueAttribute()
+    {
+        return $this->promocode->code ?? '';
+
     }
 }

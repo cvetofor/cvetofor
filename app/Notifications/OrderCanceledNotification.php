@@ -63,7 +63,7 @@ class OrderCanceledNotification extends Notification implements ShouldQueue
         } else {
             $deliveryPrice += $order->delivery->price;
         }
-
+try{
         return (new MailMessage)
             ->subject('Отмена заказа № '.$this->order->num_order.' с сайта Цветофор.рф')
             ->greeting('Здравствуйте!')
@@ -75,6 +75,9 @@ class OrderCanceledNotification extends Notification implements ShouldQueue
             ->with('Если данные не верны или заказ отменен без вашего согласования, напишите нам или позвоните по телефону: '.$phone)
             ->salutation('Надеемся увидеть вас снова в нашем замечательном маркет-плейсе цветов “Цветофор”.')
             ->markdown('emails.user.order.changestatus', compact('order', 'deliveryPrice'));
+}catch (\Exception $e){
+
+}
     }
 
     /**

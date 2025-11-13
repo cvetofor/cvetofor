@@ -46,7 +46,12 @@ class OrderCreatedListener
             $emails = array_map('trim', explode(',', $market_emails));
 
             foreach ($emails as $email) {
-                Notification::route('mail', $email)->notify(new OrderCreatedMarketNotification($_order));
+                try{
+                    Notification::route('mail', $email)->notify(new OrderCreatedMarketNotification($_order));
+                }catch (\Exception $e){
+
+                }
+
             }
 
             try {
