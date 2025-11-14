@@ -107,4 +107,48 @@
     }
 </script>
 <!-- calltouch request -->
+<!-- calltouch generalPixel script -->
+<script>
+ document.addEventListener('DOMContentLoaded', function() {
+        const targetButtons = {
+            'tel:': () => generalPixel.postClick('a1'),
+            'https://t.me/cvetofor_03': () => generalPixel.postClick('a2'),
+            'vk.com/cvetofor03': () => generalPixel.postClick('a3'),
+            'https://wa.me/79676202220': () => generalPixel.postClick('a4'),
+            'отправить': () => generalPixel.postClick('a5'),
+            'оплатить заказ': () => generalPixel.postClick('a7')
+            
+        }
+        document.addEventListener('click', function(e) {                                           
+            const target = e.target;
+                if(target.closest('button')){
+                    const btn = target.closest('button')
+                    try{
+                        if(btn.innerText){
+                            for(let key in targetButtons){
+                                if(btn.innerText.toLowerCase().includes(key)) {
+                                    targetButtons[key]()
+                                    return
+                                }
+                            }
+                        }
+                    }catch(e){console.log(e)}
+                }
+                if(target.closest('a')){
+                    const a = target.closest('a')
+                    try{
+                        if(a.href){
+                            for(let key in targetButtons){
+                                if(a.href.toLowerCase().includes(key)) {
+                                    targetButtons[key]()
+                                    return
+                                }
+                            }
+                        }
+                    }catch(e){console.log(e)}
+                }
+        });
+});
+</script>
+<!-- calltouch generalPixel script -->
 @endif
