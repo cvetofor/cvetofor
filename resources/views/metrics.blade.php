@@ -113,7 +113,7 @@
         const targetButtons = {
             'tel:': () => generalPixel.postClick('a1'),
             'https://t.me/cvetofor_03': () => generalPixel.postClick('a2'),
-            'https://t.me/Cvetofor_bot': () => generalPixel.postClick('a2'),
+            'https://t.me/cvetofor_bot': () => generalPixel.postClick('a2'),
             'vk.com/cvetofor03': () => generalPixel.postClick('a3'),
             'https://wa.me/79676202220': () => generalPixel.postClick('a4'),
             'отправить': () => generalPixel.postClick('a5'),
