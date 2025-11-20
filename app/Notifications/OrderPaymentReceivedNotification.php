@@ -60,12 +60,16 @@ class OrderPaymentReceivedNotification extends Notification implements ShouldQue
             $deliveryPrice += $child->delivery->price;
         }
 
+        try{
         return (new MailMessage)
             ->subject('Заказ № '.$this->order->num_order.' с сайта Цветофор.рф оплачен!')
             ->greeting('Здравствуйте!')
             ->line('Ваш заказ №'.$this->order->num_order.' оплачен')
             ->salutation('По всем вопросам вы можете звонить по телефону '.$phone.' или написать нам почту. ')
             ->markdown('emails.user.order.received', compact('order', 'deliveryPrice'));
+        }catch (\Exception $e){
+
+        }
     }
 
     /**

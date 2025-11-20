@@ -53,6 +53,7 @@ class CartController extends Controller {
                 ], 403);
             }
         }
+
         \Cart::add([
             'id' => md5($price->id),
             'name' => $price->product->title,
@@ -94,6 +95,10 @@ class CartController extends Controller {
         $id = md5(json_encode(['sku' => $price->sku, $calculated->blocks]));
 
         $totalPrice = is_numeric($request->price) ? $request->price : $calculated->total;
+
+
+        $price->category_id=$price->groupProduct->category_id??NULL;
+        $price->tags=$price->groupProduct->tags->pluck('id')->toArray()??[];
 
         \Cart::add([
             'id' => $id,

@@ -64,7 +64,7 @@ class OrderCompletedNotification extends Notification implements ShouldQueue
         } else {
             $deliveryPrice += $order->delivery->price;
         }
-
+try{
         return (new MailMessage)
             ->subject('Заказ № '.$this->order->num_order.' с сайта Цветофор.рф выполнен!')
             ->greeting('Здравствуйте!')
@@ -76,6 +76,9 @@ class OrderCompletedNotification extends Notification implements ShouldQueue
             ->with('По всем вопросам вы можете звонить по телефону '.$phone.' или написать нам почту. ')
             ->salutation('Надеемся увидеть вас снова в нашем замечательном маркет-плейсе цветов “Цветофор”.')
             ->markdown('emails.user.order.changestatus', compact('order', 'deliveryPrice'));
+}catch (\Exception $e){
+
+}
     }
 
     /**

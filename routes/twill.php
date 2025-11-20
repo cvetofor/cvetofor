@@ -95,3 +95,4 @@ TwillRoutes::module('forms');
 
 TwillRoutes::module('tags');
 TwillRoutes::module('seotags');
+TwillRoutes::module('promocods');

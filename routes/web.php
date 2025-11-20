@@ -10,6 +10,7 @@ use App\Http\Controllers\Publical\CartController;
 use App\Http\Controllers\Publical\PageController;
 use App\Http\Controllers\Publical\OrderController;
 use App\Http\Controllers\Publical\CatalogController;
+use App\Http\Controllers\Publical\PromocodeController;
 use App\Http\Controllers\Publical\ProfileController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Publical\Payments\RobokassaController;
@@ -146,6 +147,24 @@ Route::get('{slug}', [PageController::class, 'show'])->where('slug', '.*');
 
 Route::group(['prefix' => '/uds', 'as' => 'uds.'], function () {
     Route::post('/check', [UDSController::class, 'check'])->name('check');
+
+    Route::post('/create', [UDSController::class, 'create'])->name('create');
+
+    Route::post('/reward', [UDSController::class, 'reward'])->name('reward');
+
+    Route::post('/reset', [UDSController::class, 'reset'])->name('reset');
+
+    Route::group(['prefix' => '/api', 'as' => 'api.'], function () {
+        Route::post('/check', [BonusApi::class, 'calcCashOperation'])->name('check');
+
+        Route::post('/create', [BonusApi::class, 'createOperation'])->name('create');
+
+        Route::post('/reward', [BonusApi::class, 'reward'])->name('reward');
+    });
+});
+
+Route::group(['prefix' => '/promocode', 'as' => 'promocode.'], function () {
+    Route::post('/check', [PromocodeController::class, 'check'])->name('check');
 
     Route::post('/create', [UDSController::class, 'create'])->name('create');
 

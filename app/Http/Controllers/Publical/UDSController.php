@@ -7,6 +7,14 @@ use Illuminate\Http\Request;
 
 class UDSController extends Controller {
     public function check(Request $request) {
+
+        session()->forget(['promocode_used', 'promocod_id', 'promocod_used_amount', 'promocod__new_total', 'promocod__old_total','promocod__delivery']);
+        if(session()->has('promocod_used')){
+            return response()->json([
+                'success' => false,
+                'message' => 'Невозможно использовать промокод и UDS'
+            ]);
+        }
         $total = $request->input('total');
         if ($total < 1000) {
             return response()->json([

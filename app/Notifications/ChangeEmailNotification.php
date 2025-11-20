@@ -59,16 +59,20 @@ class ChangeEmailNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-            ->greeting('Здравствуйте!')
-            ->subject('Уведомление об изменении Email пользователя')
-            ->line('Ссылка для изменения Email')
-            ->action('Сменить Email', URL::temporarySignedRoute(
-                'profile.changeEmail.confirm',
-                now()->addMonth(1),
-                ['user' => $this->user->id, 'email' => $this->email]
-            ))
-            ->line('Если вы не запрашивали изменение Email адреса, просто проигнорируйте данное сообщение');
+        try {
+            return (new MailMessage)
+                ->greeting('Здравствуйте!')
+                ->subject('Уведомление об изменении Email пользователя')
+                ->line('Ссылка для изменения Email')
+                ->action('Сменить Email', URL::temporarySignedRoute(
+                    'profile.changeEmail.confirm',
+                    now()->addMonth(1),
+                    ['user' => $this->user->id, 'email' => $this->email]
+                ))
+                ->line('Если вы не запрашивали изменение Email адреса, просто проигнорируйте данное сообщение');
+        }catch (\Exception $e){
+
+        }
     }
 
     /**

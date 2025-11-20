@@ -57,11 +57,15 @@ class OrderCreatedMarketNotification extends Notification implements ShouldQueue
 
         \Log::channel('marketplace')->info('Отправлено письмо магазину о новом заказе №'.$this->order->num_order, ['deliveryPrice' => $deliveryPrice]);
 
-        return (new MailMessage)
-            ->subject('Новый заказ № '.$this->order->num_order.' с сайта Цветофор.рф')
-            ->greeting('Здравствуйте Коллеги!')
-            ->line('У нас оформленный новый заказ №'.$this->order->num_order.' ')
-            ->markdown('emails.market.order.created', compact('order', 'deliveryPrice'));
+        try {
+            return (new MailMessage)
+                ->subject('Новый заказ № ' . $this->order->num_order . ' с сайта Цветофор.рф')
+                ->greeting('Здравствуйте Коллеги!')
+                ->line('У нас оформленный новый заказ №' . $this->order->num_order . ' ')
+                ->markdown('emails.market.order.created', compact('order', 'deliveryPrice'));
+        }catch (\Exception $e){
+
+        }
     }
 
     /**

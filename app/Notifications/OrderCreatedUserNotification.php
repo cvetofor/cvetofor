@@ -61,7 +61,7 @@ class OrderCreatedUserNotification extends Notification implements ShouldQueue
         }
 
         \Log::channel('marketplace')->info('Отправлено письмо покупателю о новом заказе №'.$this->order->num_order);
-
+try{
         return (new MailMessage)
             ->subject('Новый заказ № '.$this->order->num_order.' с сайта Цветофор.рф')
             ->greeting('Здравствуйте!')
@@ -71,6 +71,9 @@ class OrderCreatedUserNotification extends Notification implements ShouldQueue
             ->line('Давайте посмотрим, что Вы заказали и сверим контактные данные: ')
             ->salutation('По всем вопросам вы можете звонить по телефону '.$phone.' или написать нам почту. ')
             ->markdown('emails.user.order.created', compact('order', 'deliveryPrice'));
+}catch (\Exception $e){
+
+}
     }
 
     /**
