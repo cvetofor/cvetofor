@@ -171,7 +171,7 @@ class PromocodeController extends Controller
                 $points = $this->getCheckMaxSale($promo, $promo->sale > $totalSummForPromocode ? $totalSummForPromocode : $promo->sale, $totalSumm);
 
             }
-            $newTotal = $newTotal - $points + $totalDeliveryPrice;
+            $newTotal = $newTotal - $points ;//+ $totalDeliveryPrice;
 
         }
 
@@ -180,7 +180,7 @@ class PromocodeController extends Controller
             'promocode_used' => true,
             'promocod_id' => $promo->id,
             'promocod_used_amount' => $points,
-            'promocod__new_total' => $newTotal,
+            'promocod__new_total' => round($newTotal),
             'promocod__old_total' => $oldTotal,
             'promocod__delivery' => $totalDeliveryPrice,
         ]);
@@ -188,7 +188,7 @@ class PromocodeController extends Controller
             'success' => true,
             'message' => 'Промокод применен',
             'oldTotal' => $oldTotal,
-            'newTotal' => $newTotal,
+            'newTotal' => round($newTotal),
             'points' => $points,
             'delivery' => $totalDeliveryPrice
         ]);
