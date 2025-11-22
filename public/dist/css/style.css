@@ -1151,6 +1151,44 @@ span.flatpickr-weekday {
     background-color: #ca4592;
   }
 }
+.button--purple--new {
+  color: #ffffff;
+  background-color: #ca4592;
+  border: 1px solid #ca4592;
+  position: relative;
+  overflow: hidden; /* чтобы блик не вылазил за кнопку */
+}
+
+/* Псевдоэлемент для блика */
+.button--purple--new::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-20deg);
+  animation: shine 3.5s infinite; /* каждые ~3.5 секунды */
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  10% {
+    left: 150%; /* быстрый проход блика */
+  }
+  100% {
+    left: 150%;
+  }
+}
+
 .button--green {
   color: #ffffff;
   background-color: #71be38;
@@ -6496,12 +6534,12 @@ span.flatpickr-weekday {
       right: 15px;
       gap: 8px;
   }
-  
+
   .social-icon {
       width: 44px;
       height: 44px;
   }
-  
+
   .social-icon img {
       width: 24px;
       height: 24px;
@@ -6514,12 +6552,12 @@ span.flatpickr-weekday {
       right: 10px;
       gap: 6px;
   }
-  
+
   .social-icon {
       width: 40px;
       height: 40px;
   }
-  
+
   .social-icon img {
       width: 22px;
       height: 22px;

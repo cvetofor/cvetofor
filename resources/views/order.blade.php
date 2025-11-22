@@ -320,18 +320,8 @@
                                                         </div>
                                                     </div>
                                                 @endif
-                                                @if(session('uds_points_used') && session('uds_old_total') && session('uds_new_total'))
-                                                    <span class="cart__summary-total" data-total="{{ session('uds_new_total') }}">
-                                                        <button type="button" class="button button--purple uds-reset-bonuses" style="margin-bottom:10px;display:block;width:100%;">Отменить списание бонусов</button>
-                                                        <span>Итого: <span style="text-decoration:line-through;color:#888;">@money(session('uds_old_total')) р.</span> &rarr; <span style="color:#71be38;font-weight:bold;">@money(session('uds_new_total')) р.</span></span>
-                                                    </span>
-                                                @else
-                                                    <span class="cart__summary-total" data-total="{{ (\Cart::getTotal() + $totalDeliveryPrice) }}">Итого: @money(\Cart::getTotal() + $totalDeliveryPrice) р.</span>
-                                                @endif
-                                                @if (\Cart::getSubTotalWithoutConditions() !== \Cart::getTotal())
-                                                    <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() + $totalDeliveryPrice) р.</span>
-                                                @endif
                                             </div>
+
                                             @if(!session('use_promocode'))
                                                 <div class="cart__summary-bottom">
 
@@ -355,6 +345,19 @@
 
                                                 </div>
                                             @endif
+                                            <div class="cart__summary-bottom">
+                                                @if(session('uds_points_used') && session('uds_old_total') && session('uds_new_total'))
+                                                    <span class="cart__summary-total" data-total="{{ session('uds_new_total') }}">
+                                                        <button type="button" class="button button--purple uds-reset-bonuses" style="margin-bottom:10px;display:block;width:100%;">Отменить списание бонусов</button>
+                                                        <span>Итого: <span style="text-decoration:line-through;color:#888;">@money(session('uds_old_total')) р.</span> &rarr; <span style="color:#71be38;font-weight:bold;">@money(session('uds_new_total')) р.</span></span>
+                                                    </span>
+                                                @else
+                                                    <span class="cart__summary-total" data-total="{{ (\Cart::getTotal() + $totalDeliveryPrice) }}">Итого: @money(\Cart::getTotal() + $totalDeliveryPrice) р.</span>
+                                                @endif
+                                                @if (\Cart::getSubTotalWithoutConditions() !== \Cart::getTotal())
+                                                    <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() + $totalDeliveryPrice) р.</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
