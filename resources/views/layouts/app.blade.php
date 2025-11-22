@@ -12,7 +12,7 @@ session()->forget('order_delivery_radius_km');
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="/dist/css/libs.css" rel="stylesheet" />
-    <link href="/dist/css/style.css" rel="stylesheet" />
+    <link href="/dist/css/style.css?v=1" rel="stylesheet" />
     {!! SEO::generate() !!}
     {{-- <link href="/dist/favicon/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" /> --}}
     <link type="image/png" href="/dist/favicon/favicon-32x32.png" rel="icon" sizes="32x32" />
@@ -351,7 +351,7 @@ session()->forget('order_delivery_radius_km');
             @endif
         @enderror
     @endauth
- 
+
     @if($citiesService::getCity()->id === 98)
         {{-- Улан-Удэ --}}
         @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'whatsapp' => 'https://wa.me/79676202220'])
