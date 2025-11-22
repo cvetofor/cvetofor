@@ -112,7 +112,7 @@
                             </div>
                             @endforeach
                             @if ($orders->hasMorePages())
-                            <a class="button button--purple show-more-button" data-load-more="" href="{{ $orders->nextPageUrl() }}">Показать еще</a>
+                            <a class="button button--purple--new show-more-button" data-load-more="" href="{{ $orders->nextPageUrl() }}">Показать еще</a>
                             @endif
                         </div>
                     </div>

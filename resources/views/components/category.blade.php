@@ -4,8 +4,7 @@
             @include('components.product', ['price' => $price, 'paginator' => $paginator])
         @endforeach
         @if($paginator->hasMorePages())
-            <a class="button button--purple show-more-button" data-load-more="" href="{{ $paginator->appends(request()->input())->nextPageUrl() }}">Показать еще</a>
+            <a class="button button--purple--new show-more-button" data-load-more="" href="{{ $paginator->appends(request()->input())->nextPageUrl() }}">Показать еще</a>
         @endif
     </div>
 @endif
-
