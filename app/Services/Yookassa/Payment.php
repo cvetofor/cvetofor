@@ -135,6 +135,7 @@ class Payment {
         if (isset(json_decode($res, true)['confirmation']['confirmation_url'])) {
             return json_decode($res, true)['confirmation']['confirmation_url'];
         } else {
+            \Log::channel('marketplace')->info('Ошибка кассы', ['orderId_link' =>$res]);
             return null;
         }
     }
