@@ -89,10 +89,10 @@ class PromocodController extends BaseModuleController
                 ])
                 ,
 
-            DatePicker::make()->name('date_start')->label('Дата начала')->withoutTime(true)  ->required(true),
-            DatePicker::make()->name('date_end')->label('Дата окончания') ->withoutTime(true)  ->required(true),
+            DatePicker::make()->name('date_start')->label('Дата начала')->withoutTime(true)  ->required(true),//повтор дата
+            DatePicker::make()->name('date_end')->label('Дата окончания') ->withoutTime(true)  ->required(true),//повтор дата
 
-            Input::make()->name('total_limit')->label('Общий лимит')->type('number')  ->required(true),
+            Input::make()->name('total_limit')->label('Общий лимит')->type('number')  ->required(true),//повтор дата
           //  Input::make()->name('client_limit')->label('Лимит на клиента')->type('number'),
             Input::make()->name('minimal_sum_cart')->label('Минимальная сумма корзины')->type('number'),
 
