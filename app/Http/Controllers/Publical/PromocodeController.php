@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Market;
 use App\Models\Order;
 use App\Models\Promocod;
+use App\Models\PromocodList;
 use Illuminate\Http\Request;
 
 class PromocodeController extends Controller
@@ -33,6 +34,7 @@ class PromocodeController extends Controller
     public function check(Request $request)
     {
 
+        $totalDeliveryPrice = $this->getDelivery();
         if (session()->has('uds_points_used')) {
             return response()->json([
                 'success' => false,
@@ -41,8 +43,19 @@ class PromocodeController extends Controller
         }
 
         $code = $request->get('promocode');
-        $promo = Promocod::where('code', $code)->first();
+
+        $promolist=PromocodList::where('code',$code)->first();
+        if(!$promolist){
+            return response()->json([
+                'success' => false,
+                'message' => 'Промокод не найден'
+            ]);
+        }
+
+        $promo = Promocod::where('id', $promolist->promocod_id)->first();
         if (!$promo) {
+
+
             return response()->json([
                 'success' => false,
                 'message' => 'Промокод не найден'
@@ -56,7 +69,7 @@ class PromocodeController extends Controller
             ]);
         }
 
-        if ($promo->minimal_sum_cart > \Cart::getTotal()) {
+        if ($promo->minimal_sum_cart > \Cart::getTotal()+$totalDeliveryPrice) {
             return response()->json([
                 'success' => false,
                 'message' => 'Сумма корзины должна быть больше чем ' . $promo->minimal_sum_cart
@@ -75,7 +88,7 @@ class PromocodeController extends Controller
                 'message' => 'Промокод не доступен для применения в телеграм '
             ]);
         }
-        $totalDeliveryPrice = $this->getDelivery();
+
         if (in_array($promo->type_sale, [2, 3, 4]) && $totalDeliveryPrice == 0) {
 
             return response()->json([
