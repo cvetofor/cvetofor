@@ -44,6 +44,7 @@ class PromocodController extends BaseModuleController
             Text::make()->field('code')->title('Description')
         );
 
+
         $table->add(Text::make()->field('orders_count')->title('Кол-во заказов'));
         $table->add(Text::make()->field('average_order_amount')->title('Средний чек'));
         $table->add(Text::make()->field('discount_sum')->title('Сумма скидок'));
@@ -58,6 +59,7 @@ class PromocodController extends BaseModuleController
 
         return Form::make([
             Input::make()->name('code')->label('Промокод')->required(true),
+            Input::make()->name('promoall')->rows(5)->label('Синонимы промокода'),
 
             Select::make()
                 ->name('type_sale')

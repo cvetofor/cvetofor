@@ -10,7 +10,7 @@ class Promocod extends Model
     use HasBlocks;
 
     protected $fillable = [
-    'title','code','type_sale','sale','platform','date_start','date_end','total_limit','client_limit','minimal_sum_cart','type_max_sale','sum_max_sale','type_order','show_in_order','products','categories','tags'
+    'title','code','type_sale','sale','platform','date_start','date_end','total_limit','client_limit','minimal_sum_cart','type_max_sale','sum_max_sale','type_order','show_in_order','products','categories','tags','promoall'
     ];
     public $casts=['date_start'=>'date','date_end'=>'date','products'=>'array','categories'=>'array','tags'=>'array'];
 
