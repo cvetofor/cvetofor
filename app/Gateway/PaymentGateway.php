@@ -12,6 +12,7 @@ class PaymentGateway
 
     public function resolve(Order $order)
     {
+        \Log::channel('marketplace')->info('payment->code', ['pcode' => $order->payment->code??"NULL"]);
         if (
             in_array($order->payment->code, [
                 Payment::ACCOUNT,
@@ -78,14 +79,18 @@ class PaymentGateway
         if ($order->payment->code == Payment::YOOKASSA) {
             \Log::channel('marketplace')->info('Создание платежной ссылки через yookassa', ['orderId' => $order->id]);
 
-            $payment = new \App\Services\Yookassa\Payment(
-                config('yookassa.shopId'),
-                config('yookassa.apiKey'),
-            );
+            try {
+                $payment = new \App\Services\Yookassa\Payment(
+                    config('yookassa.shopId'),
+                    config('yookassa.apiKey'),
+                );
 
-            $link = $payment->getPaymentUrl($order);
-            $order->update(['payment_link' => $link]);
-
+                $link = $payment->getPaymentUrl($order);
+                $order->update(['payment_link' => $link]);
+                \Log::channel('marketplace')->info('Создание платежной ссылки через yookassa', ['orderId_link' =>$link]);
+            }catch (\Exception $exception){
+                \Log::channel('marketplace')->info('Создание платежной ссылки через yookassa', ['orderId_link' =>$exception->getMessage()]);
+            }
             // redirect to payment url
             return $link;
         }
