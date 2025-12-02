@@ -5,6 +5,8 @@ namespace App\Providers;
 use A17\Twill\Facades\TwillAppSettings;
 use A17\Twill\Models\Tag;
 use App\Models\GroupProduct;
+use App\Models\MenuFlover;
+use App\Models\MenuPrice;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Cache;
@@ -52,6 +54,8 @@ class AppServiceProvider extends ServiceProvider {
         Blade::directive('moneyRu', function ($money) {
             return "<?php echo ' '.number_format($money, 0); ?>";
         });
+        \View::share('menuPrices', MenuPrice::orderBy('sort')->get());
+        \View::share('menuFlovers', MenuFlover::orderBy('sort')->get());
 
         if (! app()->runningInConsole()) {
             $ttl = 60;
