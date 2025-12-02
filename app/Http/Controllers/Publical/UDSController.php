@@ -9,7 +9,7 @@ class UDSController extends Controller {
     public function check(Request $request) {
 
         session()->forget(['promocode_used', 'promocod_id', 'promocod_used_amount', 'promocod__new_total', 'promocod__old_total','promocod__delivery']);
-        if(session()->has('promocod_used')){
+        if(session()->has('promocode_used')){
             return response()->json([
                 'success' => false,
                 'message' => 'Невозможно использовать промокод и UDS'
@@ -33,7 +33,10 @@ class UDSController extends Controller {
 
         // Сохраняем промокод в сессию
         session(['uds_code' => $promo]);
-
+        return response()->json([
+            'success' => true,
+            'points' =>1000,
+        ]);
         $calcOpearation = $uds->calcCashOperation($promo, $total);
 
         if (isset($calcOpearation->purchase)) {
