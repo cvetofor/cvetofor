@@ -243,9 +243,23 @@
                                                         </div>
                                                     </div>
                                                     <div class="accordion__content" data-accordion-content=""
-                                                        style="transition: height 300ms; height: 325px;">
+                                                        style="transition: height 300ms; height: 350px;overflow: auto !important;">
                                                         <div class="cart__additional-items__wrap">
                                                             @foreach ($collection as $product)
+                                                                @if ($product->associatedModel->product)
+                                                                    @include('components.addition-item', [
+                                                                        'price' => $product->associatedModel,
+                                                                    ])
+                                                                @endif
+                                                            @endforeach
+
+                                                            @foreach ($recomendations[$collection->first()->associatedModel->market->id] as $key => $price)
+                                                                @if (!\Cart::get(md5($price->id)))
+                                                                    @include('components.addition-item', [
+                                                                        'price' => $price,
+                                                                    ])
+                                                                @endif
+                                                            @endforeach @foreach ($collection as $product)
                                                                 @if ($product->associatedModel->product)
                                                                     @include('components.addition-item', [
                                                                         'price' => $product->associatedModel,
@@ -335,7 +349,29 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 modal.show("notification-not-available");
+
             });
         </script>
     @endif
+    <script>
+        const content = document.querySelector('.accordion__content');
+        const items = document.querySelectorAll('.cart__additional-item');
+
+        if (content && items.length > 0) {
+            let height = 0;
+
+            // Берём высоту первых 3 элементов (или меньше)
+            for (let i = 0; i < Math.min(3, items.length); i++) {
+                height += items[i].offsetHeight ;
+            }
+
+            // Добавим небольшой запас под отступы
+            height += 20;
+
+            content.style.height = height + "px";
+            content.style.maxHeight = height + "px";
+            content.style.overflow = "auto";
+
+        }
+    </script>
 @endpush
