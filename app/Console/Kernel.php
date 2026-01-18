@@ -28,11 +28,11 @@ class Kernel extends ConsoleKernel {
                 );
 
                 // Останавливаем PHP-FPM перед очисткой кэша
-                exec('sudo systemctl stop php8.1-fpm');
+               // exec('sudo systemctl stop php8.1-fpm');
             })
             ->after(function () {
                 // Запускаем PHP-FPM после завершения
-                exec('sudo systemctl start php8.1-fpm');
+               // exec('sudo systemctl start php8.1-fpm');
             });
 
         // Очистка конфигурационного кеша каждый час

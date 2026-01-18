@@ -97,15 +97,11 @@
                                                         </a>
                                                         <div class="cart__item-info">
                                                             <div class="cart__item-heading">
-                                                                <a class="cart__item-title"
+                                                                <a class="cart__item-title" style="max-width: 400px"
                                                                     href="{{ $product->associatedModel->link }}"
                                                                     target="_blank">{{ $product->associatedModel->groupProduct->title }}
                                                                 </a>
-                                                                <span style="color:gray">
-                                                                    @if ($product->quantity > 1)
-                                                                        x {{ $product->quantity }}
-                                                                    @endif
-                                                                </span>
+
                                                                 @if ($product->associatedModel->groupProduct->isMono())
                                                                     <div class="cart__item-label">%</div>
                                                                 @endif
@@ -149,7 +145,15 @@
                                                                     @endif
                                                                 </p>
                                                             </div>
+
                                                             <div class="cart__item-price__wrap">
+                                                                <div class="plus-minis ">
+                                                                    <button type="button" class="plus-minis-button" data-plus-cart-item="{{ $product->id }}">+</button>
+                                                                    {{ $product->quantity }}
+
+                                                                    <button type="button" class="plus-minis-button" @if ($product->quantity > 1) data-minus-cart-item @else data-remove-cart-item @endif="{{ $product->id }}">-</button>
+                                                                </div>
+
                                                                 <span class="cart__item-price">@money($product->getPriceSumWithConditions()) р.</span>
                                                                 @if ($product->getPriceSumWithConditions() !== $product->getPriceSum())
                                                                     <span
@@ -158,14 +162,17 @@
                                                                 @endif
                                                             </div>
                                                         </div>
-                                                        <button class="remove-cart-item-button"
-                                                            @if ($product->quantity > 1) data-minus-cart-item @else data-remove-cart-item @endif="{{ $product->id }}">
-                                                            <svg>
-                                                                <use href="#icon-bin">
 
-                                                                </use>
-                                                            </svg>
-                                                        </button>
+
+                                                           <button class="remove-cart-item-button"
+                                                                   @if ($product->quantity > 1) data-minus-cart-item @else data-remove-cart-item @endif="{{ $product->id }}">
+                                                               <svg>
+                                                                   <use href="#icon-bin">
+
+                                                                   </use>
+                                                               </svg>
+                                                           </button>
+
                                                     </div>
                                                 @endif
                                                 @if (isset($product->associatedModel->product) && $product->associatedModel->product)
@@ -193,16 +200,24 @@
                                                         </a>
                                                         <div class="cart__item-info">
                                                             <div class="cart__item-heading">
-                                                                <a class="cart__item-title" href="#"
-                                                                    target="_blank">{{ $product->associatedModel->product->title }}
-                                                                </a>
-                                                                <span style="color:gray">
-                                                                    @if ($product->quantity > 1)
-                                                                        x {{ $product->quantity }}
-                                                                    @endif
-                                                                </span>
+                                                                <div class="cart__item-title-wrap">
+                                                                  <a class="cart__item-title" href="#"
+                                                                        target="_blank">{{ $product->associatedModel->product->title }}
+                                                                  </a>
+
+                                                                </div>
+
+
+
                                                             </div>
+
                                                             <div class="cart__item-price__wrap">
+                                                                <div class="plus-minis ">
+                                                                    <button type="button" class="plus-minis-button" data-plus-cart-item="{{ $product->id }}">+</button>
+                                                                    {{ $product->quantity }}
+
+                                                                    <button type="button" class="plus-minis-button" @if ($product->quantity > 1) data-minus-cart-item @else data-remove-cart-item @endif="{{ $product->id }}">-</button>
+                                                                </div>
                                                                 <span class="cart__item-price">@money($product->getPriceSumWithConditions()) р.</span>
                                                                 @if ($product->getPriceSumWithConditions() !== $product->getPriceSum())
                                                                     <span
@@ -211,6 +226,7 @@
                                                                 @endif
                                                             </div>
                                                         </div>
+
                                                         <button class="remove-cart-item-button"
                                                             @if ($product->quantity > 1) data-minus-cart-item @else data-remove-cart-item @endif="{{ $product->id }}">
                                                             <svg>
@@ -374,4 +390,116 @@
 
         }
     </script>
+    <style>
+        .cart__item-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap; /* чтобы элементы могли переноситься */
+        }
+
+        .cart__item-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .plus-minis {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cart__item-info{
+            max-width: 400px;
+        }
+        @media (min-width: 481px) {
+            .cart__item-price__wrap {
+                display: flex;
+                flex-direction: row;      /* ← ставим горизонтально */
+                align-items: center;      /* ← выравниваем по вертикали */
+                gap: 10px;                /* ← расстояние между плюс-минус и ценой */
+                position: absolute;
+                top: 50%;
+                right: 50px;
+                transform: translateY(-50%);
+                width: 200px;
+            }
+
+            .cart__item {
+                display: flex;
+                align-items: center;
+                position: relative;
+            }
+
+            /* блок текста — растягивается */
+            .cart__item-info {
+                flex: 1;
+            }
+
+            /* зона плюс-минус + цена */
+            .cart__item-actions {
+                display: flex;
+                align-items: center;
+                gap: 20px;          /* расстояние между плюс-минус и ценой */
+                min-width: 180px;   /* фиксирует положение, чтобы не прыгало */
+                justify-content: flex-end;
+            }
+
+            /* плюс-минус всегда в центре своей колонки */
+            .plus-minis {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+        }
+
+        /* Кнопки */
+        .plus-minis-button {
+
+                display: -webkit-box;
+                display: -ms-flexbox;
+                display: flex;
+                -webkit-box-align: center;
+                -ms-flex-align: center;
+                align-items: center;
+                -webkit-box-pack: center;
+                -ms-flex-pack: center;
+                justify-content: center;
+                width: 36px;
+                height: 36px;
+                background-color: #ffdad6;
+                border-radius: 12px;
+                -ms-flex-negative: 0;
+                flex-shrink: 0;
+                -webkit-transition: background-color ease 0.3s;
+                -o-transition: background-color ease 0.3s;
+                transition: background-color ease 0.3s;
+
+        }
+
+        .plus-minis span {
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* 🌟 Адаптив для мобильных */
+        @media (max-width: 480px) {
+            .cart__item-heading {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .plus-minis {
+                margin-top: 6px;
+            }
+            .cart__item-price__wrap {
+                align-items: flex-start;
+                flex-direction: column;      /* ← ставим горизонтально */
+
+            }
+        }
+
+    </style>
 @endpush

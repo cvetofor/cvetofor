@@ -56,6 +56,7 @@ class OrderController extends Controller
         $payments = Payment::published()->orderBy('position')->get();
 
         $deliveryTimes = Market::getDeliveryTime($markets);
+
         session()->forget(['promocode_used', 'promocod_id', 'promocod_used_amount', 'promocod__new_total', 'promocod__old_total', 'promocod__delivery']);
 
         return view(

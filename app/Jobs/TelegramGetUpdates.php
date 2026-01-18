@@ -47,16 +47,18 @@ class TelegramGetUpdates
                 $bot = explode(':', $telegramBotApi)[0];
 
                 foreach ($response['result'] as $message) {
-                    $chat_id = $message['message']['chat']['id'];
-                    $username = $message['message']['chat']['username'];
+                    if(isset($message['message'])) {
+                        $chat_id = $message['message']['chat']['id'];
+                        $username = $message['message']['chat']['username'];
 
-                    \App\Models\TelegramChatUser::firstOrCreate(
-                        [
-                            'username' => $username,
-                            'chat_id' => $chat_id,
-                            'bot' => $bot,
-                        ]
-                    );
+                        \App\Models\TelegramChatUser::firstOrCreate(
+                            [
+                                'username' => $username,
+                                'chat_id' => $chat_id,
+                                'bot' => $bot,
+                            ]
+                        );
+                    }
                 }
             }
 

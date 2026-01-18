@@ -12,5 +12,4 @@ class MenuFlover extends Model
     protected $fillable = ['*','title','sort'  ];
 
 
-
 }

@@ -276,6 +276,10 @@ class Market extends Model
     {
         return $this->hasMany(Interval::class)->orderBy('start_time', 'asc');
     }
+    public function dateintervals()
+    {
+        return $this->hasMany(DateInterval::class)->orderBy('date', 'asc')->orderBy('start_time', 'asc');
+    }
 
     /**
      * Преобразует минуты в формат HH:MM.
@@ -374,16 +378,18 @@ class Market extends Model
             'saturday' => 6,
         ];
         $todayOfWeek = (int) $date->format('w');
+        $thisDay =  $date->format('Y-m-d');
 
         // Получение рабочих дней и интервалов доставки
         $workTimes = \Arr::pluck($market, 'work_times.times');
         $deliveryIntervals = \Arr::pluck($market, 'intervals');
 
+
         $workHours = self::parseWorkingHours($workTimes[0] ?? []);
 
         $availableDeliveryTimes = [];
         $todayDeliveryTimes = [];
-
+        $availableDateTimes=[];
         foreach ($workHours as $dayOfWeek => $times) {
             $weekDay = $weekMap[$dayOfWeek];
 
@@ -392,6 +398,7 @@ class Market extends Model
             if ($weekDay === $todayOfWeek) {
                 $todayDeliveryTimes = [];
             }
+
 
             foreach ($times as $time) {
                 [$hours, $minutes] = explode(':', $time);
@@ -416,12 +423,47 @@ class Market extends Model
                     }
 
                 }
+
             }
+
+
         }
+
+
+
+        $deliveryDateTimedDate=DateInterval::where('market_id', $market[0]->id) ->orderby('date')->orderby('start_time')->get();
+
+        $availableDateTimes=[];
+        foreach ($deliveryDateTimedDate as $interval) {
+
+
+
+
+
+            $intervalString = [$interval->start_time, $interval->end_time];
+
+
+            // Добавляем в общий список
+            if( $thisDay != $interval->date&& ! in_array($intervalString, $availableDateTimes[$interval->date] ?? [])) {
+                $availableDateTimes[$interval->date][] = $intervalString;
+            }
+
+            // Добавляем в todayTimes только если это сегодня
+
+            if ($thisDay === $interval->date && ! in_array($intervalString, ($availableDateTimes[$interval->date]??[])) && self::intervalAvailable($interval, $currentTimeInMinutes)) {
+                $availableDateTimes[$interval->date] = $intervalString;
+            }
+
+
+        }
+
+
+
 
         return [
             'todayTimes' => $todayDeliveryTimes,
             'times' => $availableDeliveryTimes,
+            'dates' => $availableDateTimes,
         ];
     }
 

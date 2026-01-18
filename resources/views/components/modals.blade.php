@@ -351,6 +351,7 @@ $oldLegalAccount = $oldOrderAccount->legalAccount;
                     <ul class="modal__category-list">
                         @foreach ($menuFlovers as $menuItem)
 
+
                         <li class="modal__category-list__item">
                             <a class="modal__category-list__link"
                                 href="{{ route('catalog.search') }}?product={{ urlencode($menuItem->title) }}">{{$menuItem->title }}</a>

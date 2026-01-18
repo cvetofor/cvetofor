@@ -24,13 +24,31 @@ class OrderRequest extends FormRequest
      * @return array<string, mixed>
      */
     public function rules()
-    {
+    { $citiesService=app(\App\Services\CitiesService::class);
+        $defaultAddress = $citiesService::getCity()->province->name ?? ''; // пример дефолтного адреса, может быть динамическим
+
+
         return [
             // address
             // is_photo_needle
             // is_anon
             // postcard_text
+            'address' => [
+                'required',
+                'string',
+                'max:5000',
+                function ($attribute, $value, $fail) use ($defaultAddress) {
+                    // проверка на наличие хотя бы одной цифры
+                    if (!preg_match('/\d/', $value)) {
+                        $fail("Поле $attribute должно содержать хотя бы одну цифру.");
+                    }
 
+                    // проверка длины
+                    if (mb_strlen($value) < mb_strlen($defaultAddress) + 5) {
+                        $fail("Поле $attribute должно быть длиннее дефолтного адреса на 5 символов.");
+                    }
+                },
+            ],
             'payment_id' => [
                 'required',
                 'exists:App\Models\Payment,id',
@@ -62,9 +80,7 @@ class OrderRequest extends FormRequest
             'comment' => [
                 'max:1000',
             ],
-            'address' => [
-                'max:5000',
-            ],
+
             'email' => [
                 'email',
             ],

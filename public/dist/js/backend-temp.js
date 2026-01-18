@@ -647,9 +647,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 
-  const cartItems = document.querySelectorAll('[data-minus-cart-item],[data-remove-cart-item],[data-cart-additional-item-remove]');
+  const cartItems = document.querySelectorAll('[data-minus-cart-item],[data-plus-cart-item],[data-remove-cart-item],[data-cart-additional-item-remove]');
 
   const minus = window['cvetofor'].config.routes.cart.minus;
+  const plus = window['cvetofor'].config.routes.cart.plus;
   const remove = window['cvetofor'].config.routes.cart.remove;
 
   if (cartItems) {
@@ -657,31 +658,40 @@ document.addEventListener("DOMContentLoaded", function () {
       item.addEventListener('click', async function (e) {
         e.target.setAttribute('disabled', 'disabled');
 
-
-        if (item.getAttribute('data-minus-cart-item')) {
-          let {response, error} = await request(minus(item.dataset.minusCartItem), "PUT");
+        if (item.getAttribute('data-plus-cart-item')) {
+          let {response, error} = await request(plus(item.dataset.plusCartItem), "PUT");
           if (response) {
 
             window.location.reload();
 
             setCounter(response.count);
           }
-        }
-        else {
-          let sku = '';
+        } else {
 
-          if (item.getAttribute('data-cart-additional-item-remove')) {
-            sku = item.getAttribute('data-id');
+          if (item.getAttribute('data-minus-cart-item')) {
+            let {response, error} = await request(minus(item.dataset.minusCartItem), "PUT");
+            if (response) {
+
+              window.location.reload();
+
+              setCounter(response.count);
+            }
           } else {
-            sku = item.dataset.removeCartItem;
-          }
+            let sku = '';
 
-          let {response, error} = await request(remove(sku), "PUT");
-          if (response) {
+            if (item.getAttribute('data-cart-additional-item-remove')) {
+              sku = item.getAttribute('data-id');
+            } else {
+              sku = item.dataset.removeCartItem;
+            }
 
-            window.location.reload();
+            let {response, error} = await request(remove(sku), "PUT");
+            if (response) {
 
-            setCounter(response.count);
+              window.location.reload();
+
+              setCounter(response.count);
+            }
           }
         }
 
@@ -761,16 +771,28 @@ const observer = function (e) {
     'friday',
     'saturday',
   ][inputDate.getDay()];
+  const year1 = inputDate.getFullYear();           // 2025
+  const month1 = String(inputDate.getMonth() + 1).padStart(2, '0'); // месяцы 0-11
+  const day1 = String(inputDate.getDate()).padStart(2, '0');        // день месяца
+
+  const formattedDate = `${year1}-${month1}-${day1}`;
+
+
+
 
   // Сбрасываем время до полуночи для корректного сравнения
   inputDate.setHours(0, 0, 0, 0);
   currentDate.setHours(0, 0, 0, 0);
   const isToday = inputDate.getTime() === currentDate.getTime();
-
   // Выбираем массив времени в зависимости от того, является ли выбранная дата сегодняшней
-  const times = isToday
+  const times= window['cvetofor'].config.flatpickr.dates[formattedDate]?
+    window['cvetofor'].config.flatpickr.dates[formattedDate]:
+    (isToday
     ? window['cvetofor'].config.flatpickr.todayTimes
-    : window['cvetofor'].config.flatpickr.times[dayWeek];
+    : window['cvetofor'].config.flatpickr.times[dayWeek]);
+
+  console.log(times);
+  console.log(window['cvetofor'].config.flatpickr.dates);
 
   if (!times) {
     console.error("No times available for day:", dayWeek);
@@ -782,15 +804,15 @@ const observer = function (e) {
     console.error("Element with class .select__drop not found");
     return;
   }
-  
+
   dropElement.innerHTML = '';
   Object.values(times).forEach((time, i) => {
     // Предполагается, что time — массив вида [start, end]
     if (time[0] && time[1]) {
       dropElement.innerHTML += `
         <label class="select__item" data-select-option="">
-          <input class="select__input" ${i === 0 ? 'checked="checked"' : ''} 
-                 value="${time[0]}${time[1] ? ' - ' + time[1] : ''}" 
+          <input class="select__input" ${i === 0 ? 'checked="checked"' : ''}
+                 value="${time[0]}${time[1] ? ' - ' + time[1] : ''}"
                  name="delivery_time" type="radio" data-select-input="" />
           <span>${time[0]}${time[1] ? ' - ' + time[1] : ''}</span>
         </label>`;
@@ -863,7 +885,7 @@ async function calcDelivery(points, isKnowAdress) {
         document.querySelector('[ data-modal="' + error.modal + '"] .modal__text p').innerHTML = error.message;
       }
       modal.show(error.modal);
-      
+
 
 
     } else {

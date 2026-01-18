@@ -136,6 +136,7 @@ class formValidator {
   // проверка формы на валидность
   // formSingle - форма
   isFieldValid(formSingle) {
+
     let formRequired = formSingle.querySelectorAll(
       "[data-required]:not([data-no-validate])"
     );

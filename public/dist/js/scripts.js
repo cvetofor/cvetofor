@@ -485,4 +485,3 @@ function isElementInViewport(el) {
     left + width > window.pageXOffset
   );
 }
-

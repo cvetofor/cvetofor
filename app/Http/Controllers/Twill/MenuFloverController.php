@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Twill;
-
+use Illuminate\Database\Schema\Blueprint;
 use A17\Twill\Models\Contracts\TwillModelContract;
 use A17\Twill\Services\Forms\Fields\DatePicker;
 use A17\Twill\Services\Forms\Fields\MultiSelect;
@@ -16,7 +16,7 @@ use App\Models\Category;
 use App\Models\GroupProductCategory;
 use App\Models\Product;
 use App\Models\Tag;
-
+use Illuminate\Support\Facades\Schema;
 class MenuFloverController extends BaseModuleController
 {
     protected $moduleName = 'menuFlovers';
@@ -51,17 +51,49 @@ class MenuFloverController extends BaseModuleController
     }
     public function getForm(TwillModelContract $model): Form
     {
+
         return Form::make([
             Input::make()
                 ->name('title')
-                ->label('Название')
+                ->label('Название цветка')
                 ->required(true),
+
 
 
             Input::make()
                 ->name('sort')
                 ->label('Сортировка')
                 ->required(true),
+        ]);
+    }
+    public function formData($request)
+    {
+        return [
+            'flovers' => Product::all()->map(function ($product) {
+                return [
+                    'value' => $product->id,
+                    'label' => $product->title,
+                ];
+            })->toArray(),
+        ];
+    }
+    public function getCreateForm(): Form
+    {
+
+       /* Schema::table('menu_flovers', function (Blueprint $table) {
+            $table->string('title')->change();
+        });*/
+
+
+        return Form::make([
+            Input::make()
+                ->name('title')
+                ->label('Название цветка'),
+
+            Input::make()
+                ->name('sort')
+                ->label('Сортировка')
+
         ]);
     }
 }

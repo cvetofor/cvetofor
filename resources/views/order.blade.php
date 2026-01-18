@@ -576,7 +576,10 @@
 
 @push('scripts')
     <script>
+
         $(document).ready(function() {
+
+
             const addressInput = $('#delivery-address');
 
             addressInput.on('focus', function() {
@@ -643,6 +646,7 @@
         window['cvetofor'].config.flatpickr.minDateTimeStamp = new Date('{{ \App\Services\CitiesService::DateTime()->format('m / d / Y ') }}');
  window['cvetofor'].config.flatpickr.times = {!!json_encode($deliveryTimes['times']) !!};
         window['cvetofor'].config.flatpickr.todayTimes = {!!json_encode($deliveryTimes['todayTimes']) !!};
+        window['cvetofor'].config.flatpickr.dates = {!!json_encode($deliveryTimes['dates']) !!};
 
         // UDS AJAX check
         const udsInput = $('.cart__summary-heading:visible').find('input[name="uds_promo"]');
@@ -863,7 +867,6 @@
         });
 
 
-
     </script>
 @endpush
 
@@ -966,4 +969,5 @@
             }
         }
    </style>
+
 @endpush
