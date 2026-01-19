@@ -33,10 +33,7 @@ class UDSController extends Controller {
 
         // Сохраняем промокод в сессию
         session(['uds_code' => $promo]);
-        return response()->json([
-            'success' => true,
-            'points' =>1000,
-        ]);
+
         $calcOpearation = $uds->calcCashOperation($promo, $total);
 
         if (isset($calcOpearation->purchase)) {

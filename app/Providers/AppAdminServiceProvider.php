@@ -136,6 +136,16 @@ class AppAdminServiceProvider extends ServiceProvider {
                 ->setChildren(
                     [
                         NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'nameDateIntervals'))
+                            ->forModule('nameDateIntervals')->title('Интервалы на день'),
+
+                        NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'menuPrices'))
+                            ->forModule('menuPrices')->title('Цены меню'),
+                        NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'menuFlovers'))
+                            ->forModule('menuFlovers')->title('Цветы в меню'),
+                        NavigationLink::make()
                             ->onlyWhen(fn() => \Auth::user()->can('view-module', 'promocods'))
                             ->forModule('promocods')->title('Промокоды'),
                         NavigationLink::make()

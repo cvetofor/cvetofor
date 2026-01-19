@@ -296,36 +296,30 @@ $oldLegalAccount = $oldOrderAccount->legalAccount;
                         </div>
                     </div>
                     <ul class="modal__category-list">
-                        <li class="modal__category-list__item">
-                            <a class="modal__category-list__link"
-                                href="{{ route('catalog.index') }}?price[to]=1000">до
-                                1000</a>
-                        </li>
-                        <li class="modal__category-list__item">
-                            <a class="modal__category-list__link"
-                                href="{{ route('catalog.index') }}?price[from]=1000&price[to]=1500">1000 — 1500</a>
-                        </li>
-                        <li class="modal__category-list__item">
-                            <a class="modal__category-list__link"
-                                href="{{ route('catalog.index') }}?price[from]=1500&price[to]=2000">1500 — 2000</a>
-                        </li>
-                        <li class="modal__category-list__item">
-                            <a class="modal__category-list__link"
-                                href="{{ route('catalog.index') }}?price[from]=2000&price[to]=2500">2000 — 2500</a>
-                        </li>
-                        <li class="modal__category-list__item">
-                            <a class="modal__category-list__link"
-                                href="{{ route('catalog.index') }}?price[from]=2500&price[to]=3000">2500 — 3000</a>
-                        </li>
-                        <li class="modal__category-list__item">
-                            <a class="modal__category-list__link"
-                                href="{{ route('catalog.index') }}?price[from]=3000&price[to]=5000">3000 — 5000</a>
-                        </li>
-                        <li class="modal__category-list__item">
-                            <a class="modal__category-list__link"
-                                href="{{ route('catalog.index') }}?price[from]=5000">от
-                                5000</a>
-                        </li>
+                        @foreach($menuPrices as $menuPrice)
+                            @if($menuPrice->price_start==0)
+                                <li class="modal__category-list__item">
+                                    <a class="modal__category-list__link"
+                                       href="{{ route('catalog.index') }}?price[to]={{$menuPrice->price_end}}">до
+                                        {{$menuPrice->price_end}}</a>
+                                </li>
+
+                            @elseif($menuPrice->price_end==0)
+
+                                <li class="modal__category-list__item">
+                                    <a class="modal__category-list__link"
+                                       href="{{ route('catalog.index') }}?price[from]={{$menuPrice->price_start}}">от
+                                        {{$menuPrice->price_start}}</a>
+                                </li>
+                                @else
+                                <li class="modal__category-list__item">
+                                    <a class="modal__category-list__link"
+                                       href="{{ route('catalog.index') }}?price[from]={{$menuPrice->price_start}}&price[to]={{$menuPrice->price_end}}">{{$menuPrice->price_start}} —
+                                        {{$menuPrice->price_end}}</a>
+                                </li>
+                            @endif
+                        @endforeach
+
                     </ul>
                 </div>
             </div>
@@ -355,13 +349,14 @@ $oldLegalAccount = $oldOrderAccount->legalAccount;
                         </div>
                     </div>
                     <ul class="modal__category-list">
-                        @foreach ($_flowers_menu as $menuItem)
-                        @if (isset($menuItem['content']['item']) && $menuItem['content']['item'])
+                        @foreach ($menuFlovers as $menuItem)
+
+
                         <li class="modal__category-list__item">
                             <a class="modal__category-list__link"
-                                href="{{ route('catalog.search') }}?product={{ urlencode($menuItem['content']['item']) }}">{{ $menuItem['content']['item'] }}</a>
+                                href="{{ route('catalog.search') }}?product={{ urlencode($menuItem->title) }}">{{$menuItem->title }}</a>
                         </li>
-                        @endif
+
                         @endforeach
                     </ul>
                 </div>
@@ -443,7 +438,7 @@ $oldLegalAccount = $oldOrderAccount->legalAccount;
                     </ul>
                 </div>
             </div>
-            @endif         
+            @endif
             @if ($additionalCategories->count() > 0)
                 <div class="modal__category">
                     <div class="modal__category-heading" data-category-open="data-category-open">
@@ -470,7 +465,7 @@ $oldLegalAccount = $oldOrderAccount->legalAccount;
 
                             </div>
                         </div>
-                        <ul class="modal__category-list">        
+                        <ul class="modal__category-list">
                             @foreach ($additionalCategories as $category)
                             @php
                                 $categorySlug = \App\Models\Slugs\CategorySlug::where('category_id', $category->id)

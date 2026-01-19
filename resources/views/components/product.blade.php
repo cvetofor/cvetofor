@@ -33,11 +33,8 @@
             @endif
         </div>
         <button class="add-product-to-cart-button" data-put-cart-sku="{{ $price->sku }}">
-            <svg>
-                <use href="#icon-plus">
+            <img src="/dist/img/image/cart.png" style="width: 25px !important;max-width: 25px">
 
-                </use>
-            </svg>
         </button>
     </div>
 </div>

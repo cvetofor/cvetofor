@@ -1,42 +1,18 @@
 @php
-    $contentFieldsetLabel = 'Информация о магазине';
-    $canNotUpdateField = !\Gate::allows('is_owner');
+    $contentFieldsetLabel = 'Информация о интервале';
+
 @endphp
 @extends('twill::layouts.form')
 
 @section('contentFields')
 
-    <x-twill::input name="name" label="Название магазина" required="required" :maxlength="100" />
-
-    <x-twill::browser :disabled="$canNotUpdateField" module-name="users" name="user" label="Владелец магазина" :max="1" />
-
-    <x-twill::browser module-name="cities" name="city" label="Город" :max="1" />
-
-    <x-twill::input name="address" label="Адрес" required="required" :maxlength="1000" />
-
-    @formField('repeater', ['type' => 'additional_addresses', 'max' => 10])
-
-    <x-twill::input name="phone" required="required" label="Телефон" mask="+7 (999) 999 99 99" :maxlength="100" />
-
-    <x-twill::input name="email" label="E-mail" required="required" type="email" :maxlength="100"
-                    note="Сюда приходят письма о новом заказе" />
+    <x-twill::input name="date" label="Дата" required="required" :maxlength="100" disabled />
 
 
-    <x-twill::input prefix="₽" type="number" name="postcard_price" label='Стоимость открытки' :maxlength="10" />
-
-
-    <x-twill::input type="number" name="holidays_percent" prefix="%" max=100 min=0
-                    label="Процент увеличения стоимости товаров в праздничные дни" :maxlength="3" />
-
-
-    <x-twill::browser disabled="true" module-name="marketWorkTimes" name="work_times" label="Время работы магазина"
-                      :max="1" />
-
-    <x-twill::browser disabled="true" module-name="marketWorkTimes" name="delivery_times" label="Время доставки магазина"
-                      :max="1" />
 
 
 @stop
+
 
 @section('fieldsets')
     <a17-fieldset title="Доставка" id="delivery">
@@ -51,8 +27,8 @@
         </div>
         <!-- Существующие интервалы -->
         <div id="intervals-container"
-             data-update-url="{{ route('twill.markets.intervals.bulk-update') }}"
-             data-delete-url="{{ route('twill.markets.intervals.delete', ':id') }}"
+             data-update-url="{{ route('twill.dateintervals.bulk-update') }}"
+             data-delete-url="{{ route('twill.dateintervals.delete', ':id') }}"
 
              style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 10px;">
 
@@ -80,7 +56,7 @@
 
         <h4>Добавить новый интервал</h4>
         <div id="add-interval-container"
-             data-store-url="{{ route('twill.markets.intervals.store', $item->id) }}"
+             data-store-url="{{ route('twill.dateintervals.store', $item->id) }}"
              style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
             <input type="time" id="start-time" required style="flex: 1; min-width: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="С" value="00:00" />
             <input type="time" id="end-time" required style="flex: 1; min-width: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="До" value="00:00" />
@@ -95,24 +71,6 @@
         </div>
 
 
-        <x-twill::input type="number" prefix="₽" name="price_i_dont_know_address"
-                        label="Стоимость доставки с неизвестного адреса" :maxlength="10" />
-
-
-        <p>Для примера радиус можно посмотреть <a target="_blank" href="https://yandex.ru/maps/-/CLxuieC">тут</a>: </p>
-        <details>
-            <summary>Пример</summary>
-            <div style="position:relative;overflow:hidden;"><a
-                    href="https://yandex.ru/maps/213/moscow/?utm_medium=mapframe&utm_source=maps"
-                    style="color:#eee;font-size:12px;position:absolute;top:0px;">Москва</a><a
-                    href="https://yandex.ru/maps/213/moscow/?ll=37.828581%2C55.725241&mode=search&rl=37.620405%2C55.753991~-0.005257%2C0.090155&sll=37.620405%2C55.754047&text=55.754047%2C37.620405&utm_medium=mapframe&utm_source=maps&z=11.16"
-                    style="color:#eee;font-size:12px;position:absolute;top:14px;">Красная площадь — Яндекс Карты</a><iframe
-                    src="https://yandex.ru/map-widget/v1/?ll=37.828581%2C55.725241&mode=search&rl=37.620405%2C55.753991~-0.005257%2C0.090155&sll=37.620405%2C55.754047&text=55.754047%2C37.620405&z=11.16"
-                    height="400" frameborder="1" allowfullscreen="true" style="position:relative;width:100%"></iframe>
-            </div>
-        </details>
-
-        @formField('repeater', ['type' => 'deliveries_radius', 'max' => 50])
 
     </a17-fieldset>
 
@@ -121,18 +79,9 @@
 
 
 
-    <a17-fieldset title="Telegram уведомления" id="telegram">
-        <x-twill::input name="telegram_bot_market_username" label="Username" note="@your_username" :maxlength="150" />
-    </a17-fieldset>
 
-    @if ((\Gate::allows('is_owner') || (\auth()->user()->role->code ?? false) === 'shop') && isset($item->id))
-        <a17-fieldset title="Сотрудники" id="employees">
-            @formField('block_editor', [
-            'blocks' => ['employers'],
-            'label' => 'Добавить сотрудника',
-            ])
-        </a17-fieldset>
-    @endif
+
+
 @stop
 
 @push('extra_js')

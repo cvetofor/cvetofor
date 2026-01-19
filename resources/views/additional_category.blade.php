@@ -4,7 +4,7 @@
 <div class="heading heading--big-banner" style="background-image: url('{!! $category->image('cover') !!}');">
     <div class="container">
         <div class="heading__row">
-            @include('components.breadcrumbs', [ 
+            @include('components.breadcrumbs', [
                 'breadcrumbs' => $breadcrumbs,
             ])
             <div class="title-page">
@@ -46,7 +46,7 @@
                             @if ($price->is_promo)
                                 <span class="product__label">Акция</span>
                             @endif
-                        </a> 
+                        </a>
                         <a class="product__title" href="{{ $url ?: '#' }}">{{ $product->title }}</a>
                         <div class="product__bottom">
                             <div class="product__prices-wrap">
@@ -61,15 +61,13 @@
                                 @endif
                             </div>
                             <button class="add-product-to-cart-button" data-put-cart-sku="{{ $price->sku }}">
-                                <svg>
-                                    <use href="#icon-plus"></use>
-                                </svg>
+                                <img src="/dist/img/image/cart.png" style="width: 25px !important;max-width: 25px">
                             </button>
                         </div>
                     </div>
                 @endif
             @endforeach
-        </div> 
+        </div>
         @if ($category->description)
         <div class="text-page category_description">
             <p>{!! $category->description !!}</p>
@@ -77,4 +75,4 @@
     @endif
     </div>
 </div>
-@endsection 
+@endsection

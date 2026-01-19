@@ -62,7 +62,8 @@ class PromocodeController extends Controller
             ]);
         }
 
-        if ($promo->date_start > date('Y-m-d') || $promo->date_end < date('Y-m-d')) {
+
+        if (date('Y-m-d',strtotime($promo->date_start)) > date('Y-m-d',strtotime('+5 hours')) || date('Y-m-d',strtotime($promo->date_end)) < date('Y-m-d',strtotime('+5 hours'))) {
             return response()->json([
                 'success' => false,
                 'message' => 'Промокод не найден по сроку'
@@ -99,7 +100,7 @@ class PromocodeController extends Controller
         }
 
 
-        $countPromoOrderTotal = Order::where('promocod_id', $promo->id)->count();
+        $countPromoOrderTotal = Order::where('promocod_id', $promo->id)->whereNull('parent_id')->count();
         if ($promo->total_limit <= $countPromoOrderTotal) {
             return response()->json([
                 'success' => false,

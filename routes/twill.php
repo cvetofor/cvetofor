@@ -57,6 +57,12 @@ Route::group(['prefix' => 'markets'], function () {
 });
 
 
+    Route::post('dateintervals/bulk-update', [\App\Http\Controllers\Twill\NameDateIntervalController::class, 'bulkUpdateDateIntervals'])->name('dateintervals.bulk-update');
+    Route::post('{market}/dateintervals', [\App\Http\Controllers\Twill\NameDateIntervalController::class, 'storeDateInterval'])->name('dateintervals.store');
+    Route::delete('dateintervals/{interval}', [\App\Http\Controllers\Twill\NameDateIntervalController::class, 'deleteDateInterval'])->name('dateintervals.delete');
+
+
+
 #TwillRoutes::module('paymentDetails');
 TwillRoutes::module('marketWorkTimes');
 
@@ -96,3 +102,6 @@ TwillRoutes::module('forms');
 TwillRoutes::module('tags');
 TwillRoutes::module('seotags');
 TwillRoutes::module('promocods');
+TwillRoutes::module('menuPrices');
+TwillRoutes::module('menuFlovers');
+TwillRoutes::module('nameDateIntervals');
