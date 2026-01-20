@@ -32,7 +32,7 @@
     <script src="/dist/js/libs.js"></script>
     <script src="/dist/js/common.js"></script>
     <script src="/dist/js/scripts.js"></script>
-    <script src="/dist/js/backend-temp.js"></script>
+    <script src="/dist/js/backend-temp.js?v=0.9"></script>
     <script src="/dist/js/dev-temp.js"></script>
 </body>
 
