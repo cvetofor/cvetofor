@@ -58,6 +58,8 @@ class AppServiceProvider extends ServiceProvider {
         \View::share('menuFlovers', MenuFlover::orderBy('sort')->get());
 
         if (! app()->runningInConsole()) {
+            \View::share('menuPrices', MenuPrice::orderBy('sort')->get());
+            \View::share('menuFlovers', MenuFlover::orderBy('sort')->get());
             $ttl = 60;
             $_menuHeader = Cache::remember('_menuHeader', $ttl, function () {
                 return TwillAppSettings::get('public.public.header_menu') ?? [];

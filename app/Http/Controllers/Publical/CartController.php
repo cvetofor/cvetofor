@@ -132,6 +132,8 @@ class CartController extends Controller {
     }
 
     public function plus($price) {
+        info('plus');
+        info(request()->all());
         \Cart::update($price, [
             'quantity' => 1,
         ]);

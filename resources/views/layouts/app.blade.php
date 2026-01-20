@@ -327,7 +327,7 @@ session()->forget('order_delivery_radius_km');
     <script src="/dist/js/scripts.js"></script>
 
     <script src="/dist/js/dev-temp.js?v=0.1"></script>
-    <script src="/dist/js/backend-temp.js?v=0.7"></script>
+    <script src="/dist/js/backend-temp.js?v=0.8"></script>
     <script src="/dist/js/ya_commerce.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
