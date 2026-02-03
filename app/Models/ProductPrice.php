@@ -68,13 +68,14 @@ class ProductPrice extends Model {
             /**
              * @var float
              */
-            $comission = \Cache::remember(
-                'comission',
-                360,
-                function () {
-                    return \TwillAppSettings::getGroupDataForSectionAndName('resource', 'resource')->content['comission'];
-                }
-            );
+            /* $comission = \Cache::remember(
+                 'comission',
+                 360,
+                 function () {
+                     return \TwillAppSettings::getGroupDataForSectionAndName('resource', 'resource')->content['comission'];
+                 }
+             );*/
+            $comission= \TwillAppSettings::getGroupDataForSectionAndName('resource', 'resource')->content['comission'];
 
             // В результате наценок, нужно правильно применять фильтрацию
             $diff_from = $from - (($comission / 100) * $from);
@@ -122,18 +123,23 @@ class ProductPrice extends Model {
      * комиссия ресурса
      */
     public function getMarketplaceComission() {
-        return
-            \Cache::remember(
-                'comission',
-                360,
-                function () {
-                    try {
-                        return \TwillAppSettings::getGroupDataForSectionAndName('resource', 'resource')->content['comission'];
-                    } catch (\Throwable $th) {
-                        return 0;
-                    }
+
+        try {
+            return \TwillAppSettings::getGroupDataForSectionAndName('resource', 'resource')->content['comission'];
+        } catch (\Throwable $th) {
+            return 0;
+        }
+        /*\Cache::remember(
+            'comission',
+            360,
+            function () {
+                try {
+                    return \TwillAppSettings::getGroupDataForSectionAndName('resource', 'resource')->content['comission'];
+                } catch (\Throwable $th) {
+                    return 0;
                 }
-            ) ?? 0;
+            }
+        ) ?? 0;*/
     }
 
     /**

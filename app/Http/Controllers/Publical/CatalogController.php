@@ -49,6 +49,10 @@ class CatalogController extends Controller {
         );
 
         $prices = \Cache::remember('index|' . $unique, now()->addMinutes(1), fn() => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
+        /* $prices = $catalogService->findPricesByCategoriesId(
+             $categories->pluck('id')->toArray()
+         );*/
+
 
         $city = GeographicalNamesInflection::getCase(CitiesService::getCity()->city, 'предложный');
 
@@ -119,7 +123,8 @@ class CatalogController extends Controller {
                     )
                 );
                 $prices = \Cache::remember('welcome_categories_tags|' . $unique, now()->addMinutes(1), fn() => $catalogService->findByTag($tag));
-                $mainPageTagsModel[] = new MainPageTagsModel($tag, $prices);
+                /*   $prices = $catalogService->findByTag($tag);
+                   $mainPageTagsModel[] = new MainPageTagsModel($tag, $prices);*/
             }
         }
 
@@ -140,6 +145,7 @@ class CatalogController extends Controller {
             $city = GeographicalNamesInflection::getCase(CitiesService::getCity()->city, 'предложный');
             $selectedCity = CitiesService::getCity();
             $prices = \Cache::remember('welcome_categories_prices|' . $unique, now()->addMinutes(1), fn() => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
+            /* $prices = $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray());*/
         }
 
         SEOTools::setTitle('Доставка цветов в Улан-Удэ заказать букет с доставкой недорого по цене магазина Цветофор');
@@ -269,7 +275,7 @@ class CatalogController extends Controller {
         $price,
         ProductPriceDefender $productPriceDefender,
     ) {
-        // Находим цену по SKU или ID 
+        // Находим цену по SKU или ID
         if (is_numeric($price)) {
             $priceModel = ProductPrice::where('id', $price)->first();
         } else {

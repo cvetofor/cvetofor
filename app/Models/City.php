@@ -16,7 +16,7 @@ class City extends Model
     use HasPosition;
     use HasRelated;
     use HasSlug;
-    use QueryCacheable;
+  //  use QueryCacheable;
 
     /**
      * Specify the amount of time to cache queries.
@@ -24,7 +24,7 @@ class City extends Model
      *
      * @var int|\DateTime
      */
-    public $cacheFor = 3600;
+    public $cacheFor = 0;
 
     /**
      * The tags for the query cache. Can be useful
