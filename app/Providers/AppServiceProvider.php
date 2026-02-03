@@ -54,43 +54,54 @@ class AppServiceProvider extends ServiceProvider {
         Blade::directive('moneyRu', function ($money) {
             return "<?php echo ' '.number_format($money, 0); ?>";
         });
-        \View::share('menuPrices', MenuPrice::orderBy('sort')->get());
-        \View::share('menuFlovers', MenuFlover::orderBy('sort')->get());
+
 
         if (! app()->runningInConsole()) {
             \View::share('menuPrices', MenuPrice::orderBy('sort')->get());
             \View::share('menuFlovers', MenuFlover::orderBy('sort')->get());
             $ttl = 60;
-            $_menuHeader = Cache::remember('_menuHeader', $ttl, function () {
-                return TwillAppSettings::get('public.public.header_menu') ?? [];
-            });
+            /* $_menuHeader = Cache::remember('_menuHeader', $ttl, function () {
+                 return TwillAppSettings::get('public.public.header_menu') ?? [];
+             });*/
+            $_menuHeader = TwillAppSettings::get('public.public.header_menu') ?? [];
             view()->share('_menuHeader', $_menuHeader);
 
-            $_menuFooter = Cache::remember('_menuFooter', $ttl, function () {
-                return TwillAppSettings::get('public.public.footer_menu') ?? [];
-            });
+            /* $_menuFooter = Cache::remember('_menuFooter', $ttl, function () {
+                 return TwillAppSettings::get('public.public.footer_menu') ?? [];
+             });*/
+            $_menuFooter = TwillAppSettings::get('public.public.footer_menu') ?? [];
             view()->share('_menuFooter', $_menuFooter);
 
-            $_menuFooterSecond = Cache::remember('_menuFooterSecond', $ttl, function () {
-                return TwillAppSettings::get('public.public.footer_menu_second') ?? [];
-            });
+            /* $_menuFooterSecond = Cache::remember('_menuFooterSecond', $ttl, function () {
+                 return TwillAppSettings::get('public.public.footer_menu_second') ?? [];
+             });*/
+            $_menuFooterSecond= TwillAppSettings::get('public.public.footer_menu_second') ?? [];
             view()->share('_menuFooterSecond', $_menuFooterSecond);
 
-            $_flowers_menu = Cache::remember('_flowers_menu', $ttl, function () {
-                return TwillAppSettings::get('public.public.flowers_menu') ?? [];
-            });
+            /* $_flowers_menu = Cache::remember('_flowers_menu', $ttl, function () {
+                 return TwillAppSettings::get('public.public.flowers_menu') ?? [];
+             });*/
+            $_flowers_menu=TwillAppSettings::get('public.public.flowers_menu') ?? [];
             view()->share('_flowers_menu', $_flowers_menu);
 
             view()->composer('*', function ($view) {
 
-                $groupProductTags = \Cache::remember('tags_header|' . \App\Services\CitiesService::getCity()->id ?? '', now()->addMinutes(3), fn() => \A17\Twill\Models\Tag::whereHas('groupProducts', function ($q) {
+                $groupProductTags =\A17\Twill\Models\Tag::whereHas('groupProducts', function ($q) {
 
                     $markets = \App\Models\Market::published()->where('city_id', \App\Services\CitiesService::getCity()->id)->pluck('id');
 
                     return $q->whereHas('remains', function ($qr) use ($markets) {
                         return $qr->where('published', true)->whereIn('market_id', $markets);
                     });
-                })->get());
+                })->get();
+                /*$groupProductTags = \Cache::remember('tags_header|' . \App\Services\CitiesService::getCity()->id ?? '', now()->addMinutes(3), fn() => \A17\Twill\Models\Tag::whereHas('groupProducts', function ($q) {
+
+                    $markets = \App\Models\Market::published()->where('city_id', \App\Services\CitiesService::getCity()->id)->pluck('id');
+
+                    return $q->whereHas('remains', function ($qr) use ($markets) {
+                        return $qr->where('published', true)->whereIn('market_id', $markets);
+                    });
+                })->get());*/
 
                 $view->with('groupProductTags', $groupProductTags);
             });
