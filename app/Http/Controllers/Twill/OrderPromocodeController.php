@@ -16,7 +16,7 @@ use App\Repositories\OrderRepository;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
-class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleController {
+class OrderPromocodeController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleController {
     protected $moduleName = 'orders';
 
 
@@ -55,46 +55,20 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
     /**
      * The quick filters to apply to the listing table.
      */
-    public function quickFilters(): QuickFilters {
+     public function quickFilters(): QuickFilters {
 
         return QuickFilters::make([
             QuickFilter::make()
-                ->label('Новые')
-                ->queryString('issued')
-                ->scope('issued')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->issued()->count()),
-
-            QuickFilter::make()
-                ->label('Принятые')
-                ->queryString('accepted')
-                ->scope('accepted')
-                // ->onlyEnableWhen($this->getIndexOption('publish'))
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->accepted()->count()),
-
-            QuickFilter::make()
-                ->label('Завершенные')
-                ->queryString('succesfuled')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->succesfuled()->count())
-                ->scope('succesfuled'),
-
-            QuickFilter::make()
-                ->label('Отклоненные')
-                ->queryString('closed')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->closed()->count())
-                ->scope('closed'),
-
-            QuickFilter::make()
-                ->label('Тендер')
-                ->queryString('tender')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->tender()->count())
-                ->scope('tender'),
+                ->label('Промокоды')
+                ->queryString('promo')
+                ->scope('promo')
+                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->promo()->count()),]);
 
 
-        ]);
     }
 
 
-     /*public function filters(): TableFilters
+    /* public function filters(): TableFilters
      {
 
 
@@ -107,7 +81,7 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
 
                  )
                  ->apply(function (Builder $builder, string $value) {
-                     $builder-> ->withoutScope('CurrentMarket') ->where('promocod_id', $value);
+                     $builder->withoutScope('CurrentMarket') ->where('promocod_id', $value);
 
                  }) ,
          ]);

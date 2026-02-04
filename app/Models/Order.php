@@ -144,7 +144,9 @@ class Order extends Model {
     }
 
     public function scopeCurrentMarket($builder): Builder {
-        return $builder->where('market_id', auth('twill_users')->user()->getMarketId());
+
+            return $builder->where('market_id', auth('twill_users')->user()->getMarketId());
+
     }
 
     /**
@@ -160,6 +162,12 @@ class Order extends Model {
                         ->where('code', OrderStatus::ISSUED);
                 })->orWhere('order_status_id', null);
             });
+    }  public function scopePromo($builder): Builder {
+        return $builder
+
+            ->where('promocod_id',request('x_promocod_id'))
+            ->where('payment_status_id',2);
+
     }
 
     /**

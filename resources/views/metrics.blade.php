@@ -118,9 +118,9 @@
             'https://wa.me/79676202220': () => generalPixel.postClick('a4'),
             'отправить': () => generalPixel.postClick('a5'),
             'оплатить заказ': () => generalPixel.postClick('a7')
-            
+
         }
-        document.addEventListener('click', function(e) {                                           
+        document.addEventListener('click', function(e) {
             const target = e.target;
                 if(target.closest('button')){
                     const btn = target.closest('button')

@@ -203,7 +203,7 @@ $("button.remove-cart-item-button").on("click", function () {
 });
 
 
-//Покупка 
+//Покупка
 
 if (location.href.indexOf("/order") > 0) {
 
@@ -215,6 +215,7 @@ if (location.href.indexOf("/order") > 0) {
 
     $("button.submit-button").on("click", function () {
         let p_sheet = [];
+
 
 
         $("div.cart__summary-item").each(function (index) {
@@ -233,7 +234,8 @@ if (location.href.indexOf("/order") > 0) {
 
 
         if ($.cookie('ya_order') == null) {
-
+console.log('"button.submit-button""button.submit-button""button.submit-button"');
+console.log(p_sheet);
             window.dataLayer.push({
                 "ecommerce": {
                     "currencyCode": "RUB",

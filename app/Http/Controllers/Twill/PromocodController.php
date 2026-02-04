@@ -45,7 +45,14 @@ class PromocodController extends BaseModuleController
         );
 
 
-        $table->add(Text::make()->field('orders_count')->title('Кол-во заказов'));
+
+        //$table->add(Text::make()->field('orders_count')->title('Кол-во заказов'));
+        $table->add(
+            Text::make()->field('orders_count')->title('Кол-во заказов')->renderHtml()->customRender(function ($item) {
+
+                return  '<a href="/hub/orderpromocode?x_promocod_id='.$item->id.'" target="_blank">' . $item->orders_count  . '</a>';
+            })
+        );
         $table->add(Text::make()->field('average_order_amount')->title('Средний чек'));
         $table->add(Text::make()->field('discount_sum')->title('Сумма скидок'));
 
@@ -131,10 +138,7 @@ class PromocodController extends BaseModuleController
                     0 => 'Нет',
                 ]),
 
-          /*  MultiSelect::make()
-                ->name('products')
-                ->label('Товары')
-                ->options(Product::pluck('title','id')->toArray()),*/
+
             MultiSelect::make()
                 ->name('categories')
                 ->label('Категории')
