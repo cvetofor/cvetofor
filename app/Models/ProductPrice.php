@@ -38,13 +38,15 @@ class ProductPrice extends Model {
     }
 
     public function remain() {
-        if ($this->attributes['product_id'] > 0) {
+        if ($this->attributes['product_id'] > 0 && $this->product) {
             return $this->product->remains()->where('market_id', $this->attributes['market_id']);
         }
 
-        return $this->groupProduct->remains()->where('market_id', $this->attributes['market_id']);
+        if($this->groupProduct) {
+            return $this->groupProduct->remains()->where('market_id', $this->attributes['market_id']);
+        }
+        return $this->hasMany(Remain::class,'id')->whereRaw('0 = 1');
     }
-
     public function market(): BelongsTo {
         return $this->belongsTo(Market::class);
     }

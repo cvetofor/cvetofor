@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 class UDSController extends Controller {
     public function check(Request $request) {
 
+
+
+
         session()->forget(['promocode_used', 'promocod_id', 'promocod_used_amount', 'promocod__new_total', 'promocod__old_total','promocod__delivery']);
         if(session()->has('promocode_used')){
             return response()->json([
@@ -37,10 +40,20 @@ class UDSController extends Controller {
         $calcOpearation = $uds->calcCashOperation($promo, $total);
 
         if (isset($calcOpearation->purchase)) {
-            return response()->json([
-                'success' => true,
-                'points' => $calcOpearation->purchase->points,
-            ]);
+            if(isset($calcOpearation->purchase->certificatePoints)&&$calcOpearation->purchase->certificatePoints>0){
+                return response()->json([
+                    'success' => true,
+                    'points' => $calcOpearation->purchase->certificatePoints,
+                ]);
+            }
+            if(isset($calcOpearation->purchase->points) ){
+                return response()->json([
+                    'success' => true,
+                    'points' => $calcOpearation->purchase->points,
+                ]);
+            }
+
+
         } else {
             return response()->json([
                 'success' => false,

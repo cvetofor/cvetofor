@@ -16,11 +16,11 @@
                     <span class="sidenav__link-title">Сменить пароль</span>
                 </a>
             </li>
-            <li class="sidenav__item">
+           {{-- <li class="sidenav__item">
                 <a class="sidenav__link {{ request()->routeIs('profile.changeEmail') ? 'active' : '' }}" href="{{ route('profile.changeEmail') }}">
                     <span class="sidenav__link-title">Сменить E-mail</span>
                 </a>
-            </li>
+            </li>--}}
             <li class="sidenav__item">
                 <form action="{{ route('logout') }}" method="POST">
                     @csrf

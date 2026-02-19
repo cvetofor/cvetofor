@@ -55,7 +55,10 @@ class Order extends Model {
         'uds_points',
         'uds_code',
         'promocod_id',
-        'promocode_points'
+        'promocode_points',
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
     ];
     protected $casts = [
         'address' => 'array',

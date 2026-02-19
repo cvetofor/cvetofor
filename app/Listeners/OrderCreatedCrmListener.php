@@ -271,6 +271,27 @@ class OrderCreatedCrmListener implements ShouldQueue
             ->setValues((new TextareaCustomFieldValueCollection)
                 ->add((new TextareaCustomFieldValueModel)->setValue($receipt))));
 
+
+        if($order->utm_source) {
+            $cf->add((new TextCustomFieldValuesModel)
+                ->setFieldId('506485')
+                ->setValues((new TextCustomFieldValueCollection)
+                    ->add((new TextCustomFieldValueModel)->setValue($order->utm_source))));
+        }
+        if($order->utm_medium) {
+            $cf->add((new TextCustomFieldValuesModel)
+                ->setFieldId('506487')
+                ->setValues((new TextCustomFieldValueCollection)
+                    ->add((new TextCustomFieldValueModel)->setValue($order->utm_medium))));
+        }
+        if($order->utm_campaign) {
+            $cf->add((new TextCustomFieldValuesModel)
+                ->setFieldId('506489')
+                ->setValues((new TextCustomFieldValueCollection)
+                    ->add((new TextCustomFieldValueModel)->setValue($order->utm_campaign))));
+        }
+
+
         return $cf;
     }
 

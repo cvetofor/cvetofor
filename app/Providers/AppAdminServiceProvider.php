@@ -82,6 +82,14 @@ class AppAdminServiceProvider extends ServiceProvider {
                     $childrens->toArray()
                 );
             }));
+            $links1->add(
+                NavigationLink::make()
+                    ->onlyWhen(fn() => \Auth::user()->can('view-module', 'products'))
+                    ->forRoute('twill.bulkgrouproduct.index')
+                    ->title('Массовое редактирование'),
+
+            );
+
 
             TwillNavigation::addLink(
                 NavigationLink::make()

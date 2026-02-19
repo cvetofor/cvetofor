@@ -174,8 +174,22 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
         );
         $table->add(
             Text::make()->field('source')->title('Источник')->renderHtml()->customRender(function ($item) {
+                if($item->source ?? ''){
+                    return $item->source??'';
+                }
+                //'utm_source', 'utm_medium', 'utm_campaign'
+                $array_return=[];
+                if($item->utm_source){
+                    $array_return[]='utm_source: '.$item->utm_source;
+                }
+                if($item->utm_source){
+                    $array_return[]='utm_medium: '.$item->utm_medium;
+                }
+                if($item->utm_source){
+                    $array_return[]='utm_campaign: '.$item->utm_campaign;
+                }
 
-                return $item->source ?? '';
+                return implode("\n", $array_return);
             })
         );
         $actionName = 'Действие';

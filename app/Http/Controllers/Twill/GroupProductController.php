@@ -19,11 +19,18 @@ use App\Models\Remain;
 use App\Services\CatalogService;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use stdClass;
 
 class GroupProductController extends BaseModuleController {
     protected $moduleName = 'groupProducts';
+
+
+
+
+    // Метод для массового действия
+
 
     protected function setUpController(): void {
         $this->labels['listing.filter.all-items'] = __('Все');
@@ -40,9 +47,13 @@ class GroupProductController extends BaseModuleController {
         // $this->enableEditInModal();
         $this->disableSortable();
 
-        $this->disableBulkDelete();
-        $this->disableBulkEdit();
-        $this->disableBulkForceDelete();
+       // $this->disableBulkDelete();
+     //  $this->disableBulkEdit();
+      /*  $this->disableBulkForceDelete();*/
+       // $this->enableBulkFeature();
+        //$this->enableFeature();
+        $this->indexOptions['beforeTable'] = view('twill.admin.bulkActions')->render();
+
     }
 
     protected $indexOptions = [];
@@ -394,6 +405,7 @@ class GroupProductController extends BaseModuleController {
             }
         }
 
+
         return $data;
     }
 
@@ -406,4 +418,30 @@ class GroupProductController extends BaseModuleController {
 
         return parent::index($parentModuleId);
     }
+
+
+    public function bulkPublish(): JsonResponse
+    {
+
+            $gets=GroupProduct::whereIN('id',explode(',',request('ids')))->get();
+                foreach ($gets as $get) {
+                    $get->published =request('publish');
+                    $get->save();
+                }
+
+              //  ->update(['published' => request('publish')]);
+
+                if ($this->request->get('publish')) {
+                    return $this->respondWithSuccess(
+                        twillTrans('twill::lang.listing.bulk-publish.published', ['modelTitle' => $this->modelTitle])
+                    );
+                } else {
+                    return $this->respondWithSuccess(
+                        twillTrans('twill::lang.listing.bulk-publish.unpublished', ['modelTitle' => $this->modelTitle])
+                    );
+                }
+
+    }
+
+
 }

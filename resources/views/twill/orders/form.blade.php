@@ -130,6 +130,11 @@
             @endforeach
         </a17-fieldset>
     @endif
+    <a17-fieldset id="utm_metko" title="UTM-метки" :open="false">
+         <p>utm_source: {{$item->utm_source}}</p>
+         <p>utm_medium: {{$item->utm_medium}}</p>
+         <p>utm_campaign: {{$item->utm_campaign}}</p>
+    </a17-fieldset>
 @endsection
 
 @section('sideFieldsets')

@@ -57,7 +57,7 @@ class ProductPriceDefender {
                 if ((float) $price->public_price !== (float) $item->getPriceSum() * $item->quantity) {
                     // Смотрим цену и чтобы композиция была одинаковой
                     if (! $price->is_custom_price) {
-                        $calculated = $this->priceService->calc($price, $item['attributes']['composition']);
+                        $calculated = $this->priceService->calc($price, $item['attributes']['composition']??[]);
 
                         if ((float) $calculated->total !== (float) $item->getPriceSum() * $item->quantity) {
                             \Cart::update(

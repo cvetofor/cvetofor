@@ -33,6 +33,13 @@ class OrderCreatedUserNotification extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
+        if (
+            empty($notifiable->email) ||
+            !filter_var($notifiable->email, FILTER_VALIDATE_EMAIL)
+        ) {
+            return []; // ⛔️ вообще ничего не отправляем
+        }
+
         return ['mail'];
     }
 

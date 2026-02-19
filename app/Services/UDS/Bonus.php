@@ -65,12 +65,16 @@ class Bonus {
     }
 
     private function sendRequest($endpoint, $method = 'POST', $data = null) {
-        if ($this->marketId != 15) {
-            $strAuth = config('uds.id') . ':' . config('uds.apiKey');
-        } else {
-            // для Ангарская другие параметры
-            $strAuth = config('uds.id_angarsk') . ':' . config('uds.apiKey_angarsk');
-        }
+       if(env('APP_ENV')=='local') {
+           $strAuth = '549756083639' . ':' .'MjAwNGZmMGYtYmQxOS00NGI0LWE4YjItMmY1YjczMjU4Nzc0';
+       }else{
+           if ($this->marketId != 15) {
+               $strAuth = config('uds.id') . ':' . config('uds.apiKey');
+           } else {
+               // для Ангарская другие параметры
+               $strAuth = config('uds.id_angarsk') . ':' . config('uds.apiKey_angarsk');
+           }
+       }
 
         $date = new DateTime();
         $header = [

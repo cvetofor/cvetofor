@@ -3,28 +3,56 @@
 @section('content')
     <div class="stats-container">
         <a17-title-editor title="Статистика"></a17-title-editor>
-        <form action="{{ route('twill.stats.index') }}" method="GET" class="stats-form">
+        <form action="{{ route('twill.stats.index') }}" method="GET" class="stats-form1">
+            <div style="display: flex;width: 700px;gap: 20px;
+align-items: flex-end;
+margin-bottom: 30px;
+border-bottom: 1px solid #eee;
+padding-bottom: 30px;
+justify-content: center;">
             <div>
-                <label for="start_date">Дата с</label>
-                <input type="date" id="start_date" name="start_date" value="{{ $stats['start_date'] ?? '' }}" class="form-control">
+                <label for="utm_source">utm_source</label>
+                <input type="text" id="utm_source" name="utm_source" value="{{request('utm_source') }}" class="form-control">
             </div>
             <div>
-                <label for="end_date">Дата по</label>
-                <input type="date" id="end_date" name="end_date" value="{{ $stats['end_date'] ?? '' }}" class="form-control">
+                <label for="utm_medium">utm_medium</label>
+                <input type="text" id="utm_medium" name="utm_medium" value="{{ request('utm_medium')  }}" class="form-control">
             </div>
             <div>
-                <label for="market_id">Магазин</label>
-                <select name="market_id" id="market_id" class="form-control">
-                    <option value="all">Все магазины</option>
-                    @foreach ($stats['markets'] as $market)
-                        <option value="{{ $market->id }}" {{ ($stats['selected_market_id'] == $market->id) ? 'selected' : '' }}>
-                            {{ $market->name }}
-                        </option>
-                    @endforeach
-                </select>
+                <label for="utm_campaign">utm_campaign</label>
+                <input type="text" id="utm_campaign" name="utm_campaign" value="{{ request('utm_campaign')}}" class="form-control">
             </div>
-            <div>
-                <button type="submit" class="btn">Применить</button>
+            </div>
+
+            <div style="display: flex;width: 700px;padding-top: 30px;display: flex;
+gap: 20px;
+align-items: flex-end;
+margin-bottom: 30px;
+border-bottom: 1px solid #eee;
+padding-bottom: 30px;
+justify-content: center;">
+                <div>
+                    <label for="start_date">Дата с</label>
+                    <input type="date" id="start_date" name="start_date" value="{{ $stats['start_date'] ?? '' }}" class="form-control">
+                </div>
+                <div>
+                    <label for="end_date">Дата по</label>
+                    <input type="date" id="end_date" name="end_date" value="{{ $stats['end_date'] ?? '' }}" class="form-control">
+                </div>
+                <div>
+                    <label for="market_id">Магазин</label>
+                    <select name="market_id" id="market_id" class="form-control" style="height: 45px">
+                        <option value="all">Все магазины</option>
+                        @foreach ($stats['markets'] as $market)
+                            <option value="{{ $market->id }}" {{ ($stats['selected_market_id'] == $market->id) ? 'selected' : '' }}>
+                                {{ $market->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="btn">Применить</button>
+                </div>
             </div>
             <input type="hidden" name="bouquet_search" id="bouquet_search" value="{{ request('bouquet_search', '') }}">
             <input type="hidden" name="sort_by" id="sort_by" value="{{ request('sort_by', '') }}">

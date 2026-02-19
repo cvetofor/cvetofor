@@ -8,6 +8,7 @@
 @endphp
 
 @section('content')
+
     <div class="heading">
         <div class="container">
             <div class="heading__row">
@@ -381,7 +382,7 @@
                             <div class="section">
                                 <div class="form__buttonholder">
                                     <div class="buttonholder" data-form-trigger="">
-                                        <button type="submit" class="form__button button button--green submit-button" disabled="" data-form-button="">
+                                        <button type="submit" class="form__button button button--green submit-button send_success_order" disabled="" data-form-button="">
                                         <span>Оплатить
                                             заказ</span>
                                         </button>
