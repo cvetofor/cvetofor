@@ -44,10 +44,12 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         \Gate::define('is_owner', function ($user) {
+
             return $user->is_superadmin || ($user->role->code ?? false) == 'owner';
         });
 
         \Gate::define('edit', function ($user, $item) {
+
             return in_array($item->market_id, $user->getMarketIds(), true)
                 || \Gate::allows('is_owner')
                 || (is_a($item, Market::class) && in_array($item->id, $user->getMarketIds(), true))

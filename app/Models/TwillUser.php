@@ -377,7 +377,7 @@ class User extends AuthenticatableContract implements TwillModelContract
             return Session::get('market_id');
         } else {
             return Session::remember('market_id', function () {
-                return \Arr::first($this->getMarketIds());
+                return \Arr::first([1]);
             });
         }
     }

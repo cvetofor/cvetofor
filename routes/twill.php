@@ -9,6 +9,8 @@ use App\Http\Controllers\Twill\ProductController;
 use App\Http\Controllers\Twill\GroupProductController;
 
 Route::get('/', 'App\Http\Controllers\Twill\OrderController@index')->name('dashboard');
+Route::get('/orderpromocode', 'App\Http\Controllers\Twill\OrderPromocodeController@index')->name('orderpromocode');
+
 
 Route::get('/history/f/{groupProduct}', [GroupProductController::class, 'history'])->name('history.groupProduct.price');
 Route::get('/history/p/{product}', [ProductController::class, 'history'])->name('history.product.price');
@@ -45,6 +47,10 @@ TwillRoutes::module('categories');
 
 Route::name('stats.')->group(function () {
     Route::get('/stats', [\App\Http\Controllers\Twill\StatController::class, 'index'])->name('index');
+});
+Route::name('bulkgrouproduct.')->group(function () {
+    Route::get('/bulkgrouproduct', [\App\Http\Controllers\Twill\GroupProductBulkController::class, 'index'])->name('index');
+    Route::post('/bulkgrouproduct/doit', [\App\Http\Controllers\Twill\GroupProductBulkController::class, 'doit'])->name('doit');
 });
 
 TwillRoutes::module('markets');

@@ -87,9 +87,11 @@ class PaymentGateway
 
                 $link = $payment->getPaymentUrl($order);
                 $order->update(['payment_link' => $link]);
-                \Log::channel('marketplace')->info('Создание платежной ссылки через yookassa', ['orderId_link' =>$link]);
+                \Log::channel('marketplace')
+                    ->info('Создание платежной ссылки через yookassa', ['orderId_link' =>$link]);
             }catch (\Exception $exception){
-                \Log::channel('marketplace')->info('Создание платежной ссылки через yookassa', ['orderId_link' =>$exception->getMessage()]);
+                \Log::channel('marketplace')
+                    ->info('Создание платежной ссылки через yookassa', ['orderId_link' =>$exception->getMessage()]);
             }
             // redirect to payment url
             return $link;

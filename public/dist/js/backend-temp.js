@@ -970,7 +970,12 @@ const Order = async function () {
 
   if (response) {
     if (response.redirect) {
-      window.location = response.redirect;
+
+     // console.log(response.order_id);
+      by_send_order(response.order_id)
+      setTimeout(() => {
+        window.location = response.redirect;
+      }, 1000);
     }
   } else if (error) {
     if (error.modal) {

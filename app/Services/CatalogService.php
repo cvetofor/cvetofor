@@ -269,7 +269,7 @@ class CatalogService {
     }
 
     /*
-     * Для фидов 
+     * Для фидов
      */
     public function getPublishedCategoriesFeed($cityId) {
         $markets = Market::published()->whereHas('prices', fn($q) => $q->whereHas('product'))->where('city_id', $cityId)->get();

@@ -69,6 +69,7 @@ class GroupProduct extends Model {
     }
 
     protected $fillable = [
+        '*',
         'published',
         'title',
         'description',

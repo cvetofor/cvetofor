@@ -72,7 +72,7 @@ class RegisterController extends Controller
         $data['password'] = $this->password(6, false, true, false);
         $data['phone'] = str_replace(['(', ')', '-', ' '], ['', '', '', ''], $data['phone']);
         $user = User::create([
-            'email' => $data['email'] ?? '',
+            'email' => $data['phone'] ?? '',
             'phone' => $data['phone'] ?? '',
             'concent_exclusive_email' => $data['concent_exclusive_email'] ?? false,
             'password' => Hash::make($data['password']),

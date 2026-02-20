@@ -82,6 +82,14 @@ class AppAdminServiceProvider extends ServiceProvider {
                     $childrens->toArray()
                 );
             }));
+            $links1->add(
+                NavigationLink::make()
+                    ->onlyWhen(fn() => \Auth::user()->can('view-module', 'products'))
+                    ->forRoute('twill.bulkgrouproduct.index')
+                    ->title('Массовое редактирование'),
+
+            );
+
 
             TwillNavigation::addLink(
                 NavigationLink::make()
@@ -137,37 +145,22 @@ class AppAdminServiceProvider extends ServiceProvider {
                     [
                         NavigationLink::make()
                             ->onlyWhen(fn() => \Auth::user()->can('view-module', 'nameDateIntervals'))
-                            ->forModule('nameDateIntervals')->title('Интервалы на день'),
-
-                        NavigationLink::make()
-                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'menuPrices'))
-                            ->forModule('menuPrices')->title('Цены меню'),
-                        NavigationLink::make()
-                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'menuFlovers'))
-                            ->forModule('menuFlovers')->title('Цветы в меню'),
-                        NavigationLink::make()
-                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'promocods'))
-                            ->forModule('promocods')->title('Промокоды'),
-                        NavigationLink::make()
-                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'pages'))
-                            ->forModule('pages')->doNotAddSelfAsFirstChild()->title('Страницы'),
-
-                        NavigationLink::make()
-                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'payments'))
-                            ->forModule('payments')->title('Платежные системы'),
-
-                        NavigationLink::make()
-                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'hollydays'))
-                            ->forModule('hollydays')->title('Праздники'),
-
-                        NavigationLink::make()
-                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'tags'))
-                            ->forModule('tags')->title('Поводы'),
-
-                        NavigationLink::make()
-                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'paymentStatuses'))
-                            ->forModule('paymentStatuses')->doNotAddSelfAsFirstChild()->title('Статусы')->setChildren(
+                            ->forModule('nameDateIntervals')->title('Прочee')
+                            ->setChildren(
                                 [
+                                    NavigationLink::make()
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'nameDateIntervals'))
+                                        ->forModule('nameDateIntervals')->title('Интервалы на день'),
+
+                                    NavigationLink::make()
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'menuPrices'))
+                                        ->forModule('menuPrices')->title('Цены меню'),
+                                    NavigationLink::make()
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'menuFlovers'))
+                                        ->forModule('menuFlovers')->title('Цветы в меню'),
+                                    NavigationLink::make()
+                                        ->onlyWhen(fn() => \Auth::user()->can('view-module', 'payments'))
+                                        ->forModule('payments')->title('Платежные системы'),
                                     NavigationLink::make()
                                         ->onlyWhen(fn() => \Auth::user()->can('view-module', 'orderStatuses'))
                                         ->forModule('orderStatuses')->title('Статусы заказа'),
@@ -177,8 +170,26 @@ class AppAdminServiceProvider extends ServiceProvider {
                                     NavigationLink::make()
                                         ->onlyWhen(fn() => \Auth::user()->can('view-module', 'deliveryStatuses'))
                                         ->forModule('deliveryStatuses')->title('Статусы доставки'),
-                                ]
-                            ),
+                                ]),
+
+                        NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'promocods'))
+                            ->forModule('promocods')->title('Промокоды'),
+                        NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'pages'))
+                            ->forModule('pages')->doNotAddSelfAsFirstChild()->title('Страницы'),
+
+
+
+                        NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'hollydays'))
+                            ->forModule('hollydays')->title('Праздники'),
+
+                        NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'tags'))
+                            ->forModule('tags')->title('Поводы'),
+
+
                         NavigationLink::make()
                             ->onlyWhen(fn() => \Auth::user()->can('view-module', 'categories'))
                             ->forModule('categories')->title('Категории товаров'),

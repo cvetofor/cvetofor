@@ -327,8 +327,9 @@ session()->forget('order_delivery_radius_km');
     <script src="/dist/js/scripts.js"></script>
 
     <script src="/dist/js/dev-temp.js?v=0.1"></script>
-    <script src="/dist/js/backend-temp.js?v=0.8"></script>
-    <script src="/dist/js/ya_commerce.js"></script>
+    <script src="/dist/js/backend-temp.js?v=0.101"></script>
+    <script src="/dist/js/ya_commerce.js?v=132"></script>
+    @stack('scripts2')
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const urlHasCityParam = new URLSearchParams(window.location.search).has('city');

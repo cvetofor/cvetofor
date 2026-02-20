@@ -20,11 +20,16 @@ class StatController extends Controller {
         $sortDir = $request->input('sort_dir', 'desc');
 
         $ordersQuery = Order::query()
-            ->where('order_status_id', 4) // Статус "Выполнен"
+          ->where('order_status_id', 4) // Статус "Выполнен"
             ->whereBetween('created_at', [$startDate, Carbon::parse($endDate)->endOfDay()]);
 
         if ($marketId && $marketId !== 'all') {
             $ordersQuery->where('market_id', $marketId);
+        }
+        foreach (['utm_source', 'utm_medium', 'utm_campaign'] as $utm) {
+            if (request($utm)) {
+                $ordersQuery->where($utm, request($utm));
+            }
         }
 
         $orders = $ordersQuery->get();

@@ -300,6 +300,10 @@ class OrderController extends Controller
                 }
             }
 
+            $orderRequest['utm_source']= session('utm_source');
+            $orderRequest['utm_medium']= session('utm_medium');
+            $orderRequest['utm_campaign']= session('utm_campaign');
+
 
             // --- UDS: если были списаны баллы, используем новую сумму и записываем баллы ---
             if (!session('promocode_used') && session('uds_points_used') && session('uds_points_amount') && session('uds_new_total')) {
@@ -364,7 +368,16 @@ class OrderController extends Controller
 
             $orderRequest['published'] = true;
             $orderRequest['source'] = $botName;
-            $order = Order::create(array_merge($orderRequest->toArray(), $meta));
+
+
+            $craete_to_order=array_merge($orderRequest->toArray(), $meta);
+            $craete_to_order['utm_source']= session('utm_source');
+            $craete_to_order['utm_medium']= session('utm_medium');
+            $craete_to_order['utm_campaign']= session('utm_campaign');
+
+// Очищаем UTM из сессии после сохранения заказа
+
+            $order = Order::create($craete_to_order);
 
             // Если это оплата по счёту
             if ($orderRequest->has('legal_account') && $order->isPaymentByInvoce()) {
@@ -480,8 +493,9 @@ class OrderController extends Controller
             \App\Jobs\SendOrderReminder::dispatch($order->id)->delay(now()->addMinutes(10));
             \session()->forget('order_delivery_radius_km');
             \session()->forget(['uds_points_used', 'uds_points_amount', 'uds_new_total', 'uds_old_total', 'uds_points', 'uds_code','promocode_used', 'promocod_id', 'promocod_used_amount', 'promocod__new_total', 'promocod__old_total', 'promocod__delivery']);
-
+            session()->forget(['utm_source', 'utm_medium', 'utm_campaign']);
             return response()->json([
+                'order_id'=>$order->num_order,
                 'redirect' => $redirect,
             ]);
         }
@@ -565,6 +579,7 @@ class OrderController extends Controller
 
         $cart = \Cart::getContent();
         $cartByMarket = $cart->sortBy('attributes.order')->groupBy('attributes.market_id');
+        $deliveryRadiusKm=0;
 
         foreach ($cartByMarket as $_market) {
             $market = Market::find($_market->first()->associatedModel->market->id);

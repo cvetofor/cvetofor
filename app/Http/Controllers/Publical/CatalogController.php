@@ -7,6 +7,7 @@ use A17\Twill\Models\Tag;
 use App\Helpers\SeoinfoHelper;
 use App\Http\Controllers\Controller;
 use App\Models\GroupProductCategory;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductPrice;
 use App\Repositories\GroupProductCategoryRepository;
@@ -14,6 +15,7 @@ use App\Repositories\GroupProductRepository;
 use App\Services\CatalogService;
 use App\Services\CitiesService;
 use App\Services\Defenders\ProductPriceDefender;
+use App\Services\UDS\Bonus;
 use App\ViewModel\CatalogController\MainPageTagsModel;
 use Artesaos\SEOTools\Facades\SEOTools;
 use CwsDigital\TwillMetadata\Traits\SetsMetadata;
@@ -26,6 +28,7 @@ class CatalogController extends Controller {
     use SetsMetadata;
 
     protected $ttl = 0;
+
 
     public function index(Request $request, CatalogService $catalogService) {
         $categories = GroupProductCategory::published()->has('products')->get();
@@ -395,6 +398,8 @@ class CatalogController extends Controller {
         GroupProductCategoryRepository $groupProductCategoryRepository,
         ProductPriceDefender $productPriceDefender,
     ) {
+
+
         $groupProduct = $price->groupProduct;
 
         $breadcrumbs = isset($groupProduct->category) ? array_reverse($this->breadcrumbs($groupProduct->category)) : [];
@@ -403,9 +408,26 @@ class CatalogController extends Controller {
         $item->nestedSlug = '';
         $item->title = $groupProduct->title ?? '';
         $breadcrumbs[] = $item;
+        \Log::channel('single')->info(request()->fullUrl());
+        /* if(!$price->product){
+             return abort(404);
+         }*/
+        try {
 
-        $canPutToCart = ! $productPriceDefender->isProductNotPublished($price);
+            //  dd($price->remain);
+            //   dd($price);
+            $canPutToCart = ! $productPriceDefender->isProductNotPublished($price);
+        }catch (\Exception $exception){
+            $canPutToCart=false;
+        }
 
+
+        if(!$price->market){
+            return abort(404);
+        }
+        if(!$groupProduct||!($groupProduct->category??NULL)){
+            return abort(404);
+        }
         abort_if(
             ($groupProduct->category && $slug !== $groupProduct->category->nestedSlug . '/' . $groupProduct->slug
                 || ! $price->market->isActive()

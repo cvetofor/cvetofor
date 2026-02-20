@@ -40,6 +40,7 @@ class Kernel extends HttpKernel {
             AdminDebugBar::class,
             \App\Http\Middleware\GeoMiddleware::class,
             \App\Http\Middleware\CityFromQueryString::class,
+            \App\Http\Middleware\SaveUtm::class,
         ],
 
         'logs' => [
