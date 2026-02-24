@@ -47,6 +47,7 @@
                                     </div>
                                     <div class="fields fields--gap-20-30" data-fields="address">
                                         <div class="inputholder inputholder--width-three-quarters form__inputholder">
+                                            <input type="hidden" name="know-address" id="know-address" value="1">
                                             <label class="inputholder__label" data-default-label="data-default-label"><span class="required-label"> Адрес (город, улица, № дома) </span></label>
                                             <input class="inputholder__input" type="text" name="address"
 

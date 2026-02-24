@@ -845,6 +845,7 @@ const dontKnowAddressButton = document.querySelector('[data-dont-know-address="t
 if (dontKnowAddressButton) {
   dontKnowAddressButton.addEventListener('click', async (e) => {
     calcDelivery({});
+    document.getElementById('know-address').value = 0;
   })
 }
 
@@ -852,7 +853,7 @@ const knowAddressButton = document.querySelector('[data-know-address="true"]');
 if (knowAddressButton) {
   knowAddressButton.addEventListener('click', async (e) => {
     let address = getDeliveryAddress() === 'data-delivery-address' ? document.querySelector('[name="address"]').value : getDeliveryAddress();
-
+    document.getElementById('know-address').value = 1;
     await ymaps
       .geocode(address, {
         results: 1,
