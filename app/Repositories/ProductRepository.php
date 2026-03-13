@@ -173,7 +173,9 @@ class ProductRepository extends ModuleRepository {
      */
     public static function changeAccessibilityOnGroupProducts(Product $product, $marketId = null) {
         $marketId = $marketId ?: auth('twill_users')->user()->getMarketId();
-        $groupProducts = GroupProduct::whereHas('blocks', function ($q) use ($product) {
+        $groupProducts = GroupProduct::
+         whereHas('remains', fn($qr) => $qr->where('market_id', $marketId))
+            ->whereHas('blocks', function ($q) use ($product) {
             if ($product->parent) {
                 // Если это SKU продукт (конкретный цвет), ищем букеты с этим цветом
                 $colorId = $product->getRelated('colors')->first()->id ?? null;
@@ -245,7 +247,7 @@ class ProductRepository extends ModuleRepository {
                 }
 
                 // Если все цветки с нужным цветом доступны, включаем букет, иначе выключаем
-                Remain::where('group_product_id', $groupProductId)
+                Remain::where('group_product_id', $groupProductId)->where('market_id',$marketId)
                     ->update(['published' => $allAvailable]);
             }
             return;
