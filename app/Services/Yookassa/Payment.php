@@ -30,6 +30,8 @@ class Payment {
             ];
         }
 
+
+
         $delivery = Delivery::where('order_id', $order->id + 1)->first();
 
         if (isset($delivery) && $delivery->price != 0) {
@@ -45,6 +47,7 @@ class Payment {
         }
 
         if (!empty($order->uds_points) && $order->uds_points > 0 && count($items) > 0) {
+
             $points = $order->uds_points;
 
             // Фильтруем только товары (исключаем доставку и открытку)
@@ -53,23 +56,51 @@ class Payment {
             });
 
             $itemCount = count($productItems);
+
             if ($itemCount > 0) {
-                $pointsPerItem = floor(($points / $itemCount) * 100) / 100; // округление вниз до копеек
+
                 $pointsSum = 0;
                 $productIndexes = array_keys($productItems);
 
+                // 🔹 НОВОЕ: считаем общую сумму товаров С УЧЁТОМ quantity
+                $totalProductsSum = 0;
+                foreach ($productIndexes as $index) {
+                    $totalProductsSum +=
+                        (float)$items[$index]['amount']['value']
+                        * $items[$index]['quantity'];
+                }
+
                 foreach ($productIndexes as $idx => $itemIndex) {
-                    // Для последнего товара вычитаем остаток, чтобы сумма совпала
+
+                    // 🔹 НОВОЕ: считаем сумму строки (цена × количество)
+                    $rowSum =
+                        (float)$items[$itemIndex]['amount']['value']
+                        * $items[$itemIndex]['quantity'];
+
+                    // Для последнего товара вычитаем остаток
                     if ($idx === count($productIndexes) - 1) {
                         $itemPoints = round($points - $pointsSum, 2);
                     } else {
-                        $itemPoints = $pointsPerItem;
+                        // 🔹 ИЗМЕНЕНО: распределяем скидку пропорционально сумме строки
+                        $itemPoints = floor(($rowSum / $totalProductsSum * $points) * 100) / 100;
                         $pointsSum += $itemPoints;
                     }
 
-                    $oldValue = (float)$items[$itemIndex]['amount']['value'];
-                    $newValue = max(0, round($oldValue - $itemPoints, 2));
-                    $items[$itemIndex]['amount']['value'] = number_format($newValue, 2, '.', '');
+                    // 🔹 НОВОЕ: уменьшаем общую сумму строки
+                    $newRowSum = max(0, round($rowSum - $itemPoints, 2));
+
+                    // 🔹 НОВОЕ: пересчитываем цену ЗА ЕДИНИЦУ
+                    $newUnitPrice = round(
+                        $newRowSum / $items[$itemIndex]['quantity'],
+                        2
+                    );
+
+                    $items[$itemIndex]['amount']['value'] = number_format(
+                        $newUnitPrice,
+                        2,
+                        '.',
+                        ''
+                    );
                 }
 
                 // Корректировка последнего товара для точного совпадения суммы
@@ -80,11 +111,21 @@ class Payment {
                 $amountValue = (float)number_format($order->total_price, 2, '.', '');
                 $diff = round($amountValue - $itemsSum, 2);
 
-                if (abs($diff) > 0) {
+                // 🔹 ИЗМЕНЕНО: корректировка теперь учитывает quantity
+                if (abs($diff) >= 0.01) {
+
                     $lastProductIndex = end($productIndexes);
-                    $newLastValue = (float)$items[$lastProductIndex]['amount']['value'] + $diff;
+
+                    $lastQuantity = $items[$lastProductIndex]['quantity'];
+                    $lastUnitValue = (float)$items[$lastProductIndex]['amount']['value'];
+
+                    $newLastUnitPrice = round(
+                        (($lastUnitValue * $lastQuantity) + $diff) / $lastQuantity,
+                        2
+                    );
+
                     $items[$lastProductIndex]['amount']['value'] = number_format(
-                        max(0, $newLastValue),
+                        max(0, $newLastUnitPrice),
                         2,
                         '.',
                         ''
@@ -93,7 +134,9 @@ class Payment {
             }
         }
 
+
         if (!empty($order->promocode_points) && $order->promocode_points > 0 && count($items) > 0) {
+
             $points = $order->promocode_points;
 
             // Фильтруем только товары (исключаем доставку и открытку)
@@ -102,23 +145,50 @@ class Payment {
             });
 
             $itemCount = count($productItems);
+
             if ($itemCount > 0) {
-                $pointsPerItem = floor(($points / $itemCount) * 100) / 100; // округление вниз до копеек
+
                 $pointsSum = 0;
                 $productIndexes = array_keys($productItems);
 
+                // 🔹 НОВОЕ: считаем общую сумму товаров с учетом quantity
+                $totalProductsSum = 0;
+                foreach ($productIndexes as $index) {
+                    $totalProductsSum +=
+                        (float)$items[$index]['amount']['value']
+                        * $items[$index]['quantity'];
+                }
+
                 foreach ($productIndexes as $idx => $itemIndex) {
-                    // Для последнего товара вычитаем остаток, чтобы сумма совпала
+
+                    // 🔹 НОВОЕ: сумма строки (цена × количество)
+                    $rowSum =
+                        (float)$items[$itemIndex]['amount']['value']
+                        * $items[$itemIndex]['quantity'];
+
                     if ($idx === count($productIndexes) - 1) {
                         $itemPoints = round($points - $pointsSum, 2);
                     } else {
-                        $itemPoints = $pointsPerItem;
+                        // 🔹 ИЗМЕНЕНО: распределяем пропорционально сумме строки
+                        $itemPoints = floor(($rowSum / $totalProductsSum * $points) * 100) / 100;
                         $pointsSum += $itemPoints;
                     }
 
-                    $oldValue = (float)$items[$itemIndex]['amount']['value'];
-                    $newValue = max(0, round($oldValue - $itemPoints, 2));
-                    $items[$itemIndex]['amount']['value'] = number_format($newValue, 2, '.', '');
+                    // 🔹 НОВОЕ: уменьшаем сумму строки
+                    $newRowSum = max(0, round($rowSum - $itemPoints, 2));
+
+                    // 🔹 НОВОЕ: пересчитываем цену за единицу
+                    $newUnitPrice = round(
+                        $newRowSum / $items[$itemIndex]['quantity'],
+                        2
+                    );
+
+                    $items[$itemIndex]['amount']['value'] = number_format(
+                        $newUnitPrice,
+                        2,
+                        '.',
+                        ''
+                    );
                 }
 
                 // Корректировка последнего товара для точного совпадения суммы
@@ -129,11 +199,21 @@ class Payment {
                 $amountValue = (float)number_format($order->total_price, 2, '.', '');
                 $diff = round($amountValue - $itemsSum, 2);
 
-                if (abs($diff) > 0) {
+                // 🔹 ИЗМЕНЕНО: корректировка учитывает quantity
+                if (abs($diff) >= 0.01) {
+
                     $lastProductIndex = end($productIndexes);
-                    $newLastValue = (float)$items[$lastProductIndex]['amount']['value'] + $diff;
+
+                    $lastQuantity = $items[$lastProductIndex]['quantity'];
+                    $lastUnitValue = (float)$items[$lastProductIndex]['amount']['value'];
+
+                    $newLastUnitPrice = round(
+                        (($lastUnitValue * $lastQuantity) + $diff) / $lastQuantity,
+                        2
+                    );
+
                     $items[$lastProductIndex]['amount']['value'] = number_format(
-                        max(0, $newLastValue),
+                        max(0, $newLastUnitPrice),
                         2,
                         '.',
                         ''
@@ -180,9 +260,14 @@ class Payment {
         $res = curl_exec($ch);
 
         curl_close($ch);
+        /*if($order->id==14457){
+            dd($res,$order);
+        }*/
         if (isset(json_decode($res, true)['confirmation']['confirmation_url'])) {
             return json_decode($res, true)['confirmation']['confirmation_url'];
+
         } else {
+            \Log::channel('marketplace')->info('Ошибка кассы данные', ['data' =>$data,'orderId' => $order->id]);
             \Log::channel('marketplace')->info('Ошибка кассы', ['orderId_link' =>$res]);
             return null;
         }
