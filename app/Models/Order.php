@@ -141,6 +141,10 @@ class Order extends Model {
             ->where('parent_id', '<>', null)
             ->where('city_id', auth('twill_users')->user()->market->city->id ?? null);
     }
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
 
     public function user() {
         return $this->belongsTo(User::class, 'user_id');

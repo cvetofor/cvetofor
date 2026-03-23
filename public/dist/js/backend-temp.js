@@ -972,7 +972,7 @@ const Order = async function () {
     if (response.redirect) {
 
      // console.log(response.order_id);
-      by_send_order(response.order_id)
+      by_send_order(response.order_id,response.products)
       setTimeout(() => {
         window.location = response.redirect;
       }, 1000);

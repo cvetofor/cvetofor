@@ -241,7 +241,7 @@ class Payment {
                 'tax_system_code' => $order->payment->tax_system_code,
             ],
             'capture' => true,
-            'description' => 'Оплата заказа #' . $order->num_order . ', для ' . $customerName,
+            'description' => 'Оплата заказа #' . $order->num_order . ', для ' . $customerName.'. г.'.($order->city->city??''),
             'metadata' => [
                 'order_id' => $order->id,
             ],

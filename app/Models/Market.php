@@ -292,11 +292,10 @@ class Market extends Model
         return sprintf('%02d:%02d', $hours, $remainingMinutes);
     }
 
-    private static function intervalAvailable($interval, $currentTime)
+    private static function intervalAvailable($interval, $currentTime,$test=0)
     {
         [$start_hour, $start_minutes] = explode(':', $interval->start_time);
         $startMinutes = $start_hour * 60 + $start_minutes;
-
         [$close_hour, $close_min] = explode(':', $interval->close_time);
         $closeMinutes = $close_hour * 60 + $close_min;
 
@@ -450,10 +449,10 @@ class Market extends Model
 
             // Добавляем в todayTimes только если это сегодня
 
-            if ($thisDay === $interval->date && ! in_array($intervalString, ($availableDateTimes[$interval->date]??[])) && self::intervalAvailable($interval, $currentTimeInMinutes)) {
-                $availableDateTimes[$interval->date] = $intervalString;
+            if ($thisDay == $interval->date && !in_array($intervalString, ($availableDateTimes[$interval->date]??[])) && self::intervalAvailable($interval, $currentTimeInMinutes,1)) {
+              //  dd($intervalString);
+                $availableDateTimes[$interval->date][] = $intervalString;
             }
-
 
         }
 

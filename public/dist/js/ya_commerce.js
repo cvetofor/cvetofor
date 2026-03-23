@@ -89,6 +89,7 @@ $("div.product").on("click", function () {
   });
 
 
+
 });
 
 
@@ -118,6 +119,7 @@ if (location.href.indexOf("/catalog/") > 0) {
 }
 
 
+
 //Добавление товара в корзину
 
 
@@ -144,6 +146,7 @@ $("button.add-product-to-cart-button").on("click", function () {
 
 
 });
+
 
 
 //Добавление товара в корзину из карточки товара
@@ -201,26 +204,43 @@ $("button.remove-cart-item-button").on("click", function () {
 
 
 //Покупка
-
-//Покупка
 function by_send_order(order_id,p_sheet) {
 
+
+
+
+
+
+
   console.log(p_sheet);
+  var oid = new Date() / 1000;
 
-  if ($.cookie('ya_order') == null) {
 
-    window.dataLayer.push({
-      "ecommerce": {
-        "currencyCode": "RUB",
-        "purchase": {
-          "actionField": {
-            "id": order_id
-          },
-          "products": p_sheet
-        }
+  //if ($.cookie('ya_order') == null) {
+  console.log('"button.submit-button""button.submit-button""button.submit-button"');
+  console.log({
+    "ecommerce": {
+      "currencyCode": "RUB",
+      "purchase": {
+        "actionField": {
+          "id": order_id
+        },
+        "products": p_sheet
       }
-    });
-    $.cookie('ya_order', '1', {expires: 1, path: '/', secure: true});
-  }
+    }
+  });
+  window.dataLayer.push({
+    "ecommerce": {
+      "currencyCode": "RUB",
+      "purchase": {
+        "actionField": {
+          "id": order_id
+        },
+        "products": p_sheet
+      }
+    }
+  });
+  $.cookie('ya_order', '1', {expires: 1, path: '/', secure: true});
+  //  }
 
 }

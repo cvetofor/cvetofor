@@ -4077,7 +4077,7 @@ span.flatpickr-weekday {
 }
 @media screen and (max-width: 480px) {
   .products__wrap {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 .products__wrap > .show-more-button,
@@ -6527,6 +6527,8 @@ span.flatpickr-weekday {
 .telegram { background: linear-gradient(135deg, #289ed9 0%, #2ea5dc 100%) }
 .vk { background-color: #4a76a8; }
 .whatsapp { background-color: #25D366; }
+.maxapp { background-color: #2E2CB8BD;;
+ }
 
 @media (max-width: 1199px) {
   .social-floating {
