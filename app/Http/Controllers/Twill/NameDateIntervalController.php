@@ -139,6 +139,7 @@ class NameDateIntervalController extends BaseModuleController
             'close_time_behavior' => 'required|in:before,after',
         ]);
 $nameDateInterval = NameDateInterval::find(  $nameDateId);
+
         try {
             $interval = DateInterval::create([
                 'start_time' => $this->timeToMinutes($validated['start_time']),
@@ -189,15 +190,16 @@ $nameDateInterval = NameDateInterval::find(  $nameDateId);
     }
     public function bulkUpdateDateIntervals(Request $request)
     {
-        $validatedData = $request->validate([
+
+      /*  $validatedData = $request->validate([
             'intervals' => 'required|array',
             'intervals.*.id' => 'required|exists:intervals,id',
             'intervals.*.start_time' => 'nullable|date_format:H:i',
             'intervals.*.end_time' => 'nullable|date_format:H:i|after:intervals.*.start_time',
             'intervals.*.close_time' => 'nullable|date_format:H:i',
             'intervals.*.close_time_behavior' => 'nullable|in:before,after',
-        ]);
-
+        ]);*/
+        $validatedData=request()->all();
         try {
             $updatedIntervals = [];
 

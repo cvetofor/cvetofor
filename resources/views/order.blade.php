@@ -387,9 +387,19 @@
                                             заказ</span>
                                         </button>
                                     </div>
-                                    <span class="form__policy policy">Я принимаю и соглашаюсь на обработку <a class="policy__link" href="/policy">персональных
+
+                                    <div class="fields fields--checkbox">
+
+                                            <span class="checkbox">
+                                        <input type="checkbox" name="pdn" id="pdn" required/>
+                                        <label class="checkbox__title" for="pdn">
+                                            <span class="form__policy policy">Я принимаю условия и даю согласие на обработку моих персональных данных в соответствии с политикой обработки персональных данных. Полный текст <a class="policy__link" href="/policy">политики обработки персональных данных</a>. Соглашаюсь, что цветы - уникальный товар, который может отличаться по форме, размеру и оттенку от товара на выбранном фото.</span></label>
+
+                                    </span>
+                                    </div>
+                                    {{--<span class="form__policy policy">Я принимаю и соглашаюсь на обработку <a class="policy__link" href="/policy">персональных
                                         данных</a>.<br /> Соглашаюсь, что цветы - уникальный товар, который может отличаться по
-                                    форме, размеру и оттенку от товара на выбранном фото.</span>
+                                    форме, размеру и оттенку от товара на выбранном фото.</span>--}}
                                 </div>
                             </div>
                         </form>
@@ -551,13 +561,13 @@
         </div>
         @if($citiesService::getCity()->id === 98)
             {{-- Улан-Удэ --}}
-            @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'whatsapp' => 'https://wa.me/79676202220'])
+            @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'max' => 'https://max.ru/u/f9LHodD0cOLgrXnbA1KU0-Ck3B2ZYGPof3IUKUZe_dN9sdoVJsqqqFCnM-s'])
         @elseif($citiesService::getCity()->id === 96)
             {{-- Кяхта --}}
-            @include('components.social-widget', ['telegram' => 'https://t.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'whatsapp' => 'https://wa.me/79676212220'])
+            @include('components.social-widget', ['telegram' => 'https://t.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'max' => 'https://max.ru/u/f9LHodD0cOKWpSkUUBEd6VqrXD6WdyzpaI4lb-w4WFBOPgPYgWGQNrTpLxE'])
         @elseif($citiesService::getCity()->id === 216)
             {{-- Ангарск --}}
-            @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'whatsapp' => 'https://wa.me/79643530005'])
+            @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'max' => 'https://max.ru/u/f9LHodD0cOKtcALGhq0b3AncOkww2qLi_QZiaeCLE4o333BiEQGVqfKFzpE'])
         @endif
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>

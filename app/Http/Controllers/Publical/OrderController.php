@@ -477,6 +477,7 @@ class OrderController extends Controller
         }, 3);
 
         if ($order) {
+            $products_to_metrika=$this->getOrderItemsWithDiscounts($order);
             $paymentResolver = new \App\Gateway\PaymentGateway;
 
             $redirect = $paymentResolver->resolve($order);
@@ -490,13 +491,21 @@ class OrderController extends Controller
                 'Пользователь' => $order->user_id,
             ]);
 
+            //{
+            //                id: item.id,
+            //                name: item.name,
+            //                price: item.price
+            //            }
+
             \App\Jobs\SendOrderReminder::dispatch($order->id)->delay(now()->addMinutes(10));
             \session()->forget('order_delivery_radius_km');
             \session()->forget(['uds_points_used', 'uds_points_amount', 'uds_new_total', 'uds_old_total', 'uds_points', 'uds_code','promocode_used', 'promocod_id', 'promocod_used_amount', 'promocod__new_total', 'promocod__old_total', 'promocod__delivery']);
             session()->forget(['utm_source', 'utm_medium', 'utm_campaign']);
+
             return response()->json([
                 'order_id'=>$order->num_order,
                 'redirect' => $redirect,
+                'products'=> $products_to_metrika
             ]);
         }
 
@@ -506,6 +515,128 @@ class OrderController extends Controller
         ],);
 
         return back();
+    }
+    public function getOrderItemsWithDiscounts($order)
+    {
+        $items = [];
+        try {
+            foreach ($order->cart as $product) {
+                $items[] = [
+                    'name' => $product['name'],
+                    'price' => (float)$product['price'],
+                    'quantity' => (int)$product['quantity'],
+                    'is_delivery' => false
+                ];
+            }
+
+            // добавляем доставку
+            $delivery = Delivery::where('order_id', $order->id + 1)->first();
+
+            if ($delivery && $delivery->price > 0) {
+                $items[] = [
+                    'name' => 'Доставка',
+                    'price' => (float)$delivery->price,
+                    'quantity' => 1,
+                    'is_delivery' => true
+                ];
+            }
+
+            // сумма товаров БЕЗ доставки
+            $totalProductsSum = 0;
+            foreach ($items as $item) {
+                if (!$item['is_delivery']) {
+                    $totalProductsSum += $item['price'] * $item['quantity'];
+                }
+            }
+
+            // общая скидка
+            $discount = 0;
+
+            if (!empty($order->uds_points)) {
+                $discount += $order->uds_points;
+            }
+
+            if (!empty($order->promocode_points)) {
+                $discount += $order->promocode_points;
+            }
+
+            // распределяем скидку только на товары
+            if ($discount > 0 && $totalProductsSum > 0) {
+
+                $discountSum = 0;
+
+                $productIndexes = [];
+
+                foreach ($items as $index => $item) {
+                    if (!$item['is_delivery']) {
+                        $productIndexes[] = $index;
+                    }
+                }
+
+                foreach ($productIndexes as $k => $i) {
+
+                    $rowSum = $items[$i]['price'] * $items[$i]['quantity'];
+
+                    if ($k === count($productIndexes) - 1) {
+                        $itemDiscount = round($discount - $discountSum, 2);
+                    } else {
+                        $itemDiscount = floor(($rowSum / $totalProductsSum * $discount) * 100) / 100;
+                        $discountSum += $itemDiscount;
+                    }
+
+                    $newRowSum = max(0, $rowSum - $itemDiscount);
+                    $newUnitPrice = round($newRowSum / $items[$i]['quantity'], 2);
+
+                    $items[$i]['price'] = $newUnitPrice;
+                }
+            }
+
+            // финальный массив
+            $result = [];
+            $i = 1;
+
+            foreach ($items as $item) {
+
+                $sum = $item['price'] * $item['quantity'];
+
+                $result[] = [
+                    'id' => $i,
+                    'name' => $item['name'],
+                    'price' => number_format($sum, 2, '.', '')
+                ];
+
+                $i++;
+            }
+        } catch (\Exception $exception) {
+            $i = 1;
+            $result = [];
+            foreach ($order->cart as $product) {
+                $result[] = [
+                    'id' => $i,
+                    'name' => $product['name'],
+                    'price' => (float)$product['price'] * (int)$product['quantity'],
+
+
+                ];
+                $i++;
+            }
+
+            // добавляем доставку
+            $delivery = Delivery::where('order_id', $order->id + 1)->first();
+
+            if ($delivery && $delivery->price > 0) {
+                $result[] = [
+                    'id' => $i,
+                    'name' => 'Доставка',
+                    'price' => (float)$delivery->price,
+
+
+                ];
+
+            }
+        }
+
+        return $result;
     }
 
     public function pdf(Order $order)

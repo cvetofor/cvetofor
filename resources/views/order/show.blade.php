@@ -189,7 +189,7 @@ $id_m=$loop->iteration;
     </script>
 @endpush
 
-@push('scripts2')
+{{--@push('scripts2')
     <script>
         ym(95560855, 'reachGoal', 'payment');
 
@@ -206,4 +206,4 @@ $id_m=$loop->iteration;
 
 
     </script>
-@endpush
+@endpush--}}

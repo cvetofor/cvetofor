@@ -38,6 +38,13 @@
                                 <span>Применить</span>
                             </button>
                         </div>
+                        @if(request()->filled('price.from') || request()->filled('price.to'))
+                            <div class="form__buttonholder" data-form-trigger="">
+                                <a href="{{request()->url()}}" class="form__button button   button--purple--new" type="submit" disabled="" data-form-button="" style="height: 36px">
+                                    <span>Сбросить</span>
+                                </a>
+                            </div>
+                        @endif
                     </form>
                 </div>
             </div>

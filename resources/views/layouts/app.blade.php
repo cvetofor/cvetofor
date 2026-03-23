@@ -12,7 +12,7 @@ session()->forget('order_delivery_radius_km');
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="/dist/css/libs.css" rel="stylesheet" />
-    <link href="/dist/css/style.css?v=1" rel="stylesheet" />
+    <link href="/dist/css/style.css?v=21222" rel="stylesheet" />
     {!! SEO::generate() !!}
     {{-- <link href="/dist/favicon/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" /> --}}
     <link type="image/png" href="/dist/favicon/favicon-32x32.png" rel="icon" sizes="32x32" />
@@ -327,7 +327,7 @@ session()->forget('order_delivery_radius_km');
     <script src="/dist/js/scripts.js"></script>
 
     <script src="/dist/js/dev-temp.js?v=0.1"></script>
-    <script src="/dist/js/backend-temp.js?v=0.101"></script>
+    <script src="/dist/js/backend-temp.js?v=0.101{{time()}}"></script>
     <script src="/dist/js/ya_commerce.js?v=132"></script>
     @stack('scripts2')
     <script>
@@ -370,14 +370,15 @@ session()->forget('order_delivery_radius_km');
 
     @if($citiesService::getCity()->id === 98)
         {{-- Улан-Удэ --}}
-        @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'whatsapp' => 'https://wa.me/79676202220'])
+        @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'max' => 'https://max.ru/u/f9LHodD0cOLgrXnbA1KU0-Ck3B2ZYGPof3IUKUZe_dN9sdoVJsqqqFCnM-s'])
     @elseif($citiesService::getCity()->id === 96)
         {{-- Кяхта --}}
-        @include('components.social-widget', ['telegram' => 'https://t.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'whatsapp' => 'https://wa.me/79676212220'])
+        @include('components.social-widget', ['telegram' => 'https://t.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'max' => 'https://max.ru/u/f9LHodD0cOKWpSkUUBEd6VqrXD6WdyzpaI4lb-w4WFBOPgPYgWGQNrTpLxE'])
     @elseif($citiesService::getCity()->id === 216)
         {{-- Ангарск --}}
-        @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'whatsapp' => 'https://wa.me/79643530005'])
+        @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38',  'max' => 'https://max.ru/u/f9LHodD0cOKtcALGhq0b3AncOkww2qLi_QZiaeCLE4o333BiEQGVqfKFzpE'])
     @endif
+
 </body>
 
 </html>
