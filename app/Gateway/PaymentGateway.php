@@ -17,6 +17,7 @@ class PaymentGateway
             in_array($order->payment->code, [
                 Payment::ACCOUNT,
                 Payment::CASH,
+
             ])
         ) {
             return route('order.show', ['order' => $order->uuid]);
@@ -92,6 +93,26 @@ class PaymentGateway
             }catch (\Exception $exception){
                 \Log::channel('marketplace')
                     ->info('Создание платежной ссылки через yookassa', ['orderId_link' =>$exception->getMessage()]);
+            }
+            // redirect to payment url
+            return $link;
+        }
+        if ($order->payment->code == Payment::SPLIT) {
+            \Log::channel('marketplace')->info('Создание платежной ссылки через split', ['orderId' => $order->id]);
+
+            try {
+                $payment = new \App\Services\Yapay\Payment(
+                    config('yapay.shopId'),
+                    config('yapay.apiKey'),
+                );
+
+                $link = $payment->getPaymentUrl($order);
+                $order->update(['payment_link' => $link]);
+                \Log::channel('marketplace')
+                    ->info('Создание платежной ссылки через split', ['orderId_link' =>$link]);
+            }catch (\Exception $exception){
+                \Log::channel('marketplace')
+                    ->info('Создание платежной ссылки через split', ['orderId_link' =>$exception->getMessage()]);
             }
             // redirect to payment url
             return $link;

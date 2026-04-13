@@ -15,6 +15,7 @@ use App\Http\Controllers\Publical\ProfileController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Publical\Payments\RobokassaController;
 use App\Http\Controllers\Publical\Payments\YookassaController;
+use App\Http\Controllers\Publical\Payments\YaPayController;
 use App\Http\Controllers\Publical\UDSController;
 use App\Services\UDS\BonusApi;
 
@@ -28,6 +29,8 @@ use App\Services\UDS\BonusApi;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/testpay', [CatalogController::class, 'testpay'])->name('testpay');
 
 Route::group(
     ['prefix' => '/payments/gateway', 'as' => 'payments.gateway.'],
@@ -46,6 +49,14 @@ Route::group(
             function () {
                 Route::any('/return', [YookassaController::class, 'redirect'])->name('return');
                 Route::post('/callback', [YookassaController::class, 'callback']);
+            }
+        );
+        Route::group(
+            ['prefix' => '/yapay', 'as' => 'yapay.'],
+            function () {
+                Route::any('/return', [YaPayController::class, 'redirect'])->name('return');
+                Route::any('/callback', [YaPayController::class, 'callback']);
+                Route::any('/callback/v1/webhook', [YaPayController::class, 'callback']);
             }
         );
     }
@@ -107,6 +118,7 @@ Route::group(
         Route::get('/change/email', [ProfileController::class, 'changeEmail'])->name('changeEmail');
         Route::post('/change/email', [ProfileController::class, 'changeEmailRequest'])->name('changeEmailRequest');
         Route::get('/change/email/{user}/{email}', [ProfileController::class, 'changeEmailConfirm'])->name('changeEmail.confirm');
+        Route::post('/delete', [ProfileController::class, 'deleteProfile'])->name('deleteProfile');
     }
 );
 

@@ -41,7 +41,7 @@ session()->forget('order_delivery_radius_km');
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('metrics')
     @stack('styles')
-    <script src="https://telegram.org/js/telegram-web-app.js?57"></script>
+
     <script type="text/javascript">
         ! function() {
             var t = document.createElement("script");
@@ -323,7 +323,7 @@ session()->forget('order_delivery_radius_km');
     </script>
     @stack('scripts')
     <script src="/dist/js/libs.js"></script>
-    <script src="/dist/js/common.js"></script>
+    <script src="/dist/js/common.js?v=01"></script>
     <script src="/dist/js/scripts.js"></script>
 
     <script src="/dist/js/dev-temp.js?v=0.1"></script>

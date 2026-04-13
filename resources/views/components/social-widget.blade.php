@@ -1,7 +1,5 @@
 <div class="social-floating">
-    <a href="{{ $telegram }}" target="_blank" class="social-icon telegram">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram">
-    </a>
+
     <a href="{{ $vk }}" target="_blank" class="social-icon vk">
         <img src="https://upload.wikimedia.org/wikipedia/commons/2/21/VK.com-logo.svg" alt="VK">
     </a>

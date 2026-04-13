@@ -28,6 +28,10 @@
             'value' => 'account',
             'label' => 'Оплата по счёту',
         ],
+[
+'value' => 'split',
+'label' => 'Yandex Pay - split',
+],
     ],
 ])
 @formField('select', [

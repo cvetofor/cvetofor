@@ -62,9 +62,14 @@
                                                 @enderror
                                             </div>
                                         </div>
-                                        <div class="form__buttonholder" data-form-trigger="">
-                                            <button class="form__button button button--green submit-button" disabled="" data-form-button=""><span>Сохранить
+                                        <div style="display: flex; justify-content: space-between; width: 100%;">
+                                            <div class="form__buttonholder" data-form-trigger="">
+                                                <button class="form__button button button--green submit-button" disabled="" data-form-button=""><span>Сохранить
                                                     данные</span></button>
+                                            </div>
+                                            <div class="form__buttonholder"  >
+                                                <button class="form__button button form__button button button--purple--new submit-button delete_profile" type="button"> <span>Удалить профиль</span> </button>
+                                            </div>
                                         </div>
                                     </form>
                                 </div>

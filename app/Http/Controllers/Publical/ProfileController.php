@@ -158,4 +158,13 @@ class ProfileController extends Controller
 
         return redirect()->route('profile.index');
     }
+    public function deleteProfile()
+    {
+
+
+        auth()->user()->phone= auth()->user()->phone.'-'. auth()->user()->id.'-DELETE';
+        auth()->user()->save();
+        auth()->user()->delete();
+        return ['success' => true];
+    }
 }
