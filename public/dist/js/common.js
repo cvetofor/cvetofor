@@ -1186,3 +1186,35 @@ function addPointsToMap(yandexMap, mapIcon) {
 function setMapCenter(yandexMap, mapZoom, pointCoordinatesArray) {
   yandexMap.setCenter(pointCoordinatesArray, mapZoom, { checkZoomRange: true });
 }
+
+document.querySelector('.delete_profile').addEventListener('click', async function (e) {
+  e.preventDefault();
+
+  if (!confirm('Вы уверены, что хотите удалить профиль?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/profile/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({})
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert('Профиль удалён');
+      window.location.href = '/';
+    } else {
+      alert('Ошибка удаления');
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert('Ошибка запроса');
+  }
+});

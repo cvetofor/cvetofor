@@ -23,6 +23,7 @@ class Payment extends Model implements Sortable
     public const ACCOUNT = 'account';
 
     public const CASH = 'cash';
+    public const SPLIT = 'split';
 
     public const ROBOKASSA = 'robokassa';
 

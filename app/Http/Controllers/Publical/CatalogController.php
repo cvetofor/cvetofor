@@ -29,6 +29,18 @@ class CatalogController extends Controller {
 
     protected $ttl = 0;
 
+    public function testpay()
+    {
+        $payment = new \App\Services\Yapay\Payment(
+            config('yapay.shopId'),
+            config('yapay.apiKey'),
+        );
+        $order=Order::find(1000018);
+        $paymentResolver = new \App\Gateway\PaymentGateway;
+
+        $redirect = $paymentResolver->resolve($order);dd($redirect);
+        $payment->getPaymentUrl($order);
+    }
 
     public function index(Request $request, CatalogService $catalogService) {
         $categories = GroupProductCategory::published()->has('products')->get();

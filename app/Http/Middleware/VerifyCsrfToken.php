@@ -13,6 +13,7 @@ class VerifyCsrfToken extends Middleware {
     protected $except = [
         '/payments/gateway/yookassa/callback',
         '/payments/gateway/robokassa/success',
+        '/payments/gateway/yapay/callback/v1/webhook',
         '/profile/authenticate',
         '/uds/api/check',
         '/uds/api/create',
