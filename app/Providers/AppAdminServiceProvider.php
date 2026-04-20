@@ -101,9 +101,15 @@ class AppAdminServiceProvider extends ServiceProvider {
             );
         }
 
+
         TwillNavigation::addLink(
             NavigationLink::make()
-                ->forModule('markets')
+                ->forModule('orders')
+                ->onlyWhen(fn() =>   \Auth::user()->can('view-module', 'markets') ||
+                    \Auth::user()->can('view-module', 'orders') ||
+                    \Auth::user()->can('view-module', 'deliveries') ||
+                    \Auth::user()->can('view-module', 'balances') ||
+                    \Auth::user()->can('view-module', 'stats'))
                 ->doNotAddSelfAsFirstChild()
                 ->title('Магазин')
                 ->setChildren(
@@ -112,10 +118,10 @@ class AppAdminServiceProvider extends ServiceProvider {
                             ->onlyWhen(fn() => \Auth::user()->can('view-module', 'orders'))
                             ->forModule('orders')
                             ->title('Заказы'),
-                        NavigationLink::make()
+                      /*  NavigationLink::make()
                             ->onlyWhen(fn() => \Auth::user()->can('view-module', 'deliveries'))
                             ->forModule('deliveries')
-                            ->title('Доставки'),
+                            ->title('Доставки'),*/
                         NavigationLink::make()
                             ->onlyWhen(fn() => \Auth::user()->can('view-module', 'markets'))
                             ->forModule('markets')

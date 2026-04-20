@@ -154,6 +154,23 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
                 return '';
             })
         );
+        $table->add(
+            Text::make()->field('payd')->title('Оплачено')->renderHtml()->customRender(function ($item) {
+                if($item->order_status_id ==2) {
+                    $sum = $item->total_price + ($item->delivery->price ?? 0);
+
+
+                    if ($item->uds_points > 0) {
+                        $sum = $sum - $item->uds_points;
+                    }
+                    if ($item->promocode_points) {
+                        $sum = $sum - $item->promocode_points;
+                    }
+                    return $sum . ' р.';
+                }
+                return '';
+            })
+        );
         /*$table->add(
             Text::make()->field('payment_id')->title('Метод оплаты')->renderHtml()->customRender(function ($item) {
                 return $item->payment->name ?? '';

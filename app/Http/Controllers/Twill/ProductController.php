@@ -55,7 +55,7 @@ class ProductController extends BaseModuleController {
 
                 $this->fireEvent();
 
-                // ChangeAccessibilityOnGroupProducts::dispatch(Product::where('id', $data['id'])->first(), auth()->user()->getMarketId());
+
 
                 Product::flushQueryCache();
 
@@ -175,10 +175,10 @@ class ProductController extends BaseModuleController {
             })->get();
 
             $inserts = [];
-
+            $market = \App\Models\Market::find($marketId);
             foreach ($products as $product) {
                 foreach ([1, 9, 15, 25, 51] as $count) {
-                    $market = \App\Models\Market::find($marketId);
+
                     $marketName = $market?->name ?? '';
                     $regionName = $market?->city?->province?->geoname_name ?? '';
                     $cityName = $market?->city?->city ?? '';
@@ -383,7 +383,7 @@ class ProductController extends BaseModuleController {
             // Исключим из поиска
             if (
                 $product->verified_at == null
-                || (! $product->is_market_public && ! in_array($product->market_id, auth()->user()->getMarketIds()))
+
             ) {
                 unset($data['data'][$key]);
 

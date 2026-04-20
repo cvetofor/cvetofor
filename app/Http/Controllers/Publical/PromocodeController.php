@@ -187,6 +187,7 @@ class PromocodeController extends Controller
             }
             $newTotal = $newTotal - $points ;//+ $totalDeliveryPrice;
 
+
         }
 
 
@@ -198,6 +199,14 @@ class PromocodeController extends Controller
             'promocod__old_total' => $oldTotal,
             'promocod__delivery' => $totalDeliveryPrice,
         ]);
+        if (in_array($promo->type_sale, [0, 1])) {
+            $newtotalDeliveryPrice=$this->getDelivery();
+            if($newtotalDeliveryPrice!=$totalDeliveryPrice){
+                $totalDeliveryPrice=$newtotalDeliveryPrice;
+                $newTotal=$newtotalDeliveryPrice+$newTotal;
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Промокод применен',

@@ -50,7 +50,7 @@ info($data);
         }
 
 
-        $order = Order::where('id', $orderId)->first();
+        $order = Order::where('id', ($orderId+1))->first();
         \Log::channel('marketplace')->info('ORDER DATA: ', [$order]);
         if (!$order) {
             return;
@@ -80,7 +80,7 @@ info($data);
 
     public function redirect(Request $request)
     {
-        $orderId = $request['orderId'];
+        $orderId = $request['orderId']+1;
 
         $order = Order::where('id', $orderId )->first();
 

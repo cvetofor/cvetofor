@@ -114,8 +114,8 @@ class GroupProductRepository extends ModuleRepository {
             $query = $query->where(
                 function ($q) {
                     return $q
-                        ->where('is_public', true)
-                        ->orWhere('created_by_market_id', auth()->guard('twill_users')->user()->getMarketId());
+
+                        ->orWhere('market_id', auth()->guard('twill_users')->user()->getMarketId());
                 }
             );
         }
@@ -243,22 +243,14 @@ class GroupProductRepository extends ModuleRepository {
 
     public function prepareFieldsBeforeCreate(array $fields): array {
         $fields['created_by_market_id'] = auth()->guard('twill_users')->user()->getMarketId();
+        $fields['market_id'] = auth()->guard('twill_users')->user()->getMarketId();
 
         return parent::prepareFieldsBeforeCreate($fields);
     }
 
     public function afterSave(TwillModelContract $model, array $fields): void {
         parent::afterSave($model, $fields);
-        // отключить букет, если он перестал быть публичным у других магазинов
-        if ($model->is_public == false) {
-            \App\Models\Remain::where('group_product_id', $model->id)
-                ->whereNotIn('market_id', [$model->created_by_market_id])
-                ->update(
-                    [
-                        'published' => false,
-                    ]
-                );
-        }
+
     }
 
     public function isCustomPrice($object, $fields) {

@@ -138,6 +138,7 @@ class GroupProductController extends BaseModuleController {
      * The quick filters to apply to the listing table.
      */
     public function quickFilters(): QuickFilters {
+
         $scope = ($this->submodule ? [
             $this->getParentModuleForeignKey() => $this->submoduleParentId,
         ] : []);
@@ -163,13 +164,6 @@ class GroupProductController extends BaseModuleController {
                 ->onlyEnableWhen($this->getIndexOption('publish')),
         ];
 
-        if (count(auth('twill_users')->user()->getMarketIds()) > 1) {
-            $filter[] = QuickFilter::make()
-                ->label('Всех магазинов')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->allGroupPoruductBelongsMarket()->count())
-                ->queryString('allGroupPoruductBelongsMarket')
-                ->scope('allGroupPoruductBelongsMarket');
-        }
 
         $filter[] = QuickFilter::make()
             ->label('Букеты сети')

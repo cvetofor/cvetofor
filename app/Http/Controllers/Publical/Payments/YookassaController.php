@@ -13,7 +13,7 @@ class YookassaController extends Controller {
         \Log::channel('marketplace')->info('ЮKassa http-уведомление: ', [$json]);
 
         if (isset($json['object']['metadata']['order_id'])) {
-            $order = Order::where('id', $json['object']['metadata']['order_id'] + 1)->first();
+            $order = Order::where('id', $json['object']['metadata']['order_id'] )->first();
             \Log::channel('marketplace')->info('ORDER DATA: ', [$order]);
         }
 
@@ -39,7 +39,7 @@ class YookassaController extends Controller {
     public function redirect(Request $request) {
         $orderId = $request['orderId'];
 
-        $order = Order::where('id', $orderId + 1)->first();
+        $order = Order::where('id', $orderId )->first();
 
         if (! isset($order->payment_status_id) || $order->payment_status_id == 1) {
             \Log::channel('marketplace')->error('Ошибка или отказ от оплаты orderId= ' . $orderId);

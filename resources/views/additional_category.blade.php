@@ -56,7 +56,7 @@
                                         <svg class="product__delivery-price__icon">
                                             <use href="#icon-car"></use>
                                         </svg>
-                                        <span class="product__delivery-price__title">от @money(($price->market)->delivery_product_price) р.</span>
+                                        <span class="product__delivery-price__title">от 0р.</span>
                                     </div>
                                 @endif
                             </div>

@@ -12,7 +12,7 @@ session()->forget('order_delivery_radius_km');
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="/dist/css/libs.css" rel="stylesheet" />
-    <link href="/dist/css/style.css?v=21222" rel="stylesheet" />
+    <link href="/dist/css/style.css?v=21222{{time()}}" rel="stylesheet" />
     {!! SEO::generate() !!}
     {{-- <link href="/dist/favicon/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" /> --}}
     <link type="image/png" href="/dist/favicon/favicon-32x32.png" rel="icon" sizes="32x32" />
@@ -55,7 +55,7 @@ session()->forget('order_delivery_radius_km');
     <!-- Top.Mail.Ru counter -->
     <script type="text/javascript">
         var _tmr = window._tmr || (window._tmr = []);
-        _tmr.push({id: "3720857", type: "pageView", start: (new Date()).getTime()});
+        _tmr.push({id: "3419088", type: "pageView", start: (new Date()).getTime()});
         (function (d, w, id) {
             if (d.getElementById(id)) return;
             var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true; ts.id = id;
@@ -64,7 +64,7 @@ session()->forget('order_delivery_radius_km');
             if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }
         })(document, window, "tmr-code");
     </script>
-    <noscript><div><img src="https://top-fwz1.mail.ru/counter?id=3720857;js=na" style="position:absolute;left:-9999px;" alt="Top.Mail.Ru" /></div></noscript>
+    <noscript><div><img src="https://top-fwz1.mail.ru/counter?id=3419088;js=na" style="position:absolute;left:-9999px;" alt="Top.Mail.Ru" /></div></noscript>
     <!-- /Top.Mail.Ru counter -->
 
 </head>
@@ -323,7 +323,7 @@ session()->forget('order_delivery_radius_km');
     </script>
     @stack('scripts')
     <script src="/dist/js/libs.js"></script>
-    <script src="/dist/js/common.js?v=01"></script>
+    <script src="/dist/js/common.js?v=01{{time()}}"></script>
     <script src="/dist/js/scripts.js"></script>
 
     <script src="/dist/js/dev-temp.js?v=0.1"></script>

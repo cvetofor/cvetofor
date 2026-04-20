@@ -53,8 +53,7 @@ class ProductPolicy
     {
         return $user->can('is_owner') ||
             (
-                in_array($product->market_id, $user->getMarketIds())
-                && $user->can('edit-module', 'products')
+                 $user->can('edit-module', 'products')
                 && ($product->verified_at == null)
             );
     }
@@ -76,11 +75,7 @@ class ProductPolicy
     public function manageItem(User $user, Product $product)
     {
         return $user->can('is_owner') ||
-            (
-                in_array($product->market_id, $user->getMarketIds())
-                && $user->can('edit-module', 'products')
-                && $product->verified_at == null
-            );
+            ($user->can('edit-module', 'products')  && $product->verified_at == null  );
     }
 
     /**

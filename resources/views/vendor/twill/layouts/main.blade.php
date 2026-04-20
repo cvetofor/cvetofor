@@ -23,6 +23,8 @@
                 </div>
                 @if (config('twill.enabled.search', false) && !($isDashboard ?? false))
                     <div class="headerSearch" id="searchApp">
+                        <div> {{\App\Models\Market::find(auth()->user()->market_id)->name??''}}</div>
+
                         <a href="#" class="headerSearch__toggle" @click.prevent="toggleSearch">
                             <span v-svg symbol="search" v-show="!open"></span>
                             <span v-svg symbol="close_modal" v-show="open"></span>

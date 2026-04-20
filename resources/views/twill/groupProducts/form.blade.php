@@ -40,12 +40,7 @@
 
 @section('fieldsets')
 
-    @can('is_owner')
-        <a17-fieldset title="Поделиться букетом" id="share">
-            <x-twill::checkbox :disabled="$disabled" name="is_public" label="Публичный"
-                note="Показывается всем магазинам 'Букеты сети'" />
-        </a17-fieldset>
-    @endcan
+
 
 
 

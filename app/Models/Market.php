@@ -152,7 +152,7 @@ class Market extends Model
         $id = $this->id;
 
         $price = \Cache::driver('array')->rememberForever(
-            'request_delivery_product_price_market_'.$id,
+            'request_delivery_product_price_market_' . $id,
             function () {
 
                 $cartPrice = 0;
@@ -161,9 +161,9 @@ class Market extends Model
                 $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
 
                 // Берем ближайший радиус
-                $DaP = $radiusCollection->sort(fn ($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '>=', 0)->first();
+                $DaP = $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '>=', 0)->first();
 
-                $DaP = $DaP ?: $radiusCollection->sort(fn ($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '<=', 0)->last();
+                $DaP = $DaP ?: $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '<=', 0)->last();
 
                 return $DaP['price'] ?? 0;
             }
@@ -176,53 +176,53 @@ class Market extends Model
     {
         $id = $this->id;
 
-        $price = \Cache::driver('array')->rememberForever(
-            'request_delivery_price_market_'.$id,
-            function () use ($id, $outerGroupProductPrice) {
 
-                $userDeliveryRadius = \session()->get('order_delivery_radius_km', null);
+        $userDeliveryRadius = \session()->get('order_delivery_radius_km', null);
 
-                // Если не установлен радиус, берем максимальную стоимость доставки
-                if ($userDeliveryRadius && $userDeliveryRadius < 0 && $this->price_i_dont_know_address) {
-                    return $this->price_i_dont_know_address;
-                }
+        // Если не установлен радиус, берем максимальную стоимость доставки
+        if ($userDeliveryRadius && $userDeliveryRadius < 0 && $this->price_i_dont_know_address) {
+            return $this->price_i_dont_know_address;
+        }
 
-                $cartPrice = 0.0;
-                // Если считаем не по цене букета, в листинге, берем стоимость корзины
-                $cart = \Cart::getContent();
-                $items = $cart->where('attributes.market_id', '=', $id);
+        $cartPrice = 0.0;
+        // Если считаем не по цене букета, в листинге, берем стоимость корзины
+        $cart = \Cart::getContent();
+        $items = $cart->where('attributes.market_id', '=', $id);
 
-                foreach ($items as $key => $item) {
-                    $cartPrice += $item->getPriceSumWithConditions();
-                }
+        foreach ($items as $key => $item) {
+            $cartPrice += $item->getPriceSumWithConditions();
+        }
 
-                $cartPrice = $outerGroupProductPrice > 0 ? $outerGroupProductPrice : $cartPrice;
+        $cartPrice = $outerGroupProductPrice > 0 ? $outerGroupProductPrice : $cartPrice;
+       if(session()->has('promocod__new_total')&&session('promocod__new_total')>0){
+           $cartPrice=session('promocod__new_total');
+       } if(session()->has('uds_points_amount')&&session('uds_points_amount')>0){
+           $cartPrice=session('uds_points_amount');
+       }
 
-                $radiusCollection = null;
+        $radiusCollection = null;
 
-                if (Hollyday::isHollyDays()) {
-                    $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true);
-                } else {
-                    $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
-                }
+        if (Hollyday::isHollyDays()) {
+            $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true);
+        } else {
+            $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
+        }
 
-                // Берем ближайший радиус
-                $DaP = $radiusCollection->sort(fn ($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '>=', $userDeliveryRadius ?? 0)->first();
-                $DaP = $DaP ?: $radiusCollection->sort(fn ($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '<=', $userDeliveryRadius ?? 0)->last();
+        // Берем ближайший радиус
+        $DaP = $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '>=', $userDeliveryRadius ?? 0)->first();
+        $DaP = $DaP ?: $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '<=', $userDeliveryRadius ?? 0)->last();
 
-                if (
-                    isset($DaP['free_delivery_at']) && $DaP['free_delivery_at'] > 0 &&
-                    // Если цена букета, или цена корзины >= бесплатной доставки
-                    ($cartPrice >= $DaP['free_delivery_at'] || $cartPrice >= $DaP['free_delivery_at'])
-                ) {
-                    return 0;
-                }
+        if (
+            isset($DaP['free_delivery_at']) && $DaP['free_delivery_at'] > 0 &&
+            // Если цена букета, или цена корзины >= бесплатной доставки
+            ($cartPrice >= $DaP['free_delivery_at'] || $cartPrice >= $DaP['free_delivery_at'])
+        ) {
+            return 0;
+        }
 
-                return $DaP['price'] ?? 0;
-            }
-        );
+        return $DaP['price'] ?? 0;
 
-        return $price;
+
     }
 
     public function workTimeLong()
@@ -246,22 +246,22 @@ class Market extends Model
         );
 
         if ($weeksday) {
-            $weeksday[0] = (string) collect($weeksday)->min();
-            $weeksday[1] = (string) collect($weeksday)->max();
-            $weeksday[0] = $weeksday[0][0].$weeksday[0][1].':'.$weeksday[0][2].$weeksday[0][3];
-            $weeksday[1] = $weeksday[1][0].$weeksday[1][1].':'.$weeksday[1][2].$weeksday[1][3];
+            $weeksday[0] = (string)collect($weeksday)->min();
+            $weeksday[1] = (string)collect($weeksday)->max();
+            $weeksday[0] = $weeksday[0][0] . $weeksday[0][1] . ':' . $weeksday[0][2] . $weeksday[0][3];
+            $weeksday[1] = $weeksday[1][0] . $weeksday[1][1] . ':' . $weeksday[1][2] . $weeksday[1][3];
         }
 
         if ($weekend) {
-            $weekend[0] = $weekend ? (string) collect($weekend)->min() : false;
-            $weekend[1] = $weekend ? (string) collect($weekend)->max() : false;
-            $weekend[0] = $weekend ? $weekend[0][0].$weekend[0][1].':'.$weekend[0][2].$weekend[0][3] : false;
-            $weekend[1] = $weekend ? $weekend[1][0].$weekend[1][1].':'.$weekend[1][2].$weekend[1][3] : false;
+            $weekend[0] = $weekend ? (string)collect($weekend)->min() : false;
+            $weekend[1] = $weekend ? (string)collect($weekend)->max() : false;
+            $weekend[0] = $weekend ? $weekend[0][0] . $weekend[0][1] . ':' . $weekend[0][2] . $weekend[0][3] : false;
+            $weekend[1] = $weekend ? $weekend[1][0] . $weekend[1][1] . ':' . $weekend[1][2] . $weekend[1][3] : false;
         }
 
         return [
-            $weeksday ? 'Будни с '.$weeksday[0].' до '.$weeksday[1] : null,
-            $weekend ? 'Выходные С '.$weekend[0].' до '.$weekend[1] : null,
+            $weeksday ? 'Будни с ' . $weeksday[0] . ' до ' . $weeksday[1] : null,
+            $weekend ? 'Выходные С ' . $weekend[0] . ' до ' . $weekend[1] : null,
         ];
     }
 
@@ -276,6 +276,7 @@ class Market extends Model
     {
         return $this->hasMany(Interval::class)->orderBy('start_time', 'asc');
     }
+
     public function dateintervals()
     {
         return $this->hasMany(DateInterval::class)->orderBy('date', 'asc')->orderBy('start_time', 'asc');
@@ -292,7 +293,7 @@ class Market extends Model
         return sprintf('%02d:%02d', $hours, $remainingMinutes);
     }
 
-    private static function intervalAvailable($interval, $currentTime,$test=0)
+    private static function intervalAvailable($interval, $currentTime, $test = 0)
     {
         [$start_hour, $start_minutes] = explode(':', $interval->start_time);
         $startMinutes = $start_hour * 60 + $start_minutes;
@@ -346,13 +347,13 @@ class Market extends Model
             $day = substr($key, 0, -4);
             $time = substr($key, -4);
 
-            if (! isset($parsedHours[$day])) {
+            if (!isset($parsedHours[$day])) {
                 $parsedHours[$day] = [];
             }
 
             // Если это начало интервала или массив для дня пуст, добавляем время
             if ($isStart) {
-                $parsedHours[$day][] = substr($time, 0, 2).':'.substr($time, 2);
+                $parsedHours[$day][] = substr($time, 0, 2) . ':' . substr($time, 2);
             }
         }
 
@@ -363,8 +364,8 @@ class Market extends Model
     {
         $date = $date ?? CitiesService::DateTime();
 
-        $hours = (int) $date->format('H');
-        $minutes = (int) $date->format('i');
+        $hours = (int)$date->format('H');
+        $minutes = (int)$date->format('i');
         $currentTimeInMinutes = $hours * 60 + $minutes;
 
         $weekMap = [
@@ -376,8 +377,8 @@ class Market extends Model
             'friday' => 5,
             'saturday' => 6,
         ];
-        $todayOfWeek = (int) $date->format('w');
-        $thisDay =  $date->format('Y-m-d');
+        $todayOfWeek = (int)$date->format('w');
+        $thisDay = $date->format('Y-m-d');
 
         // Получение рабочих дней и интервалов доставки
         $workTimes = \Arr::pluck($market, 'work_times.times');
@@ -388,7 +389,7 @@ class Market extends Model
 
         $availableDeliveryTimes = [];
         $todayDeliveryTimes = [];
-        $availableDateTimes=[];
+        $availableDateTimes = [];
         foreach ($workHours as $dayOfWeek => $times) {
             $weekDay = $weekMap[$dayOfWeek];
 
@@ -411,13 +412,13 @@ class Market extends Model
                     $intervalString = [$interval->start_time, $interval->end_time];
 
                     // Добавляем в общий список
-                    if ($totalMinutes <= $startMinutes && $next_time > $startMinutes && ! in_array($intervalString, $availableDeliveryTimes[$dayOfWeek] ?? [])) {
+                    if ($totalMinutes <= $startMinutes && $next_time > $startMinutes && !in_array($intervalString, $availableDeliveryTimes[$dayOfWeek] ?? [])) {
                         $availableDeliveryTimes[$dayOfWeek][] = $intervalString;
                     }
 
                     // Добавляем в todayTimes только если это сегодня
 
-                    if ($weekDay === $todayOfWeek && ! in_array($intervalString, $todayDeliveryTimes) && self::intervalAvailable($interval, $currentTimeInMinutes)) {
+                    if ($weekDay === $todayOfWeek && !in_array($intervalString, $todayDeliveryTimes) && self::intervalAvailable($interval, $currentTimeInMinutes)) {
                         $todayDeliveryTimes[] = $intervalString;
                     }
 
@@ -429,34 +430,28 @@ class Market extends Model
         }
 
 
+        $deliveryDateTimedDate = DateInterval::where('market_id', $market[0]->id)->orderby('date')->orderby('start_time')->get();
 
-        $deliveryDateTimedDate=DateInterval::where('market_id', $market[0]->id) ->orderby('date')->orderby('start_time')->get();
-
-        $availableDateTimes=[];
+        $availableDateTimes = [];
         foreach ($deliveryDateTimedDate as $interval) {
-
-
-
 
 
             $intervalString = [$interval->start_time, $interval->end_time];
 
 
             // Добавляем в общий список
-            if( $thisDay != $interval->date&& ! in_array($intervalString, $availableDateTimes[$interval->date] ?? [])) {
+            if ($thisDay != $interval->date && !in_array($intervalString, $availableDateTimes[$interval->date] ?? [])) {
                 $availableDateTimes[$interval->date][] = $intervalString;
             }
 
             // Добавляем в todayTimes только если это сегодня
 
-            if ($thisDay == $interval->date && !in_array($intervalString, ($availableDateTimes[$interval->date]??[])) && self::intervalAvailable($interval, $currentTimeInMinutes,1)) {
-              //  dd($intervalString);
+            if ($thisDay == $interval->date && !in_array($intervalString, ($availableDateTimes[$interval->date] ?? [])) && self::intervalAvailable($interval, $currentTimeInMinutes, 1)) {
+                //  dd($intervalString);
                 $availableDateTimes[$interval->date][] = $intervalString;
             }
 
         }
-
-
 
 
         return [

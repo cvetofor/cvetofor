@@ -33,7 +33,7 @@ class OrderRepository extends ModuleRepository
     public function filter($query, array $scopes = []): Builder
     {
         $query = $query
-            ->where('parent_id', '<>', null);
+            ->where('market_id', '=', auth()->user()->market_id);
 
         return parent::filter($query, $scopes);
     }

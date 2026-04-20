@@ -23,12 +23,12 @@ class CatalogService {
 
         foreach ($categories as $i => $category) {
 
-            $builder = ProductPrice::whereIn('market_id', $markets->pluck('id')->toArray())
+            $builder = ProductPrice::whereIn('product_prices.market_id', $markets->pluck('id')->toArray())
                 ->whereHas('groupProduct', function ($qgp) use ($category, $markets) {
                     return $qgp->whereHas(
                         'remains',
                         fn($qr) => $qr->where('published', true)
-                            ->whereIn('market_id', $markets->pluck('id')->toArray())
+                            ->whereIn('remains.market_id', $markets->pluck('id')->toArray())
                     )
                         ->where('category_id', $category);
                 })
@@ -64,9 +64,9 @@ class CatalogService {
 
         $result = [];
 
-        $builder = ProductPrice::whereIn('market_id', $markets->pluck('id')->toArray())
+        $builder = ProductPrice::whereIn('product_prices.market_id', $markets->pluck('id')->toArray())
             ->whereHas('groupProduct', function ($qgp) use ($tag, $markets) {
-                return $qgp->whereHas('remains', fn($qr) => $qr->where('published', true)->whereIn('market_id', $markets->pluck('id')->toArray()))->whereHas('tags', fn($q) => $q->where('tag_id', $tag->id ?? false));
+                return $qgp->whereHas('remains', fn($qr) => $qr->where('published', true)->whereIn('remains.market_id', $markets->pluck('id')->toArray()))->whereHas('tags', fn($q) => $q->where('tag_id', $tag->id ?? false));
             })
             ->where('price', '<>', null)
             ->where('price', '<>', 0)
@@ -109,10 +109,10 @@ class CatalogService {
 
         $markets = Market::published()->whereHas('prices', fn($q) => $q->whereHas('groupProduct'))->where('city_id', CitiesService::getCity()->id)->get();
 
-        $builder = ProductPrice::whereIn('market_id', $markets->pluck('id')->toArray())
+        $builder = ProductPrice::whereIn('product_prices.market_id', $markets->pluck('id')->toArray())
             ->whereHas('groupProduct', function ($qgp) use ($search, $tag, $markets) {
                 return
-                    $qgp->whereHas('remains', fn($qr) => $qr->where('published', true)->whereIn('market_id', $markets->pluck('id')->toArray())->where(function ($q) use ($search) {
+                    $qgp->whereHas('remains', fn($qr) => $qr->where('published', true)->whereIn('remains.market_id', $markets->pluck('id')->toArray())->where(function ($q) use ($search) {
                         return $q->where('title', 'ilike', '%' . $search . '%')->orWhere('description', 'ilike', '%' . $search . '%');
                     }))
                     ->orWhereHas('tags', fn($q) => $q->where('tag_id', $tag->id ?? false));
@@ -150,12 +150,12 @@ class CatalogService {
             return $q->where('is_visible', true);
         })->get()->pluck('id');
 
-        $builder = ProductPrice::whereIn('market_id', $markets->pluck('id')->toArray())
+        $builder = ProductPrice::whereIn('product_prices.market_id', $markets->pluck('id')->toArray())
             ->whereHas('groupProduct', function ($qgp) use ($products, $markets) {
                 return $qgp->whereHas(
                     'remains',
                     fn($qr) => $qr->where('published', true)
-                        ->whereIn('market_id', $markets->pluck('id')->toArray())
+                        ->whereIn('remains.market_id', $markets->pluck('id')->toArray())
                 )->whereHas('blocks', function ($q) use ($products) {
                     return $q->where('type', 'products')->whereIn('content->browsers->products->0', $products);
                 });
@@ -195,7 +195,7 @@ class CatalogService {
 
         return GroupProductCategory::published()->whereHas('products', function ($q) use ($markets) {
             return $q->whereHas('remains', function ($qr) use ($markets) {
-                return $qr->where('published', true)->whereIn('market_id', $markets->pluck('id')->toArray());
+                return $qr->where('published', true)->whereIn('remains.market_id', $markets->pluck('id')->toArray());
             });
         })->get();
     }
@@ -256,11 +256,11 @@ class CatalogService {
         return ProductPrice::published()
             ->where('price', '<>', null)
             ->where('price', '<>', 0)
-            ->where('market_id', $market_id)
+            ->where('product_prices.market_id', $market_id)
             ->whereHas('product', function ($qp) use ($market_id) {
                 return $qp->whereHas('category', function ($qc) {
                     return $qc->where('is_additional_product', true);
-                })->whereHas('remains', fn($qr) => $qr->where('published', true)->where('market_id', $market_id));
+                })->whereHas('remains', fn($qr) => $qr->where('published', true)->where('remains.market_id', $market_id));
             })
             ->where('quantity_from', 1)
             ->inRandomOrder()
@@ -276,7 +276,7 @@ class CatalogService {
 
         return GroupProductCategory::published()->whereHas('products', function ($q) use ($markets) {
             return $q->whereHas('remains', function ($qr) use ($markets) {
-                return $qr->where('published', true)->whereIn('market_id', $markets->pluck('id')->toArray());
+                return $qr->where('published', true)->whereIn('remains.market_id', $markets->pluck('id')->toArray());
             });
         })->get();
     }

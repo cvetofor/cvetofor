@@ -50,11 +50,10 @@ class AuthServiceProvider extends ServiceProvider
 
         \Gate::define('edit', function ($user, $item) {
 
-            return in_array($item->market_id, $user->getMarketIds(), true)
-                || \Gate::allows('is_owner')
-                || (is_a($item, Market::class) && in_array($item->id, $user->getMarketIds(), true))
-                || (is_a($item, Delivery::class) && in_array($item->order->market_id, $user->getMarketIds(), true))
-                || (is_a($item, MarketWorkTime::class) && in_array($item->market->id ?? $item->delivery->id, $user->getMarketIds(), true));
+            return  \Gate::allows('is_owner')
+                || (is_a($item, Market::class) )
+                || (is_a($item, Delivery::class))
+                || (is_a($item, MarketWorkTime::class));
         });
 
         //

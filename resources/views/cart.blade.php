@@ -165,7 +165,7 @@
 
 
                                                            <button class="remove-cart-item-button"
-                                                                   @if ($product->quantity > 1) data-minus-cart-item @else data-remove-cart-item @endif="{{ $product->id }}">
+                                                                   data-remove-cart-item="{{ $product->id }}">
                                                                <svg>
                                                                    <use href="#icon-bin">
 
@@ -228,7 +228,7 @@
                                                         </div>
 
                                                         <button class="remove-cart-item-button"
-                                                            @if ($product->quantity > 1) data-minus-cart-item @else data-remove-cart-item @endif="{{ $product->id }}">
+                                                                data-remove-cart-item="{{ $product->id }}">
                                                             <svg>
                                                                 <use href="#icon-bin">
 

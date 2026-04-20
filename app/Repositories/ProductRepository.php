@@ -68,7 +68,7 @@ class ProductRepository extends ModuleRepository {
     public function beforeSave(TwillModelContract $object, array $fields): void {
         // abort_if($object->parent_id !== null, 403);
 
-        if (! auth()->user()->can('is_owner') && in_array($object->market_id, auth()->user()->getMarketIds()) && $object->verefied_at !== null) {
+        if (! auth()->user()->can('is_owner')  && $object->verefied_at !== null) {
             $fields['verified_at'] = null;
         }
 

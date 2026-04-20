@@ -84,6 +84,9 @@ class AppServiceProvider extends ServiceProvider {
             $_flowers_menu=TwillAppSettings::get('public.public.flowers_menu') ?? [];
             view()->share('_flowers_menu', $_flowers_menu);
 
+            $market = \App\Models\Market::published()->where('city_id', \App\Services\CitiesService::getCity()->id)->first();
+            config(['market_id' => $market->id]);
+
             view()->composer('*', function ($view) {
 
                 $groupProductTags =\A17\Twill\Models\Tag::whereHas('groupProducts', function ($q) {

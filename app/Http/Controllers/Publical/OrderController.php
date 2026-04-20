@@ -271,7 +271,7 @@ class OrderController extends Controller
          */
         $lastOrder = DB::table('orders')->latest()->first();
 
-        $order = DB::transaction(function () use ($orderRequest, $cartByMarket, $cart, $totalDeliveryPrice, $priceService, $lastOrder) {
+         $order = DB::transaction(function () use ($orderRequest, $cartByMarket, $cart, $totalDeliveryPrice, $priceService, $lastOrder) {
 
             $user = auth()->check() ? auth()->user() : $this->findOrCreateUser($orderRequest);
             $orderRequest['delivery_date'] = (new \DateTime($orderRequest['delivery_date']))->format('Y-m-d H:i:s');
@@ -303,6 +303,7 @@ class OrderController extends Controller
             $orderRequest['utm_source']= session('utm_source');
             $orderRequest['utm_medium']= session('utm_medium');
             $orderRequest['utm_campaign']= session('utm_campaign');
+            $orderRequest['market_id']=config('market_id');
 
 
             // --- UDS: если были списаны баллы, используем новую сумму и записываем баллы ---
@@ -352,7 +353,7 @@ class OrderController extends Controller
             $orderRequest['uuid'] = (string)\Str::uuid();
 
             $orderRequest['payment_status_id'] = PaymentStatus::where('code', 'WA')->orWhere('title', 'Ожидает оплаты')->first()?->id ?? null;
-            // $orderRequest['delivery_status_id'] = DeliveryStatus::where('code', 'UD')->orWhere('title', 'Не доставлен')->first()->id;
+
             $orderRequest['order_status_id'] = OrderStatus::where('code', OrderStatus::ISSUED)->orWhere('title', 'Оформлен')->first()?->id ?? null;
 
             $botName = session('bot_name') ?? request()->cookie('bot_name');
@@ -401,7 +402,7 @@ class OrderController extends Controller
             // и один глобальный для пользователя
             // Для каждого заказа сделать доставку
 
-            foreach ($cartByMarket as $market) {
+             foreach ($cartByMarket as $market) {
                 $marketOrder = null;
                 $price = 0.0;
 
@@ -410,12 +411,9 @@ class OrderController extends Controller
                 foreach ($market as $product) {
                     $price += $product->getPriceSumWithConditions();
 
-                    if (isset($product->associatedModel->id)) {
+                    /*if (isset($product->associatedModel->id)) {
                         $priceObject = ProductPrice::where('id', $product->associatedModel->id ?? false)->first();
 
-                        /**
-                         * @var \App\Services\CalcReponse
-                         */
                         $calcReponse = $priceService->calc($priceObject, $product['attributes']['composition'] ?? [], 'price');
 
                         $meta['meta']['basePrice'] += $calcReponse->totalWithContitions * $product->quantity;
@@ -423,13 +421,13 @@ class OrderController extends Controller
                         $meta['meta']['comissions']['market'] = $priceObject->getMarketComission();
                     } else {
                         $meta['meta']['basePrice'] += $product->getPriceSumWithConditions();
-                    }
+                    }*/
                 }
 
-                // В заказе магазина не будем в общую стоимость учитывать и стоимость доставки
-                $orderRequest['total_price'] = $price;
 
-                $orderRequest['parent_id'] = $order->id;
+               // $orderRequest['total_price'] = $price;
+
+              //  $orderRequest['parent_id'] = $order->id;
                 $orderRequest['market_id'] = $market->first()->associatedModel->market->id;
                 $arrCart = $market->toArray();
 
@@ -449,8 +447,10 @@ class OrderController extends Controller
 
                 $orderRequest['uuid'] = (string)\Str::uuid();
                 $orderRequest['source'] = $botName;
-               ;
-                $marketOrder = Order::create(array_merge($orderRequest->toArray(), $meta));
+
+                $order->update(array_merge($orderRequest->toArray(), $meta));
+              //  $marketOrder = Order::create(array_merge($orderRequest->toArray(), $meta));
+                $marketOrder =$order;
 
                 $marketObject = Market::find($market->first()->associatedModel->market?->id);
 
@@ -491,11 +491,6 @@ class OrderController extends Controller
                 'Пользователь' => $order->user_id,
             ]);
 
-            //{
-            //                id: item.id,
-            //                name: item.name,
-            //                price: item.price
-            //            }
 
             \App\Jobs\SendOrderReminder::dispatch($order->id)->delay(now()->addMinutes(10));
             \session()->forget('order_delivery_radius_km');
@@ -530,7 +525,7 @@ class OrderController extends Controller
             }
 
             // добавляем доставку
-            $delivery = Delivery::where('order_id', $order->id + 1)->first();
+            $delivery = Delivery::where('order_id', $order->id )->first();
 
             if ($delivery && $delivery->price > 0) {
                 $items[] = [
@@ -622,7 +617,7 @@ class OrderController extends Controller
             }
 
             // добавляем доставку
-            $delivery = Delivery::where('order_id', $order->id + 1)->first();
+            $delivery = Delivery::where('order_id', $order->id )->first();
 
             if ($delivery && $delivery->price > 0) {
                 $result[] = [

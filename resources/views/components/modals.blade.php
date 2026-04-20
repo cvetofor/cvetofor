@@ -252,6 +252,7 @@ $oldLegalAccount = $oldOrderAccount->legalAccount;
             </div>
         </form>
         <ul class="modal__cities-list" data-modal-cities-wrappet="">
+
             @foreach ($citiesService::getActiveCities() as $city)
             <li class="modal__cities-list__item" data-city-id="{{ $city->id }}">{{ $city->city }}</li>
             @endforeach

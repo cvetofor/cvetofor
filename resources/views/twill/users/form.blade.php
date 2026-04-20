@@ -44,6 +44,16 @@
                 :placeholder="twillTrans('twill::lang.user-management.role-placeholder')"
             />
         @endif
+        @if($item->id !== $currentUser->id)
+            <x-twill::select
+                :name="$item->getMarketIdColumnName()"
+                :label="__('Магазин')"
+                :options="\App\Models\Market::pluck('name','id')->map(function ($item, $key) {
+            return ['value' => $key, 'label' => $item];
+        })->values()->toArray()"
+                :placeholder="__('Выберите магазин')"
+            />
+        @endif
     @endcan
 
     @if(config('twill.enabled.users-image'))

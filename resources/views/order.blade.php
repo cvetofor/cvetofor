@@ -48,7 +48,7 @@
                                     <div class="fields fields--gap-20-30" data-fields="address">
                                         <div class="inputholder inputholder--width-three-quarters form__inputholder">
                                             <label class="inputholder__label" data-default-label="data-default-label"><span class="required-label"> Адрес (город, улица, № дома) </span></label>
-                                            <input class="inputholder__input" type="text" name="address"
+                                            <textarea class="inputholder__input--address-mobile" type="text" name="address"
 
                                                    @auth
                                                        @if(isset(optional(auth()->user()->orders()->first())->address['address'] ))
@@ -61,7 +61,7 @@
                                                    @endauth
 
                                                    data-default-address="{{ $citiesService::getCity()->province->name ?? '' }} {{ $citiesService::getCity()->province->type ?? '' }}, {{ $citiesService::getCity()->city ?? '' }}"
-                                                   data-required="" data-text-error="address" id="delivery-address" data-delivery-address="data-delivery-address" />
+                                                      data-required="" data-text-error="address" id="delivery-address" data-delivery-address="data-delivery-address" ></textarea>
                                             <div class="suggest-dropdown" data-suggest-dropdown="data-suggest-dropdown">
 
                                             </div>
@@ -380,7 +380,7 @@
                                 </div>
                             </div>
                             <div class="section">
-                                <div class="form__buttonholder">
+                                <div class="form__buttonholder mobile-reorder">
                                     <div class="buttonholder" data-form-trigger="">
                                         <button type="submit" class="form__button button button--green submit-button send_success_order" disabled="" data-form-button="">
                                         <span>Оплатить
@@ -735,6 +735,7 @@
                 },
                 success: function(resp) {
                     if (resp.success) {
+                        $('.fordeliveryprice').html(resp.delivery+' р.')
                         udsResult.html('<span style="color:#71be38;">' + (resp.message || 'Баллы списаны!') + '</span>');
                         // Мгновенно обновляем блок "Итого"
                         const totalBlock = $('.cart__summary-total');
@@ -883,6 +884,20 @@
 
 @push('styles')
     <style>
+        @media (max-width: 768px) {
+            .mobile-reorder {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .mobile-reorder .fields--checkbox {
+                order: 1;
+            }
+
+            .mobile-reorder .buttonholder {
+                order: 2;
+            }
+        }
         .cart__delivery-limited-info{
             font-size: 0.775rem;
         }

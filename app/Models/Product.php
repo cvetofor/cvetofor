@@ -7,6 +7,8 @@ use A17\Twill\Models\Behaviors\HasRelated;
 use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasSlug;
 use A17\Twill\Models\Model;
+use App\Scopes\MarketScope;
+use App\Models\Traits\HasMarketScope;
 use App\Repositories\RemainRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Product extends Model {
-    use HasMedias, HasRelated, HasRevisions, HasSlug;
+    use HasMedias, HasRelated, HasRevisions, HasSlug,HasMarketScope;
     use QueryCacheable;
 
     /**
@@ -51,10 +53,11 @@ class Product extends Model {
 
     protected static function boot() {
         parent::boot();
-
+        static::addGlobalScope(new MarketScope());
         static::retrieved(function ($model) {
         });
     }
+
 
     public $mediasParams = [
         'preview' => [
@@ -158,7 +161,7 @@ class Product extends Model {
         $query = $query->where('verified_at', null);
 
         if (! auth()->user()->can('is_owner')) {
-            $query = $query->whereIn('market_id', auth()->user()->getMarketIds());
+            $query = $query->where('market_id', auth()->user()->getMarketId());
         }
 
         return $query;

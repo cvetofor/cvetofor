@@ -136,8 +136,7 @@
                                         </svg>
 
                                         <span class="product-detail__delivery-title">Доставка:</span>
-                                        <span class="product-detail__delivery-value">@money($price->delivery_price)
-                                            р.</span>
+                                        <span class="product-detail__delivery-value">от 0р.</span>
                                     @endif
                                 </div>
                             </div>

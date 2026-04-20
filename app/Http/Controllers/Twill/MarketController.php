@@ -87,9 +87,10 @@ class MarketController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleC
     public function authBy($marketId)
     {
         abort_if(! \Gate::allows('view-module', 'markets'), 403);
-        abort_if(! in_array($marketId, auth()->user()->getMarketIds()) && ! \Gate::allows('is_owner'), 403);
+        abort_if( ! \Gate::allows('is_owner'), 403);
+        auth()->user()->market_id=$marketId;
+        auth()->user()->save();
 
-        \Session::put('market_id', $marketId);
 
         return Redirect::back();
     }
@@ -246,7 +247,7 @@ class MarketController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleC
             Text::make()->field('auth')->title('Авторизоваться')->renderHtml(true)->customRender(function ($model) {
                 return '<form method="POST" action="'.route('twill.markets.auth', ['marketId' => $model->id]).'">
                 <input type="hidden" name="_token" value="'.csrf_token().'">
-                <button class="button button--'.(\Session::get('market_id') == $model->id ? 'green' : 'gray').'" '.(\Session::get('market_id') == $model->id ? 'disabled' : '').' type="submit">'.(\Session::get('market_id') == $model->id ? 'Текущий магазин' : 'Авторизоваться').'</button>
+                <button class="button button--'.(auth()->user()->market_id == $model->id ? 'green' : 'gray').'" '.(auth()->user()->market_id == $model->id ? 'disabled' : '').' type="submit">'.(auth()->user()->market_id == $model->id ? 'Текущий магазин' : 'Авторизоваться').'</button>
                 </form>';
             })
         );

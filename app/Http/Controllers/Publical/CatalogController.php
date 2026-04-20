@@ -35,7 +35,7 @@ class CatalogController extends Controller {
             config('yapay.shopId'),
             config('yapay.apiKey'),
         );
-        $order=Order::find(1000018);
+        $order=Order::find(1000067);
         $paymentResolver = new \App\Gateway\PaymentGateway;
 
         $redirect = $paymentResolver->resolve($order);dd($redirect);

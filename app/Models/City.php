@@ -106,11 +106,12 @@ class City extends Model
             ->where('published', true)
             ->has('markets')
             ->whereHas('markets', function ($q) {
-                return $q->published()->whereHas('prices', function ($qp) {
+                return $q->published();
+                  /*  ->whereHas('prices', function ($qp) {
                     return $qp->whereHas('groupProduct', function ($qg) {
                         return $qg->where('price', '<>', null)->where('price', '<>', 0);
                     });
-                });
+                });*/
             });
     }
 
