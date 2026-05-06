@@ -34,7 +34,7 @@ class GroupProduct extends Model {
      *
      * @var int|\DateTime
      */
-    public $cacheFor = 3600;
+ //   public $cacheFor = 3600;
 
     /**
      * The tags for the query cache. Can be useful
@@ -42,7 +42,7 @@ class GroupProduct extends Model {
      *
      * @var null|array
      */
-    public $cacheTags = ['groupProducts'];
+    //public $cacheTags = ['groupProducts'];
 
     /**
      * A cache prefix string that will be prefixed
@@ -50,7 +50,7 @@ class GroupProduct extends Model {
      *
      * @var string
      */
-    public $cachePrefix = 'groupProducts_';
+  //  public $cachePrefix = 'groupProducts_';
 
     /**
      * Invalidate the cache automatically
@@ -58,7 +58,7 @@ class GroupProduct extends Model {
      *
      * @var bool
      */
-    protected static $flushCacheOnUpdate = true;
+  //  protected static $flushCacheOnUpdate = true;
 
     public $metadataFallbacks = [];
 
@@ -270,9 +270,9 @@ class GroupProduct extends Model {
                 if (CatalogService::isSku($json['search'])) {
                     $query->whereHas('prices', function ($q) use ($json) {
 
-                        if (! \Gate::allows('is_owner')) {
+
                             $q->where('market_id', auth('twill_users')->user()->getMarketId());
-                        }
+
 
                         return $q->where('sku', $json['search']);
                     });
@@ -351,5 +351,9 @@ class GroupProduct extends Model {
                 return $qm->where('city_id', CitiesService::getCity()->id);
             });
         });
+    }
+    public function market()
+    {
+        return $this->belongsTo(Market::class);
     }
 }

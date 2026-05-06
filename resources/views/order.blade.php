@@ -559,16 +559,16 @@
                 </div>
             </div>
         </div>
-        @if($citiesService::getCity()->id === 98)
-            {{-- Улан-Удэ --}}
-            @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'max' => 'https://max.ru/u/f9LHodD0cOLgrXnbA1KU0-Ck3B2ZYGPof3IUKUZe_dN9sdoVJsqqqFCnM-s'])
-        @elseif($citiesService::getCity()->id === 96)
-            {{-- Кяхта --}}
-            @include('components.social-widget', ['telegram' => 'https://t.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'max' => 'https://max.ru/u/f9LHodD0cOKWpSkUUBEd6VqrXD6WdyzpaI4lb-w4WFBOPgPYgWGQNrTpLxE'])
-        @elseif($citiesService::getCity()->id === 216)
-            {{-- Ангарск --}}
-            @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'max' => 'https://max.ru/u/f9LHodD0cOKtcALGhq0b3AncOkww2qLi_QZiaeCLE4o333BiEQGVqfKFzpE'])
-        @endif
+    @if($citiesService::getCity()->id === 98)
+        {{-- Улан-Удэ --}}
+        @include('components.social-widget', ['telegram' => 'https://t.me/cvetofor_03', 'vk' => 'https://vk.com/cvetofor03', 'max' => 'https://max.ru/id032385290437_bot'])
+    @elseif($citiesService::getCity()->id === 96)
+        {{-- Кяхта --}}
+        @include('components.social-widget', ['telegram' => 'https://t.me/optkyakhta03', 'vk' => 'https://vk.com/cvetofor_kht', 'max' => 'https://max.ru/u/f9LHodD0cOKWpSkUUBEd6VqrXD6WdyzpaI4lb-w4WFBOPgPYgWGQNrTpLxE'])
+    @elseif($citiesService::getCity()->id === 216)
+        {{-- Ангарск --}}
+        @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38', 'max' => 'https://max.ru/id032385290437_1_bot'])
+    @endif
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>

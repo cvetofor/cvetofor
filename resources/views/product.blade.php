@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @inject('compositeProducts', \App\Services\CompositeProducts::class)
 @inject('catalogService', App\Services\CatalogService::class)
+
 @php
     $compositions = $compositeProducts->get($price);
 
@@ -26,12 +27,13 @@
         const compositions = @json($compositions);
         const price = @json($price)
 
-        // Выводим в консоль браузера
-        console.log(price);
+            // Выводим в консоль браузера
+            console.log(price);
     </script>
 @endpush
 
 @section('content')
+
     <div class="heading">
         <div class="container">
             <div class="heading__row">
@@ -69,7 +71,7 @@
                                 @foreach ($images as $key => $image)
                                     @if (!$loop->last || !$price->groupProduct->file('preview'))
                                         <a class="swiper-slide" data-fancybox="data-fancybox" href="{{ $image }}">
-                                            <img class="product-detail__image" src="{{ $image }}" alt="" />
+                                            <img class="product-detail__image" src="{{ $image }}" alt=""/>
                                             <div class="zoom-button">
                                                 <svg>
                                                     <use href="#icon-zoom">
@@ -83,8 +85,8 @@
 
                                 @if ($price->groupProduct->file('preview') && isset($images))
                                     <a class="swiper-slide swiper-slide--video" data-fancybox="data-fancybox"
-                                        href="{{ $price->groupProduct->file('preview') }}">
-                                        <img class="product-detail__image" src="{{ Arr::last($images) }}" alt="" />
+                                       href="{{ $price->groupProduct->file('preview') }}">
+                                        <img class="product-detail__image" src="{{ Arr::last($images) }}" alt=""/>
                                         <button class="play-button">
                                             <svg>
                                                 <use href="#icon-play">
@@ -96,7 +98,7 @@
                                 @endif
                             </div>
                             <button class="swiper-button-prev swiper-button-prev--white"
-                                data-swiper="product-detail-button-prev">
+                                    data-swiper="product-detail-button-prev">
                                 <svg>
                                     <use href="#icon-arrow-slider">
 
@@ -104,7 +106,7 @@
                                 </svg>
                             </button>
                             <button class="swiper-button-next swiper-button-next--white"
-                                data-swiper="product-detail-button-next">
+                                    data-swiper="product-detail-button-next">
                                 <svg>
                                     <use href="#icon-arrow-slider">
 
@@ -112,7 +114,8 @@
                                 </svg>
                             </button>
                         </div>
-                        <div class="swiper-pagination swiper-pagination--darkgrey" data-swiper="product-detail-pagination">
+                        <div class="swiper-pagination swiper-pagination--darkgrey"
+                             data-swiper="product-detail-pagination">
 
                         </div>
                     </div>
@@ -136,7 +139,8 @@
                                         </svg>
 
                                         <span class="product-detail__delivery-title">Доставка:</span>
-                                        <span class="product-detail__delivery-value">от 0р.</span>
+                                        <span class="product-detail__delivery-value">@money($price->delivery_price)
+                                            р.</span>
                                     @endif
                                 </div>
                             </div>
@@ -148,11 +152,13 @@
 
                             @if ($price->price == null || $price->price == 0 || $price->published === false || !$canPutToCart)
                                 <button class="button button--green button--width-165 add-to-cart-button disabled">В
-                                    корзину</button>
+                                    корзину
+                                </button>
                             @else
                                 <button class="button button--green button--width-165 add-to-cart-button"
-                                    data-sku="{{ $price->sku }}">В
-                                    корзину</button>
+                                        data-sku="{{ $price->sku }}">В
+                                    корзину
+                                </button>
                             @endif
 
                         </div>
@@ -226,5 +232,74 @@
     <script>
         const basePrice = {{ $compositeProducts->unvisiblePrice($price) }};
         const changedPrice = {{ $price->public_price }};
+    </script>
+
+    @php
+        try{
+            $compositionText = [];
+
+    foreach ($compositions as $block) {
+        foreach ($block as $product) {
+            if (!$product) continue;
+
+            if (isset($product->color) && $product->color) {
+                $compositionText[] = $product->color->title . ' — ' . $product->count . ' шт.';
+            } else {
+                $compositionText[] = $product->title . ' — ' . $product->count . ' шт.';
+            }
+        }
+    }
+
+    $compositionString = implode(', ', $compositionText);
+            $product = $price->groupProduct;
+    $isInStock = !(
+        $price->price == null ||
+        $price->price == 0 ||
+        $price->published === false ||
+        !$canPutToCart
+    );
+           $galleryImages = [];
+           if (isset($product->images('cover', 'mobile')[0])) {
+               $galleryImages = $product->images('cover', 'mobile');
+           } else {
+               $galleryImages = [url('/dist/img/image-content/error404-pic.svg')];
+           }
+
+
+               $schema = [
+                   '@context' => 'https://schema.org/',
+                   '@type' => 'Product',
+
+                   'name' => $product->title,
+
+                   'image' => array_map(function ($image) {
+                return str_starts_with($image, 'http') ? $image : url($image);
+            }, $galleryImages),
+
+                   'description' =>'Состав букета: '.implode(', ', $compositionText),
+
+                   'sku' => $price->sku ?? $product->id,
+
+                   'brand' => [
+                       '@type' => 'Brand',
+                       'name' =>'Цветофор.рф',
+                   ],
+
+                   'offers' => [
+                       '@type' => 'Offer',
+                       'priceCurrency' => 'RUB',
+        'price' => number_format((float)($price->price ?? 0), 2, '.', ''),
+        'availability' => 'https://schema.org/' . ($isInStock ? 'InStock' : 'OutOfStock'),
+                       'url' => url()->current(),
+                   ],
+               ];
+           }catch (\Exception $r){
+            $schema='';
+           }
+
+    @endphp
+
+    <script type="application/ld+json">
+        {!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
     </script>
 @endpush

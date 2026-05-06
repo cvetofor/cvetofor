@@ -17,6 +17,8 @@ use App\Models\Market;
 use App\Models\ProductPrice;
 use App\Models\Remain;
 use App\Services\CatalogService;
+use App\Services\GroupProductCopyService;
+
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
@@ -201,11 +203,7 @@ class GroupProductController extends BaseModuleController {
     }
 
     public function history(GroupProduct $groupProduct) {
-        abort_if(
-            ! \Gate::allows('edit-module', 'groupProducts') ||
-                ! \Gate::allows('edit', $groupProduct->priceObj),
-            403
-        );
+
         $groupProduct->priceObj->load('revisions');
 
         return view('site.groupProductPriceHistory')
@@ -256,8 +254,39 @@ class GroupProductController extends BaseModuleController {
                 return '<a href="' . $link . '" target="_blank">' . __('Открыть') . '</a>';
             })
         );
+        if (auth()->user()->market_id==1) {
+            $after->push(
+                Text::make()->field('copy')->title(__('Копировать'))->renderHtml(true)->customRender(function ($model) {
+                    $link = route('twill.copy.groupProduct', ['groupProduct' => $model->id]);
+
+                    return '<a href="' . $link . '" target="_blank">Копировать</a>';
+                })->optional()
+            );
+        }
+
 
         return $table->merge($after);
+    }
+    public function copy(GroupProduct $groupProduct)
+    {
+
+
+        $markets = Market::query()
+            ->get()
+            ->filter(fn ($market) => $market->isActive());
+
+        if (request()->method() === 'POST') {
+            $result = app(GroupProductCopyService::class)->copyProductsToMarkets(
+                request('ids'),
+                request('market_ids')
+            );
+            return view('site.productCopyResult', compact('result'));
+
+        }
+
+        $product=$groupProduct;
+
+        return view('site.productCopy', compact('product', 'markets'));
     }
 
     // META SEO

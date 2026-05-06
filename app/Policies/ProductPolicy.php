@@ -18,6 +18,7 @@ class ProductPolicy
      */
     public function viewAny(User $user)
     {
+        return true;
         //
     }
 
@@ -28,7 +29,7 @@ class ProductPolicy
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user, Product $product)
-    {
+    {return true;
         return false;
     }
 
@@ -39,7 +40,7 @@ class ProductPolicy
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function create(User $user)
-    {
+    {return true;
         //
     }
 
@@ -51,31 +52,26 @@ class ProductPolicy
      */
     public function update(User $user, Product $product)
     {
-        return $user->can('is_owner') ||
-            (
-                 $user->can('edit-module', 'products')
-                && ($product->verified_at == null)
-            );
+
+        return true;
+
     }
 
     public function edit(User $user, Product $product)
-    {
+    {return true;
         return $this->update($user, $product);
     }
 
     public function viewHistory(User $user, Product $product)
     {
-        return $user->can('is_owner') ||
-            (
-                $user->can('edit-module', 'products')
-                && ($product->verified_at !== null || $product->is_market_public)
-            );
+        return true;
+
     }
 
     public function manageItem(User $user, Product $product)
     {
-        return $user->can('is_owner') ||
-            ($user->can('edit-module', 'products')  && $product->verified_at == null  );
+        return true;
+
     }
 
     /**
@@ -85,7 +81,7 @@ class ProductPolicy
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function delete(User $user, Product $product)
-    {
+    {return true;
         //
     }
 
@@ -96,7 +92,7 @@ class ProductPolicy
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function restore(User $user, Product $product)
-    {
+    {return true;
         //
     }
 
@@ -107,7 +103,7 @@ class ProductPolicy
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function forceDelete(User $user, Product $product)
-    {
+    {return true;
         //
     }
 }

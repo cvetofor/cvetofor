@@ -34,14 +34,17 @@ class GenerateYmlFeed extends Command {
 
             $categories = $shop->addChild('categories');
             $productCategories = GroupProductCategory::published()->get();
+            $array_cats=[];
+
             foreach ($productCategories as $productCategory) {
                 $category = $categories->addChild('category', $productCategory->title);
                 $category->addAttribute('id', $productCategory->id);
+                $array_cats[] = $productCategory->id;
             }
 
             $offers = $shop->addChild('offers');
             $marketId = Market::where('city_id', $city->id)->first()->id;
-            $products = GroupProduct::whereHas('priceObj', function ($q) use ($marketId) {
+            $products = GroupProduct::where('market_id', $marketId)->whereHas('priceObj', function ($q) use ($marketId) {
                 $q->where('market_id', $marketId);
             })
                 ->whereHas('remains', function ($q) use ($marketId) {
@@ -51,7 +54,7 @@ class GenerateYmlFeed extends Command {
             $count = 0;
             foreach ($products as $product) {
                 $priceObj = $product->priceObj()->where('market_id', $marketId)->first();
-                if (isset($priceObj->price) && $priceObj->price > 0) {
+                if (isset($priceObj->price) && $priceObj->price > 0&&in_array($product->category_id,$array_cats)) {
                     $offer = $offers->addChild('offer');
                     $offer->addAttribute('id', $product->id);
                     $offer->addAttribute('available', 'true');
@@ -86,6 +89,7 @@ class GenerateYmlFeed extends Command {
             $xmlContent = $xml->asXML();
             $fileName = $this->transliterate($city->city);
             $filePath = "public/export/$fileName.xml";
+            file_put_contents($filePath, $xmlContent);
             Storage::put($filePath, $xmlContent);
             $date = date('H:i:s-m.d.y');
             $this->info('[' . $date . '] Products exported successfully to ' . $filePath);

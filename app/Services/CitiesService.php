@@ -41,7 +41,7 @@ class CitiesService {
         }
 
         $city = cache('city_first', function () {
-            return City::active()->first() ?? City::first();
+            return City::where('id',98)->first() ?? City::first();
         });
 
         cookie()->queue(cookie()->forever('city_id', $city->id));
@@ -67,5 +67,13 @@ class CitiesService {
         $name = Helpers::changeKeymap(mb_strtolower($name));
 
         return City::active()->where('city', 'ilike', $name . '%')->get();
+    }
+    public static function setCity($cityId)
+    {
+        session(['city_id' => $cityId]);
+
+        cookie()->queue(cookie()->forever('city_id', $cityId));
+
+        \Cart::clear();
     }
 }

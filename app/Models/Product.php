@@ -25,7 +25,7 @@ class Product extends Model {
      *
      * @var int|\DateTime
      */
-    public $cacheFor = 3600;
+   // public $cacheFor = 3600;
 
     /**
      * The tags for the query cache. Can be useful
@@ -33,7 +33,7 @@ class Product extends Model {
      *
      * @var null|array
      */
-    public $cacheTags = ['products', 'remains'];
+ //   public $cacheTags = ['products', 'remains'];
 
     /**
      * A cache prefix string that will be prefixed
@@ -53,7 +53,7 @@ class Product extends Model {
 
     protected static function boot() {
         parent::boot();
-        static::addGlobalScope(new MarketScope());
+      //  static::addGlobalScope(new MarketScope());
         static::retrieved(function ($model) {
         });
     }
@@ -157,15 +157,6 @@ class Product extends Model {
         });
     }
 
-    public function scopeWaitToCheckAdmin($query): Builder {
-        $query = $query->where('verified_at', null);
-
-        if (! auth()->user()->can('is_owner')) {
-            $query = $query->where('market_id', auth()->user()->getMarketId());
-        }
-
-        return $query;
-    }
 
     public function scopePublished($query): Builder {
         return $query->whereHas('remains', function ($q) {

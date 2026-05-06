@@ -65,5 +65,7 @@ class LoginController extends Controller
 
             return redirect()->route('profile.index');
         }
+
+        return redirect()->back()->withErrors([]);
     }
 }

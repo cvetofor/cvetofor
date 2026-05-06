@@ -52,11 +52,11 @@ class ProductRepository extends ModuleRepository {
             });
         }
 
-        if (! Gate::allows('is_owner')) {
+
             $query = $query->where(function ($q) {
-                return $q->where('is_market_public', '=', true)->orWhere('market_id', auth()->user()->getMarketId() ?? false);
+                return $q->orWhere('market_id', auth()->user()->getMarketId() ?? false);
             });
-        }
+
 
         $query->orderBy('title');
 
@@ -68,9 +68,7 @@ class ProductRepository extends ModuleRepository {
     public function beforeSave(TwillModelContract $object, array $fields): void {
         // abort_if($object->parent_id !== null, 403);
 
-        if (! auth()->user()->can('is_owner')  && $object->verefied_at !== null) {
-            $fields['verified_at'] = null;
-        }
+
 
         parent::beforeSave($object, $fields);
     }
@@ -274,6 +272,7 @@ class ProductRepository extends ModuleRepository {
             $fields['category_id'] = $id;
         }
 
+        $fields['verified_at'] = now();
         return $fields;
     }
 

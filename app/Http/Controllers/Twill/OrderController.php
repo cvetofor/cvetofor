@@ -264,7 +264,7 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
 
         abort_unless(
             auth()->user()->can('edit-module', 'orders')
-                || auth()->user()->can('edit', $order),
+            ,
             403
         );
 

@@ -30,6 +30,10 @@ use App\Services\UDS\BonusApi;
 |
 */
 
+Route::get('/clearn',function (){
+\Artisan::call('cache:clear');
+\Artisan::call('view:clear');print 1;
+}) ;
 Route::get('/testpay', [CatalogController::class, 'testpay'])->name('testpay');
 
 Route::group(

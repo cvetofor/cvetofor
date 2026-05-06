@@ -24,7 +24,8 @@ use Illuminate\Support\Arr;
 use morphos\Russian\GeographicalNamesInflection;
 use stdClass;
 
-class CatalogController extends Controller {
+class CatalogController extends Controller
+{
     use SetsMetadata;
 
     protected $ttl = 0;
@@ -35,14 +36,16 @@ class CatalogController extends Controller {
             config('yapay.shopId'),
             config('yapay.apiKey'),
         );
-        $order=Order::find(1000067);
+        $order = Order::find(1000067);
         $paymentResolver = new \App\Gateway\PaymentGateway;
 
-        $redirect = $paymentResolver->resolve($order);dd($redirect);
+        $redirect = $paymentResolver->resolve($order);
+        dd($redirect);
         $payment->getPaymentUrl($order);
     }
 
-    public function index(Request $request, CatalogService $catalogService) {
+    public function index(Request $request, CatalogService $catalogService)
+    {
         $categories = GroupProductCategory::published()->has('products')->get();
 
         $banner = TwillAppSettings::get('main-page.main_page.banner');
@@ -74,7 +77,8 @@ class CatalogController extends Controller {
         return view('welcome', compact('prices', 'banner', 'city'));
     }
 
-    public function welcome(Request $request, CatalogService $catalogService) {
+    public function welcome(Request $request, CatalogService $catalogService)
+    {
         $categories = TwillAppSettings::get('main-page.main_page.categories');
 
         $banner = TwillAppSettings::get('main-page.main_page.banner');
@@ -89,7 +93,7 @@ class CatalogController extends Controller {
             }
 
             $remains = $catalogService->findPricesByCategoriesId($_categories);
-            if (! $remains) {
+            if (!$remains) {
 
                 $keys = array_keys(request()->all());
                 foreach ($keys as $key) {
@@ -175,7 +179,8 @@ class CatalogController extends Controller {
         CatalogService $catalogService,
         GroupProductRepository $groupProductRepository,
         GroupProductCategoryRepository $groupProductCategoryRepository,
-    ) {
+    )
+    {
         $category = $groupProductCategoryRepository->forNestedSlug($slug);
 
         if ($category && $category->published) {
@@ -199,7 +204,8 @@ class CatalogController extends Controller {
     public function additionalCategory(
         $slug,
         Request $request,
-    ) {
+    )
+    {
         // Ищем категорию по slug в таблице category_slugs
         $categorySlug = \DB::table('category_slugs')
             ->where('slug', $slug)
@@ -289,7 +295,10 @@ class CatalogController extends Controller {
         $slug,
         $price,
         ProductPriceDefender $productPriceDefender,
-    ) {
+    )
+    {
+
+
         // Находим цену по SKU или ID
         if (is_numeric($price)) {
             $priceModel = ProductPrice::where('id', $price)->first();
@@ -297,14 +306,28 @@ class CatalogController extends Controller {
             $priceModel = ProductPrice::where('sku', $price)->first();
         }
 
+
         if (!$priceModel) {
             abort(404);
         }
+
+
+        if ($priceModel
+            && $priceModel->market
+            &&
+            $priceModel->market_id != config('market_id')
+            && !request()->has('city_id')) {
+         CitiesService::setCity($priceModel->market->city_id);
+            return redirect(request()->url() . '?city_id=' . $priceModel->market->city_id);
+
+        }
+
 
         // Проверяем, что это дополнительный товар
         if (!$priceModel->product || !$priceModel->product->category || !$priceModel->product->category->is_additional_product) {
             abort(404);
         }
+
 
         $product = $priceModel->product;
         $category = $product->category;
@@ -365,7 +388,8 @@ class CatalogController extends Controller {
         CatalogService $catalogService,
         Request $request,
         \App\Services\CitiesService $citiesService,
-    ) {
+    )
+    {
 
         $tagModel = Tag::where('slug', $tag)->firstOrFail();
 
@@ -387,16 +411,16 @@ class CatalogController extends Controller {
 
         $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
 
-        if (! empty($seoHelper['title'])) {
+        if (!empty($seoHelper['title'])) {
             SEOTools::setTitle(str_replace('%city%', $citiesService::getCity()->parent_case, $seoHelper['title']));
         }
 
-        if (! empty($seoHelper['desc'])) {
+        if (!empty($seoHelper['desc'])) {
             SEOTools::setDescription(str_replace('%city%', $citiesService::getCity()->parent_case, $seoHelper['desc']));
         }
 
         $seoText = '';
-        if (! empty($seoHelper['text'])) {
+        if (!empty($seoHelper['text'])) {
             $seoText = $seoHelper['text'];
             $seoText = str_replace('%city%', $citiesService::getCity()->parent_case, $seoText);
         }
@@ -409,10 +433,21 @@ class CatalogController extends Controller {
         ProductPrice $price,
         GroupProductCategoryRepository $groupProductCategoryRepository,
         ProductPriceDefender $productPriceDefender,
-    ) {
+    )
+    {
 
 
         $groupProduct = $price->groupProduct;
+        if ($groupProduct
+            && $groupProduct->market
+            &&
+            $groupProduct->market_id != config('market_id')
+            && !request()->has('city_id')) {
+
+            CitiesService::setCity( $groupProduct->market->city_id);
+            return redirect(request()->url() . '?city_id=' . $groupProduct->market->city_id);
+
+        }
 
         $breadcrumbs = isset($groupProduct->category) ? array_reverse($this->breadcrumbs($groupProduct->category)) : [];
 
@@ -428,21 +463,21 @@ class CatalogController extends Controller {
 
             //  dd($price->remain);
             //   dd($price);
-            $canPutToCart = ! $productPriceDefender->isProductNotPublished($price);
-        }catch (\Exception $exception){
-            $canPutToCart=false;
+            $canPutToCart = !$productPriceDefender->isProductNotPublished($price);
+        } catch (\Exception $exception) {
+            $canPutToCart = false;
         }
 
 
-        if(!$price->market){
+        if (!$price->market) {
             return abort(404);
         }
-        if(!$groupProduct||!($groupProduct->category??NULL)){
+        if (!$groupProduct || !($groupProduct->category ?? NULL)) {
             return abort(404);
         }
         abort_if(
             ($groupProduct->category && $slug !== $groupProduct->category->nestedSlug . '/' . $groupProduct->slug
-                || ! $price->market->isActive()
+                || !$price->market->isActive()
             ),
             404
         );
@@ -458,16 +493,16 @@ class CatalogController extends Controller {
         $currentCity = \App\Services\CitiesService::getCity()->parent_case;
         $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
 
-        if (! empty($seoHelper['title'])) {
+        if (!empty($seoHelper['title'])) {
             SEOTools::setTitle(str_replace('%city%', $currentCity, $seoHelper['title']));
         }
 
-        if (! empty($seoHelper['desc'])) {
+        if (!empty($seoHelper['desc'])) {
             SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
         }
 
         $seoText = '';
-        if (! empty($seoHelper['text'])) {
+        if (!empty($seoHelper['text'])) {
             $seoText = $seoHelper['text'];
             $seoText = str_replace('%city%', $currentCity, $seoText);
         }
@@ -475,7 +510,8 @@ class CatalogController extends Controller {
         return view('product', compact('price', 'groupProduct', 'breadcrumbs', 'canPutToCart', 'seoText'));
     }
 
-    public function search(Request $request, CatalogService $catalogService) {
+    public function search(Request $request, CatalogService $catalogService)
+    {
         $data = $this->validate($request, [
             'q' => 'required_if:product,""|min:2',
             'product' => 'required_if:q,""|min:1',
@@ -498,29 +534,30 @@ class CatalogController extends Controller {
         $currentCity = \App\Services\CitiesService::getCity()->parent_case;
         $seoHelper = SeoinfoHelper::getInstance()->getSeoForUrl($_SERVER['REQUEST_URI']);
 
-        if (! empty($seoHelper['title'])) {
+        if (!empty($seoHelper['title'])) {
             SEOTools::setTitle(str_replace('%city%', $currentCity, $seoHelper['title']));
         }
 
-        if (! empty($seoHelper['desc'])) {
+        if (!empty($seoHelper['desc'])) {
             SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
         }
 
         $seoText = '';
-        if (! empty($seoHelper['text'])) {
+        if (!empty($seoHelper['text'])) {
             $seoText = $seoHelper['text'];
             $seoText = str_replace('%city%', $currentCity, $seoText);
         }
 
         $seoH1 = '';
-        if (! empty($seoHelper['h1'])) {
+        if (!empty($seoHelper['h1'])) {
             $seoH1 = str_replace('%city%', $currentCity, $seoHelper['h1']);
         }
 
         return view('search', compact('result', 'search', 'seoText', 'seoH1'));
     }
 
-    public function searchFast(Request $request, CatalogService $catalogService) {
+    public function searchFast(Request $request, CatalogService $catalogService)
+    {
         $data = $this->validate($request, [
             'q' => 'required|min:2',
         ]);
@@ -539,7 +576,8 @@ class CatalogController extends Controller {
         ]);
     }
 
-    protected function breadcrumbs($item) {
+    protected function breadcrumbs($item)
+    {
         $parent = $item;
         if ($item) {
             $breadcrumbs[] = $item;
@@ -559,7 +597,8 @@ class CatalogController extends Controller {
         return $breadcrumbs;
     }
 
-    protected function ajaxResponse($categories, $catalogService, $paginate = 4) {
+    protected function ajaxResponse($categories, $catalogService, $paginate = 4)
+    {
         $_categories = [];
         foreach ($categories as $cagegory) {
             if (request()->has('category_' . $cagegory)) {
