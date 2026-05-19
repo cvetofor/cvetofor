@@ -98,7 +98,9 @@
                         <option value="deletetag">Удалить повод</option>
                         <option value="calcprice">Рассчитать цену</option>
                         <option value="setprice">Установить цену</option>
+                     @if(auth()->user()->market_id==1)
                         <option value="copy">Копировать в магазины</option>
+                        @endif
 
                     </select>
                 </div>
