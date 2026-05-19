@@ -1,3 +1,5 @@
+
+
 (function init100vh(){
     function setHeight() {
         let vh = window.innerHeight * 0.01;

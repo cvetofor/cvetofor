@@ -85,9 +85,11 @@ class ProductPriceDefender {
     }
 
     public function isProductNotPublished($price) {
+
         if ($price->published === false) {
             return true;
         }
+
         if (!$price->market || !$price->market->isActive()) {
             return true;
         }

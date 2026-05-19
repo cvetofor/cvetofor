@@ -14,25 +14,26 @@ use Illuminate\Support\Facades\DB;
 class GroupProductCopyService
 {
     private function copyOneProductToMarket(
-        int  $productId,
-        int  $targetMarketId,
-        ?int $newParentId = null
+        int $productId,
+        int $targetMarketId,
+
     )
     {
+
         $sourceProduct = GroupProduct::query()->findOrFail($productId);
 
         if ((int)$sourceProduct->market_id === (int)$targetMarketId) {
             return null;
         }
 
-           $exists = GroupProduct::query()
-              ->where('market_id', $targetMarketId)
-              ->where('copy_id', $sourceProduct->id)
-              ->first();
+        $exists = GroupProduct::query()
+            ->where('market_id', $targetMarketId)
+            ->where('copy_id', $sourceProduct->id)
+            ->first();
 
-          if ($exists) {
-              return null;
-          }
+        if ($exists) {
+            return null;
+        }
 
         $newProduct = $sourceProduct->replicate();
 
@@ -44,13 +45,14 @@ class GroupProductCopyService
         $newProduct->updated_at = now();
         $newProduct->save();
 
-        $market=Market::query()->findOrFail($targetMarketId);
+        $market = Market::query()->findOrFail($targetMarketId);
+
         $this->copyRemains($sourceProduct->id, $newProduct->id, $targetMarketId);
         $this->copySlugs($sourceProduct->id, $newProduct->id);
         $this->copyRelated($sourceProduct->id, $newProduct->id);
         $this->copyBlocks($sourceProduct->id, $newProduct->id, $targetMarketId);
         $this->copyMedias($sourceProduct->id, $newProduct->id);
-        $this->copyPrices($sourceProduct->id, $newProduct->id,$targetMarketId,$market);
+        $this->copyPrices($sourceProduct->id, $newProduct->id, $targetMarketId, $market);
 
 
         return $newProduct;
@@ -62,7 +64,7 @@ class GroupProductCopyService
         return $this->copyOneProductToMarket(
             productId: $productId,
             targetMarketId: $targetMarketId,
-            newParentId: null
+
         );
 
     }
@@ -125,8 +127,8 @@ class GroupProductCopyService
             ->where('blockable_type', GroupProduct::class)
             ->get();
 
-        $products_ids=[];
-        $colors_ids=[];
+        $products_ids = [];
+        $colors_ids = [];
         foreach ($blocks as $block) {
 
             if ($block->type == 'products') {
@@ -138,20 +140,22 @@ class GroupProductCopyService
 
                         if ($checkProduct) {
                             $products[] = $checkProduct->id;
-                            $products_ids[$checkProduct->id] =1 ;
+                            $products_ids[$checkProduct->id] = 1;
                         } else {
                             $prodCopy = new ProductCopyService();
                             $res = $prodCopy->copyOneProductToMarket($productId, $targetMarketId);
-                            $products[] =$res->id;
-                            $products_ids[$res->id] =1;
+                            if ($res) {
+                                $products[] = $res->id;
+                                $products_ids[$res->id] = 1;
+                            }
                         }
 
                     }
 
-                    $datacontent['browsers']['products']=$products;
+                    $datacontent['browsers']['products'] = $products;
                 }
-                foreach ($datacontent['browsers']['colors']??[] as $color) {
-                    $colors_ids[$color] =1 ;
+                foreach ($datacontent['browsers']['colors'] ?? [] as $color) {
+                    $colors_ids[$color] = 1;
                 }
 
                 //
@@ -162,8 +166,6 @@ class GroupProductCopyService
                 $newBlock->save();
 
 
-
-
             } else {
                 $newBlock = $block->replicate();
                 $newBlock->blockable_id = $newProductId;
@@ -172,15 +174,15 @@ class GroupProductCopyService
             }
 
 
-$i=1;
+            $i = 1;
             foreach (array_keys($products_ids) as $id) {
-                $rel=DB::table('related')->where('subject_id', $newProductId)->where('browser_name', 'products')->where('related_id', $id)->first();
-                if(!$rel) {
+                $rel = DB::table('related')->where('subject_id', $newProductId)->where('browser_name', 'products')->where('related_id', $id)->first();
+                if (!$rel) {
                     DB::table('related')->insert([
                         'subject_id' => $newProductId,
-                        'subject_type' =>'blocks',
+                        'subject_type' => 'blocks',
                         'related_id' => $id,
-                        'related_type' =>Product::class,
+                        'related_type' => Product::class,
                         'browser_name' => 'products',
                         'position' => $i,
 
@@ -189,13 +191,13 @@ $i=1;
                 }
             }
             foreach (array_keys($colors_ids) as $id) {
-                $rel=DB::table('related')->where('subject_id', $newProductId)->where('browser_name', 'colors')->where('related_id', $id)->first();
-                if(!$rel) {
+                $rel = DB::table('related')->where('subject_id', $newProductId)->where('browser_name', 'colors')->where('related_id', $id)->first();
+                if (!$rel) {
                     DB::table('related')->insert([
                         'subject_id' => $newProductId,
-                        'subject_type' =>'blocks',
+                        'subject_type' => 'blocks',
                         'related_id' => $id,
-                        'related_type' =>Color::class,
+                        'related_type' => Color::class,
                         'browser_name' => 'colors',
                         'position' => $i,
 
@@ -203,7 +205,6 @@ $i=1;
                     $i++;
                 }
             }
-
 
 
         }
@@ -214,8 +215,7 @@ $i=1;
      */
 
 
-
-    private function copyPrices(int $sourceProductId, int $newProductId, int $targetMarketId,$market): void
+    private function copyPrices(int $sourceProductId, int $newProductId, int $targetMarketId, $market): void
     {
 
         $marketName = $market?->name ?? '';
@@ -230,11 +230,11 @@ $i=1;
         );
 
 
-        ProductPrice::query()
+        $price=ProductPrice::query()
             ->where('group_product_id', $sourceProductId)->where('market_id', auth()->user()->market_id)
-            ->get()
-            ->each(function (ProductPrice $price) use ($newProductId, $targetMarketId,$sku) {
-                $sku .= '-' . round($price->quantity_from).'-'.$price->id;
+            ->first();
+        if($price){
+                $sku .= '-' . round($price->quantity_from) . '-' . $price->id;
                 $newPrice = $price->replicate();
                 $newPrice->group_product_id = $newProductId;
                 $newPrice->market_id = $targetMarketId;
@@ -242,22 +242,25 @@ $i=1;
                 $newPrice->sku = $sku;
                 $newPrice->updated_at = now();
                 $newPrice->save();
-            });
+            }
     }
 
     private function copyRemains(int $sourceProductId, int $newProductId, int $targetMarketId): void
     {
-        Remain::query()
+        $remain = Remain::query()
             ->where('group_product_id', $sourceProductId)
-            ->get()
-            ->each(function (Remain $remain) use ($newProductId, $targetMarketId) {
-                $newRemain = $remain->replicate();
-                $newRemain->group_product_id = $newProductId;
-                $newRemain->market_id = $targetMarketId;
-                $newRemain->created_at = now();
-                $newRemain->updated_at = now();
-                $newRemain->save();
-            });
+            ->first();
+
+
+        if ($remain) {
+            $newRemain = $remain->replicate();
+            $newRemain->group_product_id = $newProductId;
+            $newRemain->market_id = $targetMarketId;
+            $newRemain->created_at = now();
+            $newRemain->updated_at = now();
+            $newRemain->save();
+        }
+
     }
 
     private function copySlugs(int $sourceProductId, int $newProductId): void
@@ -278,6 +281,7 @@ $i=1;
             ]);
         }
     }
+
     public function copyProductsToMarkets(array $productIds, array $marketIds): array
     {
         $result = [
@@ -295,13 +299,13 @@ $i=1;
                     $market = Market::find($marketId);
 
                     $result['created'][] = [
-                        'source_product_id' => (int) $productId,
+                        'source_product_id' => (int)$productId,
                         'source_product_title' => $sourceProduct?->title,
 
                         'new_product_id' => $newProduct->id,
                         'new_product_title' => $newProduct->title,
 
-                        'market_id' => (int) $marketId,
+                        'market_id' => (int)$marketId,
                         'market_title' => $market?->title ?? $market?->name,
                     ];
 
@@ -311,10 +315,10 @@ $i=1;
                     $market = Market::find($marketId);
 
                     $result['skipped'][] = [
-                        'source_product_id' => (int) $productId,
+                        'source_product_id' => (int)$productId,
                         'source_product_title' => $sourceProduct?->title,
 
-                        'market_id' => (int) $marketId,
+                        'market_id' => (int)$marketId,
                         'market_title' => $market?->title ?? $market?->name,
 
                         'reason' => 'same_market_or_already_exists',

@@ -8,6 +8,7 @@ use A17\Twill\Repositories\ModuleRepository;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\Payment;
+use Carbon\Carbon;
 use App\Models\ProductPrice;
 use App\Services\CompositeProducts;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,8 +33,20 @@ class OrderRepository extends ModuleRepository
 
     public function filter($query, array $scopes = []): Builder
     {
-        $query = $query
-            ->where('market_id', '=', auth()->user()->market_id);
+
+
+        $filter = json_decode(request()->get('filter', '{}'), true) ?: [];
+
+        $isStat = request()->has('stat')
+            || (($filter['status'] ?? null) === 'stat')
+            || isset($filter['stat']);
+
+        if (! $isStat) {
+
+            $query= $query->where('market_id', auth()->user()->market_id);
+        } else {
+            $query = $this->getBaseModel()->newQuery();
+        }
 
         return parent::filter($query, $scopes);
     }

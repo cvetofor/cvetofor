@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Publical;
 
 use App\Http\Controllers\Controller;
 use App\Models\Market;
+use App\Services\UDS\Bonus;
 use Illuminate\Http\Request;
 
 class UDSController extends Controller {
@@ -91,7 +92,6 @@ class UDSController extends Controller {
             'uds_new_total' => $newTotal,
             'uds_old_total' => $oldTotal
         ]);
-
 
            $newtotalDeliveryPrice=$this->getDelivery();
             if($newtotalDeliveryPrice!=$totalDeliveryPrice){

@@ -74,5 +74,17 @@
         </div>
     @endif
     </div>
+    <div style="padding-top: 10px;height: 30px;text-align: center">
+        <yandex-pay-badge
+            merchant-id="b2835444-b5f8-4f8d-b4e1-31a5f7468bcc"
+            type="bnpl"
+            amount="{{$price->public_price}}"
+            size="s"
+            variant="simple"
+            theme="light"
+            align="center"
+            color="grey"
+        />
+    </div>
 </div>
 @endsection

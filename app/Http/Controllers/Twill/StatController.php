@@ -32,6 +32,9 @@ class StatController extends Controller {
             }
         }
 
+
+
+
         $orders = $ordersQuery->get();
 
         $totalRevenue = $orders->sum('total_price');

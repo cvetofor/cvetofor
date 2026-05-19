@@ -116,7 +116,7 @@ class ProductController extends BaseModuleController
         if (request()->method() === 'POST') {
             $result = app(ProductCopyService::class)->copyProductsToMarkets(
                 request('ids'),
-                request('market_ids'),  $this->getRepository()
+                request('market_ids')
             );
 
             return view('site.productCopyResult', compact('result'));

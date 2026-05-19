@@ -26,6 +26,9 @@ class MarketScope implements Scope
         if(request()->is('hub/copy/*')){
             return;
         }
+if(request()->is('/hub/bulkgrouproduct/doit')){
+            return;
+        }
 
         if(request()->is('hub/*') && auth('twill_users')->user()){
 

@@ -93,6 +93,7 @@ class CatalogController extends Controller
             }
 
             $remains = $catalogService->findPricesByCategoriesId($_categories);
+
             if (!$remains) {
 
                 $keys = array_keys(request()->all());
@@ -141,13 +142,14 @@ class CatalogController extends Controller
                         )
                     )
                 );
-                $prices = \Cache::remember('welcome_categories_tags|' . $unique, now()->addMinutes(1), fn() => $catalogService->findByTag($tag));
+               // $prices = \Cache::remember('welcome_categories_tags|' . $unique, now()->addMinutes(1), fn() => $catalogService->findByTag($tag));
                 /*   $prices = $catalogService->findByTag($tag);
                    $mainPageTagsModel[] = new MainPageTagsModel($tag, $prices);*/
             }
         }
 
         $prices = [];
+
         if ($categories) {
             $unique = md5(
                 json_encode(
@@ -163,7 +165,8 @@ class CatalogController extends Controller
 
             $city = GeographicalNamesInflection::getCase(CitiesService::getCity()->city, 'предложный');
             $selectedCity = CitiesService::getCity();
-            $prices = \Cache::remember('welcome_categories_prices|' . $unique, now()->addMinutes(1), fn() => $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray()));
+            $prices = $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray());
+
             /* $prices = $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray());*/
         }
 
@@ -464,6 +467,7 @@ class CatalogController extends Controller
             //  dd($price->remain);
             //   dd($price);
             $canPutToCart = !$productPriceDefender->isProductNotPublished($price);
+
         } catch (\Exception $exception) {
             $canPutToCart = false;
         }

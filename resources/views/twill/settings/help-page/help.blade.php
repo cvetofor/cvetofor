@@ -34,3 +34,5 @@
     'label' => 'Дополнительная информация',
     'name' => 'help_add_info',
 ])
+
+<x-twill::input name="js" type="textarea" label="JS Код" rows="5"  />

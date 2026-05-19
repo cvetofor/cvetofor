@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductPrice;
 use App\Models\Tag;
+use App\Services\GroupProductCopyService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -150,6 +151,13 @@ class GroupProductBulkController extends Controller
                     $get->save();
                 }
                 break;
+                case 'copy':
+
+                    app(GroupProductCopyService::class)->copyProductsToMarkets(
+                        request('id')??[],
+                        request('market_ids')??[]
+                    );
+                    break;
 
 
             case 'calcprice':

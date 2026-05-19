@@ -19,16 +19,16 @@ class CatalogService {
     public function findPricesByCategoriesId($categories, $paginate = 4, $price = false, $beetwen = false) {
         $result = [];
 
-        $markets = Market::published()->whereHas('prices', fn($q) => $q->whereHas('groupProduct'))->where('city_id', CitiesService::getCity()->id)->get();
+        $market = Market::published()->whereHas('prices', fn($q) => $q->whereHas('groupProduct'))->where('city_id', CitiesService::getCity()->id)->first();
 
         foreach ($categories as $i => $category) {
 
-            $builder = ProductPrice::whereIn('product_prices.market_id', $markets->pluck('id')->toArray())
-                ->whereHas('groupProduct', function ($qgp) use ($category, $markets) {
+            $builder = ProductPrice::where('product_prices.market_id', $market->id)
+                ->whereHas('groupProduct', function ($qgp) use ($category, $market) {
                     return $qgp->whereHas(
                         'remains',
-                        fn($qr) => $qr->where('published', true)
-                            ->whereIn('remains.market_id', $markets->pluck('id')->toArray())
+                        fn($qr) => $qr->where('remains.published', true)
+                            ->where('remains.market_id', $market->id)
                     )
                         ->where('category_id', $category);
                 })

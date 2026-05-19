@@ -39,34 +39,39 @@ session()->forget('order_delivery_radius_km');
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    @include('metrics')
+
     @stack('styles')
+    <script src="https://pay.yandex.ru/sdk/v1/pay.js"   async></script>
 
-    <script type="text/javascript">
-        ! function() {
-            var t = document.createElement("script");
-            t.type = "text/javascript", t.async = !0, t.src = 'https://vk.com/js/api/openapi.js?173', t.onload =
-        function() {
-                VK.Retargeting.Init("VK-RTRG-1916601-eEtWG"), VK.Retargeting.Hit()
-            }, document.head.appendChild(t)
-        }();
-    </script><noscript><img src="https://vk.com/rtrg?p=VK-RTRG-1916601-eEtWG"
-            style="position:fixed; left:-999px;" alt="" /></noscript>
-    <!-- Top.Mail.Ru counter -->
-    <script type="text/javascript">
-        var _tmr = window._tmr || (window._tmr = []);
-        _tmr.push({id: "3419088", type: "pageView", start: (new Date()).getTime()});
-        (function (d, w, id) {
-            if (d.getElementById(id)) return;
-            var ts = d.createElement("script"); ts.type = "text/javascript"; ts.async = true; ts.id = id;
-            ts.src = "https://top-fwz1.mail.ru/js/code.js";
-            var f = function () {var s = d.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ts, s);};
-            if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); }
-        })(document, window, "tmr-code");
-    </script>
-    <noscript><div><img src="https://top-fwz1.mail.ru/counter?id=3419088;js=na" style="position:absolute;left:-9999px;" alt="Top.Mail.Ru" /></div></noscript>
-    <!-- /Top.Mail.Ru counter -->
+    {!! TwillAppSettings::get('help-page.help.js') !!}
+    <style>
+        .mobile-buy-btn {
+            display: none;
+        }
 
+        @media (max-width: 768px) {
+
+            .desktop-cart-btn {
+                display: none !important;
+            }
+
+            .mobile-buy-btn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                margin-top: 12px;
+                height: 48px;
+                border: 0;
+                border-radius: 16px;
+                background: #ff4db8;
+                color: #fff;
+                font-size: 18px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -378,6 +383,71 @@ session()->forget('order_delivery_radius_km');
         {{-- Ангарск --}}
         @include('components.social-widget', ['telegram' => 'https://t.me/Cvetofor_angarsk', 'vk' => 'https://vk.com/cvetofor_38',  'max' => 'https://max.ru/id032385290437_1_bot'])
     @endif
+
+    <div id="appInstallBanner" class="app-install-banner" style="display:none;">
+        <button class="app-install-banner__close" type="button" aria-label="Закрыть">×</button>
+
+        <img
+            class="app-install-banner__icon"
+            src="/dist/img/image/applogo.webp"
+            alt="Цветофор"
+        >
+
+        <div class="app-install-banner__text">
+            <div>Установите приложение</div>
+            <strong>Цветофор</strong>
+        </div>
+
+        <a id="appInstallBannerLink" class="app-install-banner__btn" href="#" target="_blank">
+            Установить
+        </a>
+    </div>
+<script>
+    (function () {
+        const androidUrl = 'https://www.rustore.ru/catalog/app/rf.cvetofor.app';
+        const iosUrl = 'https://apps.apple.com/mn/app/%D1%86%D0%B2%D0%B5%D1%82%D0%BE%D1%84%D0%BE%D1%80/id6761184671';
+
+        const storageKey = 'app_install_banner_closed_until';
+        const banner = document.getElementById('appInstallBanner');
+        const link = document.getElementById('appInstallBannerLink');
+
+        if (!banner || !link) return;
+
+        const now = Date.now();
+        const closedUntil = Number(localStorage.getItem(storageKey) || 0);
+
+        if (closedUntil && closedUntil > now) {
+            return;
+        }
+
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+        const isAndroid = /android/i.test(ua);
+        const isIOS = /iPad|iPhone|iPod/.test(ua) || (
+            navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
+        );
+
+        if (!isAndroid && !isIOS) {
+            return;
+        }
+
+        link.href = isIOS ? iosUrl : androidUrl;
+
+        banner.style.display = 'flex';
+        document.body.classList.add('has-app-install-banner');
+
+        banner.querySelector('.app-install-banner__close').addEventListener('click', function () {
+            const oneDay = 24 * 60 * 60 * 1000;
+
+            localStorage.setItem(storageKey, String(Date.now() + oneDay));
+
+            banner.remove();
+            document.body.classList.remove('has-app-install-banner');
+        });
+    })();
+
+</script>
+
 </body>
 
 </html>
