@@ -32,7 +32,7 @@ class Payment {
 
 
 
-        $delivery = Delivery::where('order_id', $order->id + 1)->first();
+        $delivery = Delivery::where('order_id', $order->id )->first();
 
         if (isset($delivery) && $delivery->price != 0) {
             array_push($items, [

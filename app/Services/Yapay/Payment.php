@@ -12,9 +12,9 @@ class Payment
 
     public function __construct($shopId, $apiKey)
     {
-        $this->fields['shopId'] = $shopId;
-        $this->fields['apiKey'] = 'b2835444b5f84f8db4e131a5f7468bcc.h83uHbvCKfL1v0zXK2OOjm1yet4QecJg';
-        $this->fields['apiKey'] = 'b2835444-b5f8-4f8d-b4e1-31a5f7468bcc';
+        $this->fields['shopId'] = 'b2835444-b5f8-4f8d-b4e1-31a5f7468bcc';
+        $this->fields['apiKey'] = 'b2835444b5f84f8db4e131a5f7468bcc.L8aGO8LUmUz1UNmo4I1KacolJ6m3BwFd';
+
     }
 
     public function getPaymentUrl($order)
@@ -34,7 +34,7 @@ class Payment
         }
 
 
-        $delivery = Delivery::where('order_id', $order->id + 1)->first();
+        $delivery = Delivery::where('order_id', $order->id )->first();
 
         if (isset($delivery) && $delivery->price != 0) {
             array_push($items, [
@@ -223,6 +223,7 @@ class Payment
                 }
             }
         }
+
         $customerName = $order->email ?? $order->phone;
 
         $params = [

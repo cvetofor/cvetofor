@@ -12,6 +12,7 @@ class CitiesController extends Controller
 {
     public function setCity($city_id, Request $request)
     {
+        \Cart::clear();
         $cityModel = cache('city_'.$city_id, function () use ($city_id) {
             return City::where('id', $city_id)->first();
         });

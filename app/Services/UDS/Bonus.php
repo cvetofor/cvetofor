@@ -20,10 +20,15 @@ class Bonus {
 
     public function createOperation($code, $total) {
         $calcOperation = $this->calcCashOperation($code, $total);
-
+//
         if (isset($calcOperation->purchase)) {
             $data = [
                 'code' => $code,
+                'cashier'=>[
+                    'externalId'=>'cvetofor-site-pay',
+                    'name'=>'Оплата на сайте Цветофор.рф',
+
+                ],
                 'receipt' => array(
                     'total' => $total,
                     'points' => $calcOperation->purchase->points,
@@ -31,7 +36,9 @@ class Bonus {
                 )
             ];
 
-            return $this->sendRequest('operations', data: $data);
+              $k=$this->sendRequest('operations', data: $data);
+
+            return $k;
         }
 
         return $calcOperation;

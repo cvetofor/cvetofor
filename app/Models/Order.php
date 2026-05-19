@@ -7,7 +7,7 @@ use A17\Twill\Models\Model;
 use App\Events\OrderAmocrmUpdate;
 use App\Events\OrderChangeStatus;
 use Illuminate\Database\Eloquent\Builder;
-
+use Carbon\Carbon;
 class Order extends Model {
     use HasRevisions;
 
@@ -169,7 +169,46 @@ class Order extends Model {
                         ->where('code', OrderStatus::ISSUED);
                 })->orWhere('order_status_id', null);
             });
-    }  public function scopePromo($builder): Builder {
+    }
+    public function scopeStat($builder): Builder
+    {
+        $filter = json_decode(request()->get('filter', '{}'), true) ?: [];
+
+// если Twill при пагинации урезал filter
+        if (
+            ($filter['status'] ?? null) === 'stat'
+            && !isset($filter['start_date'])
+        ) {
+            $filter = session('orders_stat_filter', []);
+        } else {
+            session(['orders_stat_filter' => $filter]);
+        }
+        $startDate = $filter['start_date'] ?? request('start_date') ?? Carbon::now()->subDays(30)->toDateString();
+        $endDate = $filter['end_date'] ?? request('end_date') ?? Carbon::now()->toDateString();
+        $marketId = $filter['market_id'] ?? request('market_id');
+
+        $builder = $builder
+            ->where('order_status_id', 4)
+            ->whereBetween('created_at', [
+                $startDate,
+                Carbon::parse($endDate)->endOfDay(),
+            ]);
+
+        if ($marketId && $marketId !== 'all') {
+            $builder->where('market_id', $marketId);
+        }
+
+        foreach (['utm_source', 'utm_medium', 'utm_campaign'] as $utm) {
+            $value = $filter[$utm] ?? request($utm);
+
+            if ($value) {
+                $builder->where($utm, $value);
+            }
+        }
+
+        return $builder;
+    }
+    public function scopePromo($builder): Builder {
         return $builder
 
             ->where('promocod_id',request('x_promocod_id'))

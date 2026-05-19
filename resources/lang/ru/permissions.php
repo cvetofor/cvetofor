@@ -30,4 +30,10 @@ return [
     'paymentStatuses' => 'Статусы оплаты',
     'regions' => 'Регионы',
     'reviews' => 'Отзывы',
+    'promocods' => 'Промокоды',
+    'menuFlovers' => 'Цветы в меню',
+    'menuPrices' => 'Цены в меню',
+    'nameDateIntervals' => 'Интералы на день',
+    'seotags' => 'Сео теги',
+    'tags' => 'Поводы',
 ];

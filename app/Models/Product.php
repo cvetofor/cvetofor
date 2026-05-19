@@ -7,6 +7,8 @@ use A17\Twill\Models\Behaviors\HasRelated;
 use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasSlug;
 use A17\Twill\Models\Model;
+use App\Scopes\MarketScope;
+use App\Models\Traits\HasMarketScope;
 use App\Repositories\RemainRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Product extends Model {
-    use HasMedias, HasRelated, HasRevisions, HasSlug;
+    use HasMedias, HasRelated, HasRevisions, HasSlug,HasMarketScope;
     use QueryCacheable;
 
     /**
@@ -23,7 +25,7 @@ class Product extends Model {
      *
      * @var int|\DateTime
      */
-    public $cacheFor = 3600;
+   // public $cacheFor = 3600;
 
     /**
      * The tags for the query cache. Can be useful
@@ -31,7 +33,7 @@ class Product extends Model {
      *
      * @var null|array
      */
-    public $cacheTags = ['products', 'remains'];
+ //   public $cacheTags = ['products', 'remains'];
 
     /**
      * A cache prefix string that will be prefixed
@@ -51,10 +53,11 @@ class Product extends Model {
 
     protected static function boot() {
         parent::boot();
-
+      //  static::addGlobalScope(new MarketScope());
         static::retrieved(function ($model) {
         });
     }
+
 
     public $mediasParams = [
         'preview' => [
@@ -154,15 +157,6 @@ class Product extends Model {
         });
     }
 
-    public function scopeWaitToCheckAdmin($query): Builder {
-        $query = $query->where('verified_at', null);
-
-        if (! auth()->user()->can('is_owner')) {
-            $query = $query->whereIn('market_id', auth()->user()->getMarketIds());
-        }
-
-        return $query;
-    }
 
     public function scopePublished($query): Builder {
         return $query->whereHas('remains', function ($q) {

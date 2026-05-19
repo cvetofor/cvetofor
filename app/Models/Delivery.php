@@ -30,7 +30,7 @@ class Delivery extends Model
 
     public function getTitleAttribute()
     {
-        return 'Доставка заказа №'.$this->order->parent->id;
+        return 'Доставка заказа №'.$this->order->id;
     }
 
     public function scopeAtWork($query)

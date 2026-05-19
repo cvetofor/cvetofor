@@ -69,8 +69,28 @@ justify-content: center;">
                 </thead>
                 <tbody>
                     <tr>
+                        @php
+                            $filter = [
+                                'status' => 'stat',
+                                'stat' => 1,
+                                'start_date' => request('start_date'),
+                                'end_date' => request('end_date'),
+                                'market_id' => request('market_id', 'all'),
+                                'utm_source' => request('utm_source'),
+                                'utm_medium' => request('utm_medium'),
+                                'utm_campaign' => request('utm_campaign'),
+                            ];
+
+                            $filter = array_filter($filter, fn($v) => $v !== null && $v !== '');
+                        @endphp
+
+
                         <td>Количество выполненных заказов</td>
-                        <td>{{ $stats['total_orders'] ?? 0 }}</td>
+                        <td> <a href="{{ url('/hub/orders?' . http_build_query([
+    'filter' => json_encode($filter, JSON_UNESCAPED_UNICODE),
+])) }}" target="_blank">
+                                {{ $stats['total_orders'] ?? 0 }}
+                            </a></td>
                     </tr>
                     <tr>
                         <td>Общая сумма продаж</td>

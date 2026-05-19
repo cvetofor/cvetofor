@@ -13,7 +13,7 @@ class YookassaController extends Controller {
         \Log::channel('marketplace')->info('ЮKassa http-уведомление: ', [$json]);
 
         if (isset($json['object']['metadata']['order_id'])) {
-            $order = Order::where('id', $json['object']['metadata']['order_id'] + 1)->first();
+            $order = Order::where('id', $json['object']['metadata']['order_id'] )->first();
             \Log::channel('marketplace')->info('ORDER DATA: ', [$order]);
         }
 
@@ -21,7 +21,7 @@ class YookassaController extends Controller {
             \Log::channel('marketplace')->info('Оплата прошла успешно по заказу №: ' . $order['num_order']);
             $uds = new Bonus($order->market_id);
             if (isset($order->uds_points, $order->uds_code) && $order->uds_points > 0 && $order->uds_code > 0) {
-                $res = $uds->createOperation($order->uds_code, $order->total_price + $order->uds_points);
+                $res = $uds->createOperation($order->uds_code, $order->total_price);
             } else if ($order->uds_code > 0 && $order->uds_points == 0) {
                 $res = $uds->reward($order->uds_code, $order->total_price);
             }
@@ -39,7 +39,7 @@ class YookassaController extends Controller {
     public function redirect(Request $request) {
         $orderId = $request['orderId'];
 
-        $order = Order::where('id', $orderId + 1)->first();
+        $order = Order::where('id', $orderId )->first();
 
         if (! isset($order->payment_status_id) || $order->payment_status_id == 1) {
             \Log::channel('marketplace')->error('Ошибка или отказ от оплаты orderId= ' . $orderId);

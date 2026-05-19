@@ -53,10 +53,11 @@
             field-name="manage-modules"
             :field-values="false"
         >
+
             @foreach($permission_modules as $module_name => $module_items)
                 <x-twill::select
-                    :name="'module_' . $module_name . '_permissions'"
-                    :label="ucfirst(__('permissions.'.$module_name)) . ' '"
+                    :name="'module_' . $module_items . '_permissions'"
+                    :label="ucfirst(__('permissions.'.$module_items)) . ' '"
                     placeholder="Выберите разрешения"
                     :options="array_merge([
                             [
@@ -65,14 +66,14 @@
                             ],
                             [
                                 'value' => 'view-module',
-                                'label' => 'Просмотр ' . __('permissions.'.$module_name)
+                                'label' => 'Просмотр ' . __('permissions.'.$module_items)
                             ],
                             [
                                 'value' => 'edit-module',
-                                'label' => 'Редактирование ' . __('permissions.'.$module_name)
+                                'label' => 'Редактирование ' . __('permissions.'.$module_items)
                             ]
                         ],
-                        (\A17\Twill\Facades\TwillPermissions::levelIs(\A17\Twill\Enums\PermissionLevel::LEVEL_ROLE_GROUP_ITEM) ? [['value' => 'manage-module', 'label' => 'Управление ' . __('permissions.'.$moduleName) ]] : []))"
+                        (\A17\Twill\Facades\TwillPermissions::levelIs(\A17\Twill\Enums\PermissionLevel::LEVEL_ROLE_GROUP_ITEM) ? [['value' => 'manage-module', 'label' => 'Управление ' . __('permissions.'.$module_items) ]] : []))"
                 />
             @endforeach
         </x-twill::formConnectedFields>

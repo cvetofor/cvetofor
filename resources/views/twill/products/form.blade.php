@@ -15,12 +15,11 @@
 @section('contentFields')
     <x-twill::medias name="preview" label="Изображение товара" :disabled="$disabled" />
 
-    @can('is_owner')
-        <x-twill::checkbox name="is_market_public" label="Доступно для всех магазинов" :disabled="$disabled" />
 
-        <x-twill::date-picker name="verified_at" label="Проверено Администратором"
-            note="Если оставить пустым, данный товар не будет виден никому" :disabled="$disabled" />
-    @endcan
+
+
+
+
 
 
 

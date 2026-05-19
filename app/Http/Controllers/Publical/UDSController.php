@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Publical;
 
 use App\Http\Controllers\Controller;
+use App\Models\Market;
+use App\Services\UDS\Bonus;
 use Illuminate\Http\Request;
 
 class UDSController extends Controller {
@@ -61,23 +63,56 @@ class UDSController extends Controller {
             ]);
         }
     }
+    public function getDelivery()
+    {
+        $cart = \Cart::getContent();
+        $cartByMarket = $cart->sortBy('attributes.order')->groupBy('attributes.market_id');
+        $totalDeliveryPrice = 0.0;
 
+
+        $markets = [];
+        foreach ($cartByMarket as $market) {
+            $markets[] = Market::find($market->first()->associatedModel->market->id);
+
+            $totalDeliveryPrice += end($markets)?->delivery_price ?? 0;
+
+        }
+
+        return $totalDeliveryPrice;
+    }
     public function create(Request $request) {
+         $totalDeliveryPrice=$this->getDelivery();
         $points = (int) $request->input('points', 0);
         $oldTotal = (float) $request->input('old_total', 0);
         $newTotal = max(0, $oldTotal - $points);
+
         session([
             'uds_points_used' => true,
             'uds_points_amount' => $points,
             'uds_new_total' => $newTotal,
             'uds_old_total' => $oldTotal
         ]);
+
+           $newtotalDeliveryPrice=$this->getDelivery();
+            if($newtotalDeliveryPrice!=$totalDeliveryPrice){
+                $totalDeliveryPrice=$newtotalDeliveryPrice;
+                $newTotal=$newtotalDeliveryPrice+$newTotal;
+                session([
+                    'uds_points_used' => true,
+                    'uds_points_amount' => $points,
+                    'uds_new_total' => $newTotal,
+                    'uds_old_total' => $oldTotal
+                ]);
+            }
+
+
         return response()->json([
             'success' => true,
             'message' => 'Баллы будут списаны после оплаты.',
             'oldTotal' => $oldTotal,
             'newTotal' => $newTotal,
-            'points' => $points
+            'points' => $points,
+            'delivery' => $totalDeliveryPrice
         ]);
     }
 

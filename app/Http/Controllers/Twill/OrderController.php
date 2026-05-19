@@ -48,6 +48,24 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
         if ((auth()->user()->role->code ?? false) == 'courier') {
             return redirect()->route('twill.deliveries.index');
         }
+        $filter = json_decode(request()->get('filter', '{}'), true) ?: [];
+
+        if (($filter['status'] ?? null) === 'stat') {
+            if (isset($filter['start_date']) || isset($filter['end_date']) || isset($filter['market_id'])) {
+                session()->put('orders_stat_filter', $filter);
+            } else {
+                $savedFilter = session()->get('orders_stat_filter', []);
+
+                $filter = array_merge($savedFilter, $filter);
+
+                request()->merge([
+                    'filter' => json_encode($filter, JSON_UNESCAPED_UNICODE),
+                ]);
+            }
+        } else {
+            session()->forget('orders_stat_filter');
+        }
+
 
         return parent::index($parentModuleId);
     }
@@ -57,62 +75,65 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
      */
     public function quickFilters(): QuickFilters {
 
-        return QuickFilters::make([
-            QuickFilter::make()
-                ->label('Новые')
-                ->queryString('issued')
-                ->scope('issued')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->issued()->count()),
 
-            QuickFilter::make()
-                ->label('Принятые')
-                ->queryString('accepted')
-                ->scope('accepted')
-                // ->onlyEnableWhen($this->getIndexOption('publish'))
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->accepted()->count()),
+          return
+              QuickFilters::make([
+                  QuickFilter::make()
+                      ->label('Новые')
+                      ->queryString('issued')
+                      ->scope('issued')
+                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->issued()->count()),
 
-            QuickFilter::make()
-                ->label('Завершенные')
-                ->queryString('succesfuled')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->succesfuled()->count())
-                ->scope('succesfuled'),
+                  QuickFilter::make()
+                      ->label('Принятые')
+                      ->queryString('accepted')
+                      ->scope('accepted')
+                      // ->onlyEnableWhen($this->getIndexOption('publish'))
+                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->accepted()->count()),
 
-            QuickFilter::make()
-                ->label('Отклоненные')
-                ->queryString('closed')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->closed()->count())
-                ->scope('closed'),
+                  QuickFilter::make()
+                      ->label('Завершенные')
+                      ->queryString('succesfuled')
+                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->succesfuled()->count())
+                      ->scope('succesfuled'),
 
-            QuickFilter::make()
-                ->label('Тендер')
-                ->queryString('tender')
-                ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->tender()->count())
-                ->scope('tender'),
+                  QuickFilter::make()
+                      ->label('Отклоненные')
+                      ->queryString('closed')
+                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->closed()->count())
+                      ->scope('closed'),
+
+                  QuickFilter::make()
+                      ->label('Тендер')
+                      ->queryString('tender')
+                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->tender()->count())
+                      ->scope('tender'),
+                  QuickFilter::make()
+                      ->label('Статистика')
+                      ->queryString('stat')
+                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->stat()->count())
+                      ->scope('stat'),
 
 
-        ]);
+              ]);
+
     }
 
 
-     /*public function filters(): TableFilters
-     {
+    /*public function filters(): TableFilters
+    {
+        return TableFilters::make([
+            BasicFilter::make()
+                ->queryString('stat')
+                ->label('Статус')
+                ->apply(function (Builder $builder, string $value) {
+                    if ($value !== '' && $value !== 'all') {
+                        $builder->where('order_status_id', (int) $value);
+                    }
+                }),
 
 
-         return TableFilters::make([
-             BasicFilter::make()
-                 ->queryString('promocod')
-                 ->label('Промокод')
-                 ->options(
-                     Promocod::pluck('code', 'id')
-
-                 )
-                 ->apply(function (Builder $builder, string $value) {
-                     $builder-> ->withoutScope('CurrentMarket') ->where('promocod_id', $value);
-
-                 }) ,
-         ]);
-
-
+        ]);
     }*/
 
     /**
@@ -150,6 +171,23 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
                 }
                 if($item->promocode_points) {
                     return 'Промо: ' .$item->promocode_points;
+                }
+                return '';
+            })
+        );
+        $table->add(
+            Text::make()->field('payd')->title('Оплачено')->renderHtml()->customRender(function ($item) {
+                if($item->order_status_id ==2) {
+                    $sum = $item->total_price + ($item->delivery->price ?? 0);
+
+
+                    if ($item->uds_points > 0) {
+                        $sum = $sum - $item->uds_points;
+                    }
+                    if ($item->promocode_points) {
+                        $sum = $sum - $item->promocode_points;
+                    }
+                    return $sum . ' р.';
                 }
                 return '';
             })
@@ -247,7 +285,7 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
 
         abort_unless(
             auth()->user()->can('edit-module', 'orders')
-                || auth()->user()->can('edit', $order),
+            ,
             403
         );
 

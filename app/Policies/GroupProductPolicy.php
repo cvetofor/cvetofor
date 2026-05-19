@@ -29,8 +29,7 @@ class GroupProductPolicy
      */
     public function view(User $user, GroupProduct $groupProduct)
     {
-        return $user->can('is_owner') || $groupProduct->is_public ||
-            (in_array($groupProduct->created_by_market_id, $user->getMarketIds()) && $user->can('edit-module', 'groupProducts'));
+        return $user->can('is_owner') ||  $user->can('edit-module', 'groupProducts');
     }
 
     /**
@@ -52,8 +51,7 @@ class GroupProductPolicy
      */
     public function update(User $user, GroupProduct $groupProduct)
     {
-        return $user->can('is_owner') ||
-            (in_array($groupProduct->created_by_market_id, $user->getMarketIds()) && $user->can('edit-module', 'groupProducts'));
+        return $user->can('is_owner') ||  $user->can('edit-module', 'groupProducts');
     }
 
     /**

@@ -93,13 +93,14 @@
                         <option value="delete">Удалить</option>
                         <option value="publish">Опубликовать</option>
                         <option value="unpublish">Снять с публикации</option>
-                        <option value="site">Публичный букет ВКЛ</option>
-                        <option value="unsite">Публичный букет ВЫКЛ</option>
                         <option value="setcat">Назначить категорию</option>
                         <option value="addtag">Добавить повод</option>
                         <option value="deletetag">Удалить повод</option>
                         <option value="calcprice">Рассчитать цену</option>
                         <option value="setprice">Установить цену</option>
+                     @if(auth()->user()->market_id==1)
+                        <option value="copy">Копировать в магазины</option>
+                        @endif
 
                     </select>
                 </div>
@@ -134,6 +135,20 @@
                     <label>Цена</label>
                     <input class="form-control" style="max-width: 200px;"
                 name="price" value="">
+                </div>
+            </div>
+            <div class="row hiddenx" id="marketsBlock">
+                <div class="col-md-12">
+                    <label>Выберите магазины</label>
+
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:10px;">
+                        @foreach($markets->where('id','!=',auth()->user()->market_id) as $market)
+                            <label style="display:flex; align-items:center; gap:6px; border:1px solid #ddd; padding:8px 12px; border-radius:6px;">
+                                <input type="checkbox" name="market_ids[]" value="{{ $market->id }}">
+                                {{ $market->city?->city ?? 'Без города' }} — {{ $market->name }}
+                            </label>
+                        @endforeach
+                    </div>
                 </div>
             </div>
             <div class="row" style="margin-top: 15px">
@@ -211,13 +226,19 @@
             const categoryBlock = document.getElementById('categoryBlock');
             const tagBlock = document.getElementById('tagBlock');
             const priceBlock = document.getElementById('priceBlock');
+            const marketsBlock = document.getElementById('marketsBlock');
+
 
             actionSelect.addEventListener('change', function () {
+                marketsBlock.classList.add('hiddenx');
                 // скрываем всё
                 categoryBlock.classList.add('hiddenx');
                 tagBlock.classList.add('hiddenx');
                 priceBlock.classList.add('hiddenx');
 
+                if (this.value === 'copy') {
+                    marketsBlock.classList.remove('hiddenx');
+                }
                 if (this.value === 'setcat') {
                     categoryBlock.classList.remove('hiddenx');
                 }

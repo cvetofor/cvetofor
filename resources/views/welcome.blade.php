@@ -84,7 +84,7 @@
 
 @if ($prices)
 @foreach ($prices as $paginator)
-@if ($paginator->items())
+@if ($paginator->items()&&isset( $paginator->items()[0]->groupProduct->category))
 <div class="section">
     <div class="container">
         <h2>

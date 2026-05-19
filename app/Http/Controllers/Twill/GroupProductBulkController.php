@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductPrice;
 use App\Models\Tag;
+use App\Services\GroupProductCopyService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -23,7 +24,7 @@ class GroupProductBulkController extends Controller
 
         $products_sql = GroupProduct::orderby('created_at', 'desc');
         if (is_numeric(request()->market_id)) {
-            $products_sql->where('created_by_market_id', $request->market_id);
+            $products_sql->where('market_id', $request->market_id);
         }
         if ($request->published == 1) {
             $products_sql->inStock();
@@ -113,18 +114,8 @@ class GroupProductBulkController extends Controller
                     $get->save();
                 }
                 break;
-            case 'site':
-                foreach ($gets as $get) {
-                    $get->is_public = 1;
-                    $get->save();
-                }
-                break;
-            case 'unsite':
-                foreach ($gets as $get) {
-                    $get->is_public = 0;
-                    $get->save();
-                }
-                break;
+
+
             case 'setcat':
                 foreach ($gets as $get) {
                     $get->category_id = request('category_id');
@@ -160,6 +151,13 @@ class GroupProductBulkController extends Controller
                     $get->save();
                 }
                 break;
+                case 'copy':
+
+                    app(GroupProductCopyService::class)->copyProductsToMarkets(
+                        request('id')??[],
+                        request('market_ids')??[]
+                    );
+                    break;
 
 
             case 'calcprice':

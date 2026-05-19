@@ -40,11 +40,7 @@ class CsvPriceExport
                             return $q->where('parent_id', 0)->orWhere('parent_id', null);
                         }
                     )
-                    ->where(
-                        function ($q) use ($marketId) {
-                            return $q->where('is_market_public', true)->orWhere('market_id', $marketId);
-                        }
-                    );
+                    ->where('market_id', $marketId );
             })
             ->chunk(
                 500,

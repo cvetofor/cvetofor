@@ -9,6 +9,7 @@ use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasSlug;
 use A17\Twill\Models\Model;
 use App\Repositories\ProductPriceRepository;
+use App\Scopes\MarketScope;
 use App\Services\CatalogService;
 use App\Services\CitiesService;
 use CwsDigital\TwillMetadata\Models\Behaviours\HasMetadata;
@@ -33,7 +34,7 @@ class GroupProduct extends Model {
      *
      * @var int|\DateTime
      */
-    public $cacheFor = 3600;
+ //   public $cacheFor = 3600;
 
     /**
      * The tags for the query cache. Can be useful
@@ -41,7 +42,7 @@ class GroupProduct extends Model {
      *
      * @var null|array
      */
-    public $cacheTags = ['groupProducts'];
+    //public $cacheTags = ['groupProducts'];
 
     /**
      * A cache prefix string that will be prefixed
@@ -49,7 +50,7 @@ class GroupProduct extends Model {
      *
      * @var string
      */
-    public $cachePrefix = 'groupProducts_';
+  //  public $cachePrefix = 'groupProducts_';
 
     /**
      * Invalidate the cache automatically
@@ -57,13 +58,13 @@ class GroupProduct extends Model {
      *
      * @var bool
      */
-    protected static $flushCacheOnUpdate = true;
+  //  protected static $flushCacheOnUpdate = true;
 
     public $metadataFallbacks = [];
 
     protected static function boot() {
         parent::boot();
-
+        static::addGlobalScope(new MarketScope());
         static::retrieved(function ($model) {
         });
     }
@@ -77,7 +78,8 @@ class GroupProduct extends Model {
         'category_id',
         'is_custom_price',
         'created_by_market_id',
-        'is_public',
+        'market_id',
+
         'is_promo',
     ];
 
@@ -268,9 +270,9 @@ class GroupProduct extends Model {
                 if (CatalogService::isSku($json['search'])) {
                     $query->whereHas('prices', function ($q) use ($json) {
 
-                        if (! \Gate::allows('is_owner')) {
+
                             $q->where('market_id', auth('twill_users')->user()->getMarketId());
-                        }
+
 
                         return $q->where('sku', $json['search']);
                     });
@@ -289,7 +291,7 @@ class GroupProduct extends Model {
      * @return void
      */
     public function scopeCurrentMarket($query): Builder {
-        return $query->where('created_by_market_id', auth('twill_users')->user()->getMarketId());
+        return $query->where('market_id', auth('twill_users')->user()->getMarketId());
     }
 
     /**
@@ -298,7 +300,7 @@ class GroupProduct extends Model {
      * @return void
      */
     public function scopeCommon($query): Builder {
-        return $query->where('is_public', true)->where('created_by_market_id', '<>', auth('twill_users')->user()->getMarketId());
+        return $query->where('market_id', '<>', auth('twill_users')->user()->getMarketId());
     }
 
     /**
@@ -308,11 +310,9 @@ class GroupProduct extends Model {
      */
     public function scopeAllGroupPoruductBelongsMarket($query): Builder {
         return $query
-            // убираем текущий магазин
-            // ->where('created_by_market_id', '<>', auth('twill_users')->user()->getMarketId())
 
             // оставляем другие магазины
-            ->whereIn('created_by_market_id', auth('twill_users')->user()->getMarketIds());
+            ->where('market_id', auth('twill_users')->user()->getMarketId());
     }
 
     /**
@@ -322,7 +322,7 @@ class GroupProduct extends Model {
      */
     public function scopeAll($query): Builder {
         return $query
-            ->whereIn('created_by_market_id', auth('twill_users')->user()->getMarketIds())
+            ->where('market_id', auth('twill_users')->user()->getMarketId())
             ->common();
     }
 
@@ -351,5 +351,9 @@ class GroupProduct extends Model {
                 return $qm->where('city_id', CitiesService::getCity()->id);
             });
         });
+    }
+    public function market()
+    {
+        return $this->belongsTo(Market::class);
     }
 }

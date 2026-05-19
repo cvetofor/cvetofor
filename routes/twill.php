@@ -13,7 +13,9 @@ Route::get('/orderpromocode', 'App\Http\Controllers\Twill\OrderPromocodeControll
 
 
 Route::get('/history/f/{groupProduct}', [GroupProductController::class, 'history'])->name('history.groupProduct.price');
+Route::any('/copy/f/{groupProduct}', [GroupProductController::class, 'copy'])->name('copy.groupProduct');
 Route::get('/history/p/{product}', [ProductController::class, 'history'])->name('history.product.price');
+Route::any('/copy/p/{product}', [ProductController::class, 'copy'])->name('copy.product');
 
 // переопределить поиск
 Route::name('search')->get('/search', [\App\Http\Controllers\Twill\DashboardController::class, 'search']);

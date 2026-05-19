@@ -1,3 +1,5 @@
+
+
 (function init100vh(){
     function setHeight() {
         let vh = window.innerHeight * 0.01;
@@ -1187,34 +1189,80 @@ function setMapCenter(yandexMap, mapZoom, pointCoordinatesArray) {
   yandexMap.setCenter(pointCoordinatesArray, mapZoom, { checkZoomRange: true });
 }
 
-document.querySelector('.delete_profile').addEventListener('click', async function (e) {
-  e.preventDefault();
+const btn111 = document.querySelector('.delete_profile');
+if(btn111) {
+  btn111.addEventListener('click', async function (e) {
+    e.preventDefault();
 
-  if (!confirm('Вы уверены, что хотите удалить профиль?')) {
-    return;
-  }
-
-  try {
-    const response = await fetch('/profile/delete', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-      },
-      body: JSON.stringify({})
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      alert('Профиль удалён');
-      window.location.href = '/';
-    } else {
-      alert('Ошибка удаления');
+    if (!confirm('Вы уверены, что хотите удалить профиль?')) {
+      return;
     }
 
-  } catch (error) {
-    console.error(error);
-    alert('Ошибка запроса');
-  }
+    try {
+      const response = await fetch('/profile/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({})
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert('Профиль удалён');
+        window.location.href = '/';
+      } else {
+        alert('Ошибка удаления');
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert('Ошибка запроса');
+    }
+  });
+}
+document.querySelectorAll('.modal__cities-list__item').forEach(el => {
+  el.addEventListener('click', function () {
+
+    // сбрасываем цвет у всех
+    document.querySelectorAll('.modal__cities-list__item')
+      .forEach(i => i.style.color = '');
+
+    // задаём цвет текущему
+    this.style.color = '#ca4592';
+
+    // только мобилка
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      showCityLoading();
+    }
+  });
 });
+function showCityLoading() {
+  const wrapper = document.querySelector('[data-modal-cities-wrappet]');
+  if (!wrapper) return;
+
+  // если уже есть — не добавляем второй раз
+  if (wrapper.querySelector('.cities-loading')) return;
+
+  const loader = document.createElement('div');
+  loader.className = 'cities-loading';
+  loader.innerHTML = `
+    <img src="/dist/img/image/logo.svg" alt="logo" class="cities-loading__logo">
+    <div class="cities-loading__text">Идет загрузка...</div>
+  `;
+
+  wrapper.appendChild(loader);
+}
+
+
+const inputAdres = document.querySelector('#delivery-address');
+
+if (inputAdres) {
+  inputAdres.addEventListener('focus', function () {
+    setTimeout(() => {
+      this.scrollLeft = this.scrollWidth;
+    }, 100);
+  });
+}

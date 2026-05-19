@@ -162,6 +162,8 @@ class ProfileController extends Controller
     {
 
 
+
+        auth()->user()->email= auth()->user()->phone.'-'. auth()->user()->id.'-DELETE';
         auth()->user()->phone= auth()->user()->phone.'-'. auth()->user()->id.'-DELETE';
         auth()->user()->save();
         auth()->user()->delete();

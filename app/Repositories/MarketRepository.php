@@ -44,7 +44,7 @@ class MarketRepository extends ModuleRepository
     {
 
         if (! \Gate::allows('is_owner')) {
-            $query = $query->whereIn('id', auth()->user()->getMarketIds());
+            $query = $query->where('id', auth()->user()->getMarketId());
         }
 
         return parent::filter($query, $scopes);

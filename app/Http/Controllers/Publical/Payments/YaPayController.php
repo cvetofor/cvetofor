@@ -50,7 +50,7 @@ info($data);
         }
 
 
-        $order = Order::where('id', $orderId)->first();
+        $order = Order::where('id', ($orderId+1))->first();
         \Log::channel('marketplace')->info('ORDER DATA: ', [$order]);
         if (!$order) {
             return;
@@ -59,7 +59,7 @@ info($data);
         \Log::channel('marketplace')->info('Оплата прошла успешно по заказу №: ' . $order['num_order']);
         $uds = new Bonus($order->market_id);
         if (isset($order->uds_points, $order->uds_code) && $order->uds_points > 0 && $order->uds_code > 0) {
-            $res = $uds->createOperation($order->uds_code, $order->total_price + $order->uds_points);
+            $res = $uds->createOperation($order->uds_code, $order->total_price);
         } else if ($order->uds_code > 0 && $order->uds_points == 0) {
             $res = $uds->reward($order->uds_code, $order->total_price);
         }
@@ -80,7 +80,7 @@ info($data);
 
     public function redirect(Request $request)
     {
-        $orderId = $request['orderId'];
+        $orderId = $request['orderId']+1;
 
         $order = Order::where('id', $orderId )->first();
 

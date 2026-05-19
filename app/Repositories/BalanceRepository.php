@@ -34,7 +34,7 @@ class BalanceRepository extends ModuleRepository
     public function filter($query, array $scopes = []): Builder
     {
         if (! \Gate::allows('is_owner')) {
-            $query = $query->whereIn('market_id', auth()->user()->getMarketIds());
+            $query = $query->where('market_id', auth()->user()->getMarketId());
         } else {
             $query = $query->where('deleted_at', null);
         }

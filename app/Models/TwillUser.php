@@ -94,6 +94,7 @@ class User extends AuthenticatableContract implements TwillModelContract
         'phone',
         'second_name',
         'last_name',
+        'market_id',
 
         // Владелец магазинов, создавший пользователей
         'master_user_id',
@@ -152,6 +153,10 @@ class User extends AuthenticatableContract implements TwillModelContract
         }
 
         return 'role';
+    }
+    public static function getMarketIdColumnName()
+    {
+        return 'market_id';
     }
 
     public function getTitleInBrowserAttribute()
@@ -373,28 +378,13 @@ class User extends AuthenticatableContract implements TwillModelContract
 
     public function getMarketId()
     {
-        if (Session::get('market_id') && \is_numeric(Session::get('market_id'))) {
-            return Session::get('market_id');
-        } else {
-            return Session::remember('market_id', function () {
-                return \Arr::first([1]);
-            });
-        }
+       return $this->market_id;
     }
 
-    public function getMarketIds()
-    {
-        return array_merge(
-            // Для администратора
-            $this->markets->pluck('id')->toArray(),
-            // Для сотрудников
-            $this->stores->pluck('id')->toArray()
-        );
-    }
 
     public function getMarketAttribute()
     {
         // @todo employer
-        return Market::with('city')->where('id', Session::get('market_id'))->first();
+        return Market::with('city')->where('id', $this->market_id)->first();
     }
 }

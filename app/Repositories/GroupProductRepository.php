@@ -75,12 +75,12 @@ class GroupProductRepository extends ModuleRepository {
         if (isset($fields['blocksBrowsers'])) {
 
             $repository = app(ProductRepository::class);
-
+//dd($fields);
             foreach ($fields['blocksBrowsers'] as $key => $b) {
 
                 $block = $b[0];
 
-                if ($block['endpointType'] == Product::class) {
+                if (isset($block['endpointType'])&&$block['endpointType'] == Product::class) {
                     $product = $repository->getById($block['id']);
                     $fields['blocksBrowsers'][$key][0]['prices'] = ColorResource::collection($product->prices()->currentMarketProductPrice()->get());
 
@@ -110,15 +110,15 @@ class GroupProductRepository extends ModuleRepository {
     }
 
     public function filter($query, array $scopes = []): Builder {
-        if (! \Gate::allows('is_owner')) {
+
             $query = $query->where(
                 function ($q) {
                     return $q
-                        ->where('is_public', true)
-                        ->orWhere('created_by_market_id', auth()->guard('twill_users')->user()->getMarketId());
+
+                        ->orWhere('market_id', auth()->guard('twill_users')->user()->getMarketId());
                 }
             );
-        }
+
 
         $query = $query->search();
 
@@ -174,43 +174,10 @@ class GroupProductRepository extends ModuleRepository {
             }
         }
 
-        if (! \Gate::allows('update', $object)) {
 
-            // ЭТО ОБЯЗАТЕЛЬНО!
-            \DB::rollback();
-
-            \DB::transaction(function () use ($object, $fields) {
-                try {
-                    $r = new ProductPriceRepository($object->currentMarketPriceObj);
-                    $r->update($object->currentMarketPriceObj->id, [
-                        'is_promo' => $fields['is_promo'],
-                        'price' => $fields['price'],
-                        'is_custom_price' => $this->isCustomPrice($object, $fields),
-                    ]);
-
-                    $remain = $object->remains()->whereMarketIdAndGroupProductId(auth()->user()->getMarketId(), $object->id)->first();
-                    $remainsRepository = new RemainRepository($remain);
-                    $remainsRepository->update($remain->id, [
-                        'published' => $fields['published'],
-                    ]);
-                } catch (\Throwable $th) {
-                    response()->json([
-                        'message' => 'Ошибка! Не удалось обновить',
-                        'variant' => 'error',
-                    ], 200)->send();
-                    exit();
-                }
-                response()->json([
-                    'message' => 'Успешно!',
-                    'variant' => 'success',
-                ], 200)->send();
-            });
-
-            exit();
-        }
 
         // Очистить тэги, которые не создал админ
-        if (isset($fields['tags']) && $fields['tags'] && ! \Gate::allows('is_owner')) {
+        if (isset($fields['tags']) && $fields['tags'] ) {
 
             $tags = is_array($fields['tags']) ? $fields['tags'] : explode(',', $fields['tags']);
             $tags = array_filter($tags);
@@ -237,28 +204,20 @@ class GroupProductRepository extends ModuleRepository {
         $fields['category_id'] = $id;
 
         $fields['is_custom_price'] = $this->isCustomPrice($object, $fields);
-
+        $fields['verified_at'] = now();
         return $fields;
     }
 
     public function prepareFieldsBeforeCreate(array $fields): array {
         $fields['created_by_market_id'] = auth()->guard('twill_users')->user()->getMarketId();
+        $fields['market_id'] = auth()->guard('twill_users')->user()->getMarketId();
 
         return parent::prepareFieldsBeforeCreate($fields);
     }
 
     public function afterSave(TwillModelContract $model, array $fields): void {
         parent::afterSave($model, $fields);
-        // отключить букет, если он перестал быть публичным у других магазинов
-        if ($model->is_public == false) {
-            \App\Models\Remain::where('group_product_id', $model->id)
-                ->whereNotIn('market_id', [$model->created_by_market_id])
-                ->update(
-                    [
-                        'published' => false,
-                    ]
-                );
-        }
+
     }
 
     public function isCustomPrice($object, $fields) {
