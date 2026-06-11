@@ -37,60 +37,60 @@ class OrderCreatedListener
             }
         );
 
-        foreach ($event->order->childs as $_order) {
-            // отправить на почту магазина
-            $emails = [];
-            $market_emails = $_order->market->email;
+        $_order= $event->order ;
+        // отправить на почту магазина
+        $emails = [];
+        $market_emails = $_order->market->email;
 
-            $market_emails = trim($market_emails, '[]');
-            $emails = array_map('trim', explode(',', $market_emails));
+        $market_emails = trim($market_emails, '[]');
+        $emails = array_map('trim', explode(',', $market_emails));
 
-            foreach ($emails as $email) {
-                try{
-                    Notification::route('mail', $email)->notify(new OrderCreatedMarketNotification($_order));
-                }catch (\Exception $e){
-
-                }
+        foreach ($emails as $email) {
+            try{
+                Notification::route('mail', $email)->notify(new OrderCreatedMarketNotification($_order));
+            }catch (\Exception $e){
 
             }
 
-            try {
-                if ($telegramBotApi && $_order->market->telegram_bot_market_username) {
-                    $bot = @explode(':', $telegramBotApi)[0];
-
-                    if ($bot) {
-                        $chat_id = TelegramChatUser::where('username', str_replace('@', '', $_order->market->telegram_bot_market_username))
-                            ->where('bot', $bot)->first();
-
-                        if ($chat_id) {
-                            $url = route('twill.orders.edit', ['order' => $_order->id]);
-                            $message = "Заказ № {$_order->parent->id} \n\r[Перейти]({$url})";
-
-                            $client = new \GuzzleHttp\Client;
-                            $client->post(
-                                "https://api.telegram.org/bot{$telegramBotApi}/sendMessage",
-                                [
-                                    \GuzzleHttp\RequestOptions::JSON => [
-                                        'chat_id' => $chat_id->chat_id,
-                                        'text' => $message,
-                                        'parse_mode' => 'Markdown',
-                                    ],
-                                ]
-                            );
-                        }
-                    }
-
-                }
-            } catch (\Throwable $th) {
-                // throw $th;
-            }
-
-            try {
-                Notification::route('mail', $_order->load('market')->market?->employees()->where('send_notify_email', true)->whereHas('role', fn ($q) => $q->where('code', 'manager'))->get())
-                    ->notify(new OrderCreatedUserNotification($_order));
-            } catch (\Throwable $th) {
-                \Log::error($th->getMessage());
-            }
         }
+
+        try {
+            if ($telegramBotApi && $_order->market->telegram_bot_market_username) {
+                $bot = @explode(':', $telegramBotApi)[0];
+
+                if ($bot) {
+                    $chat_id = TelegramChatUser::where('username', str_replace('@', '', $_order->market->telegram_bot_market_username))
+                        ->where('bot', $bot)->first();
+
+                    if ($chat_id) {
+                        $url = route('twill.orders.edit', ['order' => $_order->id]);
+                        $message = "Заказ № {$_order->parent->id} \n\r[Перейти]({$url})";
+
+                        $client = new \GuzzleHttp\Client;
+                        $client->post(
+                            "https://api.telegram.org/bot{$telegramBotApi}/sendMessage",
+                            [
+                                \GuzzleHttp\RequestOptions::JSON => [
+                                    'chat_id' => $chat_id->chat_id,
+                                    'text' => $message,
+                                    'parse_mode' => 'Markdown',
+                                ],
+                            ]
+                        );
+                    }
+                }
+
+            }
+        } catch (\Throwable $th) {
+            // throw $th;
+        }
+
+        try {
+            Notification::route('mail', $_order->load('market')->market?->employees()->where('send_notify_email', true)->whereHas('role', fn ($q) => $q->where('code', 'manager'))->get())
+                ->notify(new OrderCreatedUserNotification($_order));
+        } catch (\Throwable $th) {
+            \Log::error($th->getMessage());
+        }
+
     }
 }

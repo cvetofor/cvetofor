@@ -13,6 +13,10 @@
 <x-twill::input type="number" name="price" label="Стоимость" min="0" :maxlength=100000/>
 <x-twill::input type="number" name="free_delivery_at" label="Бесплатаня доставка ОТ" min="0" :maxlength=100000/>
 
+    <x-twill::checkbox
+        name="is_night"
+        label="Ночной радиус"
+    />
 <x-twill::checkbox
     name="holidays"
     label="Радиус используется в праздничные дни"

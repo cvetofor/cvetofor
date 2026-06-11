@@ -721,6 +721,7 @@ class OrderController extends Controller
             ) : 0;
 
             $maxDeliveryRadius = $market->delivery_radius;
+            $deliveryPricesResult['free'] = (int)$market->free_delivery_price;
 
             if (isset($lat) && isset($long)) {
                 session()->put('order_delivery_radius_km', $deliveryRadiusKm);
@@ -748,6 +749,7 @@ class OrderController extends Controller
 
         $deliveryPricesResult['totalPrice'] = \Cart::getTotal() + $deliveryPricesResult['totalDeliveryPrice'];
         $deliveryPricesResult['radius'] = $deliveryRadiusKm;
+
 
         if (session('uds_points_used') && session('uds_old_total') && session('uds_new_total')) {
             $deliveryPricesResult['oldTotal'] = session('uds_old_total');

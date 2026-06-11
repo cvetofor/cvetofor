@@ -1,4 +1,4 @@
-
+var globalPoints=null;
 function request(url, method = "GET", data) {
   return fetch(url, {
     method: method,
@@ -719,7 +719,7 @@ const reInitSelect = function () {
   });
 }
 
-
+var show_delivery_price=0;
 const observer = function (e) {
   // Ожидается, что e.target.value имеет формат "DD.MM.YYYY"
   const inputValue = e.target.value;
@@ -820,6 +820,13 @@ const observer = function (e) {
   });
 
   reInitSelect();
+
+
+  if (globalPoints) {
+    calcDelivery(globalPoints, true);
+  }
+
+
 };
 
 
@@ -835,6 +842,7 @@ if (addressInput) {
         function (res) {
           let pointA = res.geoObjects.get(0);
           let points = pointA.geometry.getCoordinates();
+          globalPoints=points;
           calcDelivery(points);
         },
       );
@@ -867,13 +875,32 @@ if (knowAddressButton) {
   })
 }
 
+const delivery_time = document.querySelectorAll('[name="delivery_time"]');
+
+document.addEventListener('change', function (e) {
+  if (e.target.matches('input[name="delivery_time"]')) {
+    calcDelivery(globalPoints, true)
+  }
+});
+
+
+function myFunction() {
+  console.log('radio изменился');
+}
+
 async function calcDelivery(points, isKnowAdress) {
   const form = document.querySelector('[data-form="order-checkout"] form');
 
 
   try {
     showPreloader(form);
-    const data = { coordinates: points, }
+    const delivery_time = document.querySelector('[name="delivery_time"]:checked');
+    var data = { coordinates: points}
+    if(delivery_time){
+        data = { coordinates: points,delivery_time:delivery_time.value??null }
+    }
+
+
     if (isKnowAdress) {
       data['isKnowAdress'] = true
     }
@@ -889,14 +916,38 @@ async function calcDelivery(points, isKnowAdress) {
 
 
     } else {
-      document.querySelector('.cart__summary-total').setAttribute('data-total', response.totalPrice);
-      let totalt = new Intl.NumberFormat("ru-RU").format(response.totalPrice)
-      document.querySelector('.cart__summary-total').innerHTML = 'Итого: ' + totalt + ' р.';
+      var hiden_delivery=$('#hiden_delivery').val();
+      hiden_delivery=parseInt(hiden_delivery);
+      document.querySelectorAll('.cart__summary-total')
+        .forEach(el => {
+          el.setAttribute('data-total', response.totalPrice);
 
+          let totalt = new Intl.NumberFormat("ru-RU")
+            .format(response.totalPrice);
 
-      let delivery = new Intl.NumberFormat("ru-RU").format(response.totalDeliveryPrice)
-      document.querySelector('[data-delivery-price="true"]').innerHTML = delivery + ' р.';
+          el.innerHTML = 'Итого: ' + totalt + ' р.';
+        });
 
+      let delivery = new Intl.NumberFormat("ru-RU")
+        .format(response.totalDeliveryPrice);
+
+      document.querySelectorAll('[data-delivery-price="true"]')
+        .forEach(el => {
+          el.innerHTML = delivery + ' р.';
+        });
+
+      if(hiden_delivery!= response.totalDeliveryPrice){
+        setTimeout(() => {
+          modal.show("delivery-show-summ");
+        }, 100);
+        $('#hiden_delivery').val(response.totalDeliveryPrice)
+        $('#mdelivery').html(delivery)
+        if(response.free>0){
+          $($('#ssmm').show());
+          $('#ssmm1').html(response.free)
+        }
+
+      }
       console.log(delivery);
 
     }

@@ -8,7 +8,7 @@
 @endphp
 
 @section('content')
-
+<input type="hidden" id="hiden_delivery" value="0">
     <div class="heading">
         <div class="container">
             <div class="heading__row">
@@ -286,7 +286,7 @@
                                                 @if ($totalDeliveryPrice)
                                                     <div class="cart__summary-item">
                                                         <span>Доставка</span>
-                                                        <span data-delivery-price="true" class="fordeliveryprice">@money($totalDeliveryPrice) р.</span>
+                                                        <span data-delivery-price="true" class="fordeliveryprice">0 р.</span>
                                                     </div>
                                                 @else
                                                     <div class="cart__summary-item">
@@ -353,10 +353,10 @@
                                                         <span>Итого: <span style="text-decoration:line-through;color:#888;">@money(session('uds_old_total')) р.</span> &rarr; <span style="color:#71be38;font-weight:bold;">@money(session('uds_new_total')) р.</span></span>
                                                     </span>
                                                 @else
-                                                    <span class="cart__summary-total" data-total="{{ (\Cart::getTotal() + $totalDeliveryPrice) }}">Итого: @money(\Cart::getTotal() + $totalDeliveryPrice) р.</span>
+                                                    <span class="cart__summary-total" data-total="{{ (\Cart::getTotal() ) }}">Итого: @money(\Cart::getTotal() ) р.</span>
                                                 @endif
                                                 @if (\Cart::getSubTotalWithoutConditions() !== \Cart::getTotal())
-                                                    <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() + $totalDeliveryPrice) р.</span>
+                                                    <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() ) р.</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -481,7 +481,7 @@
                                     @if ($totalDeliveryPrice)
                                         <div class="cart__summary-item">
                                             <span>Доставка</span>
-                                            <span data-delivery-price="true" class="fordeliveryprice">@money($totalDeliveryPrice) р.</span>
+                                            <span data-delivery-price="true" class="fordeliveryprice">0 р.</span>
                                         </div>
                                     @else
                                         <div class="cart__summary-item">
@@ -547,10 +547,10 @@
                                             <span>Итого: <span style="text-decoration:line-through;color:#888;">@money(session('uds_old_total')) р.</span> &rarr; <span style="color:#71be38;font-weight:bold;">@money(session('uds_new_total')) р.</span></span>
                                         </span>
                                     @else
-                                        <span class="cart__summary-total" data-total="{{ (\Cart::getTotal() + $totalDeliveryPrice) }}">Итого: @money(\Cart::getTotal() + $totalDeliveryPrice) р.</span>
+                                        <span class="cart__summary-total" data-total="{{ (\Cart::getTotal() ) }}">Итого: @money(\Cart::getTotal() ) р.</span>
                                     @endif
                                     @if (\Cart::getSubTotalWithoutConditions() !== \Cart::getTotal())
-                                        <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() + $totalDeliveryPrice) р.</span>
+                                        <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() ) р.</span>
                                     @endif
                                 </div>
                             </div>
@@ -581,6 +581,20 @@
             $('#phone4').inputmask("+7 (999) 999 99-99");
         });
     </script>
+
+    <div class="modal" data-modal="delivery-show-summ">
+        <div class="modal__heading">
+            <div class="modal__title"><span>Внимание!</span></div>
+            <div class="modal__close" data-modal-close=""></div>
+        </div>
+        <div class="modal__container">
+            <div class="modal__text">
+                <p>Стоимость доставки <span id="mdelivery"></span> руб, рассчитана по адресу доставки.</p>
+                <p id="ssmm" style="display: none">При покупке от <span id="ssmm1"></span> руб - доставка по вашему адресу будет бесплатно</p>
+            </div><br>
+            <div class="button button--green button--full-width close-button" data-modal-close="">Понятно</div>
+        </div>
+    </div>
 @endsection
 
 
@@ -729,6 +743,7 @@
                 method: 'POST',
                 data: {
                     uds_promo: promo,
+                    delivery: $('#hiden_delivery').val(),
                     points: points,
                     old_total: oldTotal,
                     _token: $('meta[name="csrf-token"]').attr('content')
@@ -839,6 +854,7 @@
                 method: 'POST',
                 data: {
                     promocode: promo,
+                    delivery: $('#hiden_delivery').val(),
                     total: $('.cart__summary-total').attr('data-total'),
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },

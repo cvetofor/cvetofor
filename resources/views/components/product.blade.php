@@ -64,7 +64,7 @@
     </div>
 
     {{-- mobile кнопка --}}
-    <button class="mobile-buy-btn add-product-to-cart-button"
+    <button class="mobile-buy-btn button button--green button--width-165 add-to-cart-button"
             data-put-cart-sku="{{ $price->sku }}">
         Заказать
     </button>

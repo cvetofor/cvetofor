@@ -76,46 +76,46 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
     public function quickFilters(): QuickFilters {
 
 
-          return
-              QuickFilters::make([
-                  QuickFilter::make()
-                      ->label('Новые')
-                      ->queryString('issued')
-                      ->scope('issued')
-                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->issued()->count()),
+        return
+            QuickFilters::make([
+                QuickFilter::make()
+                    ->label('Новые')
+                    ->queryString('issued')
+                    ->scope('issued')
+                    ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->issued()->count()),
 
-                  QuickFilter::make()
-                      ->label('Принятые')
-                      ->queryString('accepted')
-                      ->scope('accepted')
-                      // ->onlyEnableWhen($this->getIndexOption('publish'))
-                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->accepted()->count()),
+                QuickFilter::make()
+                    ->label('Принятые')
+                    ->queryString('accepted')
+                    ->scope('accepted')
+                    // ->onlyEnableWhen($this->getIndexOption('publish'))
+                    ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->accepted()->count()),
 
-                  QuickFilter::make()
-                      ->label('Завершенные')
-                      ->queryString('succesfuled')
-                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->succesfuled()->count())
-                      ->scope('succesfuled'),
+                QuickFilter::make()
+                    ->label('Завершенные')
+                    ->queryString('succesfuled')
+                    ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->succesfuled()->count())
+                    ->scope('succesfuled'),
 
-                  QuickFilter::make()
-                      ->label('Отклоненные')
-                      ->queryString('closed')
-                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->closed()->count())
-                      ->scope('closed'),
+                QuickFilter::make()
+                    ->label('Отклоненные')
+                    ->queryString('closed')
+                    ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->closed()->count())
+                    ->scope('closed'),
 
-                  QuickFilter::make()
-                      ->label('Тендер')
-                      ->queryString('tender')
-                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->tender()->count())
-                      ->scope('tender'),
-                  QuickFilter::make()
-                      ->label('Статистика')
-                      ->queryString('stat')
-                      ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->stat()->count())
-                      ->scope('stat'),
+                QuickFilter::make()
+                    ->label('Тендер')
+                    ->queryString('tender')
+                    ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->tender()->count())
+                    ->scope('tender'),
+                QuickFilter::make()
+                    ->label('Статистика')
+                    ->queryString('stat')
+                    ->amount(fn() => $this->repository->filter($this->repository->getBaseModel())->stat()->count())
+                    ->scope('stat'),
 
 
-              ]);
+            ]);
 
     }
 
@@ -154,10 +154,32 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
 
 
 
+        /* $table->add(
+             Text::make()->field('total_price')->title('Стоимость заказа')->sortable()
+         );*/
         $table->add(
-            Text::make()->field('total_price')->title('Стоимость заказа')->sortable()
-        );
+            Text::make()->field('total_price')->title('Стоимость заказа')->renderHtml()->customRender(function ($item) {
 
+
+                $sum = $item->total_price ;
+
+
+
+
+                if ($item->uds_points > 0) {
+                    $sum = $sum + $item->uds_points??0;
+                }
+                if ($item->promocode_points) {
+                    $sum = $sum + $item->promocode_points??0;
+                }
+
+                return   '<span style="color: #6c757d">'.$sum.' р.</span>';
+
+
+                return '';
+
+            })
+        );
 
         $table->add(
             Text::make()->field('delivery.price')->title('Стоимость доставки')->renderHtml()->customRender(function ($item) {
@@ -177,19 +199,29 @@ class OrderController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleCo
         );
         $table->add(
             Text::make()->field('payd')->title('Оплачено')->renderHtml()->customRender(function ($item) {
-                if($item->order_status_id ==2) {
-                    $sum = $item->total_price + ($item->delivery->price ?? 0);
+
+                // if($item->payment_status_id ==2) {
+                //$sum = $item->total_price + ($item->delivery->price ?? 0);
+
+                /*if($item->id==18329){
+                    dd($sum,$item->total_price,$item->delivery->price);
+                }*/
 
 
-                    if ($item->uds_points > 0) {
-                        $sum = $sum - $item->uds_points;
-                    }
-                    if ($item->promocode_points) {
-                        $sum = $sum - $item->promocode_points;
-                    }
-                    return $sum . ' р.';
-                }
+                /* if ($item->uds_points > 0) {
+                     $sum = $sum - $item->uds_points??0;
+                 }
+                 if ($item->promocode_points) {
+                     $sum = $sum - $item->promocode_points??0;
+                 }
+                 if($item->payment_status_id ==2){
+                     return $sum . ' р.';
+                 }*/
+                return   '<span style="color: #6c757d">'.$item->total_price.' р.</span>';
+
+                // }
                 return '';
+
             })
         );
         /*$table->add(

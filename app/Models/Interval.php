@@ -13,6 +13,7 @@ class Interval extends Model
         'end_time',
         'close_time',
         'close_time_behavior',
+        'is_night'
     ];
 
     public function getStartTimeAttribute($value)

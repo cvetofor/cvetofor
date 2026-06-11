@@ -240,10 +240,10 @@
                                             @endforeach
                                         </div>
                                         <div class="cart__salesman-bottom">
-                                            <div class="cart__delivery">
+                                          {{--  <div class="cart__delivery">
                                                 <span class="cart__delivery-title">Доставка</span>
                                                 <span class="cart__delivery-value">@money($collection->first()->associatedModel->market->delivery_price) р.</span>
-                                            </div>
+                                            </div>--}}
                                             @if (isset($recomendations[$collection->first()->associatedModel->market->id]))
                                                 <div class="cart__recommend accordion" data-accordion="">
                                                     <div class="accordion__toggle active" data-accordion-toggle="">
@@ -319,12 +319,12 @@
                                                 <span>@money($item->getPriceSumWithConditions()) р.</span>
                                             </div>
                                         @endforeach
-                                        @if ($totalDeliveryPrice)
+                                        {{--@if ($totalDeliveryPrice)
                                             <div class="cart__summary-item">
                                                 <span>Доставка</span>
                                                 <span>@money($totalDeliveryPrice) р.</span>
                                             </div>
-                                        @endif
+                                        @endif--}}
                                         @if (\Cart::getSubTotalWithoutConditions() !== \Cart::getTotal())
                                             <div class="cart__summary-item"><span>Скидка</span><span class="negative">-
                                                     {{ abs(\Cart::getSubTotalWithoutConditions() - \Cart::getTotal()) }}
@@ -332,10 +332,10 @@
                                         @endif
                                     </div>
                                     <div class="cart__summary-bottom">
-                                        <span class="cart__summary-total">Итого: @money(\Cart::getTotal() + $totalDeliveryPrice) р.</span>
+                                        <span class="cart__summary-total">Итого: @money(\Cart::getTotal() ) р.</span>
 
                                         @if (\Cart::getSubTotalWithoutConditions() !== \Cart::getTotal())
-                                            <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() + $totalDeliveryPrice)
+                                            <span class="cart__summary-no-discount">Без скидки: @money(\Cart::getSubTotalWithoutConditions() )
                                                 р.</span>
                                         @endif
                                     </div>
