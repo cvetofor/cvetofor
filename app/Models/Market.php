@@ -140,10 +140,37 @@ class Market extends Model
 
     public function getDeliveryRadiusAttribute()
     {
+        $is_night=NULL;
+        if(request()->has('delivery_time')){
+            $int_start=explode(' - ',request('delivery_time'));
+
+            if(count($int_start)==2) {
+                $start=$int_start[0];
+                $end=$int_start[1];
+
+                [$startHour, $startMinute] = explode(':', $start);
+                [$endHour, $endMinute] = explode(':', $end);
+
+                $startMinutes = $startHour * 60 + $startMinute;
+                $endMinutes = $endHour * 60 + $endMinute;
+
+
+                $is_night=Interval::where('start_time',$startMinutes)->where('market_id',config('market_id'))->where('end_time',$endMinutes)->first()->is_night??NULL;
+
+            }
+
+        }
+
         if (Hollyday::isHollyDays()) {
+            if($is_night){
+                return \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night', 1)->where('holidays', true)->max('radius') ?? 0;
+            }
             return \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true)->max('radius') ?? 0;
         }
 
+        if($is_night){
+                \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night', 1)->max('radius') ?? 0;
+        }
         return \Illuminate\Support\Collection::make($this->deliveries_radius)->max('radius') ?? 0;
     }
 
@@ -176,7 +203,27 @@ class Market extends Model
     {
         $id = $this->id;
 
+        $is_night=NULL;
+        if(request()->has('delivery_time')){
+            $int_start=explode(' - ',request('delivery_time'));
 
+            if(count($int_start)==2) {
+                $start=$int_start[0];
+                $end=$int_start[1];
+
+                [$startHour, $startMinute] = explode(':', $start);
+                [$endHour, $endMinute] = explode(':', $end);
+
+                $startMinutes = $startHour * 60 + $startMinute;
+                $endMinutes = $endHour * 60 + $endMinute;
+
+
+                $is_night=Interval::where('start_time',$startMinutes)->where('market_id',config('market_id'))->where('end_time',$endMinutes)->first()->is_night??NULL;
+
+            }
+
+
+        }
         $userDeliveryRadius = \session()->get('order_delivery_radius_km', null);
 
         // Если не установлен радиус, берем максимальную стоимость доставки
@@ -203,9 +250,18 @@ class Market extends Model
         $radiusCollection = null;
 
         if (Hollyday::isHollyDays()) {
-            $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true);
+            if($is_night){
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night',1)->where('holidays', true);
+            }else{
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true);
+            }
+
         } else {
-            $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
+            if($is_night){
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night',1) ;
+            }else {
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
+            }
         }
 
         // Берем ближайший радиус
@@ -221,6 +277,42 @@ class Market extends Model
         }
 
         return $DaP['price'] ?? 0;
+
+
+    }
+    public function getFreeDeliveryPriceAttribute()
+    {
+        $id = $this->id;
+
+
+        $userDeliveryRadius = \session()->get('order_delivery_radius_km', null);
+
+        // Если не установлен радиус, берем максимальную стоимость доставки
+        if ($userDeliveryRadius && $userDeliveryRadius < 0 && $this->price_i_dont_know_address) {
+            return 0;
+        }
+
+        $cartPrice = 0.0;
+        // Если считаем не по цене букета, в листинге, берем стоимость корзины
+        $cart = \Cart::getContent();
+        $items = $cart->where('attributes.market_id', '=', $id);
+
+
+
+
+
+
+        if (Hollyday::isHollyDays()) {
+            $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true);
+        } else {
+            $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
+        }
+
+        // Берем ближайший радиус
+        $DaP = $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '>=', $userDeliveryRadius ?? 0)->first();
+        $DaP = $DaP ?: $radiusCollection->sort(fn($l, $r) => $l['radius'] >= $r['radius'])->where('radius', '<=', $userDeliveryRadius ?? 0)->last();
+
+        return $DaP['free_delivery_at']??0;
 
 
     }

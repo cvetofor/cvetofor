@@ -21,7 +21,7 @@ class YookassaController extends Controller {
             \Log::channel('marketplace')->info('Оплата прошла успешно по заказу №: ' . $order['num_order']);
             $uds = new Bonus($order->market_id);
             if (isset($order->uds_points, $order->uds_code) && $order->uds_points > 0 && $order->uds_code > 0) {
-                $res = $uds->createOperation($order->uds_code, $order->total_price);
+                $res = $uds->createOperation($order->uds_code, $order->total_price+$order->uds_points,$order->num_order);
             } else if ($order->uds_code > 0 && $order->uds_points == 0) {
                 $res = $uds->reward($order->uds_code, $order->total_price);
             }

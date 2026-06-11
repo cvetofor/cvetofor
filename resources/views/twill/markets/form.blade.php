@@ -47,7 +47,9 @@
             <div style="flex: 1;">До</div>
             <div style="flex: 1;">Закрытие интервала</div>
             <div style="flex: 1;">Поведение</div>
+            <div style="flex: 1">Ночной</div>
             <div style="flex-shrink: 0;">Действия</div>
+
         </div>
         <!-- Существующие интервалы -->
         <div id="intervals-container"
@@ -65,6 +67,10 @@
                         <option value="before" {{ $interval->close_time_behavior === 'before' ? 'selected' : '' }}>До начала</option>
                         <option value="after" {{ $interval->close_time_behavior === 'after' ? 'selected' : '' }}>После начала</option>
                     </select>
+
+
+                    <input type="checkbox" class="editable" data-field="is_night" value="1"
+                           {{$interval->is_night?'checked':''}}  />
                     <div style="flex-shrink: 0; min-width: 100px;">
                         <button class="delete-interval" style="padding: 5px 10px; background-color: #ff4d4d; color: white; border: none; border-radius: 3px; cursor: pointer;">
                             Удалить
@@ -89,6 +95,8 @@
                 <option value="before">До начала</option>
                 <option value="after">После начала</option>
             </select>
+            <input type="checkbox" class="editable" data-field="is_night" value="1"
+                    style="flex: 1; min-width: 100px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;" />
             <div style="flex-shrink: 0; background-color: #4caf50; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer;" id="add-interval">
                 Добавить
             </div>
@@ -323,8 +331,11 @@
                     if (!editedIntervals[intervalId]) {
                         editedIntervals[intervalId] = { id: intervalId };
                     }
-                    editedIntervals[intervalId][field] = event.target.value;
 
+                    editedIntervals[intervalId][field] =
+                        event.target.type === "checkbox"
+                            ? (event.target.checked ? 1 : 0)
+                            : event.target.value;
                     validateAllIntervals();
                 }
             });

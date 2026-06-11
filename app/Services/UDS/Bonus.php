@@ -18,7 +18,7 @@ class Bonus {
         return $this->sendRequest('customers/find?code=' . $code, 'GET');
     }
 
-    public function createOperation($code, $total) {
+    public function createOperation($code, $total,$order_number) {
         $calcOperation = $this->calcCashOperation($code, $total);
 //
         if (isset($calcOperation->purchase)) {
@@ -30,13 +30,14 @@ class Bonus {
 
                 ],
                 'receipt' => array(
+                    'number'=>$order_number,
                     'total' => $total,
                     'points' => $calcOperation->purchase->points,
                     'cash' => $calcOperation->purchase->cash
                 )
             ];
 
-              $k=$this->sendRequest('operations', data: $data);
+            $k=$this->sendRequest('operations', data: $data);
 
             return $k;
         }
@@ -72,16 +73,16 @@ class Bonus {
     }
 
     private function sendRequest($endpoint, $method = 'POST', $data = null) {
-       if(env('APP_ENV')=='local') {
-           $strAuth = '549756083639' . ':' .'MjAwNGZmMGYtYmQxOS00NGI0LWE4YjItMmY1YjczMjU4Nzc0';
-       }else{
-           if ($this->marketId != 15) {
-               $strAuth = config('uds.id') . ':' . config('uds.apiKey');
-           } else {
-               // для Ангарская другие параметры
-               $strAuth = config('uds.id_angarsk') . ':' . config('uds.apiKey_angarsk');
-           }
-       }
+        if(env('APP_ENV')=='local') {
+            $strAuth = '549756083639' . ':' .'MjAwNGZmMGYtYmQxOS00NGI0LWE4YjItMmY1YjczMjU4Nzc0';
+        }else{
+            if ($this->marketId != 15) {
+                $strAuth = config('uds.id') . ':' . config('uds.apiKey');
+            } else {
+                // для Ангарская другие параметры
+                $strAuth = config('uds.id_angarsk') . ':' . config('uds.apiKey_angarsk');
+            }
+        }
 
         $date = new DateTime();
         $header = [

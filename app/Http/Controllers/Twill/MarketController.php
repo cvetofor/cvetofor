@@ -110,6 +110,7 @@ class MarketController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleC
                 'end_time' => $this->timeToMinutes($validated['end_time']),
                 'close_time' => $this->timeToMinutes($validated['close_time']),
                 'close_time_behavior' => $validated['close_time_behavior'],
+                '$interval' => request('is_night') ,
             ]);
 
             return response()->json([
@@ -117,6 +118,7 @@ class MarketController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleC
                 'message' => 'Интервал добавлен.',
                 'interval' => [
                     'id' => $interval->id,
+                    'is_night' => $interval->is_night,
                     'start_time' => $validated['start_time'],
                     'end_time' => $validated['end_time'],
                     'close_time' => $validated['close_time'],
@@ -140,6 +142,7 @@ class MarketController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleC
             'intervals.*.end_time' => 'nullable|date_format:H:i|after:intervals.*.start_time',
             'intervals.*.close_time' => 'nullable|date_format:H:i',
             'intervals.*.close_time_behavior' => 'nullable|in:before,after',
+            'intervals.*.is_night' => 'nullable|boolean',
         ]);
 
         try {
@@ -162,7 +165,12 @@ class MarketController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleC
                 if (isset($intervalData['close_time_behavior'])) {
                     $fieldsToUpdate['close_time_behavior'] = $intervalData['close_time_behavior'];
                 }
+                if (isset($intervalData['is_night'])) {
+                    $fieldsToUpdate['is_night'] = $intervalData['is_night']??NULL;
+                }
+
                 if (! empty($fieldsToUpdate)) {
+
                     $interval->update($fieldsToUpdate);
                 }
 

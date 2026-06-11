@@ -65,6 +65,9 @@ class UDSController extends Controller {
     }
     public function getDelivery()
     {
+        if(request('delivery')){
+            return request('delivery');
+        }
         $cart = \Cart::getContent();
         $cartByMarket = $cart->sortBy('attributes.order')->groupBy('attributes.market_id');
         $totalDeliveryPrice = 0.0;

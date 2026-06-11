@@ -24,7 +24,7 @@ class YaPayController extends Controller
 // Декодируем payload (base64url)
         $payloadJson = base64_decode(strtr($payload, '-_', '+/'));
         $data = json_decode($payloadJson, true);
-info($data);
+        info($data);
 
 // Логируем
         \Log::channel('marketplace')->info('Webhook payload: ' . json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -50,7 +50,7 @@ info($data);
         }
 
 
-        $order = Order::where('id', ($orderId+1))->first();
+        $order = Order::where('id', $orderId)->first();
         \Log::channel('marketplace')->info('ORDER DATA: ', [$order]);
         if (!$order) {
             return;
@@ -59,7 +59,7 @@ info($data);
         \Log::channel('marketplace')->info('Оплата прошла успешно по заказу №: ' . $order['num_order']);
         $uds = new Bonus($order->market_id);
         if (isset($order->uds_points, $order->uds_code) && $order->uds_points > 0 && $order->uds_code > 0) {
-            $res = $uds->createOperation($order->uds_code, $order->total_price);
+            $res = $uds->createOperation($order->uds_code, $order->total_price+$order->uds_points,$order->num_order);
         } else if ($order->uds_code > 0 && $order->uds_points == 0) {
             $res = $uds->reward($order->uds_code, $order->total_price);
         }

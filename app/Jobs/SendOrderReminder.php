@@ -39,7 +39,7 @@ class SendOrderReminder implements ShouldQueue
             \Log::channel('marketplace')->log('info', 'Обработка основного заказа начата', ['order_id' => $mainOrder->id]);
 
             // Ищем все связанные заказы
-            $relatedOrders = Order::where('parent_id', $mainOrder->id)->get();
+            $relatedOrders = Order::where('id', $mainOrder->id)->get();
 
             // Проверяем, есть ли среди связанных заказов оплаченные
             $paidOrders = $relatedOrders->where('payment_status_id', 2);

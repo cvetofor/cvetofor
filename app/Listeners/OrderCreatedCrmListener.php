@@ -90,8 +90,11 @@ class OrderCreatedCrmListener implements ShouldQueue
         }
         $amocrmLogger->debug('Нашли/создали контакт', ['contact_id' => $contact->getId()]);
 
+        $amocrmLogger->debug('сделка-степ 1');
         $deliveryPrice = $this->getDeliveryPrice($order);
+        $amocrmLogger->debug('сделка-степ 3');
         $leadModel = $this->makeLeadModel($order, $deliveryPrice);
+        $amocrmLogger->debug('сделка-степ 3');
         $amocrmLogger->debug('Создали модель сделки', ['lead' => array_filter($leadModel->toArray())]);
 
         try {
@@ -169,7 +172,7 @@ class OrderCreatedCrmListener implements ShouldQueue
     {
         return (new LeadModel)
             ->setName("Заказ #$order->num_order")
-            ->setPrice($order->total_price + $deliveryPrice)
+            ->setPrice($order->total_price)
             ->setPipelineId(config("$this->prefix.pipeline_id"))
             ->setStatusId(config("$this->prefix.status_id"))
             ->setTags($this->makeTagsCollection($order))
@@ -297,9 +300,7 @@ class OrderCreatedCrmListener implements ShouldQueue
 
     protected function makeAdminOrderUrl(Order $order): string
     {
-        return !empty($order->parent_id)
-            ? "https://цветофор.рф/hub/orders/$order->id/edit"
-            : "https://цветофор.рф/hub/orders/{$order->childs->first()->id}/edit";
+        return "https://цветофор.рф/hub/orders/{$order->id}/edit";
     }
 
     protected function makeDeliveryAddressValue(Order $order): string

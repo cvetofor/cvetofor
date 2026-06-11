@@ -648,7 +648,7 @@ class Modal {
           .classList.remove("active");
       }
     }, 500);
-    if (isModalForm) {
+    if (isModalForm && modal !== 'delivery-show-summ') {
       this.backToForm(modal);
     }
     if (modal !== "notification-added-to-cart") {
