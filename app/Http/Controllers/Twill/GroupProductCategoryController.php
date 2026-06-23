@@ -59,4 +59,5 @@ class GroupProductCategoryController extends BaseModuleController
 
         return parent::form($id, $item);
     }
+
 }

@@ -36,12 +36,25 @@ class CatalogController extends Controller
             config('yapay.shopId'),
             config('yapay.apiKey'),
         );
-        $order = Order::find(1000067);
+        $order = Order::find(1000077);
         $paymentResolver = new \App\Gateway\PaymentGateway;
 
         $redirect = $paymentResolver->resolve($order);
         dd($redirect);
         $payment->getPaymentUrl($order);
+    }
+    public function get_payment_link()
+    {
+        $payment = new \App\Services\Yapay\Payment(
+            config('yapay.shopId'),
+            config('yapay.apiKey'),
+        );
+        $order = Order::find(1000077);
+        $paymentResolver = new \App\Gateway\PaymentGateway;
+
+        $redirect = $paymentResolver->resolve($order);
+
+        return  $payment->getPaymentUrl($order);
     }
 
     public function index(Request $request, CatalogService $catalogService)
@@ -80,6 +93,7 @@ class CatalogController extends Controller
     public function welcome(Request $request, CatalogService $catalogService)
     {
         $categories = TwillAppSettings::get('main-page.main_page.categories');
+        $product_categories = TwillAppSettings::get('main-page.main_page.product_categories');
 
         $banner = TwillAppSettings::get('main-page.main_page.banner');
 
@@ -167,13 +181,37 @@ class CatalogController extends Controller
             $selectedCity = CitiesService::getCity();
             $prices = $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray());
 
-            /* $prices = $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray());*/
+
+            $market = CitiesService::getCity()->markets()->published()->first();
+            $product_categories->pluck('id')->toArray();
+
+            $filteredPrices = \App\Models\ProductPrice::published()
+                ->whereHas('product', function ($q) use ($product_categories) {
+                    $q->whereIN('category_id', $product_categories->pluck('id'));
+                })
+                ->where('market_id', $market->id)
+                ->with(['product', 'market'])
+                ->priceFilter()
+                ->orderByPrice()
+                ->get();
+
+            // Получаем ID продуктов, которые имеют отфильтрованные цены
+            $productIds = $filteredPrices->pluck('product_id')->unique();
+
+            // Получаем продукты для отображения
+            $productsQuery = Product::published()
+                ->whereIN('category_id', $product_categories->pluck('id'))
+                ->whereIn('id', $productIds);
+
+            $priceProds = $productsQuery->get();
+
+
         }
 
         SEOTools::setTitle('Доставка цветов в Улан-Удэ заказать букет с доставкой недорого по цене магазина Цветофор');
         SEOTools::setDescription('Заказать букет цветов в Улан-Удэ с доставкой на дом недорого. Доставка цветов в Улан-Удэ по адресу заказать онлайн на сайте по цене интернет-магазина Цветофор');
 
-        return view('welcome', compact('prices', 'banner', 'mainPageTagsModel', 'tags', 'city', 'selectedCity'));
+        return view('welcome', compact('prices', 'banner', 'mainPageTagsModel', 'tags', 'city', 'selectedCity','priceProds','product_categories'));
     }
 
     public function category(

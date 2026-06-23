@@ -481,6 +481,10 @@ class OrderController extends Controller
             $paymentResolver = new \App\Gateway\PaymentGateway;
 
             $redirect = $paymentResolver->resolve($order);
+            if($redirect){
+                $order->pay_url = $redirect;
+                $order->save();
+            }
 
             event(new OrderCreated($order));
 

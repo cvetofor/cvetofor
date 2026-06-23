@@ -16,6 +16,9 @@ class CatalogService {
      * @param [array<int>] $categories
      * @param  int  $paginate
      */
+
+
+
     public function findPricesByCategoriesId($categories, $paginate = 4, $price = false, $beetwen = false) {
         $result = [];
 
