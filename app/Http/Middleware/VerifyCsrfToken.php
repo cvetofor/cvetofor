@@ -17,6 +17,8 @@ class VerifyCsrfToken extends Middleware {
         '/profile/authenticate',
         '/uds/api/check',
         '/uds/api/create',
-        '/uds/api/reward'
+        '/uds/api/reward',
+        '/promocode/check',
+        '/get_payment_link'
     ];
 }

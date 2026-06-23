@@ -35,6 +35,7 @@ Route::get('/clearn',function (){
 \Artisan::call('view:clear');print 1;
 }) ;
 Route::get('/testpay', [CatalogController::class, 'testpay'])->name('testpay');
+Route::post('/get_payment_link', [CatalogController::class, 'get_payment_link'])->name('get_payment_link');
 
 Route::group(
     ['prefix' => '/payments/gateway', 'as' => 'payments.gateway.'],

@@ -165,13 +165,13 @@ class Market extends Model
             if($is_night){
                 return \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night', 1)->where('holidays', true)->max('radius') ?? 0;
             }
-            return \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true)->max('radius') ?? 0;
+            return \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true)->where('is_night','!=',1)->max('radius') ?? 0;
         }
 
         if($is_night){
                 \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night', 1)->max('radius') ?? 0;
         }
-        return \Illuminate\Support\Collection::make($this->deliveries_radius)->max('radius') ?? 0;
+        return \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night','!=',1)->max('radius') ?? 0;
     }
 
     public function getDeliveryProductPriceAttribute($outerGroupProductPrice = false)
@@ -241,11 +241,11 @@ class Market extends Model
         }
 
         $cartPrice = $outerGroupProductPrice > 0 ? $outerGroupProductPrice : $cartPrice;
-       if(session()->has('promocod__new_total')&&session('promocod__new_total')>0){
-           $cartPrice=session('promocod__new_total');
-       } if(session()->has('uds_points_amount')&&session('uds_points_amount')>0){
-           $cartPrice=session('uds_points_amount');
-       }
+        if(session()->has('promocod__new_total')&&session('promocod__new_total')>0){
+            $cartPrice=session('promocod__new_total');
+        } if(session()->has('uds_points_amount')&&session('uds_points_amount')>0){
+        $cartPrice=session('uds_points_amount');
+    }
 
         $radiusCollection = null;
 
@@ -253,14 +253,14 @@ class Market extends Model
             if($is_night){
                 $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night',1)->where('holidays', true);
             }else{
-                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true);
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true)->where('is_night','!=',1);
             }
 
         } else {
             if($is_night){
                 $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night',1) ;
             }else {
-                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night','!=',1);
             }
         }
 

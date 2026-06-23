@@ -81,7 +81,22 @@
         <div class="wrapper" style="margin-top:20px">
             <div class="col col--double">
                 Стоимость:
-                <span>{{ $item->delivery->price }} руб</span>
+                <span>{{ $item->delivery->price??NULL }} руб</span>
+            </div>
+        </div>
+
+    </a17-fieldset>
+
+
+    <a17-fieldset id="delivery" title="Оплата" style="margin-top:20px" :open="true">
+
+        <div class="wrapper" style="margin-top:20px">
+            <div class="col col--double">
+                Способ оплаты:
+                <span>{{ $item->payment->name??""  }}</span>
+            </div>
+            <div class="col col--double mylinlk"  >
+                <button type="button" class="button button--validate get_payment_url" data-id="{{$item->id}}">Скопировать ссылку</button>
             </div>
         </div>
 
@@ -171,6 +186,8 @@
 
         @if(isset($item->promocode_points))
             <x-twill::input name="promocode_points" type="number" prefix="₽ " label="Скидка Промокода" :disabled="true" />
+            <p>Промокод: {{\DB::table('promocods')->whereId($item->promocod_id)->first()?->code??""}}</p>
+
         @endif
 
         @if(isset($item->promocode))
@@ -199,13 +216,13 @@
         note="Товары не показанные пользователю" /> --}}
     </a17-fieldset>
 
-    <a17-fieldset id="" title="Информация">
+    {{--<a17-fieldset id="" title="Информация">
         <x-twill::browser name="order_payment" module-name="payments" label="Оплата" :max="1"
             :disabled="true" />
 
         <x-twill::browser name="order_delivery" module-name="deliveries" label="Доставка" :max="1"
             :disabled="true" />
-    </a17-fieldset>
+    </a17-fieldset>--}}
 
     <a17-fieldset id="" title="Статус">
 
@@ -231,3 +248,43 @@
     </a17-fieldset>
 
 @endsection
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('click', function(event) {
+            const target = event.target.closest('.get_payment_url');
+            if (!target) return;
+
+            const id = target.dataset.id;
+
+
+            // Отправка запроса на сервер
+            fetch('/get_payment_link', { // замените на ваш URL
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: id }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Сетевая ошибка');
+                    }
+                    return response.text(); // или response.json() если сервер возвращает JSON
+                })
+                .then(data => {
+                    // Записываем ответ в элементы с классом .mylinlk
+                    const elements = document.querySelectorAll('.mylinlk');
+                    elements.forEach(element => {
+                        element.textContent = data; // или element.innerHTML = data;
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    const elements = document.querySelectorAll('.mylinlk');
+                    elements.forEach(element => {
+                        element.textContent = 'Произошла ошибка';
+                    });
+                });
+        });
+    });
+</script>
