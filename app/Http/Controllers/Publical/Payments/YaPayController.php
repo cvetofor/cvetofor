@@ -80,7 +80,7 @@ class YaPayController extends Controller
 
     public function redirect(Request $request)
     {
-        $orderId = $request['orderId']+1;
+        $orderId = $request['orderId'];
 
         $order = Order::where('id', $orderId )->first();
 

@@ -76,6 +76,9 @@ class Order extends Model {
 
             if ($order->order_status_id != $order->getOriginal('order_status_id')) {
                 event(new OrderChangeStatus($order));
+                if($order->order_status_id==2){
+                    GroupProduct::limitGroupCheck($order);
+                }
             }
 
             if ($order->payment_status_id == 2) {

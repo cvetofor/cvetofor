@@ -4,7 +4,7 @@
     <div class="heading">
         <div class="container">
             <div class="heading__row">
-                @include('components.breadcrumbs', [ 
+                @include('components.breadcrumbs', [
                     'breadcrumbs' => $breadcrumbs,
                 ])
                 <div class="title-page">
@@ -13,7 +13,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="page">
         <div class="section">
             <div class="container">
@@ -61,33 +61,30 @@
                         <div class="swiper-pagination swiper-pagination--darkgrey" data-swiper="product-detail-pagination">
                         </div>
                     </div>
-                    
+
                     <div class="box box--no-margin box--padding-40 box--padding-mobile-30 box--border-radius-36">
                         <div class="product-detail__info">
                             <div class="product-detail__info-top">
-                                @if (!isset($priceModel->sku) || $priceModel->price == null || $priceModel->price == 0 || $priceModel->published === false || !$canPutToCart)
+                                @if ( $priceModel->price == null || $priceModel->price == 0 || $priceModel->published === false || !$canPutToCart)
                                     <span class="product-detail__price">Нет в наличии</span>
                                 @else
                                     <span class="product-detail__price">@money(round($priceModel->public_price)) р.</span>
                                 @endif
                                 <div class="product-detail__delivery">
-                                    @if (isset($priceModel->sku) && optional($priceModel->market)->delivery_price !== null)
+
                                         <svg class="product-detail__delivery-icon">
                                             <use href="#icon-car"></use>
                                         </svg>
                                         <span class="product-detail__delivery-title">Доставка:</span>
-                                        <span class="product-detail__delivery-value">@money(($priceModel->market)->delivery_product_price) р.</span>
-                                    @endif
+                                        <span class="product-detail__delivery-value">от 0 р.</span>
+
                                 </div>
                             </div>
-                            @if ($priceModel->price == null || $priceModel->price == 0 || $priceModel->published === false || !$canPutToCart)
-                                <button class="button button--green button--width-165 add-to-cart-button disabled">В
+
+                                <button class="button button--green button--width-165  "
+                                        data-cart-additional-item-add-cat="data-cart-additional-item-add-cat" data-id="{{ $priceModel->id }}" >В
                                     корзину</button>
-                            @else
-                                <button class="button button--green button--width-165 add-to-cart-button"
-                                    data-sku="{{ $priceModel->sku }}">В
-                                    корзину</button>
-                            @endif
+
                         </div>
                     </div>
                 </div>
@@ -128,4 +125,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
-@endpush 
+@endpush

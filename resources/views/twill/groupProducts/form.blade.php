@@ -55,7 +55,21 @@
         <x-twill::files :disabled="$disabled" name="preview" label="Файл" />
         <p>При добавлении видеофайла, последнее "Изображение товара" становится предпросмотром для видео</p>
     </a17-fieldset>
-    {{-- @metadataFields --}}
+
+
+   {{-- $table->integer('limit_bay_rule')->nullable();
+    $table->integer('limit_bay_amount')->nullable();
+    $table->integer('limit_bay_now')->nullable();--}}
+    <a17-fieldset title="Лимит покупок" id="limit_bay_rule_lable">
+        <x-twill::checkbox name="limit_bay_rule" label="Лимит покупок" />
+
+
+    <x-twill::input   name="limit_bay_amount" label="Максимум продаж" type="text" />
+    <x-twill::input :disabled="true"  name="limit_bay_now" label="Сейчас продаж" type="text" />
+    </a17-fieldset>
+
+
+
 @stop
 
 @push('vuexStore')
