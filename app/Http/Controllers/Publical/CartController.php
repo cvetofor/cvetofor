@@ -96,9 +96,17 @@ class CartController extends Controller {
 
         $totalPrice = is_numeric($request->price) ? $request->price : $calculated->total;
 
+        if($price->groupProduct){
+            $price->category_id=$price->groupProduct->category_id??NULL;
+            $price->tags=$price->groupProduct->tags->pluck('id')->toArray()??[];
+        }
+        elseif($price->product){
+            $price->category_id=$price->product->category_id??NULL;
+            $price->tags=$price->product->tags->pluck('id')->toArray()??[];
+        }
 
-        $price->category_id=$price->groupProduct->category_id??NULL;
-        $price->tags=$price->groupProduct->tags->pluck('id')->toArray()??[];
+       /* $price->category_id=$price->groupProduct->category_id??NULL;
+        $price->tags=$price->groupProduct->tags->pluck('id')->toArray()??[];*/
 
         \Cart::add([
             'id' => $id,

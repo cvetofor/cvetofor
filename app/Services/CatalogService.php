@@ -19,6 +19,48 @@ class CatalogService {
 
 
 
+    public function findAdditPricesByCategoriesId($categories, $paginate = 4, $price = false, $beetwen = false) {
+        $result = [];
+
+        $market = Market::published()->whereHas('prices', fn($q) => $q->whereHas('groupProduct'))->where('city_id', CitiesService::getCity()->id)->first();
+
+        foreach ($categories as $i => $category) {
+
+            $builder = ProductPrice::where('product_prices.market_id', $market->id)
+                ->whereHas('product', function ($qgp) use ($category, $market) {
+                    return $qgp->whereHas(
+                        'remains',
+                        fn($qr) => $qr->where('remains.published', true)
+                            ->where('remains.market_id', $market->id)
+                    )
+                        ->where('category_id', $category);
+                })
+                ->where('price', '<>', null)
+                ->where('price', '<>', 0)
+                ->published()
+                ->priceFilter()
+                ->orderByPrice();
+
+            if (
+                request()->input('order.title') && in_array(request()->input('order.title'), [
+                    'asc',
+                    'desc',
+                ], true)
+            ) {
+                $builder = $builder->join('products', 'products.id', 'product_prices.product_id')
+                    ->orderBy('products.title', strtoupper(request()->input('order.title')));
+            } else {
+
+                // После объединения. price->id == groupProduct->id
+                // Стоит использоват price->sku, так как он является уникальным
+                $builder = $builder->join('products', 'products.id', 'product_prices.product_id')
+                    ->orderBy('products.title', strtoupper('asc'));
+            }
+            $result['category_' . $category] = $builder->paginate($paginate, ['*'], 'category_' . $category);
+        }
+
+        return $result;
+    }
     public function findPricesByCategoriesId($categories, $paginate = 4, $price = false, $beetwen = false) {
         $result = [];
 

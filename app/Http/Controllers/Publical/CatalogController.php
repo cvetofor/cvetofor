@@ -6,6 +6,7 @@ use A17\Twill\Facades\TwillAppSettings;
 use A17\Twill\Models\Tag;
 use App\Helpers\SeoinfoHelper;
 use App\Http\Controllers\Controller;
+use App\Models\GroupProduct;
 use App\Models\GroupProductCategory;
 use App\Models\Order;
 use App\Models\Product;
@@ -32,6 +33,12 @@ class CatalogController extends Controller
 
     public function testpay()
     {
+        $order=Order::find(1000080);
+        GroupProduct::limitGroupCheck($order);
+
+        //
+        dd(1);
+
         $payment = new \App\Services\Yapay\Payment(
             config('yapay.shopId'),
             config('yapay.apiKey'),
@@ -93,39 +100,72 @@ class CatalogController extends Controller
     public function welcome(Request $request, CatalogService $catalogService)
     {
         $categories = TwillAppSettings::get('main-page.main_page.categories');
-        $product_categories = TwillAppSettings::get('main-page.main_page.product_categories');
-
+        $product_categories = TwillAppSettings::get('main-page.main_page.product_categories')??[];
+        $priceProds=[];
         $banner = TwillAppSettings::get('main-page.main_page.banner');
 
         if ($request->ajax()) {
+            if(request()->type=='ad'&&count($product_categories)){
 
-            $_categories = [];
-            foreach ($categories->pluck('id')->toArray() as $cagegory) {
-                if (request()->has('category_' . $cagegory)) {
-                    $_categories[] = $cagegory;
-                }
-            }
-
-            $remains = $catalogService->findPricesByCategoriesId($_categories);
-
-            if (!$remains) {
-
-                $keys = array_keys(request()->all());
-                foreach ($keys as $key) {
-                    if (strpos($key, 'category_') !== false) {
-                        $tag = str_replace('category_', '', $key);
+                $_categories = [];
+                foreach ($product_categories->pluck('id')->toArray() as $cagegory) {
+                    if (request()->has('category_' . $cagegory)) {
+                        $_categories[] = $cagegory;
                     }
                 }
 
-                $tagModel = Tag::where('slug', $tag)->firstOrFail();
-                $remains = $catalogService->findByTag($tagModel);
-            }
+                $remains = $catalogService->findAdditPricesByCategoriesId($_categories);
 
-            return response()->json([
-                'data' => Arr::map($remains, function ($paginator) {
-                    return view('components.category', ['paginator' => $paginator])->render();
-                }),
-            ]);
+                if (!$remains) {
+
+                    $keys = array_keys(request()->all());
+                    foreach ($keys as $key) {
+                        if (strpos($key, 'category_') !== false) {
+                            $tag = str_replace('category_', '', $key);
+                        }
+                    }
+
+                    $tagModel = Tag::where('slug', $tag)->firstOrFail();
+                    $remains = $catalogService->findByTag($tagModel);
+                }
+
+                return response()->json([
+                    'data' => Arr::map($remains, function ($paginator) {
+                        return view('components.category_addit', ['paginator' => $paginator])->render();
+                    }),
+                ]);
+
+
+            }else {
+
+                $_categories = [];
+                foreach ($categories->pluck('id')->toArray() as $cagegory) {
+                    if (request()->has('category_' . $cagegory)) {
+                        $_categories[] = $cagegory;
+                    }
+                }
+
+                $remains = $catalogService->findPricesByCategoriesId($_categories);
+
+                if (!$remains) {
+
+                    $keys = array_keys(request()->all());
+                    foreach ($keys as $key) {
+                        if (strpos($key, 'category_') !== false) {
+                            $tag = str_replace('category_', '', $key);
+                        }
+                    }
+
+                    $tagModel = Tag::where('slug', $tag)->firstOrFail();
+                    $remains = $catalogService->findByTag($tagModel);
+                }
+
+                return response()->json([
+                    'data' => Arr::map($remains, function ($paginator) {
+                        return view('components.category', ['paginator' => $paginator])->render();
+                    }),
+                ]);
+            }
         }
 
         $tags = TwillAppSettings::get('main-page.main_page.main_tags') ?? [];
@@ -182,28 +222,11 @@ class CatalogController extends Controller
             $prices = $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray());
 
 
-            $market = CitiesService::getCity()->markets()->published()->first();
-            $product_categories->pluck('id')->toArray();
 
-            $filteredPrices = \App\Models\ProductPrice::published()
-                ->whereHas('product', function ($q) use ($product_categories) {
-                    $q->whereIN('category_id', $product_categories->pluck('id'));
-                })
-                ->where('market_id', $market->id)
-                ->with(['product', 'market'])
-                ->priceFilter()
-                ->orderByPrice()
-                ->get();
+            if(count($product_categories)) {
+                $priceProds = $catalogService->findAdditPricesByCategoriesId($product_categories->pluck('id')->toArray());
 
-            // Получаем ID продуктов, которые имеют отфильтрованные цены
-            $productIds = $filteredPrices->pluck('product_id')->unique();
-
-            // Получаем продукты для отображения
-            $productsQuery = Product::published()
-                ->whereIN('category_id', $product_categories->pluck('id'))
-                ->whereIn('id', $productIds);
-
-            $priceProds = $productsQuery->get();
+            }
 
 
         }

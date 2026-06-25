@@ -249,6 +249,7 @@ const LoadMore = function (child = null) {
         });
       }
 
+
     });
   }
 
@@ -784,15 +785,15 @@ const observer = function (e) {
     console.error("Element with class .select__drop not found");
     return;
   }
-  
+
   dropElement.innerHTML = '';
   Object.values(times).forEach((time, i) => {
     // Предполагается, что time — массив вида [start, end]
     if (time[0] && time[1]) {
       dropElement.innerHTML += `
         <label class="select__item" data-select-option="">
-          <input class="select__input" ${i === 0 ? 'checked="checked"' : ''} 
-                 value="${time[0]}${time[1] ? ' - ' + time[1] : ''}" 
+          <input class="select__input" ${i === 0 ? 'checked="checked"' : ''}
+                 value="${time[0]}${time[1] ? ' - ' + time[1] : ''}"
                  name="delivery_time" type="radio" data-select-input="" />
           <span>${time[0]}${time[1] ? ' - ' + time[1] : ''}</span>
         </label>`;
@@ -865,7 +866,7 @@ async function calcDelivery(points, isKnowAdress) {
         document.querySelector('[ data-modal="' + error.modal + '"] .modal__text p').innerHTML = error.message;
       }
       modal.show(error.modal);
-      
+
 
 
     } else {

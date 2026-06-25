@@ -256,7 +256,7 @@ const LoadMore = function (child = null) {
 
 // Кнопка добавить в корзине
 const PutToCart = function () {
-  const cartButtons = document.querySelectorAll('[data-put-cart-sku],[data-cart-additional-item-add]');
+  const cartButtons = document.querySelectorAll('[data-put-cart-sku],[data-cart-additional-item-add],[data-cart-additional-item-add-cat]');
 
   if (cartButtons) {
     cartButtons.forEach(function (button) {
@@ -268,9 +268,18 @@ const PutToCart = function () {
         if (button.getAttribute('data-cart-additional-item-add')) {
           sku = button.getAttribute('data-id');
           link = window['cvetofor'].config.routes.cart.putAdditional;
-        } else {
-          sku = button.getAttribute('data-put-cart-sku');
+        }else{
+          if (button.getAttribute('data-cart-additional-item-add-cat')) {
+            sku = button.getAttribute('data-id');
+            link = window['cvetofor'].config.routes.cart.putAdditional;
+          } else {
+            sku = button.getAttribute('data-put-cart-sku');
+          }
+
+
         }
+
+
 
 
         shareLastSku = sku;

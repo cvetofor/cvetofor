@@ -68,6 +68,28 @@
                                     @endphp
                                 @endif
 
+                                @if ($price->groupProduct->file('preview'))
+                                    <div class="swiper-slide swiper-slide--video">
+                                        <div class="video-wrapper">
+                                            <video
+                                                class="product-detail__video"
+                                                playsinline
+                                                preload="metadata"
+                                                poster="{{ Arr::first($images) }}"
+                                            >
+                                                <source src="{{ $price->groupProduct->file('preview') }}" type="video/mp4">
+                                            </video>
+
+                                            <button class="video-play-btn" type="button">
+                                                <svg width="60" height="60">
+                                                    <use href="#icon-play"></use>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endif
+
+
                                 @foreach ($images as $key => $image)
                                     @if (!$loop->last || !$price->groupProduct->file('preview'))
                                         <a class="swiper-slide" data-fancybox="data-fancybox" href="{{ $image }}">
@@ -83,7 +105,7 @@
                                     @endif
                                 @endforeach
 
-                                @if ($price->groupProduct->file('preview') && isset($images))
+                               {{-- @if ($price->groupProduct->file('preview') && isset($images))
                                     <a class="swiper-slide swiper-slide--video" data-fancybox="data-fancybox"
                                        href="{{ $price->groupProduct->file('preview') }}">
                                         <img class="product-detail__image" src="{{ Arr::last($images) }}" alt=""/>
@@ -95,7 +117,72 @@
                                             </svg>
                                         </button>
                                     </a>
-                                @endif
+                                @endif--}}
+                                <style>
+                                    .video-play-btn {
+                                        color: #fff;
+                                    }
+                                    .video-play-btn svg,
+                                    .video-play-btn svg use {
+                                        fill: #fff;
+                                    }
+                                    .video-wrapper {
+                                        position: relative;
+                                        height: 100%;
+                                    }
+
+                                    .product-detail__video {
+                                        width: 100%;
+                                        max-height: 666px;
+                                        display: block;
+                                        object-fit: cover;
+                                    }
+
+                                    .video-play-btn {
+                                        position: absolute;
+                                        left: 50%;
+                                        top: 50%;
+                                        transform: translate(-50%, -50%);
+                                        width: 80px;
+                                        height: 80px;
+                                        border: none;
+                                        border-radius: 50%;
+                                        cursor: pointer;
+                                        z-index: 2;
+                                    }
+
+                                    .video-wrapper.playing .video-play-btn {
+                                        opacity: 0;
+                                        pointer-events: none;
+                                    }
+                                </style>
+                                <script>
+                                    document.querySelectorAll('.video-wrapper').forEach(wrapper => {
+                                        const video = wrapper.querySelector('video');
+                                        const btn = wrapper.querySelector('.video-play-btn');
+
+                                        function toggleVideo() {
+                                            if (video.paused) {
+                                                video.play();
+                                                wrapper.classList.add('playing');
+                                            } else {
+                                                video.pause();
+                                                wrapper.classList.remove('playing');
+                                            }
+                                        }
+
+                                        btn.addEventListener('click', toggleVideo);
+                                        video.addEventListener('click', toggleVideo);
+
+                                        video.addEventListener('ended', () => {
+                                            wrapper.classList.remove('playing');
+                                        });
+
+                                        video.addEventListener('pause', () => {
+                                            wrapper.classList.remove('playing');
+                                        });
+                                    });
+                                </script>
                             </div>
                             <button class="swiper-button-prev swiper-button-prev--white"
                                     data-swiper="product-detail-button-prev">

@@ -76,7 +76,8 @@
             <div class="container">
                 <div class="box box--padding-40">
                     <h2 class="status-page__title">Состав заказа</h2>
-                    <table class="order-details-table">
+                    <div class="table-responsive">
+                    <table class="order-details-table order-table">
                         <thead>
                         <tr>
 
@@ -126,13 +127,24 @@ $id_m=$loop->iteration;
                         </tr>
                         </tfoot>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
     </div>
+<style>
+    .table-responsive{
+        width:100%;
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+    }
 
+    .order-table{
+        min-width:700px; /* или нужная ширина */
+    }
+</style>
 
     @if($order->delivery&&$order->delivery->price>0)
         @php( $array_product[]=[
