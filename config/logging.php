@@ -81,6 +81,12 @@ return [
             'level' => env('notice'),
             'days' => 14,
         ],
+        'amocrm2' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/amocrm2.log'),
+            'level' => env('notice'),
+            'days' => 14,
+        ],
 
         'slack' => [
             'driver' => 'slack',

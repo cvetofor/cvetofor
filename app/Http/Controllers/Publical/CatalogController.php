@@ -16,6 +16,7 @@ use App\Repositories\GroupProductRepository;
 use App\Services\CatalogService;
 use App\Services\CitiesService;
 use App\Services\Defenders\ProductPriceDefender;
+use App\Services\SendAfterPayAmoService;
 use App\Services\UDS\Bonus;
 use App\ViewModel\CatalogController\MainPageTagsModel;
 use Artesaos\SEOTools\Facades\SEOTools;
@@ -33,8 +34,8 @@ class CatalogController extends Controller
 
     public function testpay()
     {
-        $order=Order::find(1000080);
-        GroupProduct::limitGroupCheck($order);
+        $order=Order::find(1000081);
+        SendAfterPayAmoService::send($order);
 
         //
         dd(1);
