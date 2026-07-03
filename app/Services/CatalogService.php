@@ -160,7 +160,7 @@ class CatalogService {
                     $qgp->whereHas('remains', fn($qr) => $qr->where('published', true)->whereIn('remains.market_id', $markets->pluck('id')->toArray())->where(function ($q) use ($search) {
                         return $q->where('title', 'ilike', '%' . $search . '%')->orWhere('description', 'ilike', '%' . $search . '%');
                     }))
-                    ->orWhereHas('tags', fn($q) => $q->where('tag_id', $tag->id ?? false));
+                        ->orWhereHas('tags', fn($q) => $q->where('tag_id', $tag->id ?? false));
             })
             ->where('price', '<>', null)
             ->where('price', '<>', 0)

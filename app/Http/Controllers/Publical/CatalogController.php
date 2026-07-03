@@ -196,7 +196,7 @@ class CatalogController extends Controller
                         )
                     )
                 );
-               // $prices = \Cache::remember('welcome_categories_tags|' . $unique, now()->addMinutes(1), fn() => $catalogService->findByTag($tag));
+                // $prices = \Cache::remember('welcome_categories_tags|' . $unique, now()->addMinutes(1), fn() => $catalogService->findByTag($tag));
                 /*   $prices = $catalogService->findByTag($tag);
                    $mainPageTagsModel[] = new MainPageTagsModel($tag, $prices);*/
             }
@@ -224,7 +224,7 @@ class CatalogController extends Controller
 
 
             if(count($product_categories)) {
-                $priceProds = $catalogService->findAdditPricesByCategoriesId($product_categories->pluck('id')->toArray());
+                $priceProds = $catalogService->findAdditPricesByCategoriesId($product_categories->pluck('id')->toArray())??[];
 
             }
 
@@ -381,7 +381,7 @@ class CatalogController extends Controller
             &&
             $priceModel->market_id != config('market_id')
             && !request()->has('city_id')) {
-         CitiesService::setCity($priceModel->market->city_id);
+            CitiesService::setCity($priceModel->market->city_id);
             return redirect(request()->url() . '?city_id=' . $priceModel->market->city_id);
 
         }
