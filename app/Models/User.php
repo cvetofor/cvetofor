@@ -73,4 +73,7 @@ class User extends Authenticatable //implements MustVerifyEmail
         // Your your own implementation.
         $this->notify(new ResetPasswordNotification($token));
     }
+    public function getFullNameAttribute(){
+        return $this->name . " ". $this->second_name." ".$this->last_name;
+    }
 }

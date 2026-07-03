@@ -102,14 +102,14 @@
     @endif
 
 
-    @if (count($priceProds))
+    @if (isset($priceProds)&&count($priceProds)&&is_array($priceProds))
         @foreach ($priceProds as $paginator)
             @if ($paginator->items()&&isset( $paginator->items()[0]->product->category))
                 <div class="section">
                     <div class="container">
                         <h2>
                             <a class=""
-                               href="{{ route('catalog.category', ['slug' => $paginator->items()[0]->product->category->slug]) }}">{{ $paginator->items()[0]->product->category->title }}</a>
+                               href="/categories/{{ $paginator->items()[0]->product->category->slug }}">{{ $paginator->items()[0]->product->category->title }}</a>
                         </h2>
                         <div class="products__wrap" data-category-items="category_{{ $paginator->items()[0]->product->category_id}}">
                             @foreach ($paginator->items() as $price)

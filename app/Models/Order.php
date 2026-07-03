@@ -6,6 +6,7 @@ use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Model;
 use App\Events\OrderAmocrmUpdate;
 use App\Events\OrderChangeStatus;
+use App\Services\SendAfterPayAmoService;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 class Order extends Model {
@@ -77,12 +78,15 @@ class Order extends Model {
             if ($order->order_status_id != $order->getOriginal('order_status_id')) {
                 event(new OrderChangeStatus($order));
                 if($order->order_status_id==2){
+
                     GroupProduct::limitGroupCheck($order);
+
                 }
             }
 
             if ($order->payment_status_id == 2) {
                 event(new OrderAmocrmUpdate($order));
+                SendAfterPayAmoService::send($order);
             }
         });
 
