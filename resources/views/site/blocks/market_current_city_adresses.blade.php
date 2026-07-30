@@ -24,8 +24,12 @@
                                         class="contacts__addresses-item__title">{{ $market->city->city }},
                                         {{ $market->address }}</span>
                                     <div class="contacts__addresses-item__text">
+                                        @if($market->work_time)
+                                            <span>{{ $market->work_time }}</span>
+                                        @else
                                         <span>{{ $market->workTimeLong()[0] ?? '' }}</span>
                                         <span>{{ $market->workTimeLong()[1] ?? '' }}</span>
+                                        @endif
                                         <span>{{ $market->pone }}</span>
                                     </div>
                                 </div>
@@ -43,8 +47,14 @@
                                                     class="contacts__addresses-item__title">{{ $market->city->city }},
                                                     {{ $_address['address'] ?? '' }}</span>
                                                 <div class="contacts__addresses-item__text">
+
+                                                    @if(isset($_address['work_time']) && $_address['work_time'])
+                                                        <span>{{ $_address['work_time'] }}</span>
+                                                    @else
+
                                                     <span>{{ $market->workTimeLong()[0] ?? '' }}</span>
                                                     <span>{{ $market->workTimeLong()[1] ?? '' }}</span>
+                                                    @endif
                                                     <span>{{ $market->pone }}</span>
                                                 </div>
                                             </div>

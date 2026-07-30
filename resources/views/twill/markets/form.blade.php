@@ -13,6 +13,7 @@
     <x-twill::browser module-name="cities" name="city" label="Город" :max="1" />
 
     <x-twill::input name="address" label="Адрес" required="required" :maxlength="1000" />
+    <x-twill::input name="work_time" label="Время работы" :maxlength="1000" />
 
     @formField('repeater', ['type' => 'additional_addresses', 'max' => 10])
 

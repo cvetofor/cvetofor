@@ -797,8 +797,8 @@ const observer = function (e) {
   const times= window['cvetofor'].config.flatpickr.dates[formattedDate]?
     window['cvetofor'].config.flatpickr.dates[formattedDate]:
     (isToday
-    ? window['cvetofor'].config.flatpickr.todayTimes
-    : window['cvetofor'].config.flatpickr.times[dayWeek]);
+      ? window['cvetofor'].config.flatpickr.todayTimes
+      : window['cvetofor'].config.flatpickr.times[dayWeek]);
 
   console.log(times);
   console.log(window['cvetofor'].config.flatpickr.dates);
@@ -906,7 +906,7 @@ async function calcDelivery(points, isKnowAdress) {
     const delivery_time = document.querySelector('[name="delivery_time"]:checked');
     var data = { coordinates: points}
     if(delivery_time){
-        data = { coordinates: points,delivery_time:delivery_time.value??null }
+      data = { coordinates: points,delivery_time:delivery_time.value??null }
     }
 
 
@@ -952,8 +952,11 @@ async function calcDelivery(points, isKnowAdress) {
         $('#hiden_delivery').val(response.totalDeliveryPrice)
         $('#mdelivery').html(delivery)
         if(response.free>0){
-          $($('#ssmm').show());
+          $('#ssmm').show();
           $('#ssmm1').html(response.free)
+        }else{
+          $('#ssmm').hide();
+          $('#ssmm1').html('')
         }
 
       }
@@ -1031,7 +1034,7 @@ const Order = async function () {
   if (response) {
     if (response.redirect) {
 
-     // console.log(response.order_id);
+      // console.log(response.order_id);
       by_send_order(response.order_id,response.products)
       setTimeout(() => {
         window.location = response.redirect;

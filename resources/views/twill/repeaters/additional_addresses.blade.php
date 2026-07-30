@@ -16,3 +16,9 @@
     'maxlength' => 100,
     'required' => true,
 ])
+@formField('input', [
+'name' => 'work_time',
+'label' => 'Врремя работы',
+'maxlength' => 100
+
+])
