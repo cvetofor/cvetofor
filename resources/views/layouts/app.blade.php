@@ -230,7 +230,7 @@
                 <img src="/dist/img/image/logo.svg" alt="" />
             </a>
 
-            <div class="social footer__social">
+            {{--<div class="social footer__social">
                 <a class="social__item" href="{{ TwillAppSettings::get('public.public.vk') }}" target="_blank">
                     <svg class="social__icon" width="18" height="15">
                         <use href="#icon-vk"></use>
@@ -250,7 +250,7 @@
                         <use href="#icon-whatsapp"></use>
                     </svg>
                 </a>
-            </div>
+            </div>--}}
             <a class="footer__phone"
                href="tel:{{ str_replace([' ', '(', ')', '-'], ['', '', '', ''], TwillAppSettings::get('public.public.phone')) }}">{{ TwillAppSettings::get('public.public.phone') }}
             </a>

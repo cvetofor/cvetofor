@@ -41,7 +41,9 @@ class OrderChangeStatusListener
             $notification = new OrderCompletedNotification($order);
         }
 
-        if ($notification) {
+
+        if ($notification&&$order->user) {
+
             $order->user->notify($notification);
 
             $managers = $order->load('market')->market?->employees()->where('send_notify_email', true)->whereHas('role', fn ($q) => $q->where('code', 'manager'))->get();

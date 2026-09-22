@@ -82,6 +82,7 @@ class Market extends Model
         'balance',
         'price_i_dont_know_address',
         'telegram_bot_market_username',
+        'work_time'
     ];
 
     protected $hidden = [
@@ -298,14 +299,46 @@ class Market extends Model
         $items = $cart->where('attributes.market_id', '=', $id);
 
 
+        $is_night=NULL;
+        if(request()->has('delivery_time')){
+            $int_start=explode(' - ',request('delivery_time'));
+
+            if(count($int_start)==2) {
+                $start=$int_start[0];
+                $end=$int_start[1];
+
+                [$startHour, $startMinute] = explode(':', $start);
+                [$endHour, $endMinute] = explode(':', $end);
+
+                $startMinutes = $startHour * 60 + $startMinute;
+                $endMinutes = $endHour * 60 + $endMinute;
+
+
+                $is_night=Interval::where('start_time',$startMinutes)->where('market_id',config('market_id'))->where('end_time',$endMinutes)->first()->is_night??NULL;
+
+            }
+
+
+        }
 
 
 
 
         if (Hollyday::isHollyDays()) {
-            $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('holidays', true);
+
+            if($is_night){
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night',1)->where('holidays', true); ;
+            }else {
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night','!=',1)->where('holidays', true);;
+            }
         } else {
-            $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius);
+            if($is_night){
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night',1) ;
+            }else {
+                $radiusCollection = \Illuminate\Support\Collection::make($this->deliveries_radius)->where('is_night','!=',1);
+            }
+
+
         }
 
         // Берем ближайший радиус

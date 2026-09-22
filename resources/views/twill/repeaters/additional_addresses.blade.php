@@ -3,16 +3,22 @@
 @twillRepeaterGroup('app')
 @twillRepeaterTitleField('address', ['hidePrefix' => true])
 @twillRepeaterValidationRules(
-    [
-        'address' => 'required|max:100',
-    ]
+[
+'address' => 'required|max:100',
+]
 )
 
 
 
 @formField('input', [
-    'name' => 'address',
-    'label' => 'Адрес',
-    'maxlength' => 100,
-    'required' => true,
+'name' => 'address',
+'label' => 'Адрес',
+'maxlength' => 100,
+'required' => true,
+])
+@formField('input', [
+'name' => 'work_time',
+'label' => 'Врремя работы',
+'maxlength' => 100
+
 ])

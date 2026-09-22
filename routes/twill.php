@@ -110,6 +110,7 @@ TwillRoutes::module('forms');
 TwillRoutes::module('tags');
 TwillRoutes::module('seotags');
 TwillRoutes::module('promocods');
+TwillRoutes::module('stores');
 TwillRoutes::module('menuPrices');
 TwillRoutes::module('menuFlovers');
 TwillRoutes::module('nameDateIntervals');

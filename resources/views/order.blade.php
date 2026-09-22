@@ -608,7 +608,7 @@
             const addressInput = $('#delivery-address');
 
             addressInput.on('focus', function() {
-                const defaultAddress = $(this).data('default-address');
+                const defaultAddress = $(this).data('default-address')+' ';
 
                 if (!$(this).val()) {
                     $(this).val(defaultAddress);
@@ -1009,6 +1009,10 @@
                 display: block !important;
                 margin-top: 50px;
             }
+        }
+        .suggest-dropdown .ymaps-2-1-79-search__suggest-item:hover {
+            background-color: #ffeaf2;
+            color: #ca4592;
         }
    </style>
 
