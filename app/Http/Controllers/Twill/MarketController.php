@@ -259,6 +259,12 @@ class MarketController extends \App\Http\Controllers\Twill\AuthorizedBaseModuleC
                 </form>';
             })
         );
+        $table->push(
+            Text::make()->field('stores')->title('Авторизоваться')->renderHtml(true)->customRender(function ($model) {
+                return '<a href="'.route('twill.stores.index', ['market_id' => $model->id]).'">Адреса магазинов</a>';
+            })
+        );
+
 
         $status = isset($_GET['filter']) ? json_decode($_GET['filter'], true)['status'] : null;
 

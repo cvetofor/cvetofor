@@ -274,7 +274,7 @@ function hideNotification(notification) {
   notificationEl.classList.add("hidden");
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+/*document.addEventListener("DOMContentLoaded", function () {
   const deliveryAddress = document.querySelector("[data-delivery-address]");
 
   if (deliveryAddress) {
@@ -288,6 +288,277 @@ document.addEventListener("DOMContentLoaded", function () {
       deliveryAddress.dataset.deliveryAddress = this.value;
     });
   }
+});*/
+/*document.addEventListener("DOMContentLoaded", function () {
+  const deliveryAddress = document.querySelector("[data-delivery-address]");
+  const suggestDropdown = document.querySelector("[data-suggest-dropdown]");
+
+  if (!deliveryAddress || !suggestDropdown) {
+    return;
+  }
+
+  let timeout = null;
+  let controller = null;
+
+  deliveryAddress.addEventListener("input", function () {
+    const value = this.value.trim();
+
+    clearTimeout(timeout);
+
+    if (controller) {
+      controller.abort();
+      controller = null;
+    }
+
+    if (value.length < 3) {
+      suggestDropdown.innerHTML = "";
+      suggestDropdown.style.display = "none";
+      return;
+    }
+
+    timeout = setTimeout(() => {
+      controller = new AbortController();
+
+      fetch("/api/address/search?q=" + encodeURIComponent(value), {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+        signal: controller.signal,
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("API error");
+          }
+
+          return response.json();
+        })
+        .then((items) => {
+          suggestDropdown.innerHTML = "";
+
+          if (!items || !items.length) {
+            suggestDropdown.style.display = "none";
+            return;
+          }
+
+          const suggest = document.createElement("div");
+
+          suggest.className = "ymaps-2-1-79-search__suggest";
+
+          items.slice(0, 5).forEach((item) => {
+            const suggestItem = document.createElement("div");
+
+            suggestItem.className =
+              "ymaps-2-1-79-suggest-item";
+
+            const searchSuggestItem = document.createElement("div");
+
+            searchSuggestItem.className =
+              "ymaps-2-1-79-search__suggest-item";
+
+            searchSuggestItem.textContent = item.value;
+
+            // Наведение
+            suggestItem.addEventListener("mouseenter", function () {
+              searchSuggestItem.classList.add(
+                "ymaps-2-1-79-search__suggest-item_selected_yes"
+              );
+            });
+
+            // Уход мыши
+            suggestItem.addEventListener("mouseleave", function () {
+              searchSuggestItem.classList.remove(
+                "ymaps-2-1-79-search__suggest-item_selected_yes"
+              );
+            });
+
+            // Выбор адреса
+            suggestItem.addEventListener("click", function () {
+              deliveryAddress.value = item.value;
+              deliveryAddress.dataset.deliveryAddress = item.value;
+
+              suggestDropdown.innerHTML = "";
+              suggestDropdown.style.display = "none";
+
+              deliveryAddress.dispatchEvent(
+                new Event("change", {
+                  bubbles: true,
+                })
+              );
+            });
+
+            suggestItem.appendChild(searchSuggestItem);
+            suggest.appendChild(suggestItem);
+          });
+
+          suggestDropdown.appendChild(suggest);
+          suggestDropdown.style.display = "block";
+        })
+        .catch((error) => {
+          if (error.name === "AbortError") {
+            return;
+          }
+
+          console.error("Address search error:", error);
+
+          suggestDropdown.innerHTML = "";
+          suggestDropdown.style.display = "none";
+        });
+    }, 300);
+  });
+
+  deliveryAddress.addEventListener("change", function () {
+    deliveryAddress.dataset.deliveryAddress = this.value;
+  });
+
+  document.addEventListener("click", function (event) {
+    if (
+      event.target !== deliveryAddress &&
+      !suggestDropdown.contains(event.target)
+    ) {
+      suggestDropdown.innerHTML = "";
+      suggestDropdown.style.display = "none";
+    }
+  });
+});*/
+document.addEventListener("DOMContentLoaded", function () {
+  const deliveryAddress = document.querySelector("[data-delivery-address]");
+  const suggestDropdown = document.querySelector("[data-suggest-dropdown]");
+
+  if (!deliveryAddress || !suggestDropdown) {
+    return;
+  }
+
+  const dadataUrl =
+    "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address";
+
+  const dadataToken = "5e92644e9396e1985e27534dd409a1fabb19904b";
+
+  let timeout = null;
+  let controller = null;
+
+  deliveryAddress.addEventListener("input", function () {
+    const value = this.value.trim();
+
+    clearTimeout(timeout);
+
+    if (controller) {
+      controller.abort();
+      controller = null;
+    }
+
+    if (value.length < 3) {
+      suggestDropdown.innerHTML = "";
+      suggestDropdown.style.display = "none";
+      return;
+    }
+
+    timeout = setTimeout(() => {
+      controller = new AbortController();
+
+      fetch(dadataUrl, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Token " + dadataToken
+        },
+        body: JSON.stringify({
+          query: value,
+          count: 5,
+
+          // Только до дома
+          from_bound: {
+            value: "region"
+          },
+          to_bound: {
+            value: "house"
+          }
+        }),
+        signal: controller.signal
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("DaData API error");
+          }
+
+          return response.json();
+        })
+        .then((result) => {
+          const items = result.suggestions || [];
+
+          suggestDropdown.innerHTML = "";
+
+          if (!items.length) {
+            suggestDropdown.style.display = "none";
+            return;
+          }
+
+          const suggest = document.createElement("div");
+
+          suggest.className =
+            "ymaps-2-1-79-search__suggest";
+
+          items.forEach((item) => {
+            const suggestItem = document.createElement("div");
+
+            suggestItem.className =
+              "ymaps-2-1-79-suggest-item";
+
+            const text = document.createElement("div");
+
+            text.className =
+              "ymaps-2-1-79-search__suggest-item";
+
+            text.textContent = item.value;
+
+            suggestItem.appendChild(text);
+
+            suggestItem.addEventListener("click", function () {
+              deliveryAddress.value = item.value;
+
+              deliveryAddress.dataset.deliveryAddress =
+                item.value;
+
+              suggestDropdown.innerHTML = "";
+              suggestDropdown.style.display = "none";
+
+              deliveryAddress.dispatchEvent(
+                new Event("change", {
+                  bubbles: true
+                })
+              );
+            });
+
+            suggest.appendChild(suggestItem);
+          });
+
+          suggestDropdown.appendChild(suggest);
+
+          suggestDropdown.style.display = "block";
+        })
+        .catch((error) => {
+          if (error.name !== "AbortError") {
+            console.error("DaData:", error);
+          }
+        });
+    }, 300);
+  });
+
+  deliveryAddress.addEventListener("change", function () {
+    deliveryAddress.dataset.deliveryAddress = this.value;
+  });
+
+  document.addEventListener("click", function (event) {
+    if (
+      event.target !== deliveryAddress &&
+      !suggestDropdown.contains(event.target)
+    ) {
+      suggestDropdown.innerHTML = "";
+      suggestDropdown.style.display = "none";
+    }
+  });
 });
 
 function getDeliveryAddress() {

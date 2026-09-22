@@ -14,7 +14,6 @@
 
     <x-twill::input name="address" label="Адрес" required="required" :maxlength="1000" />
     <x-twill::input name="work_time" label="Время работы" :maxlength="1000" />
-
     @formField('repeater', ['type' => 'additional_addresses', 'max' => 10])
 
     <x-twill::input name="phone" required="required" label="Телефон" mask="+7 (999) 999 99 99" :maxlength="100" />
@@ -71,7 +70,7 @@
 
 
                     <input type="checkbox" class="editable" data-field="is_night" value="1"
-                           {{$interval->is_night?'checked':''}}  />
+                        {{$interval->is_night?'checked':''}}  />
                     <div style="flex-shrink: 0; min-width: 100px;">
                         <button class="delete-interval" style="padding: 5px 10px; background-color: #ff4d4d; color: white; border: none; border-radius: 3px; cursor: pointer;">
                             Удалить
@@ -97,7 +96,7 @@
                 <option value="after">После начала</option>
             </select>
             <input type="checkbox" class="editable" data-field="is_night" value="1"
-                    style="flex: 1; min-width: 100px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;" />
+                   style="flex: 1; min-width: 100px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;" />
             <div style="flex-shrink: 0; background-color: #4caf50; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer;" id="add-interval">
                 Добавить
             </div>
