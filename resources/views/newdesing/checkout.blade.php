@@ -754,6 +754,7 @@
                                 }
                             @endphp
                             <li class="sum-item">
+                              <div class="sum-item__row">
               <span class="sum-item__media">
                 <img src="template/assets/img/sum-peony.jpg" alt="" width="74" height="74" loading="lazy">
               </span>
@@ -764,8 +765,9 @@
                     @endif </span>
               </span>
                                 <span class="sum-item__price">@money($item->getPriceSumWithConditions()) ₽</span>
+                              </div>
                                 @if ($isCategoryLimited || $isTagLimited)
-                                    <div class="cart__delivery-limited-info">
+                                    <div class="sum-item__limit">
                                         Этот букет доступен для доставки только с {{ $limitStartDate }}
                                         по {{ $limitEndDate }}.
                                     </div>
@@ -865,18 +867,25 @@
 
     <!-- Всплывашка изменения стоимости доставки (аналог delivery-show-summ
          старого дизайна). Оверлей — прямой ребёнок body: инерт-логика app.js
-         исключает его из затемнения фона. Открывается хешем #delivery-summ -->
+         исключает его из затемнения фона. Открывается хешем #delivery-summ.
+         Карточка та же, что у #no-address (city-modal) -->
     <div class="overlay overlay--center" id="delivery-summ">
-        <div class="overlay__panel">
-            <a class="overlay__close" href="#main" aria-label="Закрыть">
-                <span class="cross" aria-hidden="true"></span>
-            </a>
-            <h2 class="overlay__title">Внимание!</h2>
-            <p class="overlay__text">Стоимость доставки —
-                <span data-delivery-modal-price></span> ₽ — рассчитана по выбранному интервалу доставки.</p>
-            <p class="overlay__text" data-delivery-modal-free hidden>При покупке от
-                <span data-delivery-modal-free-sum></span> ₽ доставка по вашему адресу будет бесплатно.</p>
-            <a class="btn btn--primary overlay__apply" href="#main">Понятно</a>
+        <div class="overlay__panel city-modal">
+            <div class="city-modal__head">
+                <h2 class="city-modal__title">Внимание</h2>
+                <a class="overlay__close" href="#main" aria-label="Закрыть">
+                    <span class="cross" aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <div>
+                <p class="overlay__text">Стоимость доставки —
+                    <span data-delivery-modal-price></span> ₽ — рассчитана по выбранному интервалу доставки.</p>
+                <p class="overlay__text" data-delivery-modal-free hidden>При покупке от
+                    <span data-delivery-modal-free-sum></span> ₽ доставка по вашему адресу будет бесплатно.</p>
+            </div>
+
+            <a class="btn btn--primary" href="#main">Понятно</a>
         </div>
     </div>
 
@@ -884,13 +893,17 @@
          (аналог модалки delivery-area старого дизайна). Текст подменяет
          скрипт сообщением сервера. Открывается хешем #delivery-area -->
     <div class="overlay overlay--center" id="delivery-area">
-        <div class="overlay__panel">
-            <a class="overlay__close" href="#main" aria-label="Закрыть">
-                <span class="cross" aria-hidden="true"></span>
-            </a>
-            <h2 class="overlay__title">Внимание!</h2>
+        <div class="overlay__panel city-modal">
+            <div class="city-modal__head">
+                <h2 class="city-modal__title">Внимание</h2>
+                <a class="overlay__close" href="#main" aria-label="Закрыть">
+                    <span class="cross" aria-hidden="true"></span>
+                </a>
+            </div>
+
             <p class="overlay__text" data-delivery-area-text>Продавец не осуществляет доставку по выбранному адресу. Попробуйте выбрать другой адрес.</p>
-            <a class="btn btn--primary overlay__apply" href="#main">Понятно</a>
+
+            <a class="btn btn--primary" href="#main">Понятно</a>
         </div>
     </div>
 

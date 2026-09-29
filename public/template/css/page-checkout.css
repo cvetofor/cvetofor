@@ -529,7 +529,16 @@ legend.fieldset__legend {
   margin-block-end: 0;
 }
 
+/* Позиция — колонка: строка товара, а под ней (когда позиция с
+   ограничением доставки) плашка «доступен для доставки только с …» */
 .sum-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* Сама строка позиции: фото, название и цена в один ряд */
+.sum-item__row {
   display: flex;
   align-items: flex-start;
   gap: var(--space-sm);
@@ -582,6 +591,15 @@ legend.fieldset__legend {
   font-weight: var(--fw-bold);
   white-space: nowrap;
   line-height: 22px;
+}
+
+/* Плашка об ограниченных сроках доставки — под всей строкой позиции.
+   Оформление как у заметки в сводке корзины (.summary-line__note) */
+.sum-item__limit {
+  font-size: var(--fs-caption-sm);
+  font-weight: var(--fw-medium);
+  line-height: 16px;
+  opacity: var(--opacity-secondary);
 }
 
 /* Хвост сводки: 32 от списка до «Доставки», дальше по 16 до черты и до
@@ -1993,7 +2011,7 @@ legend.fieldset__legend {
     margin-block-end: var(--space-md);
   }
 
-  .sum-item {
+  .sum-item__row {
     align-items: center;
   }
 
@@ -2156,14 +2174,9 @@ legend.fieldset__legend {
   font-size: var(--fs-label);
 }
 
-/* Содержимое всплывашки изменения стоимости доставки (#delivery-summ):
-   сам оверлей, панель и крестик общие (style.css) */
-.overlay__title {
-  margin-block-end: var(--space-sm);
-  font-size: var(--fs-title-lg);
-  font-weight: var(--fw-bold);
-}
-
+/* Тексты всплывашек доставки (#delivery-summ, #delivery-area): карточка,
+   шапка и крестик — общий компонент city-modal (style.css), как у
+   #no-address; кнопке-сеточнику отступ не нужен — его даёт gap карточки */
 .overlay__text {
   font-size: var(--fs-label);
   line-height: 1.4;
@@ -2171,10 +2184,6 @@ legend.fieldset__legend {
 
 .overlay__text + .overlay__text {
   margin-block-start: var(--space-xs);
-}
-
-.overlay__apply {
-  margin-block-start: var(--space-md);
 }
 
 /* ==========================================================================

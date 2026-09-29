@@ -571,7 +571,16 @@ legend.fieldset__legend {
   margin-block-end: 0;
 }
 
+/* Позиция — колонка: строка товара, а под ней (когда позиция с
+   ограничением доставки) плашка «доступен для доставки только с …» */
 .sum-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Сама строка позиции: фото, название и цена в один ряд */
+.sum-item__row {
   display: flex;
   align-items: flex-start;
   gap: 16px;
@@ -630,6 +639,15 @@ legend.fieldset__legend {
   font-weight: 700;
   white-space: nowrap;
   line-height: 22px;
+}
+
+/* Плашка об ограниченных сроках доставки — под всей строкой позиции.
+   Оформление как у заметки в сводке корзины (.summary-line__note) */
+.sum-item__limit {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  opacity: 0.5;
 }
 
 @media (min-width: 1024px) {
@@ -2125,7 +2143,7 @@ legend.fieldset__legend {
     margin-block-end: 22px;
   }
 
-  .sum-item {
+  .sum-item__row {
     align-items: center;
   }
 
@@ -2288,14 +2306,9 @@ legend.fieldset__legend {
   font-size: 16px;
 }
 
-/* Содержимое всплывашки изменения стоимости доставки (#delivery-summ):
-   сам оверлей, панель и крестик общие (style.css) */
-.overlay__title {
-  margin-block-end: 16px;
-  font-size: 20px;
-  font-weight: 700;
-}
-
+/* Тексты всплывашек доставки (#delivery-summ, #delivery-area): карточка,
+   шапка и крестик — общий компонент city-modal (style.css), как у
+   #no-address; кнопке-сеточнику отступ не нужен — его даёт gap карточки */
 .overlay__text {
   font-size: 16px;
   line-height: 1.4;
@@ -2303,10 +2316,6 @@ legend.fieldset__legend {
 
 .overlay__text + .overlay__text {
   margin-block-start: 12px;
-}
-
-.overlay__apply {
-  margin-block-start: 22px;
 }
 
 /* ==========================================================================
