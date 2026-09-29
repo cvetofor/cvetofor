@@ -1,0 +1,477 @@
+/* ==========================================================================
+   О нас
+   ========================================================================== */
+
+/* ---------------------- Баннер страницы (оболочка — в style.css) */
+
+.page-banner {
+  background-color: var(--color-surface-peach);
+}
+
+.page-banner__photo {
+  inset-block-start: -18px;
+  inset-inline-end: -434px;
+  width: 908px;
+  height: 495px;
+  object-fit: cover;
+}
+
+/* Подзаголовок и абзац есть только в десктопном макете */
+.page-banner__lead,
+.page-banner__note {
+  display: none;
+}
+
+/* ------------------------------------------------- Карточки о компании */
+
+.abouts {
+  display: grid;
+  gap: var(--space-md);
+  margin-block-start: var(--space-lg);
+}
+
+.about-card {
+  position: relative;
+  min-height: 487px;
+  padding: var(--space-xl);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.about-card__icon {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--color-brand-50);
+}
+
+/* Отступ от плитки-иконки: 20 на 400 и 44 на 1440 — в макете он разный */
+.about-card__title {
+  margin-block-start: var(--pad-section);
+  font-size: var(--fs-title-lg);
+  font-weight: var(--fw-medium);
+  line-height: 22px;
+}
+
+/* 18/22 и колонка 240 — одинаково на обеих ширинах (107:606 и 312:985:
+   слои 240x88, четыре строки). На мобильной --fs-body равен 14, и текст
+   ложился в три строки вместо четырёх */
+.about-card__text {
+  margin-block-start: var(--space-md);
+  max-width: 240px;
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: 22px;
+  opacity: var(--opacity-secondary);
+}
+
+/* Декор: вырезка с цветами и розовый круг под ней. Оба выходят за границы
+   карточки и обрезаются ею — координаты из макета. */
+.about-card__decor {
+  position: absolute;
+  z-index: -1;
+  max-width: none;
+  pointer-events: none;
+}
+
+.about-card__decor--mission {
+  inset-block-end: -15px;
+  inset-inline-end: -21px;
+  width: 216px;
+  height: 186px;
+}
+
+.about-card__decor--values {
+  inset-block-end: -31px;
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  width: 321px;
+  height: 233px;
+}
+
+/* Единственная вырезка, у которой вылет за карточку на 400 и на 1440 разный */
+.about-card__decor--team {
+  inset-block-end: -113px;
+  inset-inline-start: 50%;
+  translate: calc(-50% - 11px) 0;
+  width: 561px;
+  height: 306px;
+}
+
+/* Круг под вырезкой — сплошная заливка, поэтому CSS-фигура, а не SVG-файл */
+.about-card__circle {
+  position: absolute;
+  z-index: -2;
+  inset-block-end: -228px;
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  width: 344px;
+  height: 344px;
+  border-radius: 50%;
+  background-color: var(--color-brand-100);
+}
+
+/* Список ценностей внутри карточки */
+.values {
+  display: grid;
+  gap: var(--space-md);
+  margin-block-start: var(--space-md);
+}
+
+/* Высота строки по иконке: иначе список вырастает и наезжает на вырезку */
+.values__item {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  line-height: 18px;
+  opacity: var(--opacity-secondary);
+}
+
+.values__item img {
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------------- Статистика */
+
+/* Не dl: «12 000+ доставленных букетов» — один факт, а не пара
+   «ключ → значение», как контакты или реквизиты */
+.stats {
+  display: grid;
+  gap: var(--space-md);
+  margin-block-start: var(--space-lg);
+}
+
+.stat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-md);
+  row-gap: var(--space-md);
+  padding: var(--pad-section);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.stat__icon {
+  display: grid;
+  place-items: center;
+  grid-row: span 2;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--color-brand-50);
+}
+
+/* Плитка та же (64 → 100), а иконка внутри в макете меняется 32 → 50 */
+.stat__icon img {
+  width: 32px;
+  height: 32px;
+}
+
+/* Букет в макете наклонён — это часть композиции иконки, не артефакт */
+.stat__icon--tilt img {
+  rotate: 20deg;
+}
+
+/* 24 на мобильной (312:873 — слой числа 24 высотой), 30 на десктопе */
+.stat__val {
+  align-self: end;
+  font-size: var(--fs-stat);
+  font-weight: var(--fw-medium);
+  line-height: 24px;
+}
+
+.stat__key {
+  align-self: start;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  opacity: var(--opacity-secondary);
+  line-height: 18px;
+}
+
+/* --------------------------------------------------------- Услуги */
+
+.services {
+  display: grid;
+  gap: 10px;
+}
+
+/* Зазор 12, а не 16: в макете (312:873) текстовый слой услуги ровно 286,
+   то есть 360 минус два паддинга по 22, маркер 18 и этот зазор. При 16
+   колонка выходила 282, и два описания из пяти переносились на строку
+   больше — низ страницы уезжал на 44px */
+.service {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: flex-start;
+  padding: var(--pad-section);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.service__marker {
+  flex-shrink: 0;
+  margin-block-start: 3px;
+}
+
+.service__body {
+  min-width: 0;
+}
+
+/* 20/20 из макета (311:227): при интерлиньяже по умолчанию заголовок
+   в две строки давал 56 вместо 40, и карточка вырастала на 16 */
+.service__title {
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: 20px;
+}
+
+/* 18/22 на обеих ширинах (311:229 и мобильный 312:873): на мобильной
+   --fs-body равен 14, и описание услуги ложилось на строку короче */
+.service__text {
+  margin-block-start: var(--space-sm);
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: 22px;
+  opacity: var(--opacity-secondary);
+}
+
+/* --------------------------------------------------------- Отзывы */
+
+.reviews {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.review {
+  display: grid;
+  gap: var(--space-md);
+  margin: 0;
+  padding: var(--pad-section);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.review__head {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.review__who {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  min-width: 0;
+}
+
+.review__avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--color-avatar);
+  color: var(--color-surface);
+  font-size: var(--fs-avatar);
+  font-weight: var(--fw-bold);
+}
+
+.review__meta {
+  min-width: 0;
+}
+
+/* Имя 21 и дата 18 с отбивкой 10 — ровно на высоту аватара (107:864) */
+.review__name {
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: 21px;
+}
+
+.review__date {
+  display: block;
+  margin-block-start: 10px;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  line-height: 18px;
+  opacity: var(--opacity-secondary);
+}
+
+.rating {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-block-start: var(--space-3xs);
+}
+
+.review__text {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  line-height: 22px;
+  opacity: var(--opacity-secondary);
+}
+
+/* Ссылка «смотреть больше» рядом с заголовком секции */
+.more-link {
+  display: inline-flex;
+  gap: var(--space-2xs);
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--color-brand-500);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  line-height: 18px;
+}
+
+.more-link:hover {
+  text-decoration: underline;
+}
+
+/* ===================================================== О нас: десктоп */
+
+@media (min-width: 1024px) {
+  .about-card__text,
+  .service__text {
+    font-size: var(--fs-body);
+  }
+
+  .service {
+    gap: var(--space-sm);
+  }
+
+  .stat__val {
+    line-height: 30px;
+  }
+
+  /* Абзац уже колонки: в макете текстовые слои карточек «Наша миссия»
+     и «Наша команда» ровно 240 при содержимом карточки 283 (371 минус
+     два паддинга по 44). Это не забытая коробка — так текст не заходит
+     на вырезку с цветами, которая лежит в правом нижнем углу карточки.
+     На полных 283 второй абзац миссии укладывался в три строки вместо
+     четырёх, и низ карточки расходился с макетом на 22px.
+     Список ценностей не трогаем: там свои ширины (266 и 232) */
+  .about-card__text {
+    max-width: 240px;
+  }
+
+  /* Заголовки секций здесь 30/30, а не общие 32: оба слоя в макете
+     по содержимому и равны 263x30, а эта строка в браузере при 30
+     даёт 262, при 32 — 280. На главной и на оплате те же заголовки
+     измеряются ровно в 32 — разница внутри макета */
+  .section__title {
+    font-size: var(--fs-h2-about);
+    line-height: 30px;
+  }
+
+  .page-banner__photo {
+    inset-block-start: -71px;
+    inset-inline-end: -508px;
+    width: 1408px;
+    height: 768px;
+  }
+
+  .page-banner__title {
+    margin-block-start: 54px;
+  }
+
+  .page-banner__lead,
+  .page-banner__note {
+    display: block;
+    margin-block-start: 34px;
+    font-size: var(--fs-body-lg);
+    line-height: 28px;
+    opacity: var(--opacity-tertiary);
+  }
+
+  .page-banner__note {
+    margin-block-start: 26px;
+    max-width: 420px;
+  }
+
+  .abouts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-xl);
+    margin-block-start: var(--space-xl);
+  }
+
+  .about-card {
+    min-height: 543px;
+  }
+
+  .about-card__title {
+    margin-block-start: var(--space-xl);
+  }
+
+  .about-card__decor--team {
+    inset-block-end: -85px;
+  }
+
+  .about-card__circle {
+    inset-block-end: -172px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-xl);
+    margin-block-start: var(--space-xl);
+    padding: var(--space-xl);
+    border-radius: var(--radius-2xl);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+
+  /* На 1440 три показателя лежат в одной белой панели, а не в трёх */
+  .stat {
+    padding: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .stat__icon {
+    width: 100px;
+    height: 100px;
+  }
+
+  .stat__icon img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .services {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-md);
+  }
+
+  .service {
+    padding: var(--space-md);
+  }
+
+  .reviews {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 45px;
+  }
+
+  .review {
+    padding: var(--space-md);
+  }
+
+  /* 18, а не 20 и не 16: слой «Смотреть больше» в макете
+     154x18 (176:865) — ровно ширина этой строки при 18 */
+  .more-link {
+    font-size: var(--fs-body);
+  }
+}

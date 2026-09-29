@@ -17,6 +17,7 @@ use App\Models\GroupProductCategory;
 use App\Models\Product;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Schema;
+use A17\Twill\Services\Forms\Fields\Medias;
 class MenuFloverController extends BaseModuleController
 {
     protected $moduleName = 'menuFlovers';
@@ -64,6 +65,10 @@ class MenuFloverController extends BaseModuleController
                 ->name('sort')
                 ->label('Сортировка')
                 ->required(true),
+            Medias::make()
+                ->name('cover')   // должно совпадать с ключом в $mediasParams
+                ->label('Изображение')
+
         ]);
     }
     public function formData($request)
@@ -92,8 +97,10 @@ class MenuFloverController extends BaseModuleController
 
             Input::make()
                 ->name('sort')
-                ->label('Сортировка')
-
+                ->label('Сортировка'),
+Medias::make()
+    ->name('cover')   // должно совпадать с ключом в $mediasParams
+    ->label('Изображение')
         ]);
     }
 }

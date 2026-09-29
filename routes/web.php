@@ -154,6 +154,7 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 
 Route::get('/search', [CatalogController::class, 'search'])->name('catalog.search');
+Route::get('/all-category', [CatalogController::class, 'all_category'])->name('catalog.all-category');
 
 
 Route::post('/form', [FormController::class, 'form'])->name('form')->middleware(['throttle:6,1']);

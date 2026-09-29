@@ -57,6 +57,10 @@ class AppServiceProvider extends ServiceProvider {
 
 
         if (! app()->runningInConsole()) {
+            if(!request()->has('wistis')){
+                config(['is_new_desing'=>true]);
+            }
+
             \View::share('menuPrices', MenuPrice::orderBy('sort')->get());
             \View::share('menuFlovers', MenuFlover::orderBy('sort')->get());
             $ttl = 60;

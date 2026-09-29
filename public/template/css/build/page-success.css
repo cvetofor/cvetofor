@@ -1,0 +1,163 @@
+/* ==========================================================================
+   Оплаченный заказ
+   ========================================================================== */
+
+.success {
+  margin-block-start: 32px;
+}
+
+.success__order {
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .success__order {
+    font-size: 18px;
+  }
+}
+
+/* Сам номер в макете выделен брендовым цветом. Цвет здесь не
+   единственный признак: номер ещё и полужирный, чтобы выделение
+   читалось и без цвета (WCAG 1.4.1) */
+.success__num {
+  color: #dc0978;
+  font-weight: 500;
+}
+
+.success__panel {
+  display: grid;
+  justify-items: center;
+  margin-block-start: 44px;
+  padding-block: 44px;
+  border-radius: 15px;
+  background-color: #ffffff;
+}
+
+/* --------------------------------------------------------------- Декор */
+
+/* Рамка декора: галочка по центру, листья и искры расставлены в процентах
+   от этой рамки — композиция из макета сохраняется при смене размера */
+.success__art {
+  position: relative;
+  width: 100%;
+  max-width: 368px;
+  aspect-ratio: 420 / 173;
+}
+
+.success__badge {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 135px;
+  height: 135px;
+  border-radius: 50%;
+  background-color: #f1fae7;
+}
+
+.success__badge img {
+  width: 90px;
+  height: 90px;
+}
+
+.success__decor {
+  position: absolute;
+  inset-block-start: var(--y);
+  inset-inline-start: var(--x);
+  width: calc(var(--size) * 0.85);
+  height: auto;
+  rotate: var(--turn);
+}
+
+/* --------------------------------------------------------------- Текст */
+
+/* Интерлиньяж 24 на мобильной (285:36 — слой заголовка 24 высотой),
+   30 на десктопе */
+.success__title {
+  /* 64 от кружка с галочкой (285:36: Done 210..345, заголовок на 409) —
+     на десктопе та же отбивка 22 */
+  margin-block-start: 64px;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 24px;
+}
+
+@media (min-width: 1024px) {
+  .success__title {
+    font-size: 28px;
+  }
+}
+
+.success__note {
+  max-width: 494px;
+  margin-block-start: 16px;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  text-wrap: balance;
+}
+
+@media (min-width: 1024px) {
+  .success__note {
+    font-size: 18px;
+  }
+}
+
+.success__link {
+  color: #dc0978;
+  font-weight: 500;
+}
+
+.success__link:hover,
+.success__link:focus-visible {
+  text-decoration: underline;
+}
+
+/* ============================================ Оплаченный заказ: десктоп */
+
+@media (min-width: 1024px) {
+  .success {
+    margin-block-start: 44px;
+  }
+
+  .success__order {
+    text-align: start;
+  }
+
+  .success__panel {
+    min-height: 833px;
+    align-content: center;
+    margin-block-start: 44px;
+    padding-block: 44px;
+  }
+
+  .success__art {
+    max-width: 420px;
+  }
+
+  .success__badge {
+    width: 150px;
+    height: 150px;
+  }
+
+  .success__badge img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .success__decor {
+    width: var(--size);
+  }
+
+  /* В макете 30px — промежуточный размер, которого нет в шкале.
+     Берём ближайший токен h3 (28): плодить одноразовый токен хуже. */
+  .success__title {
+    margin-block-start: 22px;
+    line-height: 30px;
+  }
+}

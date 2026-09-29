@@ -34,7 +34,7 @@ class CatalogController extends Controller
 
     public function testpay()
     {
-        $order=Order::find(1000081);
+        $order = Order::find(1000081);
         SendAfterPayAmoService::send($order);
 
         //
@@ -51,6 +51,7 @@ class CatalogController extends Controller
         dd($redirect);
         $payment->getPaymentUrl($order);
     }
+
     public function get_payment_link()
     {
         $payment = new \App\Services\Yapay\Payment(
@@ -62,7 +63,7 @@ class CatalogController extends Controller
 
         $redirect = $paymentResolver->resolve($order);
 
-        return  $payment->getPaymentUrl($order);
+        return $payment->getPaymentUrl($order);
     }
 
     public function index(Request $request, CatalogService $catalogService)
@@ -72,6 +73,7 @@ class CatalogController extends Controller
         $banner = TwillAppSettings::get('main-page.main_page.banner');
 
         if ($request->ajax()) {
+
             return $this->ajaxResponse($categories->pluck('id')->toArray(), $catalogService);
         }
 
@@ -95,18 +97,28 @@ class CatalogController extends Controller
 
         $city = GeographicalNamesInflection::getCase(CitiesService::getCity()->city, 'предложный');
 
-        return view('welcome', compact('prices', 'banner', 'city'));
+        return view(config('is_new_desing') ? 'newdesing.welcome' : 'welcome', compact('prices', 'banner', 'city'));
+    }
+
+    public function all_category()
+    {
+        SEOTools::setTitle('Доставка цветов в Улан-Удэ заказать букет с доставкой недорого по цене магазина Цветофор');
+        SEOTools::setDescription('Заказать букет цветов в Улан-Удэ с доставкой на дом недорого. Доставка цветов в Улан-Удэ по адресу заказать онлайн на сайте по цене интернет-магазина Цветофор');
+
+
+        return view('newdesing.category_all');
     }
 
     public function welcome(Request $request, CatalogService $catalogService)
     {
         $categories = TwillAppSettings::get('main-page.main_page.categories');
-        $product_categories = TwillAppSettings::get('main-page.main_page.product_categories')??[];
-        $priceProds=[];
+        $product_categories = TwillAppSettings::get('main-page.main_page.product_categories') ?? [];
+        $priceProds = [];
         $banner = TwillAppSettings::get('main-page.main_page.banner');
 
         if ($request->ajax()) {
-            if(request()->type=='ad'&&count($product_categories)){
+
+            if (request()->type == 'ad' && count($product_categories)) {
 
                 $_categories = [];
                 foreach ($product_categories->pluck('id')->toArray() as $cagegory) {
@@ -131,13 +143,32 @@ class CatalogController extends Controller
                 }
 
                 return response()->json([
-                    'data' => Arr::map($remains, function ($paginator) {
-                        return view('components.category_addit', ['paginator' => $paginator])->render();
+                    'data' => Arr::map($remains, function ($paginator,$catId) {
+                        if (config('is_new_desing')) {
+                            $type='';
+                            if(isset($paginator[0])){
+                                if($paginator[0]->product){
+                                    $type='product';
+                                }else{
+                                    $type='groupProduct';
+                                }
+                            }
+                            $id = explode('_', $catId);
+                            return view('newdesing.parts.catalog-product-items', [
+                                'paginator' => $paginator,   // пагинатор страницы из ?page=N
+                                'typeproduct' => $type,
+                                'cat_id' => end($id)
+                            ])->render();;
+                        } else {
+                            return view('components.category_addit', ['paginator' => $paginator])->render();
+                        }
+
+
                     }),
                 ]);
 
 
-            }else {
+            } else {
 
                 $_categories = [];
                 foreach ($categories->pluck('id')->toArray() as $cagegory) {
@@ -162,8 +193,26 @@ class CatalogController extends Controller
                 }
 
                 return response()->json([
-                    'data' => Arr::map($remains, function ($paginator) {
-                        return view('components.category', ['paginator' => $paginator])->render();
+                    'data' => Arr::map($remains, function ($paginator, $catId) {
+                        if (config('is_new_desing')) {
+                            $type='';
+                            if(isset($paginator[0])){
+                                if($paginator[0]->product){
+                                    $type='product';
+                                }else{
+                                    $type='groupProduct';
+                                }
+                            }
+                            $id = explode('_', $catId);
+
+                            return view('newdesing.parts.catalog-product-items', [
+                                'paginator' => $paginator,   // пагинатор страницы из ?page=N
+                                'typeproduct' => $type,
+                                'cat_id' => end($id)
+                            ])->render();;
+                        } else {
+                            return view('components.category', ['paginator' => $paginator])->render();
+                        }
                     }),
                 ]);
             }
@@ -223,9 +272,8 @@ class CatalogController extends Controller
             $prices = $catalogService->findPricesByCategoriesId($categories->pluck('id')->toArray());
 
 
-
-            if(count($product_categories)) {
-                $priceProds = $catalogService->findAdditPricesByCategoriesId($product_categories->pluck('id')->toArray())??[];
+            if (count($product_categories)) {
+                $priceProds = $catalogService->findAdditPricesByCategoriesId($product_categories->pluck('id')->toArray()) ?? [];
 
             }
 
@@ -235,7 +283,8 @@ class CatalogController extends Controller
         SEOTools::setTitle('Доставка цветов в Улан-Удэ заказать букет с доставкой недорого по цене магазина Цветофор');
         SEOTools::setDescription('Заказать букет цветов в Улан-Удэ с доставкой на дом недорого. Доставка цветов в Улан-Удэ по адресу заказать онлайн на сайте по цене интернет-магазина Цветофор');
 
-        return view('welcome', compact('prices', 'banner', 'mainPageTagsModel', 'tags', 'city', 'selectedCity','priceProds','product_categories'));
+
+        return view(config('is_new_desing') ? 'newdesing.welcome' : 'welcome', compact('prices', 'banner', 'mainPageTagsModel', 'tags', 'city', 'selectedCity', 'priceProds', 'product_categories'));
     }
 
     public function category(
@@ -260,7 +309,7 @@ class CatalogController extends Controller
 
             $this->setMetadata($category);
 
-            return view('category', compact('prices', 'breadcrumbs', 'category'));
+            return view(config('is_new_desing') ? 'newdesing.category' : 'welcome', compact('prices', 'breadcrumbs', 'category'));
         }
 
         abort(404);
@@ -465,7 +514,23 @@ class CatalogController extends Controller
             $prices = $catalogService->findByTag($tagModel);
 
             return response()->json([
-                'data' => Arr::map($prices, function ($paginator) {
+                'data' => Arr::map($prices, function ($paginator,$catId) {
+                    if (config('is_new_desing')) {
+                        $type='';
+                        if(isset($paginator[0])){
+                            if($paginator[0]->product){
+                                $type='product';
+                            }else{
+                                $type='groupProduct';
+                            }
+                        }
+                        $id = explode('_', $catId);
+                        return view('newdesing.parts.catalog-product-items', [
+                            'paginator' => $paginator,   // пагинатор страницы из ?page=N
+                            'typeproduct' =>$type,
+                            'cat_id' => end($id)
+                        ])->render();;
+                    }
                     return view('components.category', ['paginator' => $paginator])->render();
                 }),
             ]);
@@ -509,7 +574,7 @@ class CatalogController extends Controller
             $groupProduct->market_id != config('market_id')
             && !request()->has('city_id')) {
 
-            CitiesService::setCity( $groupProduct->market->city_id);
+            CitiesService::setCity($groupProduct->market->city_id);
             return redirect(request()->url() . '?city_id=' . $groupProduct->market->city_id);
 
         }
@@ -573,7 +638,7 @@ class CatalogController extends Controller
             $seoText = str_replace('%city%', $currentCity, $seoText);
         }
 
-        return view('product', compact('price', 'groupProduct', 'breadcrumbs', 'canPutToCart', 'seoText'));
+        return view(config('is_new_desing') ? 'newdesing.product' : 'product', compact('price', 'groupProduct', 'breadcrumbs', 'canPutToCart', 'seoText'));
     }
 
     public function search(Request $request, CatalogService $catalogService)
@@ -619,7 +684,7 @@ class CatalogController extends Controller
             $seoH1 = str_replace('%city%', $currentCity, $seoHelper['h1']);
         }
 
-        return view('search', compact('result', 'search', 'seoText', 'seoH1'));
+        return view(config('is_new_desing') ? 'newdesing.search' : 'search', compact('result', 'search', 'seoText', 'seoH1'));
     }
 
     public function searchFast(Request $request, CatalogService $catalogService)
@@ -674,7 +739,23 @@ class CatalogController extends Controller
         $remains = $catalogService->findPricesByCategoriesId($_categories, $paginate);
 
         return response()->json([
-            'data' => Arr::map($remains, function ($paginator) {
+            'data' => Arr::map($remains, function ($paginator,$catId) {
+                if (config('is_new_desing')) {
+                    $id = explode('_', $catId);
+                     $type='';
+                     if(isset($paginator[0])){
+                         if($paginator[0]->product){
+                             $type='product';
+                         }else{
+                             $type='groupProduct';
+                         }
+                     }
+                    return view('newdesing.parts.catalog-product-items', [
+                        'paginator' => $paginator,   // пагинатор страницы из ?page=N
+                        'typeproduct' =>$type,
+                        'cat_id' => end($id)
+                    ])->render();;
+                }
                 return view('components.category', ['paginator' => $paginator])->render();
             }),
         ]);

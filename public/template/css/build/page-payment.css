@@ -1,0 +1,553 @@
+/* ==========================================================================
+   Способы оплаты
+   ========================================================================== */
+
+/* ---------------------- Баннер страницы (оболочка — в style.css) */
+
+.page-banner {
+  background-color: #fbd8de;
+}
+
+.page-banner__photo {
+  inset-block-start: -1px;
+  inset-inline-start: 41px;
+  width: 629px;
+  height: 360px;
+  object-fit: cover;
+}
+
+/* Размытый круг и абзац есть только в десктопном макете */
+.page-banner__glow,
+.page-banner__note {
+  display: none;
+}
+
+/* --------------------------------------------------- Способы оплаты */
+
+.methods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-block-start: 32px;
+}
+
+@media (min-width: 1024px) {
+  .methods {
+    gap: 22px;
+  }
+}
+
+.method {
+  padding: 20px;
+  border-radius: 25px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px 0 rgb(205 205 205 / 0.25);
+}
+
+@media (min-width: 1024px) {
+  .method {
+    padding: 32px;
+  }
+}
+
+.method__icon {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background-color: #fff4f6;
+}
+
+/* Размер берётся из width/height картинки и ужимается под плитку —
+   так пропорции иконок не искажаются и правило одно на обе ширины */
+.method__icon img {
+  width: auto;
+  height: auto;
+  max-width: 62.5%;
+  max-height: 62.5%;
+}
+
+/* Логотип СБП экспортирован в координатах плитки: его viewBox — все 80,
+   а сам глиф внутри занимает 36, как в макете. Поэтому картинке отдаём
+   плитку целиком, иначе глиф ужался бы до 22. */
+.method__icon--full img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* 16/20 на мобильной: колонка карточки 130, и при 18 «Банковской картой
+   на сайте» занимает три строки вместо двух (295:1808 — слой 130x40),
+   отчего карточка вырастает с 336 до 361 */
+.method__title {
+  margin-block-start: 22px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.method__text {
+  margin-block-start: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .method__text {
+    font-size: 18px;
+  }
+}
+
+/* ----------------------------------------------- Почему это удобно */
+
+/* Не список заголовков, а пары «подпись → пояснение»: тот же случай,
+   что контакты и реквизиты */
+.features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin: 0;
+  margin-block-start: 20px;
+  padding: 20px;
+  border-radius: 25px;
+  background-color: #fff4f6;
+}
+
+@media (min-width: 1024px) {
+  .features {
+    gap: 32px;
+    margin-block-start: 22px;
+    padding: 32px;
+  }
+}
+
+/* align-content: start обязателен: колонки тянутся до высоты
+   самой длинной, и сетка по умолчанию раздаёт остаток строкам.
+   Из-за этого подписи и описания в трёх колонках из четырёх
+   съезжали на 11px вниз, а в макете все четыре начинаются на 1121 */
+.feature {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  text-align: center;
+}
+
+.feature__key {
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+@media (min-width: 1024px) {
+  .feature__key {
+    font-size: 18px;
+  }
+}
+
+.feature__icon {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 25px;
+  background-color: #ffebef;
+}
+
+/* 17, а не 18: слой описания в макете с заданной шириной (238x63), и
+   кегль читается по ширине чернил в растре — 204/212/180 на трёх
+   строках. При 17 браузер даёт 206/214/182 (ровно те же +2px боковых
+   свесов) и те же три строки у всех четырёх плиток; при 18 второе
+   описание переносится на четвёртую и плитка выше макета на 21px */
+/* 14/22 на мобильной (295:1808 — тексты плиток слоями 150 шириной,
+   строки по 22), 17/21 на десктопе. --fs-body-sm на 400 равен 12,
+   и описания были на две строки короче нарисованных */
+.feature__val {
+  margin: 0;
+  margin-block-start: 12px;
+  font-size: 14px;
+  line-height: 22px;
+  opacity: 0.8;
+}
+
+@media (min-width: 1024px) {
+  .feature__val {
+    font-size: 18px;
+  }
+}
+
+/* ------------------------------------------------------ Важно знать */
+
+/* В макете это строки с шевроном вправо и без раскрытого состояния —
+   то есть переходы к ответу, а не аккордеон. Текстов ответов
+   в макете нет, придумывать их незачем. */
+.faq {
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 25px;
+}
+
+.faq__item + .faq__item {
+  border-block-start: 1px solid rgb(0 0 0 / 0.15);
+}
+
+.faq__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  min-height: 80px;
+  padding: 22px 20px;
+  /* 16/16 на мобильной (295:1808 — «Когда списывается оплата?» 215x16) */
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: pointer;
+  list-style: none;
+}
+
+@media (min-width: 1024px) {
+  .faq__link {
+    padding: 22px 32px;
+  }
+}
+
+.faq__link::-webkit-details-marker {
+  display: none;
+}
+
+.faq__link:hover {
+  color: #dc0978;
+}
+
+/* Шеврон разворачивается вверх у раскрытой строки — так же,
+   как в блоке рекомендаций корзины */
+.faq__row[open] .faq__link .chevron {
+  rotate: 180deg;
+}
+
+/* Ответ выравнен по вопросу и не заезжает под шеврон */
+.faq__answer {
+  margin: 0;
+  padding: 0 20px 22px;
+  max-width: 900px;
+  font-size: 14px;
+  line-height: 22px;
+  opacity: 0.8;
+}
+
+@media (min-width: 1024px) {
+  .faq__answer {
+    padding: 0 32px 22px;
+    font-size: 18px;
+  }
+}
+
+/* Скругление наследуется от контейнера, иначе фокус и hover
+   вылезают за его углы */
+.faq__item:first-child .faq__link {
+  border-start-start-radius: 25px;
+  border-start-end-radius: 25px;
+}
+
+.faq__item:last-child .faq__link {
+  border-end-start-radius: 25px;
+  border-end-end-radius: 25px;
+}
+
+/* --------------------------------------------------- Нужна помощь */
+
+.help {
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  padding: 20px;
+  border-radius: 25px;
+  background-color: #fff4f6;
+  text-align: center;
+}
+
+@media (min-width: 1024px) {
+  .help {
+    padding: 32px;
+  }
+}
+
+/* 28/30, а не 32/30: кегль не может быть больше интерлиньяжа
+   из макета (98:394 — слой 417x30). На мобильной тот же заголовок
+   лежит слоем по содержимому 265px (310:55) — это 20 Bold,
+   а пара 20/28 в токенах — это h3 */
+.help__title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+@media (min-width: 1024px) {
+  .help__title {
+    font-size: 28px;
+  }
+}
+
+.help__text {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 28px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .help__text {
+    font-size: 20px;
+  }
+}
+
+.help__actions {
+  display: grid;
+  justify-items: center;
+  gap: 22px;
+  width: 100%;
+  max-width: 289px;
+}
+
+.help__cta {
+  width: 100%;
+  min-height: 59px;
+  font-size: 18px;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .help__cta {
+    font-size: 20px;
+  }
+}
+
+/* 16/16 на мобильной (295:1808 — слой 214x16), 18 на десктопе */
+.help__note {
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.5;
+  line-height: 16px;
+}
+
+/* 20/21: слой в макете высотой 21 (98:382), а стояло 30 — кегль
+   был больше строки, в которую его ставят. На мобильной тот же
+   телефон — слой по содержимому 161px (310:53), то есть 20 */
+.help__phone {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 21px;
+}
+
+@media (min-width: 1024px) {
+  .help__phone {
+    font-size: 22px;
+  }
+}
+
+/* Букет стоит на дне карточки и шире её содержимого: в макете
+   (295:1808) снимок 344x233 занимает 28..372 при карточке 20..380 и
+   упирается в её нижний край. Отрицательные поля выводят его из-под
+   паддинга 20, а нижнее ещё и прижимает вплотную */
+.help__photo {
+  width: 344px;
+  max-width: none;
+  height: auto;
+  margin-block-end: calc(20px * -1);
+  margin-inline: -12px;
+}
+
+@media (min-width: 1024px) {
+  .help__photo {
+    margin-block-end: calc(32px * -1);
+  }
+}
+
+/* ============================================ Способы оплаты: десктоп */
+
+@media (min-width: 1024px) {
+  /* Вертикальный паддинг 66, а не общие 80: текста здесь на строку больше,
+     и при 80 коробка вырастала с 460 до 481 */
+  .page-banner {
+    padding-block: 66px;
+  }
+
+  .page-banner__photo {
+    inset-block-start: 50%;
+    inset-inline-start: auto;
+    inset-inline-end: -192px;
+    translate: 0 -50%;
+    width: 822px;
+    height: 471px;
+  }
+
+  /* Размытая розовая окружность из макета. Нарисована градиентом, а не
+     кругом с `filter: blur()`: фильтр внутри `overflow: hidden` +
+     `border-radius` ломает скругление — левые углы баннера выходили
+     прямыми. Круг макета 817 с центром на (37.5, 258.5) и blur(68):
+     радиус 408.5, а стопы ниже — гауссова ступенька на нём
+     (0.98/0.84/0.69/0.5/0.31/0.16/0.02 на ±2σ). Коробка растянута до
+     1200, чтобы хвост градиента поместился целиком */
+  .page-banner__glow {
+    display: block;
+    position: absolute;
+    z-index: -2;
+    inset-block-start: -342px;
+    inset-inline-start: -563px;
+    width: 1200px;
+    height: 1200px;
+    background-image: radial-gradient(
+      circle 600px at 50% 50%,
+      #ffebef 0,
+      color-mix(in srgb, #ffebef 98%, transparent) 45.3%,
+      color-mix(in srgb, #ffebef 84%, transparent) 56.7%,
+      color-mix(in srgb, #ffebef 69%, transparent) 62.3%,
+      color-mix(in srgb, #ffebef 50%, transparent) 68%,
+      color-mix(in srgb, #ffebef 31%, transparent) 73.7%,
+      color-mix(in srgb, #ffebef 16%, transparent) 79.3%,
+      color-mix(in srgb, #ffebef 2%, transparent) 90.7%,
+      color-mix(in srgb, #ffebef 0%, transparent) 100%
+    );
+    pointer-events: none;
+  }
+
+  .page-banner__title {
+    margin-block-start: 135px;
+  }
+
+  .page-banner__note {
+    display: block;
+    margin-block-start: 32px;
+    max-width: 470px;
+    font-size: 20px;
+    line-height: 28px;
+    opacity: 0.8;
+  }
+
+  .methods {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+    margin-block-start: 44px;
+  }
+
+  .method {
+    padding: 22px;
+  }
+
+  .method__icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  /* Блок текста в макете ровно 166 (98:6): заголовок 22/22 в две
+     строки (44), отбивка 12 и описание 18/22 в пять строк (110).
+     С отбивкой 22 и интерлиньяжем 20 описание начиналось на 10 ниже */
+  .method__title {
+    font-size: 22px;
+    line-height: 22px;
+  }
+
+  .method__text {
+    margin-block-start: 12px;
+    line-height: 22px;
+  }
+
+  /* Боковой отступ 59, а не 44: колонки в макете стоят на 178,
+     460, 742 и 1024 при ширине 238 (98:333 и соседи):
+     59 + 4x238 + 3x44 + 59 = 1202 */
+  .features {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 44px;
+    margin-block-start: 44px;
+    padding: 32px 59px;
+  }
+
+  .faq__link {
+    padding-inline: 22px;
+  }
+
+  /* На 1440 блок помощи — три колонки: фото, текст, кнопки */
+  /* Координаты из макета (39:589) при контейнере 119..1321: фото
+     111..455, текст с 479, кнопки 988..1277. Отсюда колонки
+     360 / 1fr / 289 без зазора и отступ только справа: равномерные
+     отступы сдвигали текст на 38, а кнопки — на 22. По вертикали
+     содержимое 44..196 при высоте 240: заголовок кончается на 100,
+     описание начинается на 122 */
+  .help {
+    grid-template-columns: 360px minmax(0, 1fr) 289px;
+    grid-template-rows: 56px 1fr;
+    align-items: center;
+    justify-items: start;
+    column-gap: 0;
+    row-gap: 22px;
+    padding: 44px 44px 44px 0;
+    text-align: start;
+  }
+
+  /* Фото в разметке последнее (мобильный порядок), здесь уходит влево.
+     В макете оно выше внутренних отступов панели (233 при высоте 240) —
+     выпускаем за паддинг, иначе блок разъезжается на 37px */
+  .help__photo {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: start;
+    max-width: 100%;
+    margin-block: -44px -37px;
+    margin-inline: -8px 0;
+  }
+
+  .method__title {
+    font-size: 22px;
+    line-height: 22px;
+  }
+
+  .feature__val {
+    font-size: 17px;
+    line-height: 21px;
+  }
+
+  .faq__link {
+    font-size: 20px;
+  }
+
+  .help__title {
+    line-height: 30px;
+  }
+
+  .help__note {
+    font-size: 18px;
+    line-height: 18px;
+  }
+
+  .help__phone {
+    font-size: 20px;
+  }
+
+  .help__title {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+  }
+
+  .help__text {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+  }
+
+  /* Колонка кнопок в макете не по центру блока, а на 4px выше его
+     верхнего паддинга: «Связаться с нами» стоит на 1713 при заголовке
+     на 1720, а телефон — на 1815 при низе блока на 1894. По центру
+     весь столбец уезжал на 9px вниз */
+  .help__actions {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: start;
+    justify-self: end;
+    margin-block-start: -4px;
+  }
+}

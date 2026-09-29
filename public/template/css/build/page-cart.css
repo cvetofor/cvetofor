@@ -1,0 +1,552 @@
+/* ==========================================================================
+   Корзина
+   ========================================================================== */
+
+/* 32 от заголовка до первого блока на мобильной (295:1618 — «Корзина»
+   на 96 при высоте 20, блок доставки на 148) */
+.cart {
+  display: grid;
+  gap: 22px;
+  margin-block-start: 32px;
+}
+
+.cart__main,
+.cart__aside {
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+
+/* В мобильном макете (295:1618) итоги стоят над списком товаров */
+.cart__aside {
+  order: -1;
+}
+
+.cart__panel {
+  padding: 22px;
+}
+
+.cart__subtitle {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+/* Панель рекомендаций — часть колонки, а не отдельная секция: класс
+   .section добавляет ей десктопные 44 сверху поверх зазора колонки */
+.cart__recommend {
+  margin-block-start: 0;
+}
+
+.cart__recommend .section__head {
+  margin-block-end: 16px;
+}
+
+/* Заголовок панели — это summary: по клику рекомендации сворачиваются.
+   Стандартный треугольник убираем, вместо него шеврон из макета */
+.rec__head {
+  cursor: pointer;
+  list-style: none;
+}
+
+.rec__head::-webkit-details-marker {
+  display: none;
+}
+
+/* Панель раскрыта — шеврон вверх (клик свернёт), свёрнута — вниз */
+.rec__chevron {
+  flex-shrink: 0;
+  width: 13px;
+  /* повёрнутый шеврон выше строки заголовка (20 против 16) и растягивал
+     шапку панели — выносим разницу за пределы потока */
+  height: 20px;
+  margin-block: -2px;
+  background: url("../../assets/icons/chevron-forward.svg") center / contain no-repeat;
+  rotate: -90deg;
+  opacity: 0.8;
+}
+
+.rec:not([open]) .rec__chevron {
+  rotate: 90deg;
+}
+
+/* ------------------------------------------------------ Позиция корзины */
+
+/* На мобильных каждая позиция — самостоятельная карточка (макет 305:36,
+   304:36). На десктопе они собираются в одну панель с разделителями. */
+/* 16 между позициями (295:1618 — карточки 513..724 и 740..927) */
+.cart-list {
+  display: grid;
+  gap: 16px;
+}
+
+.cart-list > li {
+  padding: 22px;
+  border-radius: 25px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px 0 rgb(205 205 205 / 0.25);
+}
+
+/* Мобильная раскладка из макета 305:36: фото 80 и описание в первой строке,
+   во второй — удаление слева, счётчик справа */
+/* Мобильная раскладка позиции (295:1618 — Photo 80x80, Description 218,
+   ниже ряд «удалить + счётчик» 320x45): цена стоит внизу описания, а не
+   отдельной колонкой справа, ссылки «Подробнее» в макете нет вовсе */
+.cart-item {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  align-items: start;
+  gap: 16px 22px;
+}
+
+.cart-item__media {
+  grid-row: 1 / 3;
+}
+
+.cart-item__info {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.cart-item__media {
+  display: block;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.cart-item__media {
+  width: 80px;
+  height: 80px;
+}
+
+.cart-item__media img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+/* Описание позиции в мобильном макете (295:1618) — 218x110: название
+   18/18, состав 16 двумя строками с шагом 24, цена 20, промежутки по 16.
+   С кеглями 16/14 и зазором 8 позиция была на 45px ниже макета */
+.cart-item__info {
+  display: grid;
+  gap: 16px;
+}
+
+.cart-item__title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+@media (min-width: 1024px) {
+  .cart-item__title {
+    font-size: 20px;
+  }
+}
+
+/* nowrap: «Роза Кения 40-50 см 15 шт.» укладывается в колонку 218
+   с запасом 2px, и на чужой машине строка ломается пополам */
+.cart-item__specs {
+  display: grid;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 16px;
+  white-space: nowrap;
+  opacity: 0.5;
+}
+
+/* Ссылки «Подробнее» в мобильном макете (295:1618) нет: там у позиции
+   только название, состав и цена */
+.cart-item__more {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  color: #dc0978;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cart-item__price {
+  grid-column: 2;
+  grid-row: 2;
+  font-size: 20px;
+  line-height: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .cart-item__price {
+    font-size: 22px;
+  }
+}
+
+.cart-item__remove {
+  grid-column: 1;
+  grid-row: 3;
+  justify-self: start;
+}
+
+/* Счётчик количества и кнопка удаления — одинаковые плитки */
+.qty {
+  grid-column: 2;
+  grid-row: 3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-self: end;
+}
+
+.qty__btn,
+.cart-item__remove {
+  display: grid;
+  place-items: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  background-color: #fff4f6;
+  transition: background-color 0.15s ease;
+}
+
+.qty__btn:hover,
+.cart-item__remove:hover {
+  background-color: #fee9ed;
+}
+
+.qty__btn img,
+.cart-item__remove img {
+  width: 25px;
+  height: 25px;
+}
+
+/* Количество — настоящее поле: значение можно ввести с клавиатуры, а без
+   скрипта «+»/«−» отправляют форму на /cart/qty. Стрелки браузера убраны,
+   ширина как у прежней надписи */
+.qty__value {
+  width: 3.5ch;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  appearance: textfield;
+}
+
+@media (min-width: 1024px) {
+  .qty__value {
+    font-size: 18px;
+  }
+}
+
+.qty__value::-webkit-outer-spin-button,
+.qty__value::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+/* ------------------------------------------------------- Строка доставки */
+
+.summary-line {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.summary-line__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  background-color: #fff4f6;
+}
+
+.summary-line__text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+}
+
+.summary-line__title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.summary-line__note {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 14px;
+  opacity: 0.5;
+}
+
+.summary-line__price {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------- Итоги */
+
+/* Первая строка — название блока, поэтому в полную силу */
+/* ---------------------------------------------------------- Гарантия */
+
+/* Компактные дополнения: шесть в ряд внутри панели корзины. В макете
+   (103:31) у них нет ни подложки, ни рамки — только картинка 106x106,
+   подпись в две строки и цена, прижатая к низу колонки */
+.addons--compact .addon {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.addons--compact .addon__media {
+  height: 106px;
+}
+
+/* Кегль 12 задан числом: в шкале токенов такого размера нет — он
+   встречается только здесь (103:116) */
+.addons--compact .addon__title {
+  margin-block-start: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.addons--compact .addon__price {
+  /* кнопка «+» теперь есть: отступ справа держит цену подальше от неё */
+  padding-inline-end: 36px;
+  padding-block-start: 16px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* ==================================================== Корзина: десктоп */
+
+@media (min-width: 1024px) {
+  .cart {
+    /* Первая колонка гибкая и забирает всю ширину минус сайдбар */
+    grid-template-columns: minmax(0, 1fr) 386px;
+    gap: 22px;
+    /* Заголовок кончается на 195, список товаров начинается на 239 */
+    margin-block-start: 44px;
+    align-items: start;
+  }
+
+  .cart__aside {
+    order: 0;
+  }
+
+  .cart__items {
+    padding: 22px;
+    border-radius: 25px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px 0 rgb(205 205 205 / 0.25);
+  }
+
+  .cart-list > li {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  /* Разделитель стоит ровно посередине промежутка: 32 от предыдущей
+     позиции и 32 до следующей (101:18 → 101:45 → 101:21). Границей это
+     не сделать — она вошла бы в рамку позиции и подняла бы её на 32 */
+  .cart-list {
+    gap: 64px;
+  }
+
+  .cart-list > li {
+    position: relative;
+  }
+
+  .cart-list > li + li::before {
+    content: "";
+    position: absolute;
+    inset-block-start: -32px;
+    inset-inline: 0;
+    border-block-start: 1px solid #e5e5e5;
+  }
+
+  .cart-item {
+    grid-template-columns: 124px minmax(0, 1fr) auto auto auto;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .cart-item__media {
+    grid-row: auto;
+  }
+
+  .cart-item__info {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .cart-item__more {
+    display: inline-flex;
+  }
+
+  .cart-item__media {
+    width: 124px;
+    height: 124px;
+  }
+
+  /* Описание позиции — жёсткие 263 из макета (101:5): от его ширины
+     зависит, где встанут счётчик, цена и корзина */
+  .cart-item__info {
+    width: 263px;
+    gap: 16px;
+  }
+
+  .cart-item__title {
+    font-size: 20px;
+    line-height: 20px;
+  }
+
+  .cart-item__specs,
+  .cart-item__more {
+    font-size: 18px;
+    line-height: 18px;
+  }
+
+  .cart-item__specs {
+    white-space: normal;
+  }
+
+  .cart {
+    margin-block-start: 44px;
+  }
+
+
+  .cart-item__price {
+    line-height: 1.2;
+  }
+
+  .cart-item__specs {
+    gap: 12px;
+  }
+
+  /* Счётчик в макете (101:16) — ровно 133: две кнопки 45 и 43 под число */
+  .qty {
+    grid-column: 3;
+    grid-row: 1;
+    gap: 0;
+  }
+
+  .qty__value {
+    width: 43px;
+  }
+
+  .cart-item__price {
+    grid-column: 4;
+    grid-row: 1;
+    font-size: 20px;
+  }
+
+  .cart-item__remove {
+    grid-column: 5;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .qty__value {
+    font-size: 18px;
+  }
+
+  .addons--compact {
+    grid-template-columns: repeat(auto-fill, 181px);
+    gap: 22px;
+  }
+
+  /* Колонка в макете (103:31) ровно 197: картинка 106, отбивка 16 и
+     блок подписи 75, в котором цена прижата к низу */
+  .addons--compact .addon {
+    height: 197px;
+  }
+
+  /* Снизу у панели итогов 15, а не 22: кнопка кончается на 565, панель —
+     на 580 (103:67). Асимметрия из макета, проверено по рендеру.
+     Правило страничное — на шагах оформления заказа панель другая */
+  .totals--cart {
+    padding-block-end: 15px;
+  }
+
+  /* «Итого» в корзине набрано 16/16 (103:106), а в сводке заказа на
+     шагах оформления — 22 (295:619): блок один, кегли разные */
+  .totals--cart .totals__sum {
+    line-height: 16px;
+  }
+
+  /* Сумма рядом крупнее подписи: 20 против 16 (103:107).
+     Начертание — Medium, а не Bold: штрих в рендере макета 2.5px при кегле 20,
+     у Bold было бы 3. По ширине это не видно: цифры в Helvetica Neue
+     моноширинные и во всех начертаниях занимают одинаково */
+  .totals--cart .totals__sum-val {
+    line-height: 20px;
+    font-weight: 500;
+  }
+
+  /* Кнопка корзины набрана вторым розовым макета (103:109 — #e6118c),
+     а остальные кнопки сайта — brand-500 */
+  .totals--cart .totals__cta {
+    background-color: #e6118c;
+  }
+}
+/* ==================================================== Пустая корзина ==== */
+/* Страница cart-0.html: белая плашка с иконкой и текстом по центру */
+
+/* Секция без сетки обычной корзины: плашка на всю ширину контейнера */
+.cart--empty {
+  display: block;
+}
+
+.cart--empty .box {
+  padding: 40px;
+  border-radius: 24px;
+  background-color: #ffffff;
+  box-shadow: 0 12px 32px rgba(45, 28, 26, 0.06);
+}
+
+.status-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 16px;
+  text-align: center;
+}
+
+.status-page__icon {
+  width: 64px;
+  height: 64px;
+}
+
+.status-page__title {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #2d1c1a;
+}
+
+.status-page__text {
+  font-size: 16px;
+  line-height: 22px;
+  color: #777777;
+}
+
+.status-page__text .link {
+  color: #dc0978;
+  text-decoration: underline;
+}

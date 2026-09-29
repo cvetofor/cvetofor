@@ -1,0 +1,668 @@
+/* ==========================================================================
+   Страница товара
+   ========================================================================== */
+
+/* --------------------------------------------------------- Хлебные крошки */
+
+.breadcrumbs {
+  margin-block-start: var(--space-md);
+}
+
+/* В макете (81:2) путь набран чёрным с прозрачностью 50%, а последний
+   уровень — тем же кеглем в полную силу. Поэтому прозрачность висит на
+   пунктах, а не на всём списке: иначе её не снять с последнего */
+.breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: 20px;
+}
+
+.breadcrumbs__list li {
+  opacity: var(--opacity-secondary);
+}
+
+.breadcrumbs__list li:last-child {
+  opacity: 1;
+}
+
+/* Косая черта перед названием товара остаётся частью пути и приглушена
+   вместе с ним: в полную силу набрано только само название */
+.breadcrumbs__list li:last-child::before {
+  opacity: var(--opacity-secondary);
+}
+
+.breadcrumbs__list li + li::before {
+  content: "/";
+  margin-inline-end: var(--space-2xs);
+}
+
+.breadcrumbs__link:hover {
+  color: var(--color-brand-500);
+}
+
+/* ------------------------------------------------------------- Раскладка */
+
+/* minmax(0, 1fr), а не просто 1fr: строка «За последние 24 часа...» стоит
+   с nowrap и при 18 требует 367 при колонке 360 — неявная дорожка сетки
+   растягивалась под неё, и весь правый столбец уезжал на 7px. Так лишние
+   пиксели уходят в боковые поля, как и задумано для nowrap (§4.9) */
+.product {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  margin-block-start: var(--space-md);
+}
+
+/* ---------------------------------------------------------------- Галерея */
+
+.gallery {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.gallery__main {
+  position: relative;
+  margin: 0;
+  order: -1;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+
+.gallery__photo {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 618 / 664;
+  object-fit: cover;
+}
+
+/* Стрелки перелистывания без JS неактивны — разметка готова к скрипту */
+.gallery__nav {
+  position: absolute;
+  inset-block-start: 50%;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: color-mix(in srgb, var(--color-surface) 85%, transparent);
+}
+
+/* 22 от края фотографии, как и плашка «Фото перед отправкой» (122:735) */
+.gallery__nav--prev { inset-inline-start: var(--space-md); }
+.gallery__nav--next { inset-inline-end: var(--space-md); }
+
+.gallery__nav--prev img {
+  rotate: 180deg;
+}
+
+/* Плашка в макете (122:771) — 51 высотой с отступом 15 сверху
+   и снизу, и стоит в 22 от низа снимка, а не в 16 */
+.gallery__note {
+  position: absolute;
+  inset-block-end: var(--space-md);
+  inset-inline-start: 50%;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 15px var(--space-md);
+  border-radius: var(--radius-lg);
+  background-color: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+  line-height: 21px;
+}
+
+.gallery__thumbs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-2xs);
+}
+
+/* Плашка «Фото перед отправкой» стоит в левом нижнем углу фотографии
+   (122:771 — 22 от края), а не по центру */
+.gallery__note {
+  inset-inline-start: var(--space-md);
+  translate: none;
+}
+
+.gallery__thumb-btn {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.gallery__thumb-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery__thumb.is-active .gallery__thumb-btn {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: -2px;
+}
+
+.gallery__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-color: var(--color-scrim-soft);
+}
+
+.gallery__play img {
+  width: 36px;
+  height: 36px;
+}
+
+/* ------------------------------------------------------- Правая колонка */
+
+/* Бейдж 42 высотой, иконки 30 — в макете они выровнены по верху */
+.product__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+/* Бейдж на странице товара — в потоке, а не поверх фото. Подложка
+   здесь светлее, чем у бейджа каталога: #fff4f6 против #ffe2e7 */
+.badge--static {
+  position: static;
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  width: auto;
+  min-height: 42px;
+  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--color-brand-50);
+  font-size: var(--fs-body);
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.badge--static img {
+  width: 18px;
+  height: 18px;
+}
+
+.product__tools {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.product__tool {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+}
+
+.product__tool:hover {
+  opacity: 0.7;
+}
+
+.product__title {
+  margin-block-start: var(--space-md);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.product__sku {
+  margin-block-start: var(--space-md);
+  font-size: var(--fs-body);
+  line-height: 18px;
+  opacity: var(--opacity-secondary);
+}
+
+/* Старая цена в макете (120:105) выровнена по центру относительно новой,
+   а не по базовой линии: её верх стоит ровно на (40-24)/2 ниже */
+.product__prices {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-block-start: var(--space-lg);
+}
+
+/* Цена на странице товара — брендовым розовым (119:47), а не чёрным,
+   как в карточке каталога */
+.product__price {
+  color: var(--color-brand-500);
+  font-size: var(--fs-price);
+  font-weight: var(--fw-bold);
+  line-height: 1;
+}
+
+.product__price-old {
+  font-size: var(--fs-price-old);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+  opacity: var(--opacity-strike);
+}
+
+/* width: fit-content, а не inline-flex: в макете строка шириной по
+   содержимому (303), но инлайновый бокс добавляет колонке интерлиньяж
+   и всё, что ниже, съезжает на 7px */
+.product__delivery {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: var(--space-2xs);
+  margin-block-start: var(--space-md);
+  font-size: var(--fs-body);
+  line-height: 18px;
+}
+
+.product__shipping {
+  opacity: var(--opacity-secondary);
+}
+
+.product__actions {
+  display: grid;
+  gap: var(--space-sm);
+  margin-block-start: var(--space-lg);
+}
+
+/* Кнопки покупки лежат каждая в своей форме — обёртка не должна влиять
+   на сетку, поэтому растягивает кнопку на всю свою ширину */
+.product__form {
+  display: grid;
+}
+
+.product__fav {
+  display: grid;
+}
+
+/* В избранном: то же залитое сердце, что и в карточке каталога */
+.product__tool[aria-pressed="true"] {
+  background-color: var(--color-brand-50);
+}
+
+.product__tool[aria-pressed="true"] img {
+  content: url("../assets/icons/heart-filled.svg");
+}
+
+/* 18/18 на обеих ширинах (295:1385 — «Добавить в корзину» слой 174x18):
+   --fs-body на 400 равен 14, и надписи кнопок были мельче нарисованных */
+.product__cta {
+  min-height: 66px;
+  font-size: var(--fs-body-lg);
+  line-height: 18px;
+}
+
+/* ---------------------------------------------- Блок «Особенный подарок» */
+
+/* Зазор 2: в мобильном макете (295:1385) значок стоит на 36..78, а текст
+   начинается на 80 — иначе подпись уезжает от нарисованной на 8px */
+.gift {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-block-start: var(--space-sm);
+  padding: var(--space-sm);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-brand-50);
+}
+
+.gift__icon {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+}
+
+.gift__text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+}
+
+/* 18/18 и 18/18 из мобильного макета (слои 269x18 и 269x36) */
+.gift__title {
+  color: var(--color-brand-500);
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-bold);
+  line-height: 18px;
+}
+
+.gift__note {
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: 18px;
+  opacity: var(--opacity-secondary);
+}
+
+
+/* --------------------------------------------- Социальное доказательство */
+
+/* В макете строка одна, а запаса в колонке всего 10 px: любая
+   разница в отрисовке шрифта роняет хвост на вторую строку и тянет
+   вниз всю колонку. Перенос запрещён: лишние пиксели уйдут
+   в поля страницы, а не сломают раскладку */
+/* 18/16 из макета (295:1385 — слой 360x16): при 14 строка была заметно
+   мельче нарисованной */
+.product__proof {
+  white-space: nowrap;
+  margin-block-start: var(--space-sm);
+  text-align: center;
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: 16px;
+}
+
+.product__proof-accent {
+  color: var(--color-brand-500);
+}
+
+/* Не «пилюля» по содержимому, а плашка во всю колонку (233:75 — 376x78) */
+.proof-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 78px;
+  margin-block-start: var(--space-sm);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-brand-50);
+}
+
+.proof-pill img {
+  width: 32px;
+  height: 32px;
+}
+
+/* Интерлиньяж 30 на мобильной (слой «17 раз» 93x30), 1 на десктопе */
+.proof-pill__count {
+  color: var(--color-brand-500);
+  font-size: var(--fs-proof);
+  font-weight: var(--fw-medium);
+  line-height: 30px;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- Описание */
+
+.descr {
+  padding: var(--space-md);
+}
+
+/* block, а не inline-block: у строчного элемента под базовой линией
+   остаётся 3px выносного просвета, и весь блок ниже съезжает */
+.descr__tab {
+  display: block;
+  width: fit-content;
+  color: var(--color-brand-500);
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-bold);
+  line-height: 22px;
+}
+
+.descr__text {
+  display: grid;
+  gap: var(--space-md);
+  margin-block-start: var(--space-md);
+  font-size: var(--fs-body);
+  line-height: 22px;
+}
+
+.descr__specs {
+  display: grid;
+  gap: var(--space-md);
+  margin-block-start: var(--space-md);
+}
+
+/* Размеры в макете занимают не всю ширину: «Ширина 30 см» — блок 211px
+   (308:37), значение стоит сразу за подписью, а не у правого края */
+.spec--size .spec__list {
+  max-width: 311px;
+}
+
+/* У страны производства отбивка от заголовка больше, чем у остальных
+   блоков: 22 против 16 (120:263 → 120:264) */
+.spec--country .spec__title {
+  margin-block-end: var(--space-md);
+}
+
+.spec__title {
+  margin-block-end: var(--space-sm);
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-bold);
+  line-height: 22px;
+}
+
+.spec__list {
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 22px;
+}
+
+/* Состав букета набран крупнее размеров и страны: «Пионы
+   премиальные» 201px, «Бесплатно» 104 — это 20; «Ширина» 72
+   и «Голландия» 91 — 18 */
+.spec--parts .spec__list {
+  font-size: var(--fs-body-lg);
+}
+
+.spec__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.spec__row dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  font-weight: var(--fw-medium);
+}
+
+.spec__row dd {
+  margin: 0;
+  font-weight: var(--fw-medium);
+  white-space: nowrap;
+}
+
+.spec__icon-v {
+  rotate: 90deg;
+}
+
+.spec__value {
+  color: var(--color-brand-500);
+}
+
+.spec__plain {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  line-height: 22px;
+}
+
+/* ----------------------------------------------------------------- Поводы */
+
+/* Панель поводов — розовая и без тени (237:346), не белая карточка:
+   плитки на ней светлее фона, а не наоборот */
+.occasions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background-color: var(--color-brand-50);
+  box-shadow: none;
+}
+
+.occasion {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+  text-align: center;
+}
+
+.occasion > * {
+  max-width: 100%;
+}
+
+.occasion__icon {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-brand-125);
+}
+
+.occasion__icon img {
+  width: auto;
+  max-width: 45px;
+  max-height: 40px;
+}
+
+/* 18/20 из макета (237:354) — на две ступени мельче заголовка секции */
+.occasion__name {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  line-height: 20px;
+}
+
+/* ================================================== Страница товара: десктоп */
+
+@media (min-width: 1024px) {
+  .product__cta,
+  .product__proof {
+    font-size: var(--fs-body);
+  }
+
+  .product__proof {
+    line-height: 18px;
+  }
+
+  .gift {
+    gap: 10px;
+  }
+
+  .gift__title {
+    font-size: var(--fs-label);
+  }
+
+  .gift__note {
+    font-size: var(--fs-caption-sm);
+  }
+
+  .proof-pill__count {
+    line-height: 1;
+  }
+
+  .product {
+    /* Первая колонка гибкая: две жёсткие ширины в сумме требуют 1202
+       и на ноутбуке 1024 выдавливали страницу вбок */
+    grid-template-columns: minmax(0, 1fr) 376px;
+    gap: var(--space-lg);
+    /* 32 от крошек до галереи: крошки кончаются на 153, галерея на 185 */
+    margin-block-start: var(--space-lg);
+  }
+
+  .gallery {
+    grid-template-columns: 154px minmax(0, 618px);
+    justify-content: start;
+    gap: var(--space-md);
+    align-items: start;
+  }
+
+  .gallery__main {
+    order: 0;
+  }
+
+  .gallery__thumbs {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    gap: var(--space-sm);
+  }
+
+  .gallery__nav {
+    width: 60px;
+    height: 60px;
+  }
+
+  .gallery__note {
+    font-size: var(--fs-body);
+  }
+
+  .descr__specs {
+    /* max-content: заголовок «Страна производства» шире 211px и иначе
+       переносится, в макете он выходит в межколоночный зазор */
+    grid-template-columns: minmax(211px, max-content) 376px;
+    justify-content: space-between;
+    gap: var(--space-md) var(--space-lg);
+  }
+
+  /* На этой странице секции идут через 32, а не через 44, как на
+     главной: 849 → 881 → 1429 → 1461 → 1621 → 1653 (16:152) */
+  .product ~ .section {
+    margin-block-start: var(--space-lg);
+  }
+
+  /* Порядок в разметке мобильный (состав → страна → размер), а на десктопе
+     макет (16:152) ставит размер и страну в левую колонку, состав — в правую */
+  .spec--size {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .spec--country {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .spec--parts {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  /* Ряд поводов в макете (237:346): плитки 238 с шагом 282, поля 59
+     слева и справа, сам ряд отбит от краёв панели на 22 сверху и снизу */
+  .occasions {
+    padding: var(--space-md) 59px;
+    grid-template-columns: repeat(4, 238px);
+    justify-content: space-between;
+    gap: var(--space-xl);
+    padding: var(--space-md) 59px;
+  }
+
+}
+
+/* --------------------------------------------------------------- Видео */
+
+/* Плеер занимает то же место, что и фото: подмена одного другим не должна
+   двигать соседние блоки */
+.gallery__video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* та же пропорция, что у фото: подмена одного другим не должна
+     менять высоту блока и дёргать страницу */
+  aspect-ratio: 618 / 664;
+  border-radius: var(--radius-2xl);
+  object-fit: cover;
+  background-color: var(--color-ink);
+}
+
+.gallery__fallback {
+  color: var(--color-brand-500);
+}

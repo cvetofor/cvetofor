@@ -60,7 +60,7 @@ class OrderController extends Controller
         session()->forget(['promocode_used', 'promocod_id', 'promocod_used_amount', 'promocod__new_total', 'promocod__old_total', 'promocod__delivery']);
 
         return view(
-            'order',
+            config('is_new_desing')?'newdesing.checkout':'order',
             compact(
                 'cart',
                 'cartByMarket',

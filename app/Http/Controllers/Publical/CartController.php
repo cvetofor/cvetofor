@@ -31,7 +31,7 @@ class CartController extends Controller {
             }
         }
 
-        return view('cart', compact('cart', 'cartByMarket', 'totalDeliveryPrice', 'recomendations', 'canGoToNext'));
+        return view( config('is_new_desing')?'newdesing.cart':'cart', compact('cart', 'cartByMarket', 'totalDeliveryPrice', 'recomendations', 'canGoToNext'));
     }
 
     public function putAdditional($id) {

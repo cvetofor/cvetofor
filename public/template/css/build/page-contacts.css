@@ -1,0 +1,653 @@
+/* ==========================================================================
+   Контакты
+   ========================================================================== */
+
+/* ---------------------- Баннер страницы (оболочка — в style.css) */
+
+/* Мобильный баннер (295:1713) — квадрат 360x360: фотография во всю
+   площадь, крошки и заголовок белым внизу слева на 40 от краёв.
+   Десктопное решение (фото правой половиной на голубой подложке,
+   тёмный текст сверху) — в медиазапросе внизу файла */
+.page-banner {
+  align-items: flex-end;
+  min-height: 360px;
+  margin-block-start: 32px;
+  padding: 40px;
+  background-color: #b6dae6;
+}
+
+.page-banner__photo {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.page-banner__blob--a,
+.page-banner__blob--b {
+  display: none;
+}
+
+/* 16/16 и 30/36 из макета: слои крошек и заголовка — 145x16 и 145x36 */
+.page-banner__crumbs {
+  font-size: 16px;
+  line-height: 16px;
+}
+
+.page-banner__title {
+  margin-block-start: 22px;
+  color: #ffffff;
+  line-height: 36px;
+}
+
+/* В мобильном баннере (295:1713) подзаголовка нет — только крошки
+   и название страницы у нижнего края */
+.page-banner__note {
+  display: none;
+  margin-block-start: 16px;
+  max-width: 560px;
+  font-size: 18px;
+  line-height: 28px;
+  opacity: 0.8;
+}
+
+@media (min-width: 1024px) {
+  .page-banner__note {
+    font-size: 20px;
+  }
+}
+
+/* --------------------------------------------------- Две колонки */
+
+/* Карточки в ряду держат собственную высоту: в макете (39:526 и 39:527)
+   они разной высоты — 267 и 274, растягивать их до общей нельзя */
+.cols {
+  display: grid;
+  align-items: start;
+  gap: 22px;
+}
+
+/* ------------------------------------------------------- Менеджер */
+
+/* Мобильный макет (305:172): фото и имя в строке, должность — под ними
+   во всю ширину. На десктопе (64:264) должность стоит в колонке с именем. */
+.manager {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 16px 22px;
+  padding: 22px;
+}
+
+
+
+.manager__photo {
+  flex-shrink: 0;
+  width: 63px;
+  height: 63px;
+  border-radius: 50%;
+}
+
+.manager__text {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+
+/* 20/20 на мобильной (295:1713 — слой имени 20 высотой), 30 на десктопе */
+.manager__name {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+@media (min-width: 1024px) {
+  .manager__name {
+    font-size: 28px;
+  }
+}
+
+/* Телефон в макете (64:262) чёрный, как и имя: розовым он выделен только
+   в карточке контактов справа */
+.manager__phone {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+@media (min-width: 1024px) {
+  .manager__phone {
+    font-size: 22px;
+  }
+}
+
+/* 16/20 на мобильной, 18/18 на десктопе */
+.manager__role {
+  grid-column: 1 / -1;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  opacity: 0.5;
+}
+
+/* ------------------------------------------------ Карточка контактов */
+
+.contacts-card {
+  display: grid;
+  gap: 22px;
+  padding: 22px;
+}
+
+/* dt несёт иконку и подпись, dd — значение под ней с отступом
+   на ширину иконки. Без display: contents — он ломает семантику dl
+   в части скринридеров. */
+.contacts-card__list {
+  display: grid;
+  gap: 22px;
+  margin: 0;
+}
+
+.contact-row {
+  position: relative;
+  min-height: 50px;
+  padding-inline-start: 72px;
+}
+
+.contact-row__key {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .contact-row__key {
+    font-size: 18px;
+  }
+}
+
+.contact-row__icon,
+.contact-row__tile {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+}
+
+.contact-row__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #fff4f6;
+}
+
+.contact-row__tile {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+}
+
+/* Значение стоит под подписью на 30 от её верха (70:6 → 70:7),
+   то есть через 12 от её базовой линии */
+/* 20/22, а не 22/22: кегль снят с рендера макета (70:7) — чернила
+   753px шириной при штрихе 2.25, что даёт 20 Medium; при 22 вышло бы 829.
+   Сам слой шириной 475 — это колонка, по ней кегль не считается */
+.contact-row__val {
+  margin: 0;
+  margin-block-start: 12px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 1024px) {
+  .contact-row__val {
+    font-size: 20px;
+  }
+}
+
+.contact-row__link {
+  color: #dc0978;
+}
+
+.socials__key {
+  margin-block-end: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .socials__key {
+    font-size: 18px;
+  }
+}
+
+/* Иконки 50 с шагом 62 (70:53) */
+.socials__list {
+  display: flex;
+  gap: 12px;
+}
+
+.socials__list li {
+  display: flex;
+}
+
+.social {
+  display: block;
+  border-radius: 50%;
+  transition: opacity 0.15s ease;
+}
+
+.social:hover {
+  opacity: 0.8;
+}
+
+/* ------------------------------------------------------- Магазины */
+
+/* minmax(0, 1fr), а не auto: иначе колонка растягивается по min-content
+   панели с поиском и ниже 360px выдавливает страницу вбок */
+.shops {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 22px;
+  padding: 22px;
+}
+
+.shops__map {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 546 / 474;
+  object-fit: cover;
+  border-radius: 25px;
+}
+
+.shops__search {
+  margin-block-end: 22px;
+}
+
+.shops__list {
+  display: grid;
+}
+
+/* Адрес: 82 на позицию, 36 между позицией и разделителем (64:216) */
+.shop {
+  display: grid;
+  gap: 12px;
+  padding-block: 16px;
+}
+
+.shop + .shop {
+  border-block-start: 1px solid #e5e5e5;
+}
+
+/* Булавка стоит слева от адреса и не входит в поток строк-часов:
+   подпись сдвинута на её ширину плюс 21 (64:219) */
+/* 18/22, а не 22/22: высота слоя 22 — это интерлиньяж, а кегль виден
+   по мобильному макету: там слой по содержимому и равен 252px
+   (305:222), а эта строка в браузере при 18 даёт 251, при 22 — 307 */
+.shop__name {
+  display: flex;
+  align-items: flex-start;
+  gap: 21px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .shop__name {
+    font-size: 18px;
+  }
+}
+
+.shop__hours {
+  margin-inline-start: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .shop__hours {
+    font-size: 18px;
+  }
+}
+
+/* ------------------------------------------------------ Реквизиты */
+
+.requisites {
+  display: grid;
+  gap: 22px;
+  padding: 22px;
+}
+
+/* 18/22 Medium, а не 22 Bold: в рендере макета (70:56) чернила 564px
+   при штрихе 2.25 — это 18 Medium; у 18 Bold штрих был бы 2.75, у 22 — 690px */
+.requisites__owner {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .requisites__owner {
+    font-size: 18px;
+  }
+}
+
+.requisites__list {
+  display: grid;
+  gap: 22px;
+  margin: 0;
+}
+
+.req-row {
+  display: grid;
+  gap: 12px;
+}
+
+.req-row__key {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .req-row__key {
+    font-size: 18px;
+  }
+}
+
+/* 18/22: чернила «+7 301 250-22-20» в макете (72:21) — 574px при штрихе 2.25,
+   то есть 18 Medium; при 20 вышло бы 638. Слой 405 шириной — колонка */
+.req-row__val {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .req-row__val {
+    font-size: 18px;
+  }
+}
+
+/* В реквизитах (72:21, 72:25) телефон и почта набраны чёрным, как и
+   остальные значения: розовым выделены только контакты в карточке
+   справа. Подчёркиванием при наведении показываем, что это ссылки */
+.req-link:hover {
+  text-decoration: underline;
+}
+
+/* В макете (72:27) это залитая кнопка во всю ширину карточки — 546x59,
+   белый текст и белая иконка. Розовой ссылкой на белом она была ещё и
+   с невидимой иконкой: download-minimalistic экспортирован белым */
+/* Надпись 18, а не 22: слой «Скачать реквизиты» в макете 168x22 (72:28).
+   На мобильной те же 18, а --fs-body там 14 */
+.requisites__download {
+  gap: 12px;
+  min-height: 59px;
+  font-size: 18px;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .requisites__download {
+    font-size: 20px;
+  }
+}
+
+/* ---------------------------------------------------- Форма связи */
+
+.contact-form {
+  display: grid;
+  gap: 22px;
+  padding: 22px;
+}
+
+/* Здесь подписи видимые — в отличие от оформления заказа,
+   где в макете только плейсхолдеры */
+.ffield {
+  display: grid;
+  gap: 12px;
+}
+
+.ffield__label {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+@media (min-width: 1024px) {
+  .ffield__label {
+    font-size: 20px;
+  }
+}
+
+/* Поле ровно 50 (74:114): вертикальные поля добавляли к нему 6px,
+   и вся форма вырастала на 24 */
+/* Интерлиньяж 16 из макета (74:115 — слой 514x16), а не браузерные 22.4:
+   в поле на 50px это заметно по положению строки */
+.ffield__input {
+  min-height: 50px;
+  line-height: 16px;
+  padding-inline: 16px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  background-color: #ffffff;
+  font-size: 16px;
+}
+
+.ffield__input--area {
+  min-height: 110px;
+  padding-block: 16px;
+  resize: vertical;
+}
+
+.ffield__input::placeholder {
+  color: #000000;
+  opacity: 0.5;
+}
+
+.ffield__input:focus-visible {
+  outline: 2px solid #dc0978;
+  outline-offset: 1px;
+  border-color: #dc0978;
+}
+
+/* На мобильной кнопка во всю ширину формы (305:296 — 320×59),
+   на десктопе — по содержимому, как в 39:533 */
+.contact-form__submit {
+  justify-self: stretch;
+  min-height: 59px;
+  padding-inline: 32px;
+  font-size: 18px;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .contact-form__submit {
+    font-size: 20px;
+  }
+}
+
+/* Кнопка наезжает на поле комментария на 18px — так нарисовано
+   (74:134 — поле 2113..2223, 77:137 — кнопка 2205..2264). Отступ
+   сетки 22 плюс перекрытие 18 дают -40 */
+@media (min-width: 1024px) {
+  .contact-form__submit {
+    position: relative;
+    margin-block-start: -40px;
+  }
+}
+
+/* Стрелка вынута из потока и на мобильной: иначе надпись «Отправить»
+   делит с ней ширину и уезжает от центра кнопки на 18px (295:1713) */
+.contact-form__submit {
+  position: relative;
+}
+
+.contact-form__submit img {
+  position: absolute;
+  inset-inline-end: 22px;
+  width: 24px;
+  height: 24px;
+}
+
+/* ================================================= Контакты: десктоп */
+
+@media (min-width: 1024px) {
+  /* Фото — правая половина баннера целиком, от верха до низа.
+     Вырезано из экспорта баннера (148:3) ровно по его правой части
+     x601..1202, поэтому снимок стоит ровно там же, где нарисован.
+     Слева в файл запечено затухание в альфа-канале на 80px: без него
+     на стыке с фоном видна вертикальная граница — голубой снимка
+     и голубой подложки расходятся на полтона из-за декоративных пятен */
+  .page-banner {
+    align-items: center;
+    margin-block-start: 16px;
+    padding: 32px;
+  }
+
+  .page-banner__photo {
+    inset-block-start: 0;
+    inset-block-end: auto;
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+    width: 601px;
+    height: 460px;
+  }
+
+  .page-banner__blob--a {
+    display: block;
+    inset-block-start: -29px;
+    inset-inline-start: 440px;
+  }
+
+  .page-banner__blob--b {
+    display: block;
+    inset-block-start: 97px;
+    inset-inline-start: -279px;
+  }
+
+  .page-banner__note {
+    display: block;
+  }
+
+  .manager__name {
+    font-size: 30px;
+    line-height: 1;
+  }
+
+  .manager__role {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .requisites__download {
+    font-size: 18px;
+  }
+
+  .page-banner__crumbs {
+    font-size: 18px;
+    line-height: 28px;
+  }
+
+  .page-banner__title {
+    margin-block-start: 22px;
+    color: #0c0004;
+    line-height: 76px;
+  }
+
+  /* Кнопка формы во всю ширину карточки (77:137 — 546x59), стрелка
+     прижата к правому краю */
+  .contact-form__submit {
+    justify-self: stretch;
+    position: relative;
+    min-height: 59px;
+  }
+
+  .contact-form__submit img {
+    position: absolute;
+    inset-inline-end: 22px;
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Отбивки баннера из макета (148:3): крошки на 67 от верха, заголовок
+     на 230, подзаголовок на 338 */
+  .page-banner {
+    padding: 67px 80px 66px;
+  }
+
+  .ffield__label {
+    line-height: 22px;
+  }
+
+  .page-banner__crumbs {
+    font-size: 20px;
+  }
+
+  .page-banner__title {
+    margin-block-start: 135px;
+  }
+
+  .page-banner__note {
+    margin-block-start: 32px;
+  }
+
+  .cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cols--tops {
+    align-items: start;
+  }
+
+  /* Карточка менеджера в макете (39:526) — 267 в высоту, содержимое
+     по центру: иконка 100, отбивка 41, три строки через 22 */
+  .manager {
+    min-height: 267px;
+    align-content: center;
+    gap: 22px 41px;
+  }
+
+  .manager__photo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .manager__role {
+    grid-column: 2;
+    margin-block-start: calc(22px * -1);
+  }
+
+  /* Одна панель 1202x518 (39:531): слева список 590 со своими полями,
+     справа карта 546x474, утопленная на 22 от верха, низа и правого края */
+  .shops {
+    /* Список и карта — по 50% ширины панели */
+    grid-template-columns: 1fr 1fr;
+    justify-content: start;
+    align-items: stretch;
+    column-gap: 44px;
+    min-height: 518px;
+    padding: 0;
+  }
+
+  .shops__list-wrap {
+    padding: 22px;
+  }
+
+  .shops__map {
+    align-self: start;
+    height: 474px;
+    margin-block: 22px;
+  }
+}

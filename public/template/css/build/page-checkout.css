@@ -1,0 +1,2353 @@
+/* ==========================================================================
+   Оформление заказа
+   ========================================================================== */
+
+/* -------------------------------------------------------------- Шаги */
+
+.steps-wrap {
+  margin-block-start: 22px;
+}
+
+/* На мобильных (макет 295:465) — полоса прогресса и только текущий шаг,
+   остальные скрыты: цепочка из четырёх в 360px не помещается */
+.steps {
+  display: flex;
+  margin-block-start: 16px;
+}
+
+.steps > li:not(.is-current) {
+  display: none;
+}
+
+.steps__progress {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 14 из макета (295:465 — полоса 305x14 при слое 360x18) */
+.steps__bar {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 14px;
+  border: 0;
+  border-radius: 50px;
+  background-color: #eeeeee;
+  appearance: none;
+}
+
+.steps__bar::-webkit-progress-bar {
+  border-radius: 50px;
+  background-color: #eeeeee;
+}
+
+.steps__bar::-webkit-progress-value {
+  border-radius: 50px;
+  background-color: #dc0978;
+}
+
+.steps__bar::-moz-progress-bar {
+  border-radius: 50px;
+  background-color: #dc0978;
+}
+
+/* 16 и приглушено: в рендере макета тон «25%» — ровно (127,127,127) */
+.steps__percent {
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0.5;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.step__num {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #eeeeee;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+@media (min-width: 1024px) {
+  .step__num {
+    font-size: 20px;
+  }
+}
+
+.step.is-current .step__num {
+  background-color: #dc0978;
+  color: #ffffff;
+}
+
+/* Пройденный шаг: тот же круг цвета бренда, но с белой галочкой,
+   заголовок тоже розовый — так помечены шаги 1 и 2 в макете 42:873 */
+.step.is-done .step__num {
+  background-color: #dc0978;
+}
+
+.step.is-done .step__num img {
+  width: 28px;
+  height: 28px;
+}
+
+.step.is-done .step__title {
+  color: #dc0978;
+}
+
+/* Название 18/18, подпись 16/25 и начинается через 24 от верха названия
+   (39:628 и 39:629) — то есть через 6 после него */
+.step__text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Заголовок текущего шага розовый: в рендере мобильного макета
+   (295:386) «Данные» набрано ровно #dc0978, а не чёрным */
+.step__title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+@media (min-width: 1024px) {
+  .step__title {
+    font-size: 18px;
+  }
+}
+
+.step.is-current .step__title {
+  color: #dc0978;
+}
+
+/* В макете строка одна, а запаса в колонке всего 7 px: любая
+   разница в отрисовке шрифта роняет хвост на вторую строку и тянет
+   вниз всю колонку. Перенос запрещён: лишние пиксели уйдут
+   в промежуток между шагами, а не сломают раскладку */
+.step__note {
+  white-space: nowrap;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 25px;
+  opacity: 0.5;
+}
+
+/* Пунктир между шагами: точки фоном, а не одиннадцатью пустыми элементами */
+.steps__dots {
+  flex: 1 1 auto;
+  min-width: 40px;
+  height: 4px;
+  align-self: center;
+  background-image: radial-gradient(circle, #b3b3b3 2px, transparent 2px);
+  background-size: 8px 4px;
+  background-repeat: repeat-x;
+}
+
+/* Пояснение под интервалами доставки (57:266): плашка 751x114 —
+   часы 48, отбивка 22 и два текста. Не тумблер: выбора здесь нет.
+   Имя своё, а не .hint: тем классом на шаге оплаты назван раскрывающийся
+   совет про код UDS, и общие правила накрыли бы и его */
+.exact-time {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 22px;
+  border-radius: 15px;
+  background-color: #fff4f6;
+}
+
+.exact-time__icon {
+  flex-shrink: 0;
+}
+
+.exact-time__text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* На мобильной 18, а не 14: чернила «Точное время доставки» в макете
+   (295:626) — 209px, это ровно 18 Bold, и пояснение под ним ложится
+   в четыре строки, как нарисовано. На десктопе тот же текст 18 */
+.exact-time__title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+@media (min-width: 1024px) {
+  .exact-time__title {
+    font-size: 20px;
+  }
+}
+
+.exact-time__note {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .exact-time__note {
+    font-size: 20px;
+  }
+}
+
+/* ---------------------------------------------------------- Раскладка */
+
+.checkout {
+  display: grid;
+  gap: 22px;
+  margin-block-start: 22px;
+}
+
+.checkout__form {
+  display: grid;
+  gap: 32px;
+  padding: 22px;
+}
+
+/* В мобильном макете сводка заказа стоит над формой */
+.checkout__aside {
+  order: -1;
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+
+/* ------------------------------------------------------------- Поля */
+
+/* 22 от заголовка блока до содержимого (56:133 → 56:134): с 16 всё,
+   что ниже, поднималось на шесть пикселей и накапливалось по форме */
+.fieldset {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* Заголовок блока занимает ровно свой кегль (56:133 — 20/20): с 1.2
+   он был на 4px выше и всё под ним съезжало */
+/* Заголовки блоков формы: у настоящего <legend> отбивку приходится
+   задавать полем — браузер выносит его из потока сетки, и gap до первого
+   блока не применяется. У заголовка-h2 (блоки «Бонусная программа»,
+   «Промокод») работает обычный gap, поэтому поле только для legend. */
+/* На мобильной заголовок блока 18/18 и отбит на 24 (295:264 — «Данные
+   заказчика *» слой 179x18 на 703, первое поле на 745) */
+.fieldset__legend {
+  padding: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+@media (min-width: 1024px) {
+  .fieldset__legend {
+    font-size: 20px;
+  }
+}
+
+legend.fieldset__legend {
+  margin-block-end: 24px;
+}
+
+.fieldset__head {
+  display: grid;
+  gap: 16px;
+}
+
+.fields {
+  display: grid;
+  gap: 16px;
+}
+
+/* --------------------------------------------------------- Чекбокс */
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.check__input {
+  flex-shrink: 0;
+  width: 21px;
+  height: 21px;
+  margin: 0;
+  border: 1px solid #dc0978;
+  border-radius: 4px;
+  background-color: #ffffff;
+  appearance: none;
+  cursor: pointer;
+}
+
+.check__input:checked {
+  background-color: #dc0978;
+  background-image: url("../../assets/icons/checkmark.svg");
+  background-position: center;
+  background-size: 16px 16px;
+  background-repeat: no-repeat;
+}
+
+.check__label {
+  font-size: 16px;
+  opacity: 0.8;
+  cursor: pointer;
+  line-height: 16px;
+}
+
+/* ------------------------------------------------ Сегмент-контрол */
+
+/* 48 на мобильной (295:484 — сегмент-контроль 360x48), 41 на десктопе */
+.segmented {
+  display: flex;
+  height: 48px;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.segmented__btn {
+  flex: 1 1 0;
+  padding-inline: 16px;
+  background-color: #eeeeee;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 15px;
+}
+
+.segmented__btn.is-active {
+  background-color: #dc0978;
+  color: #ffffff;
+}
+
+/* ---------------------------------------------------------- Textarea */
+
+.note-wrap {
+  position: relative;
+}
+
+/* 147 на мобильной (295:511 — 360x147) и 96 на десктопе (48:55 — 751x96).
+   min-height не держала: собственная высота textarea по числу строк
+   была 118 */
+.note-wrap__input {
+  display: block;
+  width: 100%;
+  block-size: 147px;
+  padding: 15px;
+  padding-block-end: 34px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  background-color: #ffffff;
+  font-size: 16px;
+  resize: vertical;
+}
+
+.note-wrap__input:focus-visible {
+  outline: 2px solid #dc0978;
+  outline-offset: 1px;
+  border-color: #dc0978;
+}
+
+.note-wrap__input::placeholder {
+  color: #000000;
+  opacity: 0.5;
+}
+
+.note-wrap__counter {
+  position: absolute;
+  inset-block-end: 12px;
+  inset-inline-end: 15px;
+  font-size: 16px;
+  opacity: 0.8;
+  line-height: 16px;
+}
+
+/* -------------------------------------------------------- Тумблеры */
+
+.switches {
+  display: grid;
+  gap: 22px;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.switch-row__icon {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+}
+
+.switch-row__icon--tile {
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background-color: #fff4f6;
+}
+
+.switch-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.switch-row__title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.switch-row__note {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 21px;
+  opacity: 0.5;
+}
+
+/* Переключатель на чекбоксе: работает без JS */
+.switch {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.switch__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+}
+
+.switch__label {
+  display: block;
+  width: 67px;
+  height: 30px;
+  border-radius: 50px;
+  background-color: #e5e5e5;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.switch__label::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-start: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  transition: translate 0.15s ease;
+}
+
+.switch__input:checked + .switch__label {
+  background-color: #dc0978;
+}
+
+.switch__input:checked + .switch__label::after {
+  translate: 37px 0;
+}
+
+.switch__input:focus-visible + .switch__label {
+  outline: 2px solid #dc0978;
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ Кнопка */
+
+/* Текст прижат влево, стрелка — к правому краю: 110:318 (текст x=22
+   в кнопке 385) и 311:303 на мобильной. По центру было неверно. */
+/* Подпись стоит по центру места, оставшегося от стрелки (110:318 —
+   текстовый слой 320 при кнопке 385 и стрелке 21 у правого края), а не
+   прижата к левому краю, как это делал space-between */
+/* Надпись центрируется по месту, что осталось до стрелки, а не вместе
+   с ней: в макете (110:307 — кнопка 385x54) слой «Далее» занимает
+   22..342, стрелка 21x21 — 342..363, промежутка между ними нет.
+   С общим для кнопок зазором 12 и иконкой 24 надпись уезжала
+   на 7px влево от нарисованного центра */
+.checkout__submit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  justify-self: stretch;
+  gap: 0;
+  min-height: 54px;
+  padding-inline: 22px;
+  /* Надпись 16, а не 20. Слой в макете растянут на всю ширину
+     кнопки (320x22 в 110:307, 110:32), поэтому кегль по ширине строки
+     не считается — значение сверено по макету глазами.
+     На мобильной тот же слой идёт с интерлиньяжем 16 (311:303) */
+  font-size: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.checkout__submit img {
+  width: 21px;
+  height: 21px;
+}
+
+/* ----------------------------------------------------- Сводка заказа */
+
+/* Паддинг 20 из мобильного макета (87:14 — карточка 360x378, контент
+   с 40 при карточке с 20) */
+.summary {
+  padding: 20px;
+}
+
+/* Маркер <details> убираем: свою стрелку рисует .summary__toggle */
+.summary__head::-webkit-details-marker { display: none; }
+.summary__head { list-style: none; }
+
+/* Стрелка «свернуть» прижата к правому краю карточки (87:14 — шеврон
+   20x13 на x360 при контенте 40..360) и переворачивается при раскрытии */
+.summary__toggle {
+  margin-inline-start: auto;
+}
+
+.summary[open] .summary__toggle {
+  rotate: 180deg;
+}
+
+/* На мобильной счётчик стоит сразу за заголовком (87:14 — «Ваш заказ»
+   40..134, «2 товара» с 158), а к правому краю прижата стрелка.
+   На десктопе (295:598) стрелки нет и счётчик уходит вправо сам */
+.summary__head {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-block-end: 32px;
+  line-height: 20px;
+  cursor: pointer;
+}
+
+.summary__title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+@media (min-width: 1024px) {
+  .summary__title {
+    font-size: 20px;
+  }
+}
+
+/* 18 на мобильной («2 товара» — слой 75x18), 14 на десктопе */
+.summary__count {
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .summary__count {
+    font-size: 20px;
+  }
+}
+
+/* Шаг позиций 106 при высоте 74 — это 32 между ними (87:14) */
+.summary__list {
+  display: grid;
+  gap: 32px;
+  margin-block-end: 0;
+}
+
+.sum-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.sum-item__media {
+  display: block;
+  flex-shrink: 0;
+  width: 74px;
+  height: 74px;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.sum-item__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Колонка названия ровно 130 (87:14 — Name 130x72): в неё «Игрушка
+   “Мишка”» ложится в две строки, как в макете. На всю оставшуюся
+   ширину название шло одной строкой и позиция становилась ниже */
+.sum-item__text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 0 0 130px;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .sum-item__text {
+    font-size: 20px;
+  }
+}
+
+/* Строка количества 18, а не 22: позиция в макете (295:603) ровно 74 —
+   название в две строки по 22, отбивка 12 и «1 шт.» */
+.sum-item__qty {
+  line-height: 18px;
+  opacity: 0.5;
+}
+
+/* Цена прижата к правому краю позиции (62:11 — правый край
+   совпадает с краем строки), а не стоит вплотную к названию */
+.sum-item__price {
+  /* По центру позиции, а не по её верху: в макете (87:14) «14 740₽»
+     стоит на 266 при позиции 240..314 — ровно посередине */
+  align-self: center;
+  margin-inline-start: auto;
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .sum-item__price {
+    font-size: 20px;
+  }
+}
+
+/* Хвост сводки: 32 от списка до «Доставки», дальше по 16 до черты и до
+   итога (87:14 — 420 → 452 → 490 → 506).
+   Сеткой, а не отступами у черты: строк в хвосте бывает больше
+   двух (на шаге оплаты есть ещё «Бонусы»), и между ними шел ноль */
+.summary__totals {
+  display: grid;
+  gap: 16px;
+  margin-block-start: 32px;
+}
+
+/* margin-inline тоже в ноль: у <hr> он auto от браузера, а элемент сетки
+   с двумя auto по бокам сжимается по содержимому — черта выходила
+   нулевой ширины и её просто не было видно */
+.summary__totals .totals__rule {
+  margin: 0;
+}
+
+.summary__totals .totals__row--plain,
+/* В сводке оформления «Итого» в макете 56x22 — это 20, а не 16.
+   В корзине (103:107) та же подпись 45x16 — там остаётся 16 */
+.summary__totals .totals__sum {
+  line-height: 22px;
+}
+
+.summary__totals .totals__sum-key {
+  font-size: 18px;
+}
+
+@media (min-width: 1024px) {
+  .summary__totals .totals__sum-key {
+    font-size: 20px;
+  }
+}
+
+.totals__row--plain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+@media (min-width: 1024px) {
+  .totals__row--plain {
+    font-size: 20px;
+  }
+}
+
+/* На мобильной итог такой же, как остальные суммы, — 18 (87:14: «17 039₽»
+   слой 73x22, ровно как «14 740₽» выше). Крупнее он только на десктопе */
+.totals__sum-val--accent {
+  color: #dc0978;
+  font-size: 18px;
+}
+
+@media (min-width: 1024px) {
+  .totals__sum-val--accent {
+    font-size: 20px;
+  }
+}
+
+/* =============================================== Оформление: десктоп */
+
+@media (min-width: 1024px) {
+  /* 44 от заголовка до полосы шагов (39:625 → 42:686). Отбивку задаёт
+     только сама полоса: у контейнера её быть не должно, иначе они
+     складываются в 66 */
+  /* Заголовок кончается на 195, полоса шагов начинается на 235:
+     здесь 40, а не 44, как в корзине */
+  .steps-wrap {
+    margin-block-start: 40px;
+  }
+
+  .checkout {
+    margin-block-start: 0;
+  }
+
+  /* На десктопе показываем полную цепочку шагов, а процент прячем */
+  /* Полоса шагов в макете (42:807): шаги по содержимому, группы точек
+     ровно по 84, остаток уходит в промежутки */
+  .steps {
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-block-start: 0;
+  }
+
+  .steps__dots {
+    flex: 1 1 auto;
+  }
+
+  .steps > li:not(.is-current) {
+    display: flex;
+  }
+
+  .checkout__aside {
+    order: 0;
+  }
+
+  .steps__progress {
+    display: none;
+  }
+
+  .checkout {
+    /* Первая колонка гибкая и забирает всю ширину минус сайдбар */
+    grid-template-columns: minmax(0, 1fr) 385px;
+    /* по горизонтали 22 между формой и сводкой, по вертикали 44 от
+       полосы шагов до колонок (42:686 → 42:741) */
+    gap: 44px 22px;
+    align-items: start;
+  }
+
+  /* 32 между блоками формы: «Способ доставки» кончается на 174,
+     «Дата и время доставки» начинается на 206 (56:54) */
+  .checkout__form {
+    gap: 32px;
+  }
+
+  /* Шаг 3 плотнее остальных: 22 между блоками (69:54) */
+  /* Шаг оплаты собран с тем же шагом 22, что и внутри блоков
+     (69:270): карточки кончаются на 244, поле кода — на 395,
+     «Промокод» начинается на 417. Один промежуток в макете выбивается
+     на пиксель (267 вместо 266) — это неточность макета, не ритм */
+  .checkout__form--payment {
+    gap: 22px;
+  }
+
+  .fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .fieldset__head {
+    grid-template-columns: 1fr 429px;
+    align-items: center;
+  }
+
+  .switches {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 44px;
+  }
+
+  /* Форма занимает обе строки левой колонки, кнопка встаёт справа под
+     сводкой и гарантией — одинаково на всех четырёх шагах */
+  .checkout__form {
+    grid-row: span 2;
+  }
+
+  /* Колонка названия в сводке ровно 130 (62:8, 62:15): при
+     резиновой ширине «Игрушка “Мишка”» вставала в одну строку
+     вместо двух, и вся позиция съезжала по вертикали */
+  .sum-item__text {
+    flex: 0 0 130px;
+  }
+
+  /* На десктопе хвост сводки отбит на 16, а не на 18: строки
+     264..286, 302..324, черта 340, итог 356 (62:19, 71:72, 62:25, 62:22) */
+  .summary__totals {
+    gap: 16px;
+  }
+
+  .checkout__submit {
+    justify-self: stretch;
+    min-width: 385px;
+    line-height: 22px;
+  }
+}
+
+/* ==========================================================================
+   Шаг 3: оплата
+   ========================================================================== */
+
+/* -------------------------------------------------- Способы оплаты */
+
+.pays {
+  display: grid;
+  gap: 22px;
+}
+
+/* Радиокнопка спрятана визуально, но остаётся настоящей: выбор работает
+   с клавиатуры и без JS, а рамку и галочку рисует label */
+/* Содержимое карточки — колонка по центру, а не прижатая к левому краю
+   (69:351: группа 209x105 стоит на 78 от края при карточке 364, то есть
+   ровно посередине). Поля симметричные: кружок выбора вынут из потока,
+   и «место под него» справа только сдвигало текст */
+.pay {
+  position: relative;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 0;
+  min-height: 180px;
+  /* Группа стоит на 40 от верха карточки (71:3), а не по центру
+     оставшегося места: у двух карточек содержимое разной высоты, и по
+     центру они разъезжались по вертикали */
+  padding: 40px 22px 22px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* Ряд логотипов без заданной высоты: в макете он разный у двух
+   карточек (39 у МИР+СБП, 33 у Сплита), а до текста от него
+   всегда 23 (71:2 → 69:358, 71:52 → 71:46). Фиксированная 39
+   сдвигала подпись второй карточки на 6px вниз */
+.pay__logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 23px;
+  margin-block-end: 23px;
+}
+
+/* Размер каждого логотипа — свой: «МИР» 111x30, СБП 74x39 (69:391,
+   69:394). Общая высота 30 сплющивала СБП до 57x30 */
+.pay__logo {
+  flex-shrink: 0;
+}
+
+/* Словесный знак Сплита шире своего места по пропорции (455x67 — 6.8),
+   а ряд логотипов в макете высотой 33 (71:52 — 186x33). contain вписывает
+   знак по ширине и центрирует по высоте — ровно как нарисовано.
+   Старый файл был другим экспортом: знак в нём занимал 308x26 из 372x66,
+   то есть на экране выходил 154x13 — вдвое ниже нарисованного */
+.pay__logo--split {
+  object-fit: contain;
+}
+
+.pay__title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.pay__note {
+  margin-block-start: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.5;
+}
+
+/* Кружок выбора: пустой у невыбранного, залитый с галочкой у выбранного */
+.pay__mark {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: 22px;
+  translate: 0 -50%;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.pay__input:checked + .pay {
+  border-color: #dc0978;
+  background-color: #fff4f6;
+}
+
+.pay__input:checked + .pay .pay__mark {
+  border-color: #dc0978;
+  background-color: #dc0978;
+  background-image: url("../../assets/icons/checkmark.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 15px 15px;
+  opacity: 1;
+}
+
+.pay__input:focus-visible + .pay {
+  outline: 2px solid #dc0978;
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------- Бонусы UDS и промокод */
+
+/* 22 между строками блока: «Промокод» кончается на 766, подпись
+   начинается на 788, поле — на 826 (71:64, 71:65, 234:1207) */
+.bonus,
+.coupon {
+  display: grid;
+  gap: 22px;
+}
+
+.coupon__note {
+  font-size: 16px;
+  opacity: 0.5;
+  line-height: 16px;
+}
+
+/* Подсказка про код UDS: <details> вместо всплывающего окна из макета —
+   работает без JS и не перекрывает поля под собой */
+/* Подпись над полем кода — 16/16 (71:57) */
+/* Строка ровно в высоту текста (71:57 — 152x16), а знак вопроса
+   20x20 стоит на той же нижней границе (234:1594 — 305..325 при тексте
+   309..325) и выступает вверх. Блок, а не inline-flex: строчный
+   бокс добавлял к строке 5px и сдвигал всё ниже по колонке */
+.hint__toggle {
+  line-height: 16px;
+  display: flex;
+  block-size: 16px;
+  align-items: flex-end;
+  gap: 12px;
+  font-size: 16px;
+  opacity: 0.5;
+  cursor: pointer;
+  list-style: none;
+}
+
+.hint__toggle::-webkit-details-marker {
+  display: none;
+}
+
+.hint__toggle:hover {
+  opacity: 1;
+}
+
+/* Подсказка висит над страницей, а не раздвигает её. Раньше это были
+   два блока в потоке: на клик появлялись две карточки подряд и всё под
+   ними уезжало вниз. В макете (234:1599) это одна плашка 274x156,
+   поставленная справа от знака вопроса и вверх от него. */
+.hint {
+  position: relative;
+}
+
+.hint__body {
+  position: absolute;
+  z-index: 5;
+  /* На мобильной плашка прижата к правому краю и не шире экрана: с
+     десктопными 214 слева она уходила за границу экрана на 108px.
+     Десктопные координаты — в медиазапросе ниже: в макете (234:1599)
+     плашка стоит на 355..629 и кончается на 650, чуть выше строки со
+     знаком вопроса (637..653); строка начинается на 141 — отсюда 214 и 3 */
+  inset-block-end: 3px;
+  inset-inline-end: 0;
+  width: min(274px, calc(100vw - 20px * 2));
+  margin: 0;
+  padding: 22px;
+  border-radius: 15px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px 0 rgb(205 205 205 / 0.25);
+  font-size: 16px;
+  line-height: 22px;
+  text-align: start;
+}
+
+.hint__link {
+  color: #dc0978;
+}
+
+.hint__link:hover {
+  text-decoration: underline;
+}
+
+/* Сросшаяся пара «поле + кнопка»: в макете это один прямоугольник,
+   скруглённый только по внешним углам */
+/* На мобильной поле и кнопка идут отдельными строками во всю ширину
+   (295:833: поле 360×48, кнопка 360×48 под ним). Сросшийся прямоугольник
+   из десктопного макета включается вместе с медиазапросом ниже. */
+.paired {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Высота 48 из макета задаётся min-height: с вертикальным паддингом
+   поля получалось 56 */
+.paired__input {
+  min-width: 0;
+  min-height: 48px;
+  padding-block: 0;
+  padding-inline: 16px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  background-color: #ffffff;
+  font-size: 16px;
+}
+
+.paired__input::placeholder {
+  color: #000000;
+  opacity: 0.5;
+}
+
+.paired__input:focus-visible {
+  outline: 2px solid #dc0978;
+  outline-offset: -1px;
+  border-color: #dc0978;
+}
+
+.paired__btn {
+  min-height: 48px;
+  padding-inline: 22px;
+  border-radius: 15px;
+  background-color: #dc0978;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.paired__btn:hover {
+  background-color: #e23f8f;
+}
+
+/* Результат проверки баллов — состояние из макета 234:1631 */
+.bonus__result {
+  display: grid;
+  gap: 22px;
+}
+
+.bonus__score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  min-height: 48px;
+  padding-block: 0;
+  padding-inline: 22px;
+  border-radius: 15px;
+  background-color: #fff4f6;
+}
+
+.bonus__label {
+  font-size: 15px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+/* Розовое число на розовой подложке — 4.49:1. Для обычного текста нужно
+   4.5, для крупного (Bold от 18.66px) — 3.0. В макете 18px Bold, то есть
+   ровно мимо порога, поэтому здесь title-lg: 22 на десктопе, 20 на
+   мобильной — оба уже «крупный текст». Opacity убран: с ним было 3.73. */
+.bonus__value {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: #dc0978;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+@media (min-width: 1024px) {
+  .bonus__value {
+  font-size: 20px;
+  }
+}
+
+.bonus__actions {
+  display: flex;
+  gap: 22px;
+}
+
+.bonus__btn {
+  flex: 1 1 0;
+  min-height: 48px;
+  font-size: 16px;
+}
+
+/* ================================================ Шаг 3: десктоп */
+
+@media (min-width: 1024px) {
+  .pays {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* На десктопе это единый прямоугольник: поле и кнопка срослись,
+     скруглены только внешние углы */
+  .paired {
+    display: flex;
+    gap: 0;
+  }
+
+  .paired__input {
+    flex: 1 1 auto;
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  /* Кнопка в паре — жёсткие 251 из макета (234:1202), поле забирает
+     остаток: по содержимому «Применить» была вдвое уже «Проверить баллы» */
+  .paired__btn {
+    flex: 0 0 251px;
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  .hint__body {
+    max-width: 274px;
+  }
+
+  .bonus__result {
+    grid-template-columns: minmax(0, 365px) minmax(0, 364px);
+    align-items: center;
+  }
+
+  .bonus__actions {
+    justify-content: end;
+  }
+
+  .bonus__btn {
+    flex: 0 0 171px;
+  }
+}
+
+/* ==========================================================================
+   Шаг 2: доставка
+   ========================================================================== */
+
+/* Кружок выбора у всех карточек шага одинаковый: пустой контур,
+   у выбранной — заливка бренда с белой галочкой */
+.way__mark,
+.salon__mark,
+.daychip__mark,
+.slot__mark {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.slot .slot__mark {
+  position: absolute;
+  inset-inline-end: 16px;
+  inset-block-start: 50%;
+  translate: 0 -50%;
+}
+
+.way__input:checked + .way .way__mark,
+.salon__input:checked + .salon .salon__mark,
+.daychip__input:checked + .daychip .daychip__mark,
+.slot__input:checked + .slot .slot__mark {
+  border-color: #dc0978;
+  background-color: #dc0978;
+  background-image: url("../../assets/icons/checkmark.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 15px 15px;
+  opacity: 1;
+}
+
+.way__input:checked + .way,
+.salon__input:checked + .salon,
+.daychip__input:checked + .daychip,
+.slot__input:checked + .slot {
+  border-color: #dc0978;
+  background-color: #fff4f6;
+}
+
+.way__input:focus-visible + .way,
+.salon__input:focus-visible + .salon,
+.daychip__input:focus-visible + .daychip,
+.slot__input:focus-visible + .slot {
+  outline: 2px solid #dc0978;
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------ Способ доставки */
+
+.ways,
+.salons,
+.daychips,
+.slots {
+  display: grid;
+  gap: 22px;
+}
+
+/* В мобильном макете даты и интервалы стоят по два в ряд (170px каждый),
+   а не колонкой: 295:626, Today/Tomorrow на x=20 и x=210 */
+.daychips,
+.slots {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.way {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  min-height: 110px;
+  padding: 22px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.way__icon {
+  flex-shrink: 0;
+}
+
+.way__text {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* 16/16 и 16/22 из макета (56:135, 56:136): текст карточки ровно 66,
+   с ним карточка встаёт в свои 110 */
+.way__title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.way__note {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.5;
+}
+
+/* -------------------------------------------------------- Салоны */
+
+.salon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 136px;
+  padding: 22px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.salon__text {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.salon__name {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.salon__addr {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.5;
+}
+
+.salon__hours {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  color: #20890b;
+}
+
+/* Закрытая точка: выбрать её нельзя, и это видно не только цветом */
+.salon__hours--closed {
+  color: #ca0606;
+}
+
+/* Закрытый салон приглушён целиком, и ровно один раз: адрес и кружок
+   выбора несут свою прозрачность, и вместе с карточкой она давала 0.25 —
+   вдвое бледнее макета, где название и адрес закрытой точки одного тона */
+.salon__input:disabled + .salon {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.salon__input:disabled + .salon .salon__addr,
+.salon__input:disabled + .salon .salon__mark {
+  opacity: 1;
+}
+
+/* ------------------------------------------------- Дата и время */
+
+/* Заголовок и дата колонкой, кружок выбора — справа на обе строки */
+.daychip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 16px;
+  min-height: 88px;
+  padding: 22px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+/* 16/16 и 16/22 (57:211, 57:212): с ними карточка дня встаёт в свои 88 */
+.daychip__title {
+  grid-column: 1;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.daychip__date {
+  grid-column: 1;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.5;
+}
+
+.daychip__mark {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+/* Раньше «Выбрать дату» было ссылкой и оформление висело на .pick-date.
+   Теперь это <details>, а рисуется строка на <summary>: оставшийся
+   display: flex на самом details ставил календарь в строку с заголовком
+   и разносил fieldset на 438px при контейнере 360. */
+.pick-date__toggle:hover {
+  border-color: #dc0978;
+  color: #dc0978;
+}
+
+/* Время стоит по центру кнопки, а кружок выбора лежит поверх
+   у правого края: в макете (57:246) слой со временем занимает всю
+   ширину 163..484, а Checkbutton стоит на 462..484 — поверх его хвоста.
+   У дат (57:202) и способов доставки текст прижат влево — там space-between */
+/* На мобильной (295:626) время прижато влево на 16, а метка стоит
+   у правого края; по центру надпись только на десктопе */
+.slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  min-height: 56px;
+  padding-inline: 16px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 16px;
+}
+
+/* ================================================ Шаг 2: десктоп */
+
+@media (min-width: 1024px) {
+  .ways,
+  .slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Салонов в ряду три, дат — четыре: так в макете */
+  .salons {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .daychips {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================================================
+   Шаг 4: подтверждение
+   ========================================================================== */
+
+/* Кнопка «Оформить заказ» — не в панели: в макете она стоит в правой
+   колонке под гарантией, а на мобильном уезжает в самый низ. Поэтому
+   это отдельный элемент сетки, а не часть формы или сводки. */
+/* Размеры у кнопки шага 4 те же, что и на остальных шагах
+   (110:32 — 385x54, стрелка 21x21): своего кегля ей не нужно */
+.checkout__submit--confirm img {
+  width: 21px;
+  height: 21px;
+}
+
+/* 24 от заголовка блока до первой строки на мобильной (295:1247 —
+   «Заказчик» 703, значение 745), 22 на десктопе */
+.review {
+  display: grid;
+  gap: 24px;
+}
+
+/* Неровность десктопного макета: у первого блока от заголовка до строки
+   32, у остальных пяти 22 (42:968: 354→406 против 488→530). В мобильном
+   макете все шесть блоков одинаковые — 24, поэтому только на десктопе */
+@media (min-width: 1024px) {
+  .review:first-of-type {
+    row-gap: 32px;
+  }
+}
+
+/* Расстояние между блоками сводки — 22 в мобильном макете; на десктопе
+   32 + разделитель + 32, поэтому линия рисуется границей, а не <hr>:
+   между всеми блоками сразу и без лишних элементов в разметке */
+.checkout--confirm .checkout__form {
+  gap: 22px;
+}
+
+.review__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Заголовок блока 20/20 и строки фактов 16/18 (110:46, 110:136):
+   с интерлиньяжем по умолчанию каждый блок сводки был на 12 выше,
+   и вся форма подтверждения вырастала на 56 */
+.review__title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+@media (min-width: 1024px) {
+  .review__title {
+    font-size: 20px;
+  }
+}
+
+/* На мобильной от кнопки остаётся один карандаш 20x20 у правого края
+   (295:1247 — Edit 20x20 на x360): слова «Изменить» там нет */
+.review__edit-text {
+  display: none;
+}
+
+.review__edit img {
+  width: 20px;
+  height: 20px;
+}
+
+.review__edit {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  color: #dc0978;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+@media (min-width: 1024px) {
+  .review__edit {
+    font-size: 18px;
+  }
+}
+
+/* На 400 от ссылки остаётся карандаш 17×17 — мимо такой цели легко
+   промахнуться пальцем (WCAG 2.5.8 требует 24×24). Зону расширяем
+   псевдоэлементом, чтобы не менять высоту строки заголовка. */
+.review__edit::after {
+  content: "";
+  position: absolute;
+  inset: -14px;
+}
+
+.review__edit:hover {
+  text-decoration: underline;
+}
+
+/* На 400 у ссылки остаётся только карандаш — так в макете.
+   Подпись прячем визуально, но не от скринридера. */
+.review__edit-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 18, а не 16: ширина слоя в макете и ширина той же строки
+   в браузере совпадают до процента, а здесь макет шире ровно на 18/16 */
+.review__empty {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .review__empty {
+    font-size: 20px;
+  }
+}
+
+/* Строка фактов: иконка + значение, разнесены по ширине блока */
+.facts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 18, а не 16: ширина слоя в макете и ширина той же строки
+   в браузере совпадают до процента, а здесь макет шире ровно на 18/16.
+   На мобильной те же 18 (295:1247 — «Фролов Сергей Викторович» слой
+   268x18), а --fs-body там 14 — поэтому body-lg */
+.fact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 18px;
+  /* Значения приглушены, а не чёрные: в макете ФИО, телефон
+     и адрес набраны (77,77,77) при чёрных заголовках блоков. Без
+     этого строка читалась как полужирная, хотя начертание то же */
+  opacity: 0.7;
+}
+
+@media (min-width: 1024px) {
+  .fact {
+    font-size: 20px;
+  }
+}
+
+.fact img {
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------- Выбранная оплата */
+
+/* На мобильной (295:1247) карточка выбранной оплаты собрана по центру:
+   логотипы 209 стоят на 96, а подпись 235 — на 84 при карточке 22..380.
+   На десктопе тот же блок прижат влево */
+.paycard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+/* Подложка логотипов в макете (110:222) серая, а не розовая: на розовой
+   зелёный «МИР» и разноцветный СБП выглядят грязно */
+.paycard__logos {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-shrink: 0;
+  min-height: 53px;
+  padding-inline: 22px;
+  border-radius: 15px;
+  background-color: #f8f8f8;
+}
+
+.paycard__text {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* 18, а не 16: ширина слоя в макете и ширина той же строки
+   в браузере совпадают до процента, а здесь макет шире ровно на 18/16 */
+.paycard__title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+@media (min-width: 1024px) {
+  .paycard__title {
+    font-size: 20px;
+  }
+}
+
+.paycard__note {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .paycard__note {
+    font-size: 20px;
+  }
+}
+
+/* ------------------------------------------------- Дополнительно */
+
+.extras {
+  display: grid;
+  gap: 22px;
+}
+
+.extras__list {
+  display: grid;
+  gap: 16px;
+}
+
+/* 18, а не 16: ширина слоя в макете и ширина той же строки
+   в браузере совпадают до процента, а здесь макет шире ровно на 18/16 */
+.extra {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .extra {
+    font-size: 20px;
+  }
+}
+
+.extra__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 53px;
+  height: 53px;
+  border-radius: 15px;
+  background-color: #fff4f6;
+}
+
+.extras__card {
+  margin: 0;
+}
+
+/* 18, а не 16: ширина слоя в макете и ширина той же строки
+   в браузере совпадают до процента, а здесь макет шире ровно на 18/16 */
+/* «Текст открытки» — такое же приглушение, как у значений (77,77,77),
+   а не 0.5: подпись была светлее нарисованной */
+.extras__card-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.7;
+}
+
+@media (min-width: 1024px) {
+  .extras__card-title {
+    font-size: 20px;
+  }
+}
+
+.extras__card-text {
+  margin: 0;
+  margin-block-start: 16px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+@media (min-width: 1024px) {
+  .extras__card-text {
+    font-size: 20px;
+  }
+}
+
+.extras__card-text::before { content: "«"; }
+.extras__card-text::after  { content: "»"; }
+
+/* Скидка в сводке — со знаком минус, читается и без цвета */
+.totals__val--minus {
+  color: #dc0978;
+}
+
+/* ============================================= Шаг 4: десктоп */
+
+@media (min-width: 1024px) {
+  /* Панель занимает обе строки, кнопка встаёт под сводкой справа */
+  .checkout--confirm .checkout__form {
+    gap: 32px;
+  }
+
+  .review + .review {
+    border-block-start: 1px solid rgb(0 0 0 / 0.15);
+    padding-block-start: 32px;
+  }
+
+  .review__edit-text {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    clip-path: none;
+  }
+
+  /* На десктопе факты разнесены по ширине блока — так в макете:
+     имя на левом краю, телефон на правом */
+  .facts {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 22px;
+  }
+
+  /* В макете колонки неравные и без зазора: текст открытки
+     (110:277, 110:278) начинается на 511 и кончается на 892 — это
+     370 плюс 381 на ширине формы 751. С равными колонками и
+     зазором 22 цитата уезжала вправо на 17 */
+  .extras {
+    grid-template-columns: 370px minmax(0, 1fr);
+    align-items: start;
+    gap: 0;
+  }
+
+  .extras__list {
+    gap: 16px;
+  }
+}
+
+/* ==========================================================================
+   Календарь (всплывашка) и обновление интервалов
+   ========================================================================== */
+
+/* Строка «Выбрать дату» из макета осталась прежней, но теперь это
+   <summary>: клик раскрывает всплывашку с календарём */
+.pick-date__toggle {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 58px;
+  padding-inline: 22px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+  line-height: 16px;
+}
+
+.pick-date__toggle::-webkit-details-marker {
+  display: none;
+}
+
+.pick-date__toggle .chevron {
+  margin-inline-start: auto;
+}
+
+.pick-date[open] .pick-date__toggle {
+  border-color: #dc0978;
+  color: #dc0978;
+}
+
+.pick-date[open] .pick-date__toggle .chevron {
+  rotate: 180deg;
+}
+
+/* Всплывашка: на мобильной разворачивается в поток (места мало),
+   на десктопе висит над содержимым, как в UI-ките */
+.calendar {
+  display: grid;
+  gap: 16px;
+  margin-block-start: 12px;
+  padding: 22px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px 0 rgb(205 205 205 / 0.25);
+}
+
+.calendar__label {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.5;
+}
+
+.calendar__native {
+  min-height: 48px;
+  padding-inline: 16px;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  font-size: 16px;
+}
+
+/* Со скриптом нативное поле остаётся носителем значения, но выбирают
+   дату в сетке — поэтому поле и его подпись прячем */
+.calendar.is-enhanced .calendar__native,
+.calendar.is-enhanced .calendar__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.calendar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.calendar__month {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.calendar__nav {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background-color: #fff4f6;
+}
+
+.calendar__nav:hover {
+  background-color: #fee9ed;
+}
+
+.calendar__nav .chevron {
+  rotate: 90deg;
+}
+
+.calendar__nav--prev .chevron {
+  rotate: -90deg;
+}
+
+.calendar__week,
+.calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  text-align: center;
+}
+
+.calendar__weekday {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.5;
+}
+
+.calendar__day {
+  display: grid;
+  place-items: center;
+  min-height: 38px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.calendar__day:hover:not(:disabled) {
+  background-color: #fff4f6;
+}
+
+/* Прошедшие даты выбрать нельзя */
+.calendar__day:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.calendar__day--today {
+  box-shadow: inset 0 0 0 1px #dc0978;
+}
+
+.calendar__day[aria-pressed="true"] {
+  background-color: #dc0978;
+  color: #ffffff;
+}
+
+.calendar__day--empty {
+  visibility: hidden;
+}
+
+/* Кнопка нужна только без скрипта: со скриптом интервалы
+   перезагружаются сразу после выбора даты */
+.slots__refresh {
+  justify-self: start;
+  min-height: 48px;
+}
+
+/* Пока интервалы едут с сервера — список притушен */
+.slots[aria-busy="true"] {
+  opacity: 0.8;
+}
+
+@media (min-width: 1024px) {
+  .pick-date {
+    position: relative;
+  }
+
+  .calendar {
+    position: absolute;
+    z-index: 20;
+    inset-inline-start: 0;
+    min-width: 320px;
+    margin-block-start: 12px;
+  }
+}
+
+/* ==========================================================================
+   Порядок блоков и заголовок страницы
+   ========================================================================== */
+
+/*
+ * В мобильном макете (295:264) порядок такой: заголовок со стрелкой «назад»,
+ * сводка заказа, индикатор шага, форма, кнопка. Индикатор поэтому лежит
+ * внутри той же сетки, что форма и сводка, и переставляется через order.
+ */
+.page-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Белый круг с тенью, а не розовый квадрат: в макете (295:380) кнопка
+   сливается с белой страницей и держится только на тени, а шеврон
+   смотрит влево и нарисован чёрным */
+.page-head__back {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px 0 rgb(205 205 205 / 0.25);
+}
+
+.page-head__back:hover {
+  background-color: #fff4f6;
+}
+
+/* Отдельный файл, а не поворот розового: цвет прошит внутри SVG,
+   и перекрасить его вёрсткой нечем (CLAUDE.md §4.9) */
+.chevron--back {
+  width: 13px;
+  height: 20px;
+  background-image: url("../../assets/icons/chevron-back.svg");
+}
+
+/* Заголовок по центру экрана, кнопка — поверх слева: в макете
+   (295:383) слой 203x20 стоит на 104, то есть по центру 400.
+   Отбивку задаёт сама строка, а не заголовок внутри неё: у .page-title
+   свои 32, и вместе они давали 64 */
+.page-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-block-size: 42px;
+  margin-block-start: 32px;
+}
+
+.page-head .page-title {
+  margin-block-start: 0;
+}
+
+.page-head__back {
+  position: absolute;
+  inset-inline-start: 20px;
+}
+
+/*
+ * display: contents у колонки — чтобы кнопка «Далее» встала последней.
+ * В мобильном макете (295:264) порядок такой: сводка, полоса шагов,
+ * форма и только потом кнопка, а в разметке кнопка лежит внутри правой
+ * колонки — иначе на десктопе она уезжает в новый ряд сетки (§4.9).
+ */
+.checkout__aside {
+  display: contents;
+}
+
+.summary          { order: 1; }
+.steps-wrap       { order: 2; }
+.checkout__form   { order: 3; }
+.checkout__submit { order: 4; }
+
+/* Форма на мобильной — не карточка: в макете поля лежат прямо на
+   странице от края до края контейнера, без подложки, тени и паддинга */
+.checkout__form.panel {
+  padding: 0;
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* Отбивки между блоками из макета: 32 под шапкой и вокруг формы,
+   24 от сводки до полосы шагов */
+.checkout {
+  gap: 0;
+  margin-block-start: 32px;
+}
+
+/* 24 между блоками формы на мобильной (295:264: 906 → 930, 1165 → 1189) */
+.checkout__form {
+  gap: 24px;
+}
+
+.steps-wrap {
+  margin-block-start: 24px;
+}
+
+.checkout__form,
+.checkout__submit {
+  margin-block-start: 32px;
+}
+
+.steps {
+  margin-block-start: 32px;
+}
+
+@media (min-width: 1024px) {
+  /* На десктопе стрелки «назад» в макете нет */
+  .page-head__back {
+    display: none;
+  }
+
+  .page-head {
+    min-block-size: 0;
+    margin-block-start: 0;
+    justify-content: flex-start;
+  }
+
+  .page-head .page-title {
+    margin-block-start: 44px;
+  }
+
+  .checkout__aside {
+    display: grid;
+    align-content: start;
+    gap: 22px;
+  }
+
+  .checkout__form.panel {
+    padding: 22px;
+    border-radius: 25px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px 0 rgb(205 205 205 / 0.25);
+  }
+
+  /* Повтор десктопных значений: базовые правила ниже по файлу, чем
+     первый медиазапрос, и при равной силе побеждали бы они */
+  .checkout {
+    gap: 44px 22px;
+    margin-block-start: 0;
+  }
+
+  .steps-wrap {
+    margin-block-start: 40px;
+  }
+
+  .checkout__form,
+  .checkout__submit {
+    margin-block-start: 0;
+  }
+
+  .steps__bar {
+    height: 6px;
+    background-color: #e5e5e5;
+  }
+
+  .steps__percent {
+    font-size: 14px;
+    opacity: 1;
+  }
+
+  /* На десктопе сводка не сворачивается: стрелки в макете нет,
+     а <summary> без неё не должен ловить клики */
+  .summary__toggle {
+    display: none;
+  }
+
+  .summary__head {
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    margin-block-end: 22px;
+    cursor: auto;
+    pointer-events: none;
+  }
+
+  .summary {
+    padding: 22px;
+  }
+
+  .summary__count {
+    font-size: 18px;
+  }
+
+  .summary__list {
+    gap: 22px;
+    margin-block-end: 22px;
+  }
+
+  .sum-item {
+    align-items: center;
+  }
+
+  .sum-item__text {
+    flex: 0 0 130px;
+    gap: 12px;
+    font-size: 18px;
+  }
+
+  .summary__totals {
+    margin-block-start: 30px;
+  }
+
+  .totals__sum-val--accent {
+    font-size: 24px;
+  }
+
+  .step.is-current .step__title {
+    color: inherit;
+  }
+
+  /* Индикатор шагов — над обеими колонками, дальше порядок обычный */
+  .steps-wrap {
+    order: 0;
+    grid-column: 1 / -1;
+  }
+
+  .summary,
+  .guarantee,
+  .checkout__aside,
+  .checkout__form,
+  .checkout__submit {
+    order: 0;
+  }
+
+  .steps {
+    margin-block-start: 0;
+  }
+
+  .exact-time__title,
+  .exact-time__note,
+  .fact,
+  .paycard__title,
+  .paycard__note,
+  .extra,
+  .extras__card-title,
+  .extras__card-text,
+  .review__empty {
+    font-size: 18px;
+  }
+
+  .review__edit-text {
+    display: inline;
+  }
+
+  .hint__body {
+    inset-inline-start: 214px;
+    inset-inline-end: auto;
+    width: 274px;
+  }
+
+  .fieldset__legend,
+  .review__title {
+    line-height: 20px;
+  }
+
+  .review {
+    gap: 22px;
+  }
+
+  legend.fieldset__legend {
+    margin-block-end: 22px;
+  }
+
+  .segmented {
+    height: 41px;
+  }
+
+  .note-wrap__input {
+    block-size: 96px;
+  }
+
+  .checkout__form {
+    gap: 32px;
+  }
+
+  /* Шаг 3 плотнее остальных — 22 между блоками (69:54). Повтор нужен
+     потому, что базовое правило .checkout__form стоит ниже по файлу,
+     чем первый медиазапрос с этим модификатором */
+  .checkout__form--payment {
+    gap: 22px;
+  }
+
+  .paycard {
+    justify-content: flex-start;
+    text-align: start;
+  }
+
+  .review__edit img {
+    width: 17px;
+    height: 17px;
+  }
+
+  .slot {
+    justify-content: center;
+    min-height: 58px;
+    padding-inline: 22px;
+  }
+
+  .slot .slot__mark {
+    inset-inline-end: 22px;
+  }
+}
+
+/* Подсказки адреса (DaData). Панель позиционируется от .field-wrap поля
+   адреса — он position: relative. Классы ymaps-* оставлены от исходного
+   кода подсказок и стилизуются здесь же */
+.suggest-dropdown {
+  position: absolute;
+  z-index: 5;
+  inset-block-start: calc(100% + 4px);
+  inset-inline: 0;
+  display: none;
+  overflow: hidden;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 15px;
+  background-color: #ffffff;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
+}
+
+.ymaps-2-1-79-suggest-item {
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.ymaps-2-1-79-suggest-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* Стрелки месяца за границами min/max дат: неактивны */
+.calendar__nav:disabled {
+  opacity: 0.8;
+  cursor: default;
+}
+
+/* Пустой список интервалов: до выбора даты и для дней без времени */
+.slots__empty {
+  padding-block: 16px;
+  font-size: 16px;
+  opacity: 0.5;
+}
+
+/* «Выберите дату и время доставки»: показывается при попытке
+   пройти на следующий шаг без выбора */
+.delivery-error {
+  margin-block-start: 12px;
+  color: #ca0606;
+  font-size: 16px;
+}
+
+/* Содержимое всплывашки изменения стоимости доставки (#delivery-summ):
+   сам оверлей, панель и крестик общие (style.css) */
+.overlay__title {
+  margin-block-end: 16px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.overlay__text {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.overlay__text + .overlay__text {
+  margin-block-start: 12px;
+}
+
+.overlay__apply {
+  margin-block-start: 22px;
+}
+
+/* ==========================================================================
+   Промокод и бонусы UDS: сообщения и применённые состояния
+   (логика — app.js, блок «Промокод и бонусы UDS»)
+   ========================================================================== */
+
+/* Строка-сообщение под полем: без состояния скрыта (hidden в разметке) */
+.bonus__result-note,
+.coupon__result {
+  margin-block-start: 8px;
+  font-size: 16px;
+  line-height: 16px;
+}
+
+.bonus__result-note.is-ok,
+.coupon__result.is-ok {
+  color: #20890b;
+}
+
+.bonus__result-note.is-error,
+.coupon__result.is-error {
+  color: #ca0606;
+}
+
+/* Строка «Итого: старая → новая» в плашке списанных баллов */
+.bonus__total {
+  font-size: 16px;
+}
+
+.bonus__total-old {
+  opacity: 0.5;
+}
+
+.bonus__total-new {
+  color: #20890b;
+  font-weight: 700;
+}
+
+/* Зачёркнутая сумма до скидки/списания рядом с новой в сводке «Итого» */
+.totals__sum-old {
+  color: #000000;
+  opacity: 0.5;
+}
