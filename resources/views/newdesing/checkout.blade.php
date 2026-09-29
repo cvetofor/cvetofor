@@ -531,11 +531,13 @@
 
                     <!-- =============================================== Промокод ==== -->
                     <!-- Применение идёт AJAX-ом (app.js) на /promocode/check;
-                         после успеха поле скрывается: промокод и UDS несовместимы -->
-                    <section class="coupon" aria-labelledby="coupon-title">
+                         после успеха секция UDS скрывается целиком — вместе
+                         применять нельзя. Обратно: при выбранном/применённом
+                         UDS эта секция скрыта целиком (в т.ч. сервером) -->
+                    <section class="coupon" aria-labelledby="coupon-title" @if($udsApplied) hidden @endif>
                         <h2 class="fieldset__legend" id="coupon-title">Промокод</h2>
                         @if(!session('use_promocode'))
-                        <p class="coupon__note">Введите промокод, если он у вас есть</p>
+                        <p class="coupon__note" data-promo-note>Введите промокод, если он у вас есть</p>
 
                         <div class="paired" data-promo-entry>
                             <label class="visually-hidden" for="promo">Промокод</label>

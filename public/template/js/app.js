@@ -9,7 +9,7 @@
  */
 
 /* Маркер версии: по нему видно, какая сборка скрипта реально выполнилась */
-document.documentElement.dataset.app = '10';
+document.documentElement.dataset.app = '14';
 
 /* ------------------------------------------- Закрываемые блоки (плашка) */
 
@@ -1460,16 +1460,23 @@ document.addEventListener("DOMContentLoaded", function () {
     deliveryAddress.dataset.deliveryAddress = this.value;
   });
 
-  // Уход с поля без выбора подсказки: геокодируем введённый текст тем же
-  // DaData — координаты нужны проверке зоны доставки. Замена ymaps-геокода
-  // старого дизайна, без подключения карт. Пока открыт список подсказок,
-  // пропускаем: адрес вот-вот выберут кликом (change придёт оттуда)
+  // Клик по подсказке: mousedown срабатывает раньше blur — по нему
+  // понимаем, что адрес сейчас выберут из списка, и геокод на blur не нужен
+  let pickingSuggest = false;
+  suggestDropdown.addEventListener("mousedown", function () {
+    pickingSuggest = true;
+  });
+
+  // Уход с поля: геокодируем введённый текст тем же DaData — координаты
+  // нужны проверке зоны доставки. Как ymaps-геокод на blur в старом
+  // дизайне: срабатывает и когда подсказку не выбрали — кликнули мимо
+  // списка или ушли табом
   deliveryAddress.addEventListener("blur", function () {
     const value = this.value.trim();
+    const picking = pickingSuggest;
+    pickingSuggest = false;
 
-    if (value.length < 3 ||
-        deliveryAddress.dataset.deliveryLat ||
-        suggestDropdown.style.display === "block") {
+    if (value.length < 3 || deliveryAddress.dataset.deliveryLat || picking) {
       return;
     }
 
@@ -2114,6 +2121,8 @@ document.addEventListener("DOMContentLoaded", function () {
             resultBox.dataset.points = points;
             resultBox.hidden = false;
           }
+          // код UDS выбран — промокод больше недоступен (несовместимы)
+          setPromoVisible(false);
         } else {
           setResult(udsResult, data.message || "Ошибка проверки", false);
         }
@@ -2136,6 +2145,8 @@ document.addEventListener("DOMContentLoaded", function () {
           setDelivery(data.delivery);
           showApplied(data.points, data.oldTotal, data.newTotal);
           renderTotal(data.oldTotal, data.newTotal);
+          // баллы списаны — промокод больше недоступен (несовместимы)
+          setPromoVisible(false);
           if (udsEntry) udsEntry.hidden = true;
           resultBox.hidden = true;
           setResult(udsResult, data.message || "Баллы будут списаны после оплаты.", true);
@@ -2176,6 +2187,8 @@ document.addEventListener("DOMContentLoaded", function () {
           if (udsEntry) udsEntry.hidden = false;
           if (udsInput) udsInput.value = "";
           setResult(udsResult, "");
+          // списание отменено — промокод снова доступен, если не применён
+          if (!promoApplied) setPromoVisible(true);
         } else {
           setResult(udsResult, data.message || "Ошибка соединения с сервером", false);
         }
@@ -2188,6 +2201,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const promoInput = document.getElementById("promo");
   const promoResult = document.querySelector("[data-promo-result]");
   const promoBtn = couponSection ? couponSection.querySelector("[data-promo-check]") : null;
+
+  // Промокод и UDS несовместимы: пока UDS выбран или применён, секция
+  // промокода скрыта целиком (заголовок + поле). Обратимо отменой списания
+  let promoApplied = false;
+  const setPromoVisible = function (visible) {
+    if (couponSection) couponSection.hidden = !visible;
+  };
 
   if (promoBtn) {
     promoBtn.addEventListener("click", function () {
@@ -2204,11 +2224,10 @@ document.addEventListener("DOMContentLoaded", function () {
           setResult(promoResult, data.message || "Промокод применен", true);
           renderTotal(data.oldTotal, data.newTotal);
           setDelivery(data.delivery);
-          // промокод и UDS несовместимы: оба поля ввода скрываем
-          const promoEntry = couponSection.querySelector("[data-promo-entry]");
-          if (promoEntry) promoEntry.hidden = true;
-          if (udsEntry) udsEntry.hidden = true;
-          if (resultBox) resultBox.hidden = true;
+          // промокод применён: секцию UDS прячем целиком, с заголовком —
+          // своё сообщение остаётся под заголовком «Промокод»
+          promoApplied = true;
+          if (udsSection) udsSection.hidden = true;
         } else {
           setResult(promoResult, data.message || "Ошибка проверки", false);
         }
