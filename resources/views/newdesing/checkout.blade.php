@@ -878,4 +878,18 @@
         </div>
     </div>
 
+    <!-- Адрес вне зоны доставки: ответ deliveryRadius с modal=delivery-area
+         (аналог модалки delivery-area старого дизайна). Текст подменяет
+         скрипт сообщением сервера. Открывается хешем #delivery-area -->
+    <div class="overlay overlay--center" id="delivery-area">
+        <div class="overlay__panel">
+            <a class="overlay__close" href="#main" aria-label="Закрыть">
+                <span class="cross" aria-hidden="true"></span>
+            </a>
+            <h2 class="overlay__title">Внимание!</h2>
+            <p class="overlay__text" data-delivery-area-text>Продавец не осуществляет доставку по выбранному адресу. Попробуйте выбрать другой адрес.</p>
+            <a class="btn btn--primary overlay__apply" href="#main">Понятно</a>
+        </div>
+    </div>
+
 @endsection

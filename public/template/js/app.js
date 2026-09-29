@@ -9,7 +9,7 @@
  */
 
 /* Маркер версии: по нему видно, какая сборка скрипта реально выполнилась */
-document.documentElement.dataset.app = '9';
+document.documentElement.dataset.app = '10';
 
 /* ------------------------------------------- Закрываемые блоки (плашка) */
 
@@ -1333,6 +1333,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const value = this.value.trim();
     const city = cityInput ? cityInput.value.trim() : "";
 
+    // текст изменился — координаты прошлой подсказки больше неактуальны
+    delete deliveryAddress.dataset.deliveryLat;
+    delete deliveryAddress.dataset.deliveryLon;
+
     clearTimeout(timeout);
 
     if (controller) {
@@ -1416,6 +1420,17 @@ document.addEventListener("DOMContentLoaded", function () {
               deliveryAddress.dataset.deliveryAddress =
                 withoutCity;
 
+              // Координаты подсказки — для проверки зоны доставки
+              // (deliveryRadius), их читает пересчёт из блока календаря
+              const geo = item.data || {};
+              if (geo.geo_lat && geo.geo_lon) {
+                deliveryAddress.dataset.deliveryLat = geo.geo_lat;
+                deliveryAddress.dataset.deliveryLon = geo.geo_lon;
+              } else {
+                delete deliveryAddress.dataset.deliveryLat;
+                delete deliveryAddress.dataset.deliveryLon;
+              }
+
               suggestDropdown.innerHTML = "";
               suggestDropdown.style.display = "none";
 
@@ -1443,6 +1458,69 @@ document.addEventListener("DOMContentLoaded", function () {
 
   deliveryAddress.addEventListener("change", function () {
     deliveryAddress.dataset.deliveryAddress = this.value;
+  });
+
+  // Уход с поля без выбора подсказки: геокодируем введённый текст тем же
+  // DaData — координаты нужны проверке зоны доставки. Замена ymaps-геокода
+  // старого дизайна, без подключения карт. Пока открыт список подсказок,
+  // пропускаем: адрес вот-вот выберут кликом (change придёт оттуда)
+  deliveryAddress.addEventListener("blur", function () {
+    const value = this.value.trim();
+
+    if (value.length < 3 ||
+        deliveryAddress.dataset.deliveryLat ||
+        suggestDropdown.style.display === "block") {
+      return;
+    }
+
+    const city = cityInput ? cityInput.value.trim() : "";
+
+    fetch(dadataUrl, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Token " + dadataToken
+      },
+      body: JSON.stringify({
+        query: city ? city + ", " + value : value,
+        count: 1,
+        from_bound: {
+          value: "region"
+        },
+        to_bound: {
+          value: "house"
+        }
+      })
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("DaData API error");
+        }
+
+        return response.json();
+      })
+      .then((result) => {
+        const first = (result.suggestions || [])[0];
+        const geo = (first && first.data) || {};
+
+        if (geo.geo_lat && geo.geo_lon) {
+          deliveryAddress.dataset.deliveryLat = geo.geo_lat;
+          deliveryAddress.dataset.deliveryLon = geo.geo_lon;
+
+          // пересчёт доставки пойдёт по change, как у выбора подсказки
+          deliveryAddress.dispatchEvent(
+            new Event("change", {
+              bubbles: true
+            })
+          );
+        }
+      })
+      .catch((error) => {
+        // геокод не удался — координат нет, цены остаются прежними
+        console.error("DaData geocode:", error);
+      });
   });
 
   document.addEventListener("click", function (event) {
@@ -1651,10 +1729,42 @@ document.addEventListener("DOMContentLoaded", function () {
     const tracker = document.querySelector("[data-delivery-price-current]");
     const slot = slots.querySelector('input[name="delivery_time"]:checked');
 
-    return request(routes.deliveryRadius.post(), "POST", {
+    // Пересчёт доставки по координатам — как calcDelivery старого дизайна.
+    // Координаты пишет блок подсказок DaData (dataset адресного поля);
+    // без них сервер считает доставку по базовой цене магазина
+    const addressInput = document.querySelector("[data-delivery-address]");
+    const lat = addressInput ? parseFloat(addressInput.dataset.deliveryLat) : NaN;
+    const lon = addressInput ? parseFloat(addressInput.dataset.deliveryLon) : NaN;
+
+    const data = {
       delivery_time: slot ? slot.value : null
-    }).then(function (result) {
+    };
+    if (!isNaN(lat) && !isNaN(lon)) {
+      data.coordinates = [lat, lon];
+    }
+
+    // Поля адреса видимы = режим «Я знаю адрес»: сервер сбрасывает
+    // сохранённый радиус доставки (order_delivery_radius_km)
+    const addressFields = document.querySelector("[data-address-fields]");
+    if (addressFields && !addressFields.hidden) {
+      data.isKnowAdress = true;
+    }
+
+    return request(routes.deliveryRadius.post(), "POST", data).then(function (result) {
       const response = result && result.response;
+      const error = result && result.error;
+
+      // Адрес вне зоны доставки: сервер отвечает 400 с modal=delivery-area
+      if (error && error.modal === "delivery-area") {
+        const text = document.querySelector("[data-delivery-area-text]");
+        if (text) {
+          text.textContent = error.message ||
+            "По выбранному адресу доставка недоступна. Попробуйте другой адрес.";
+        }
+        location.hash = "delivery-area";
+        return;
+      }
+
       if (!response) {
         return;
       }
@@ -1853,6 +1963,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   calendarWrap.classList.add("is-enhanced");
   renderGrid();
+
+  // Адресный блок (события поля адреса и «знаю/не знаю адрес») запускает
+  // тот же пересчёт — как calcDelivery старого дизайна
+  window.Cvetofor = Object.assign(window.Cvetofor || {},
+    { updateDeliveryPrice: updateDeliveryPrice });
 });
 
 // Чекаут, шаг 3: промокод и бонусы UDS. Перенос логики старого дизайна
@@ -2098,6 +2213,42 @@ document.addEventListener("DOMContentLoaded", function () {
           setResult(promoResult, data.message || "Ошибка проверки", false);
         }
       });
+    });
+  }
+});
+
+// Чекаут: пересчёт доставки по событиям адреса — пара к блоку календаря
+// доставки. Те же запросы deliveryRadius, что при смене даты/интервала,
+// но от поля адреса и переключателей «знаю/не знаю адрес» (аналог
+// calcDelivery старого дизайна). Координаты готовит блок подсказок DaData
+document.addEventListener("DOMContentLoaded", function () {
+  const addressInput = document.querySelector("[data-delivery-address]");
+  if (!addressInput) return;
+
+  const recalc = function () {
+    const update = window.Cvetofor && window.Cvetofor.updateDeliveryPrice;
+    if (update) update();
+  };
+
+  // Адрес выбран подсказкой или геокодом blur — координаты уже в dataset
+  addressInput.addEventListener("change", recalc);
+
+  // «Я знаю адрес»: пересчёт уйдёт с isKnowAdress — поля к этому моменту
+  // уже видимы (их показывает обработчик из блока «Не знаю адрес»,
+  // он подписан раньше по файлу)
+  const known = document.querySelector("[data-address-known]");
+  if (known) {
+    known.addEventListener("click", recalc);
+  }
+
+  // «Принимаю» в предупреждении без адреса: координаты неактуальны,
+  // пересчёт без них — как calcDelivery({}) старого дизайна
+  const accept = document.querySelector("[data-accept-no-address]");
+  if (accept) {
+    accept.addEventListener("click", function () {
+      delete addressInput.dataset.deliveryLat;
+      delete addressInput.dataset.deliveryLon;
+      recalc();
     });
   }
 });
