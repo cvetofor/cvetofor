@@ -88,7 +88,7 @@
                     <li class="gallery__thumb @if($loop->first) is-active @endif" >
                         <a class="gallery__thumb-btn" href="{{$image}}"
                            data-gallery-item>
-                            <img src="{{$image}}" alt="{{$product->title}}"
+                            <img src="{{$image}}" alt="{{$price->title}}"
                                  width="154" height="154" loading="lazy">
                             <span class="visually-hidden">Показать фото 1</span>
                         </a>
@@ -114,7 +114,7 @@
                         @if (!$loop->last || !$price->groupProduct->file('preview'))
                     <img class="gallery__photo" data-gallery-main data-cart-photo @if(!$loop->first) hidden @endif
                          src="{{$image}}"
-                         alt="{{$product->title}}"
+                         alt="{{$price->title}}"
                          width="618" height="664">@endif
                     @endforeach
                     <!-- Ссылки на соседние снимки, а не кнопки: в макете (122:735)
