@@ -129,7 +129,7 @@ class OrderController extends Controller
         SEOTools::setTitle('Заказ №' . $order->id);
         SEOTools::metatags()->setRobots('noindex, nofollow');
 
-        return view('order.show', compact('order'));
+        return view(config('is_new_desing')?'newdesing.order_show':'order.show', compact('order'));
     }
 
     private function addToCartPostcardItem($price, $market_id)
