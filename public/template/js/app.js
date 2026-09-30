@@ -9,16 +9,29 @@
  */
 
 /* Маркер версии: по нему видно, какая сборка скрипта реально выполнилась */
-document.documentElement.dataset.app = '14';
+document.documentElement.dataset.app = '16';
 
 /* ------------------------------------------- Закрываемые блоки (плашка) */
 
+/* Кнопка закрытия приходит в разметке скрытой и показывается скриптом:
+   без JS плашку закрыть нельзя, поэтому и помнить закрытие может только
+   скрипт. Ключ из data-dismiss-storage (плашка «Установите приложение»)
+   держится в localStorage — закрыли один раз, больше не показываем */
 document.querySelectorAll('[data-dismiss]').forEach((button) => {
+  const storageKey = button.dataset.dismissStorage;
+
+  if (storageKey && localStorage.getItem(storageKey)) {
+    const dismissed = button.closest(button.dataset.dismiss);
+    if (dismissed) dismissed.remove();
+    return;
+  }
+
   button.hidden = false;
 
   button.addEventListener('click', () => {
     const target = button.closest(button.dataset.dismiss);
     if (target) target.remove();
+    if (storageKey) localStorage.setItem(storageKey, '1');
   });
 });
 
@@ -2355,5 +2368,137 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.key === "Escape" && header.classList.contains("header--search-open")) {
       setOpen(false);
     }
+  });
+});
+
+/* ==========================================================================
+   Окна авторизации: вход / регистрация / восстановление пароля
+   ========================================================================== */
+
+/*
+ * Перенос модалок старого дизайна (components/modals.blade.php) на те же
+ * роуты бэкенда: GET /profile/authenticate, POST /register,
+ * POST /profile/resetPassword. Роут входа принимает только GET, поэтому
+ * запрос уходит GET — как и в старой форме. Редирект после входа ведёт
+ * на /profile, редирект «назад» — телефон или пароль не сошлись.
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  const loginOverlay = document.getElementById("login");
+  if (!loginOverlay) return;
+
+  // Ошибки валидации сервера (422, {errors: {поле: [тексты]}}) — подписями
+  // под полями общим механизмом: снятие по вводу работает из коробки
+  const applyErrors = function (form, errors) {
+    Object.keys(errors).forEach(function (name) {
+      const field = form.querySelector('[name="' + name + '"]');
+      if (field) window.Cvetofor.setFieldError(field, errors[name][0]);
+    });
+  };
+
+  const showNote = function (form, text, ok) {
+    const note = form.querySelector("[data-auth-result]");
+    if (!note) return;
+    note.hidden = false;
+    note.className = "auth-modal__note " + (ok ? "is-ok" : "is-error");
+    note.textContent = text;
+  };
+
+  const resetNote = function (form) {
+    const note = form.querySelector("[data-auth-result]");
+    if (!note) return;
+    note.hidden = true;
+    note.className = "auth-modal__note";
+    note.textContent = "";
+  };
+
+  const withBusySubmit = function (form, send) {
+    const submit = form.querySelector(".auth-modal__submit");
+    submit.setAttribute("disabled", "disabled");
+    Promise.resolve(send()).finally(function () {
+      submit.removeAttribute("disabled");
+    });
+  };
+
+  // Вход. fetch, а не request(): нужен конечный URL после редиректа —
+  // по нему отличаем успех от неверного телефона/пароля
+  const loginForm = loginOverlay.querySelector("form");
+  loginForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    withBusySubmit(loginForm, async function () {
+      const query = new URLSearchParams(new FormData(loginForm)).toString();
+      const response = await fetch(loginForm.action + "?" + query, {
+        headers: {
+          "Accept": "application/json",
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      });
+
+      if (response.status === 422) {
+        const data = await response.json();
+        applyErrors(loginForm, data.errors || {});
+        return;
+      }
+
+      if (new URL(response.url).pathname.replace(/\/+$/, "") === "/profile") {
+        window.location.assign(response.url);
+        return;
+      }
+
+      // Бэкенд при неудаче редиректит назад с пустым error bag — текст
+      // ошибки знает только клиент
+      window.Cvetofor.setFieldError(
+        loginForm.querySelector('[name="password"]'),
+        "Неверный телефон или пароль"
+      );
+    });
+  });
+
+  // Регистрация: пароль не вводится — сервер генерирует его и шлёт СМС-кой,
+  // пользователь сразу залогинен. Ок — перезагружаем страницу
+  const registerForm = document.getElementById("registration").querySelector("form");
+  registerForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    resetNote(registerForm);
+
+    withBusySubmit(registerForm, async function () {
+      const payload = { phone: registerForm.querySelector('[name="phone"]').value };
+      const exclusive = registerForm.querySelector('[name="concent_exclusive_email"]');
+      if (exclusive && exclusive.checked) payload.concent_exclusive_email = "on";
+
+      const { response, error } = await request(registerForm.action, "POST", payload);
+
+      if (!error) {
+        window.location.reload();
+        return;
+      }
+
+      if (error.errors) {
+        applyErrors(registerForm, error.errors);
+      } else {
+        showNote(registerForm, error.message || "Не удалось зарегистрироваться. Попробуйте ещё раз.", false);
+      }
+    });
+  });
+
+  // Восстановление: новый пароль уходит СМС-кой, сервер на любой телефон
+  // отвечает успехом
+  const recoveryForm = document.getElementById("password-recovery").querySelector("form");
+  recoveryForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    resetNote(recoveryForm);
+
+    withBusySubmit(recoveryForm, async function () {
+      const { error } = await request(recoveryForm.action, "POST", {
+        phone: recoveryForm.querySelector('[name="phone"]').value
+      });
+
+      if (error) {
+        showNote(recoveryForm, error.message || "Не удалось отправить пароль. Попробуйте ещё раз.", false);
+        return;
+      }
+
+      showNote(recoveryForm, "Новый пароль отправляем вам в СМС сообщении.", true);
+    });
   });
 });

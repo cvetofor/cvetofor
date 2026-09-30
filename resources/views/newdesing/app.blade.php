@@ -115,9 +115,15 @@
                 <img class="header__search-lens" src="/template/assets/icons/search.svg" alt="" width="28" height="28">
                 <img class="header__search-cross" src="/template/assets/icons/cross.svg" alt="" width="28" height="28">
             </a>
-            <a class="icon-btn" href="/account" aria-label="Личный кабинет">
-                <img src="/template/assets/icons/user.svg" alt="" width="26" height="26">
-            </a>
+            @guest
+                <a class="icon-btn" href="#login" aria-label="Войти в личный кабинет">
+                    <img src="/template/assets/icons/user.svg" alt="" width="26" height="26">
+                </a>
+            @else
+                <a class="icon-btn" href="{{ route('profile.index') }}" aria-label="Личный кабинет">
+                    <img src="/template/assets/icons/user.svg" alt="" width="26" height="26">
+                </a>
+            @endguest
             <a class="icon-btn header__cart" href="/cart" aria-label="Корзина, {{ \Cart::getTotalQuantity() }}">
                 <img src="/template/assets/icons/cart.svg" alt="" width="32" height="32">
                 <span class="icon-btn__counter" aria-hidden="true">{{ \Cart::getTotalQuantity() }}</span>
@@ -129,10 +135,11 @@
 
 <aside class="app-strip">
     <div class="container app-strip__inner">
-        <button class="app-strip__close" type="button" hidden
-                data-dismiss=".app-strip" aria-label="Скрыть предложение">
-            <span class="cross" aria-hidden="true"></span>
-        </button>
+            <button class="app-strip__close" type="button" hidden
+                    data-dismiss=".app-strip" data-dismiss-storage="app-strip-dismissed"
+                    aria-label="Скрыть предложение">
+                <span class="cross" aria-hidden="true"></span>
+            </button>
 
         <img class="app-strip__icon" src="/template/assets/icons/logo-mark.svg" alt="" width="40" height="40">
 
@@ -289,6 +296,116 @@
         </ul>
     </div>
 </div>
+
+@guest
+    <!-- Окна авторизации. Состав перенесён из старого дизайна
+         (components/modals.blade.php): вход — телефон + пароль,
+         регистрация — только телефон (пароль приходит СМС-кой),
+         восстановление — телефон. Открываются по :target из шапки,
+         переключаются между собой обычными ссылками. Авторизованному
+         эти окна не нужны, поэтому и не рендерятся -->
+
+    <div class="overlay overlay--center" id="login">
+        <div class="overlay__panel city-modal auth-modal">
+            <div class="city-modal__head">
+                <h2 class="city-modal__title" id="login-title">Вход</h2>
+                <a class="overlay__close" href="#main" aria-label="Закрыть окно входа">
+                    <span class="cross" aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <!-- Роут входа на бэкенде только GET — как и в старом дизайне,
+                 форма отправляется GET и без JS. Скрипт перехватывает
+                 сабмит, чтобы ошибки показать в открытом окне -->
+            <form class="auth-modal__form" action="{{ route('profile.authenticate') }}" method="get">
+                <div class="field-wrap">
+                    <label class="visually-hidden" for="auth-login-phone">Телефон</label>
+                    <input class="field-wrap__input js-phone" id="auth-login-phone" name="phone"
+                           type="tel" placeholder="+7 (___) ___ __-__" autocomplete="tel" required>
+                </div>
+                <div class="field-wrap">
+                    <label class="visually-hidden" for="auth-login-password">Пароль</label>
+                    <input class="field-wrap__input" id="auth-login-password" name="password"
+                           type="password" placeholder="·············"
+                           autocomplete="current-password" required>
+                </div>
+                <a class="auth-modal__forgot" href="#password-recovery">Забыли пароль?</a>
+                <div class="check">
+                    <input class="check__input" id="auth-remember" name="remember" type="checkbox"
+                           {{ old('remember') ? 'checked' : '' }}>
+                    <label class="check__label" for="auth-remember">Запомнить</label>
+                </div>
+                <button class="btn btn--primary auth-modal__submit" type="submit">Войти</button>
+                <a class="btn btn--outline auth-modal__alt" href="#registration">Зарегистрироваться</a>
+                <p class="auth-modal__policy">Нажимая на кнопку, вы соглашаетесь на
+                    <a href="/policy">обработку персональных данных</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Пароль не вводится: сервер генерирует его и присылает СМС-кой,
+         после регистрации пользователь уже залогинен -->
+    <div class="overlay overlay--center" id="registration">
+        <div class="overlay__panel city-modal auth-modal">
+            <div class="city-modal__head">
+                <h2 class="city-modal__title" id="registration-title">Регистрация</h2>
+                <a class="overlay__close" href="#main" aria-label="Закрыть окно регистрации">
+                    <span class="cross" aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <form class="auth-modal__form" action="{{ route('register') }}" method="post">
+                @csrf
+                <div class="field-wrap">
+                    <label class="visually-hidden" for="auth-register-phone">Телефон</label>
+                    <input class="field-wrap__input js-phone" id="auth-register-phone" name="phone"
+                           type="tel" placeholder="+7 (___) ___ __-__" autocomplete="tel"
+                           value="{{ old('phone') }}" required>
+                </div>
+                <button class="btn btn--primary auth-modal__submit" type="submit">Зарегистрироваться</button>
+                <div class="check">
+                    <input class="check__input" id="auth-exclusive" name="concent_exclusive_email"
+                           type="checkbox">
+                    <label class="check__label" for="auth-exclusive">Получать эксклюзивные предложения и акции</label>
+                </div>
+                <p class="auth-modal__note" data-auth-result hidden></p>
+                <p class="auth-modal__policy">Нажимая на кнопку, вы соглашаетесь на
+                    <a href="/policy">обработку персональных данных</a>
+                </p>
+                <a class="auth-modal__link" href="#login">Войти по номеру телефона</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Сервер всегда отвечает успехом: новый пароль уходит СМС-кой -->
+    <div class="overlay overlay--center" id="password-recovery">
+        <div class="overlay__panel city-modal auth-modal">
+            <div class="city-modal__head">
+                <h2 class="city-modal__title" id="password-recovery-title">Восстановление пароля</h2>
+                <a class="overlay__close" href="#main" aria-label="Закрыть окно восстановления пароля">
+                    <span class="cross" aria-hidden="true"></span>
+                </a>
+            </div>
+
+            <form class="auth-modal__form" action="{{ route('profile.resetPassword') }}" method="post">
+                @csrf
+                <div class="field-wrap">
+                    <label class="visually-hidden" for="auth-recovery-phone">Телефон</label>
+                    <input class="field-wrap__input js-phone" id="auth-recovery-phone" name="phone"
+                           type="tel" placeholder="+7 (___) ___ __-__" autocomplete="tel"
+                           value="{{ old('phone') }}" required>
+                </div>
+                <button class="btn btn--primary auth-modal__submit" type="submit">Отправить</button>
+                <p class="auth-modal__note" data-auth-result hidden></p>
+                <p class="auth-modal__policy">Нажимая на кнопку, вы соглашаетесь на
+                    <a href="/policy">обработку персональных данных</a>
+                </p>
+                <a class="auth-modal__link" href="#login">Войти по номеру телефона</a>
+            </form>
+        </div>
+    </div>
+@endguest
 
 <!-- ============================================== Всплывашки ==== -->
 <!-- Уведомления: на десктопе всплывают справа снизу, на мобильной —

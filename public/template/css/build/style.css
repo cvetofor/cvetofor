@@ -3342,3 +3342,109 @@ body:has(.overlay:target) {
   display: grid;
   min-width: 0;
 }
+
+/* ------------------------------------------------ Окна авторизации */
+
+/* Панель входа/регистрации/восстановления опирается на .city-modal
+   (ширина 360, скругление, тень) — здесь только раскладка формы.
+   Чекбокс повторяет чекаутовый, но селекторы скоуплены классом
+   .auth-modal: общие .check живут в page-checkout.css и на остальных
+   страницах не грузятся */
+.auth-modal__form {
+  display: grid;
+  gap: 16px;
+}
+
+/* В старом дизайне ссылка прижата к полю пароля справа */
+.auth-modal__forgot {
+  margin-block-start: calc(16px * -1);
+  justify-self: end;
+  font-size: 14px;
+  font-weight: 500;
+  color: #dc0978;
+}
+
+.auth-modal__forgot:hover {
+  text-decoration: underline;
+}
+
+.auth-modal .check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.auth-modal .check__input {
+  flex-shrink: 0;
+  width: 21px;
+  height: 21px;
+  margin: 0;
+  border: 1px solid #dc0978;
+  border-radius: 4px;
+  background-color: #ffffff;
+  appearance: none;
+  cursor: pointer;
+}
+
+.auth-modal .check__input:checked {
+  background-color: #dc0978;
+  background-image: url("../../assets/icons/checkmark.svg");
+  background-position: center;
+  background-size: 16px 16px;
+  background-repeat: no-repeat;
+}
+
+/* Кегль 16 при строке 21 — по высоте галочки, чтобы текст не прыгал */
+.auth-modal .check__label {
+  font-size: 16px;
+  line-height: 21px;
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+/* В окне одна кнопка на всю ширину панели, выше обычной шапочной */
+.auth-modal__submit,
+.auth-modal__alt {
+  min-height: 50px;
+  font-size: 16px;
+}
+
+.auth-modal__link {
+  justify-self: center;
+  font-size: 16px;
+  font-weight: 500;
+  color: #dc0978;
+}
+
+.auth-modal__link:hover {
+  text-decoration: underline;
+}
+
+.auth-modal__policy {
+  font-size: 14px;
+  line-height: 1.35;
+  opacity: 0.8;
+}
+
+.auth-modal__policy a {
+  color: #dc0978;
+}
+
+.auth-modal__policy a:hover {
+  text-decoration: underline;
+}
+
+/* Строка результата отправки (регистрация/восстановление) — как
+   подписи UDS-блока чекаута */
+.auth-modal__note {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.auth-modal__note.is-ok {
+  color: #20890b;
+}
+
+.auth-modal__note.is-error {
+  color: #ca0606;
+}
