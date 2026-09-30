@@ -79,6 +79,10 @@
                         <h2 class="fieldset__legend">Данные заказчика <span class="req" aria-hidden="true">*</span><span
                                 class="visually-hidden"> — обязательные поля</span></h2>
                         <div class="fields">
+                            <!-- email2: уходит в финальный POST, его ищет findOrCreateUser
+                             (OrderController). Видимого поля в макете нет — как и старая
+                             форма, подставляем email авторизованного пользователя -->
+                            <input type="hidden" name="email2" @auth value="{{ auth()->user()->email }}" @endauth>
                             <div class="field-group">
                                 <div class="field-wrap">
                                     <label class="visually-hidden" for="customer-name">ФИО заказчика</label>
@@ -556,8 +560,12 @@
 
             <!-- =========== Шаг 4 =========== -->
             <div class="checkout-step" data-step="4" hidden>
-                <form class="checkout__form checkout__form--confirm panel" id="checkout-step-4" action="/checkout/done"
-                      method="post">
+                <!-- Финальная отправка собирает данные всех шагов одним POST-ом
+                     на order.create — тот же роут, что и форма старого дизайна
+                     (order.blade.php). Состав полей задаёт buildOrderPayload()
+                     в app.js, блок «Объединённый checkout» -->
+                <form class="checkout__form checkout__form--confirm panel" id="checkout-step-4"
+                      action="{{ route('order.create') }}" method="post">
 
                     <section class="review" aria-labelledby="r-customer">
                         <div class="review__head">
@@ -826,6 +834,24 @@
                     <span class="checkout__submit-label">Далее</span>
                     <img src="template/assets/icons/arrow-right-white.svg" alt="" width="21" height="21">
                 </button>
+
+                <!-- Согласие на обработку ПД — перенесено из старого дизайна
+                     (order.blade.php, чекбокс pdn у кнопки «Оплатить заказ»).
+                     Видно только на шаге 4 вместе с кнопкой «Оформить заказ»
+                     (переключает show() в app.js). Чекбокс вне форм, поэтому
+                     связан с финальной формой атрибутом form: required не даёт
+                     отправить заказ без отметки -->
+                <div class="check checkout__consent" hidden>
+                    <input class="check__input" id="pdn" name="pdn" type="checkbox"
+                           form="checkout-step-4" required>
+                    <label class="check__label" for="pdn">
+                        Я принимаю условия и даю согласие на обработку моих персональных данных
+                        в соответствии с политикой обработки персональных данных. Полный текст
+                        <a href="/policy">политики обработки персональных данных</a>.
+                        Соглашаюсь, что цветы — уникальный товар, который может отличаться
+                        по форме, размеру и оттенку от товара на выбранном фото.
+                    </label>
+                </div>
             </aside>
         </div>
     </main>

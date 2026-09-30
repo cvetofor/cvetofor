@@ -538,9 +538,11 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
 
 
 /* ============================================ Объединённый checkout ==== */
-/* Страница checkout-one.html: переключение четырёх шагов без перезагрузки.
-   Отправка форм уходит через fetch (AJAX) на action шага; после ответа
-   (или если бэкенда нет) открывается следующий шаг. */
+/* Страница checkout: переключение четырёх шагов без перезагрузки.
+   Переходы между шагами локальные, без запросов — action у форм шагов
+   1–3 не используется. Единственный сетевой вызов — финальный POST на
+   order.create с полями формы старого дизайна (состав поля задан явно
+   в buildOrderPayload ниже). */
 
 (() => {
   const root = document.querySelector('.checkout-step');
@@ -552,6 +554,8 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
   const percent = nav ? nav.querySelector('.steps__percent') : null;
   const stepItems = nav ? Array.from(nav.querySelectorAll('ol.steps > li.step')) : [];
   const submitBtn = document.querySelector('[data-submit-for]');
+  // согласие на обработку ПД — видно только на шаге 4, у финальной кнопки
+  const consent = document.querySelector('.checkout__consent');
   const DONE_ICON = 'template/assets/icons/checkmark.svg';
 
   const PROGRESS = { 1: 25, 2: 50, 3: 75, 4: 100 };
@@ -587,11 +591,109 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
       if (label) label.textContent = (n === 4) ? 'Оформить заказ' : 'Далее';
     }
 
+    // согласие на обработку ПД показывается вместе с кнопкой «Оформить заказ»
+    if (consent) consent.hidden = n !== 4;
+
     if (n === 4) refreshReview();
     document.getElementById('main').scrollIntoView({ behavior: 'smooth' });
   };
 
-  // AJAX-отправка: после успешного ответа (или без бэкенда) — следующий шаг
+  // ===== Финальная отправка: поля 1-в-1 со старым дизайном =====
+  // Контракт взят из формы order.blade.php и Order() в public/dist/js/
+  // backend-temp.js: JSON-POST на order.create через request() (CSRF —
+  // в заголовке, как у старого request()). Каждая строка карты ниже —
+  // одно поле старой формы с источником значения; правьте под себя.
+
+  const checkoutRoot = document.querySelector('.checkout');
+
+  // значение поля по name из любой формы шагов; для радиокнопок
+  // (payment_id, delivery_time) берётся отмеченная
+  const field = (name) => {
+    const el = checkoutRoot.querySelector('[name="' + name + '"]:checked')
+      || checkoutRoot.querySelector('[name="' + name + '"]');
+    return el ? String(el.value || '').trim() : '';
+  };
+
+  // чекбоксы уходят как «on» только в отмеченном состоянии — ровно как
+  // их сериализует FormData (неотмеченный в payload не попадает)
+  const checkbox = (name) => {
+    const el = checkoutRoot.querySelector('[name="' + name + '"]');
+    return (el && el.checked) ? 'on' : null;
+  };
+
+  // старая форма держала город и улицу одним полем: значение целиком
+  // писала подсказка яндекс-карт — «г Улан-Удэ, ул …, д …», без региона.
+  // Здесь собираем такую же строку из двух полей шага 1: город из #city
+  // + улица (если она уже начинается с города — не дублируем)
+  const fullAddress = () => {
+    const input = checkoutRoot.querySelector('[name="address"]');
+    const street = input ? input.value.trim() : '';
+    if (!street) return street;
+    const city = field('city');
+    if (!city) return street;
+    return street.toLowerCase().startsWith(city.toLowerCase())
+      ? street
+      : 'г ' + city + ', ' + street;
+  };
+
+  const buildOrderPayload = () => {
+    const payload = {
+      // — доставка —
+      address: fullAddress(),                        // «регион, город, улица…»
+      apartament_number: field('apartament_number'), // поля в новой вёрстке нет → ''
+      // — получатель —
+      person_receiving_name: field('person_receiving_name'),
+      person_receiving_phone: field('person_receiving_phone'),
+      // — дата и время (шаг 2): те же форматы, что уходили со старой
+      // формой — «ДД.ММ.ГГГГ» (flatpickr) и «10:00 - 12:00» (слоты)
+      delivery_date: field('delivery_date'),
+      delivery_time: field('delivery_time'),
+      // — заказчик —
+      fio: field('fio'),
+      email2: field('email2'),
+      phone: field('phone'),
+      comment: field('comment'),
+      // — переключатели шага 1 —
+      postcard: checkbox('postcard'),
+      postcard_text: field('postcard_text'),
+      is_anon: checkbox('is_anon'),
+      // чекбокса «фотоотчёт» в новой вёрстке нет: добавите поле
+      // name="is_photo_needle" — начнёт уходить само
+      is_photo_needle: checkbox('is_photo_needle'),
+      // — шаг 3 —
+      payment_id: field('payment_id'),
+      uds_promo: field('uds_promo'),
+      promocode: field('promocode'),
+      // согласие на обработку ПД: чекбокс под кнопкой «Оформить заказ»
+      // (шаг 4, required — без отметки форма не отправится)
+      pdn: checkbox('pdn'),
+    };
+
+    // координаты выбранного адреса: их пишет блок подсказок DaData в
+    // dataset поля (аналог геокода яндекс-карт в старом Order()).
+    // Только когда поля адреса видимы; строкой «lat,lon» — именно в таком
+    // виде значение проходило через FormData старой формы, и так его ждёт
+    // OrderRequest::checkRadius (explode(','))
+    const addressFields = document.querySelector('[data-address-fields]');
+    const addressInput = checkoutRoot.querySelector('[data-delivery-address]');
+    if (addressFields && !addressFields.hidden && addressInput
+      && addressInput.dataset.deliveryLat && addressInput.dataset.deliveryLon) {
+      payload.coordinates = addressInput.dataset.deliveryLat + ',' + addressInput.dataset.deliveryLon;
+    }
+
+    // Оплата по счёту (способ с data-account): старый дизайн открывал
+    // модалку реквизитов и прикладывал legal_account JSON-строкой. В новой
+    // вёрстке модалки нет — при необходимости добавьте поле:
+    // payload.legal_account = JSON.stringify({ recipient: '…', bik: '…' });
+
+    // null-ключи (неотмеченные чекбоксы) не отправляются — как в FormData
+    Object.keys(payload).forEach((key) => {
+      if (payload[key] === null) delete payload[key];
+    });
+    return payload;
+  };
+
+  // «Далее» открывает следующий шаг; на шаге 4 — финальная отправка
   steps.forEach((wrap) => {
     const form = wrap.querySelector('form');
     if (!form) return;
@@ -617,25 +719,75 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
         }
       }
 
-      try {
-        // черновое сохранение шага на сервер
-        await fetch(form.action, { method: form.method, body: new FormData(form) });
-      } catch (_) { /* бэкенда нет — просто идём дальше */ }
+      // шаги 1–3 переходят локально, без сети: единственный запрос —
+      // финальный POST на order.create
       if (n < 4) {
         show(n + 1);
         return;
       }
-      // финал: данные всех четырёх форм одной отправкой на /checkout/done
-      const all = new FormData();
-      steps.forEach((w) => {
-        const f = w.querySelector('form');
-        if (!f) return;
-        for (const [key, value] of new FormData(f)) all.append(key, value);
-      });
+
+      // финал: данные всех шагов одним POST на order.create (action формы
+      // шага 4) — тот же контракт, что у формы старого дизайна
+      const payload = buildOrderPayload();
+      let result;
       try {
-        await fetch(form.action, { method: form.method, body: all });
-      } catch (_) { /* без бэкенда просто переходим на успех */ }
-      window.location.href = 'success.html';
+        result = await request(form.action, form.method, payload);
+      } catch (_) {
+        // сеть недоступна — заказ не создан, говорим об этом
+        window.Cvetofor.toast({
+          title: 'Не удалось оформить заказ',
+          note: 'Сервер недоступен, попробуйте ещё раз'
+        });
+        return;
+      }
+      const { response, error } = result;
+
+      if (response && typeof response === 'object' && response.order_id) {
+        if (response.redirect) {
+          window.location.href = response.redirect;
+        } else {
+          // редиректа нет (оплата не онлайн) — заказ всё равно создан
+          window.Cvetofor.toast({
+            title: 'Заказ оформлен',
+            note: 'Номер заказа: ' + response.order_id
+          });
+        }
+        return;
+      }
+
+      if (error) {
+        // адрес вне зоны доставки: сервер отвечает 400 + modal=delivery-area
+        if (error.modal === 'delivery-area') {
+          const text = document.querySelector('[data-delivery-area-text]');
+          if (text) {
+            text.textContent = error.message ||
+              'По выбранному адресу доставка недоступна. Попробуйте другой адрес.';
+          }
+          location.hash = 'delivery-area';
+          return;
+        }
+
+        // ошибки валидации OrderRequest: подпись под полем + возврат
+        // на шаг, где стоит это поле
+        if (error.errors) {
+          Object.keys(error.errors).forEach((name) => {
+            const input = checkoutRoot.querySelector('[name="' + name + '"]');
+            if (!input) return;
+            window.Cvetofor.setFieldError(input, error.errors[name][0]);
+            const step = input.closest('[data-step]');
+            if (step) show(Number(step.dataset.step));
+          });
+          return;
+        }
+
+        if (error.message) {
+          window.Cvetofor.toast({ title: 'Не удалось оформить заказ', note: error.message });
+        }
+        return;
+      }
+
+      // не JSON (например, страница 419) — старый дизайн этот случай молчал
+      console.warn('order.create: unexpected response', response);
     });
   });
 
@@ -1572,9 +1724,8 @@ document.addEventListener("DOMContentLoaded", function () {
       input.name = "delivery_time";
       input.id = id;
       input.value = value;
-      if (i === 0) {
-        input.checked = true;
-      }
+      // первый интервал не отмечаем: время выбирает пользователь,
+      // «Далее» без выбора блокирует проверка шага 2
 
       const label = document.createElement("label");
       label.className = "slot";
@@ -2155,4 +2306,54 @@ document.addEventListener("DOMContentLoaded", function () {
       recalc();
     });
   }
+});
+
+// Шапка (ПК): клик по лупе раскрывает поиск на всю строку — форма
+// вместо навигации/телефона, кнопка-лупа превращается в крестик.
+// Крестик (та же кнопка) и Esc сворачивают обратно. Отправка —
+// обычный GET /search нативным сабмитом
+document.addEventListener("DOMContentLoaded", function () {
+  const header = document.querySelector(".header");
+  if (!header) return;
+
+  const toggle = header.querySelector(".header__search");
+  const form = header.querySelector(".header__search-form");
+  if (!toggle || !form) return;
+
+  const input = form.querySelector("input");
+
+  const setOpen = function (state) {
+    header.classList.toggle("header--search-open", state);
+    toggle.setAttribute("aria-label", state ? "Закрыть поиск" : "Поиск по каталогу");
+    if (state) {
+      input.focus();
+    } else {
+      input.blur();
+    }
+  };
+
+  toggle.addEventListener("click", function (event) {
+    event.preventDefault();
+    setOpen(!header.classList.contains("header--search-open"));
+  });
+
+  // Пустой запрос не отправляем: поле подсвечивается красным,
+  // подсветка снимается первым же вводом
+  form.addEventListener("submit", function (event) {
+    if (!input.value.trim()) {
+      event.preventDefault();
+      form.classList.add("header__search-form--error");
+      input.focus();
+    }
+  });
+
+  input.addEventListener("input", function () {
+    form.classList.remove("header__search-form--error");
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && header.classList.contains("header--search-open")) {
+      setOpen(false);
+    }
+  });
 });

@@ -160,6 +160,7 @@ class OrderController extends Controller
     public function create(OrderRequest $orderRequest, ProductPriceDefender $productPriceDefender, PriceService $priceService)
     {
 
+
         // Проверить текущий город с городами магазина  /  смысл есть, адреса может не быть.
         // Проверить радиусы доставки +
         // Проверить даты доставки +

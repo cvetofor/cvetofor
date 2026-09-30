@@ -309,6 +309,26 @@ legend.fieldset__legend {
   line-height: 16px;
 }
 
+/* Согласие на обработку ПД под финальной кнопкой шага 4: текст длинный,
+   многострочный — галочка прижата к верху, кегль мельче обычного чекбокса */
+.checkout__consent {
+  margin-top: 16px;
+  align-items: flex-start;
+}
+
+.checkout__consent .check__label {
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.checkout__consent a {
+  color: #dc0978;
+}
+
+.checkout__consent a:hover {
+  text-decoration: underline;
+}
+
 /* ------------------------------------------------ Сегмент-контрол */
 
 /* 48 на мобильной (295:484 — сегмент-контроль 360x48), 41 на десктопе */

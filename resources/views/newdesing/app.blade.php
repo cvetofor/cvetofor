@@ -43,9 +43,9 @@
          конкретные пиксели и цвета, чтобы вёрстку можно было сверять
          с макетом напрямую. Исходники с токенами — в css/, сборка
          обновляется командой python tools/build_css.py -->
-    <link rel="stylesheet" href="/template/css/build/fonts.css?v=20260918">
-    <link rel="stylesheet" href="/template/css/build/reset.css?v=20260918">
-    <link rel="stylesheet" href="/template/css/build/style.css?v=20260918">
+    <link rel="stylesheet" href="/template/css/build/fonts.css?v={{time()}}">
+    <link rel="stylesheet" href="/template/css/build/reset.css?v={{time()}}">
+    <link rel="stylesheet" href="/template/css/build/style.css?v={{time()}}">
    @yield('css')
 
 
@@ -102,9 +102,18 @@
             <span>8 (800) 700-93-75</span>
         </a>
 
+        <form class="field-wrap header__search-form" action="/search" method="get" role="search">
+            <label class="visually-hidden" for="header-q">Поиск по каталогу</label>
+            <input class="field-wrap__input" id="header-q" name="q" type="search" placeholder="Найти товар" autocomplete="off">
+            <button class="header__search-submit" type="submit" aria-label="Найти">
+                <img src="/template/assets/icons/search-ink.svg" alt="" width="28" height="28">
+            </button>
+        </form>
+
         <div class="header__actions">
             <a class="icon-btn header__search" href="/search" aria-label="Поиск по каталогу">
-                <img src="/template/assets/icons/search.svg" alt="" width="28" height="28">
+                <img class="header__search-lens" src="/template/assets/icons/search.svg" alt="" width="28" height="28">
+                <img class="header__search-cross" src="/template/assets/icons/cross.svg" alt="" width="28" height="28">
             </a>
             <a class="icon-btn" href="/account" aria-label="Личный кабинет">
                 <img src="/template/assets/icons/user.svg" alt="" width="26" height="26">

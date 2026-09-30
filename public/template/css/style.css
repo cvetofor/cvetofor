@@ -422,6 +422,73 @@ body {
   display: none;
 }
 
+/* Растянутый поиск (ПК): до клика по лупе поля не видно вовсе
+   (специфичность .header .header__search-form — чтобы перебить
+   display:flex у .field-wrap). По клику форма раскрывается на всю
+   строку вместо навигации/телефона: серое поле с чёрной лупой-
+   сабмитом, а плитка лупы превращается в крестик */
+.header .header__search-form {
+  display: none;
+  background-color: #f4f4f4;
+}
+
+/* Фокус не подсвечивает поле розовым (перебиваем .field-wrap:
+  focus-within из общих стилей — он ниже по файлу): красным поле
+   выделяется только при попытке отправить пустой запрос */
+.header .header__search-form:focus-within {
+  border-color: var(--color-border);
+}
+
+.header .header__search-form:has(:focus-visible) {
+  outline: none;
+}
+
+.header .header__search-form--error,
+.header .header__search-form--error:focus-within {
+  border-color: var(--color-brand-500);
+}
+
+.header__search-submit {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+/* Крестик внутри кнопки-лупы появляется только в раскрытом
+   состоянии, сама лупа прячется — кнопка «превращается» */
+.header__search .header__search-cross {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .header .header__search-form {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .header.header--search-open .header__search-form {
+    display: flex;
+  }
+
+  .header.header--search-open .header__search-lens {
+    display: none;
+  }
+
+  .header.header--search-open .header__search-cross {
+    display: block;
+  }
+
+  .header--search-open .city,
+  .header--search-open .nav,
+  .header--search-open .header__phone {
+    display: none;
+  }
+}
+
 /* Бургер: ссылка на экран меню. Работает без JS,
    скрипт может перехватить клик и открыть шторку. */
 .burger__bars,
