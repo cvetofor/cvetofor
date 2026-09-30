@@ -49,7 +49,7 @@
 
                 <h1 class="success__title" id="success-title">Ваш заказ оплачен</h1>
                 <p class="success__note">
-                    Перейдите в <a class="success__link" href="/account">личный кабинет</a>
+                    Перейдите в <a class="success__link" href="/profile">личный кабинет</a>
                     для подробной информации
                 </p>
             </div>
