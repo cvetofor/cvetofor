@@ -5,6 +5,50 @@
     $cart_has_limited_tags = false;
     $maxStartDate = null;
     $minEndDate = null;
+    /* Окно дат ограниченной доставки по всей корзине (категории/теги
+       с is_category_limited): самый поздний start и самый ранний end —
+       как в старом order.blade.php. Считается один раз здесь, до рендера
+       чипов и конфига календаря, которые под это окно обрезаются */
+    foreach ($cart as $item) {
+        $product = $item->associatedModel->groupProduct;
+
+        if ($product) {
+            $category = $product->groupProductCategory;
+            if ($category) {
+                $category->refresh();
+                if ($category->is_category_limited) {
+                    $cart_has_limited_categories = true;
+
+                    $categoryStartDate = \Carbon\Carbon::parse($category->limit_start_date);
+                    $categoryEndDate = \Carbon\Carbon::parse($category->limit_end_date);
+
+                    if (is_null($maxStartDate) || $categoryStartDate->gt($maxStartDate)) {
+                        $maxStartDate = $categoryStartDate;
+                    }
+                    if (is_null($minEndDate) || $categoryEndDate->lt($minEndDate)) {
+                        $minEndDate = $categoryEndDate;
+                    }
+                }
+            }
+
+            foreach ($product->tags as $tag) {
+                $tag->refresh();
+                if ($tag->is_category_limited) {
+                    $cart_has_limited_tags = true;
+
+                    $tagStartDate = \Carbon\Carbon::parse($tag->limit_start_date);
+                    $tagEndDate = \Carbon\Carbon::parse($tag->limit_end_date);
+
+                    if (is_null($maxStartDate) || $tagStartDate->gt($maxStartDate)) {
+                        $maxStartDate = $tagStartDate;
+                    }
+                    if (is_null($minEndDate) || $tagEndDate->lt($minEndDate)) {
+                        $minEndDate = $tagEndDate;
+                    }
+                }
+            }
+        }
+    }
     /* Баллы UDS уже списаны (сессию ставит сервер при /uds/create):
        в этом состоянии поле ввода кода скрыто, итог — из сессии */
     $udsApplied = session('uds_points_used') && session('uds_old_total') && session('uds_new_total');
@@ -337,30 +381,51 @@
                                 ? $deliveryToday->copy()
                                 : $deliveryToday->copy()->addDay();
                         @endphp
-                        <ul class="daychips">
-                            @for ($i = 0; $i < 4; $i++)
-                                @php
-                                    $chipDate = $deliveryStart->copy()->addDays($i);
-                                    if ($chipDate->isSameDay($deliveryToday)) {
-                                        $chipTitle = 'Сегодня';
-                                    } elseif ($chipDate->isSameDay($deliveryToday->copy()->addDay())) {
-                                        $chipTitle = 'Завтра';
-                                    } else {
-                                        $chipDayName = $chipDate->locale('ru')->dayName;
-                                        $chipTitle = mb_strtoupper(mb_substr($chipDayName, 0, 1)) . mb_substr($chipDayName, 1);
-                                    }
-                                @endphp
-                                <li>
-                                    <input class="daychip__input visually-hidden" id="day-{{ $i + 1 }}" name="day"
-                                           type="radio" value="{{ $chipDate->format('d.m.Y') }}" data-slots-source>
-                                    <label class="daychip" for="day-{{ $i + 1 }}">
-                                        <span class="daychip__title">{{ $chipTitle }}</span>
-                                        <span class="daychip__date">{{ $chipDate->locale('ru')->translatedFormat('j F') }}</span>
-                                        <span class="daychip__mark" aria-hidden="true"></span>
-                                    </label>
-                                </li>
-                            @endfor
-                        </ul>
+                        @php
+                            /* Чипы вне окна ограниченной доставки не показываем —
+                               в старом дизайне такие даты были просто не выбираемы.
+                               Если доступных чипов не осталось, строка не выводится:
+                               единственным способом выбора даты остаётся календарь */
+                            $chipDates = [];
+                            for ($i = 0; $i < 4; $i++) {
+                                $chipDate = $deliveryStart->copy()->addDays($i);
+                                /* Границы сравниваем по дням (startOfDay): у чипа
+                                   есть время города, у границ окна — полночь;
+                                   без этого последний день окна отбрасывался бы */
+                                if ($maxStartDate && $chipDate->copy()->startOfDay()->lt($maxStartDate->copy()->startOfDay())) {
+                                    continue;
+                                }
+                                if ($minEndDate && $chipDate->copy()->startOfDay()->gt($minEndDate->copy()->startOfDay())) {
+                                    continue;
+                                }
+                                $chipDates[] = $chipDate;
+                            }
+                        @endphp
+                        @if (count($chipDates) > 0)
+                            <ul class="daychips">
+                                @foreach ($chipDates as $chipDate)
+                                    @php
+                                        if ($chipDate->isSameDay($deliveryToday)) {
+                                            $chipTitle = 'Сегодня';
+                                        } elseif ($chipDate->isSameDay($deliveryToday->copy()->addDay())) {
+                                            $chipTitle = 'Завтра';
+                                        } else {
+                                            $chipDayName = $chipDate->locale('ru')->dayName;
+                                            $chipTitle = mb_strtoupper(mb_substr($chipDayName, 0, 1)) . mb_substr($chipDayName, 1);
+                                        }
+                                    @endphp
+                                    <li>
+                                        <input class="daychip__input visually-hidden" id="day-{{ $loop->iteration }}" name="day"
+                                               type="radio" value="{{ $chipDate->format('d.m.Y') }}" data-slots-source>
+                                        <label class="daychip" for="day-{{ $loop->iteration }}">
+                                            <span class="daychip__title">{{ $chipTitle }}</span>
+                                            <span class="daychip__date">{{ $chipDate->locale('ru')->translatedFormat('j F') }}</span>
+                                            <span class="daychip__mark" aria-hidden="true"></span>
+                                        </label>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
 
                         <!-- Календарь-всплывашка. Сетку месяца рисует скрипт (app.js)
                              в .calendar__grid — своя реализация без библиотек.
@@ -711,6 +776,9 @@
                     <ul class="summary__list">
                         @foreach ($cart as $item)
                             @php
+                                // Окно дат уже посчитано в шапке шаблона;
+                                // здесь проверяем ограниченность конкретной
+                                // позиции — для подписи под ней
                                 $isCategoryLimited = false;
                                 $isTagLimited = false;
 
@@ -720,39 +788,13 @@
                                     // Проверяем категорию
                                     $category = $product->groupProductCategory;
                                     if ($category) {
-                                        $category->refresh();
                                         $isCategoryLimited = $category->is_category_limited;
-                                        if ($isCategoryLimited) {
-                                            $cart_has_limited_categories = true;
-
-                                            $categoryStartDate = \Carbon\Carbon::parse($category->limit_start_date);
-                                            $categoryEndDate = \Carbon\Carbon::parse($category->limit_end_date);
-
-                                            if (is_null($maxStartDate) || $categoryStartDate->gt($maxStartDate)) {
-                                                $maxStartDate = $categoryStartDate;
-                                            }
-                                            if (is_null($minEndDate) || $categoryEndDate->lt($minEndDate)) {
-                                                $minEndDate = $categoryEndDate;
-                                            }
-                                        }
                                     }
 
                                     // Проверяем теги
                                     foreach ($product->tags as $tag) {
-                                        $tag->refresh();
                                         if ($tag->is_category_limited) {
-                                            $cart_has_limited_tags = true;
                                             $isTagLimited = true;
-
-                                            $tagStartDate = \Carbon\Carbon::parse($tag->limit_start_date);
-                                            $tagEndDate = \Carbon\Carbon::parse($tag->limit_end_date);
-
-                                            if (is_null($maxStartDate) || $tagStartDate->gt($maxStartDate)) {
-                                                $maxStartDate = $tagStartDate;
-                                            }
-                                            if (is_null($minEndDate) || $tagEndDate->lt($minEndDate)) {
-                                                $minEndDate = $tagEndDate;
-                                            }
                                         }
                                     }
 
@@ -879,11 +921,25 @@
     <!-- Интервалы доставки: тот же источник, что в старом дизайне
          (order.blade.php) — сервер вшивает их в страницу, скрипт время
          никуда не запрашивает. minDate = сегодня только если на сегодня
-         есть интервалы, иначе завтра. Лейаут объявляет window['cvetofor']
-         ниже по странице, поэтому данные вшиваем на DOMContentLoaded -->
+         есть интервалы, иначе завтра; при ограниченных товарах в корзине
+         minDate/maxDate образуют окно доступной доставки (аналог
+         minDate/maxDate во flatpickr старого order.blade.php).
+         Лейаут объявляет window['cvetofor'] ниже по странице, поэтому
+         данные вшиваем на DOMContentLoaded -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            window['cvetofor'].config.flatpickr.minDate = "{{ $deliveryStart->format('d.m.Y') }}";
+            @php
+                /* Нижняя граница календаря — не раньше начала окна
+                   ограниченной доставки (если оно ещё не наступило) */
+                $calendarMin = $deliveryStart->copy();
+                if ($maxStartDate && $maxStartDate->gt($calendarMin)) {
+                    $calendarMin = $maxStartDate->copy();
+                }
+            @endphp
+            window['cvetofor'].config.flatpickr.minDate = "{{ $calendarMin->format('d.m.Y') }}";
+            @if ($minEndDate)
+                window['cvetofor'].config.flatpickr.maxDate = "{{ $minEndDate->format('d.m.Y') }}";
+            @endif
             window['cvetofor'].config.flatpickr.minDateTimeStamp = new Date("{{ $deliveryToday->format('m/d/Y') }}");
             window['cvetofor'].config.flatpickr.times = @json($deliveryTimes['times']);
             window['cvetofor'].config.flatpickr.todayTimes = @json($deliveryTimes['todayTimes']);

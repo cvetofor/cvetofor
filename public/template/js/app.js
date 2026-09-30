@@ -1703,6 +1703,13 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   const minDate = startOfDay(parseDMY(cfg.minDate) || chipDate(chipInputs[0]) || new Date());
+  // Верхняя граница окна ограниченной доставки (config.flatpickr.maxDate,
+  // формат d.m.Y): сервер вшивает её только когда в корзине есть букеты
+  // с ограниченной категорией/тегом. Нет значения или мусор в конфиге —
+  // null: будущие даты не ограничены (прежнее поведение)
+  const parsedMaxDate = parseDMY(cfg.maxDate);
+  const maxDate = parsedMaxDate ? startOfDay(parsedMaxDate) : null;
+  const maxTime = maxDate && !isNaN(maxDate.getTime()) ? maxDate.getTime() : null;
   // серверная «сегодня»: не зависит от часов на устройстве клиента
   const today = startOfDay(
     (cfg.minDateTimeStamp ? new Date(cfg.minDateTimeStamp) : null) ||
@@ -1932,8 +1939,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const monthIndex = function (date) {
       return date.getFullYear() * 12 + date.getMonth();
     };
-    // За границу минимума месяц не листается; вверх — без ограничений
     prev.disabled = monthIndex(new Date(year, month - 1, 1)) < monthIndex(minDate);
+    next.disabled = maxTime !== null
+      && monthIndex(new Date(year, month + 1, 1)) > monthIndex(maxDate);
 
     head.appendChild(prev);
     head.appendChild(title);
@@ -1962,9 +1970,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const days = document.createElement("div");
     days.className = "calendar__days";
 
-    // Минимум с защитой от невалидной даты: мусорный minDate не должен
-    // замыкать весь календарь — в этом случае дни не блокируем вовсе.
-    // Максимума нет: любая дата из будущего доступна
+    // Минимум/максимум с защитой от невалидной даты: мусорный minDate/maxDate
+    // не должен замыкать весь календарь — в этом случае дни не блокируем вовсе
     const minTime = isNaN(minDate.getTime()) ? null : minDate.getTime();
 
     const offset = (new Date(year, month, 1).getDay() + 6) % 7; // пн = 0
@@ -1985,7 +1992,7 @@ document.addEventListener("DOMContentLoaded", function () {
       cell.className = "calendar__day";
       cell.textContent = String(day);
 
-      if (minTime !== null && time < minTime) {
+      if ((minTime !== null && time < minTime) || (maxTime !== null && time > maxTime)) {
         cell.disabled = true;
       }
       if (time === today.getTime()) {
