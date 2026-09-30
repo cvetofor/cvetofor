@@ -1209,6 +1209,22 @@ body {
   gap: var(--space-sm);
 }
 
+/* Мобильная: строка «Цена: поля + Применить» не помещается — кнопка
+   уходит под поля на всю ширину. Grid, а не flex-wrap, чтобы поля
+   гарантированно остались на одной строке с ярлыком */
+.filters__group--price {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+/* Размер — как у «В корзину» в карточках товара: высота у них уже общая
+   (40 у .btn--primary), ширина здесь по содержимому, а не на всю панель */
+.filters__group--price .card__buy {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: auto;
+}
+
 /* 16 на мобильной (323:224 — «Цена:» 44x22), 20 на десктопе */
 .filters__label {
   font-size: var(--fs-label);
@@ -1333,8 +1349,17 @@ body {
     gap: var(--space-xl);
   }
 
-  .filters__group:first-child {
+  /* На десктопе кнопка возвращается в строку после полей цены.
+     Раньше тут был :first-child — на страницах поиска перед группой
+     появляется hidden-инпут с q, и селектор переставал совпадать */
+  .filters__group--price {
+    display: flex;
     gap: var(--space-sm);
+  }
+
+  /* width: auto из мобильного правила не должен менять десктоп */
+  .filters__group--price .card__buy {
+    width: 100%;
   }
 
   .filters__view {

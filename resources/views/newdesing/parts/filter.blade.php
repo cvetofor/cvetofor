@@ -8,7 +8,7 @@
         @elseif(request()->input('product'))
             <input type="hidden" name="product" value="{{ request()->input('product') }}">
         @endif
-        <div class="filters__group">
+        <div class="filters__group filters__group--price">
             <span class="filters__label" id="price-label">Цена:</span>
             <div class="filters__range" role="group" aria-labelledby="price-label">
                 <input class="field field--num" type="number" name="price[from]"
