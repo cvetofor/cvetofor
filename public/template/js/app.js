@@ -97,65 +97,94 @@ document.querySelectorAll('[data-gallery]').forEach((gallery) => {
 /* ---------------------------------------------- Оверлеи (меню, город) */
 
 /*
- * Открываются и закрываются без скрипта — по :target. Здесь только то,
- * чего CSS не умеет: Esc, клик мимо панели и возврат фокуса на кнопку,
- * которой оверлей открыли.
+ * Открываются и закрываются скриптом — классом is-open на .overlay.
+ * Хеш в URL не пишется: раньше адрес вида «…#city-picker» оставался
+ * после закрытия и открывал панель заново при перезагрузке страницы.
+ * Ссылки в разметке прежние — клик по ним перехватывается ниже.
  */
 
 const overlays = document.querySelectorAll('.overlay');
 
+let opener = null;
+
+// Всё, что лежит рядом с оверлеями: пока панель открыта, эта часть
+// страницы становится inert — иначе Tab уходит под панель, к шести
+// десяткам ссылок, которых на экране не видно
+const rest = overlays.length
+  ? Array.from(document.body.children).filter((el) => !el.matches('.overlay, script'))
+  : [];
+
+const setRestInert = (locked) => {
+  rest.forEach((el) => { el.inert = Boolean(locked); });
+};
+
+const openOverlay = (id) => {
+  const next = document.getElementById(id);
+  if (!next || !next.matches('.overlay')) return;
+
+  overlays.forEach((el) => { el.classList.remove('is-open'); });
+  next.classList.add('is-open');
+  setRestInert(true);
+
+  const first = next.querySelector('.overlay__close');
+  if (first) first.focus();
+};
+
+const closeOverlay = () => {
+  if (!document.querySelector('.overlay.is-open')) return;
+
+  overlays.forEach((el) => { el.classList.remove('is-open'); });
+  setRestInert(false);
+
+  if (opener) {
+    opener.focus();
+    opener = null;
+  }
+};
+
 if (overlays.length) {
-  // Всё, что лежит рядом с оверлеями: пока панель открыта, эта часть
-  // страницы становится inert — иначе Tab уходит под панель, к шести
-  // десяткам ссылок, которых на экране не видно
-  const rest = Array.from(document.body.children).filter(
-    (el) => !el.matches('.overlay, script')
-  );
+  // href="#overlay-id" открывает панель, href="#main" внутри панели
+  // (крестик, «Понятно») закрывает. В обоих случаях переход по ссылке
+  // отменяем — URL остаётся без хеша
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link) return;
 
-  let opener = null;
+    const href = link.getAttribute('href');
 
-  const close = () => {
-    if (!document.querySelector('.overlay:target')) return;
-    // :target пересчитывается только при смене хеша, replaceState не годится.
-    // Это тот же переход, что делает кнопка закрытия, — все три способа
-    // закрытия (кнопка, Esc, клик мимо) проходят через один обработчик ниже.
-    location.hash = 'main';
-  };
-
-  document.querySelectorAll('a[href^="#"]').forEach((link) => {
-    const panel = document.getElementById(link.getAttribute('href').slice(1));
-    if (!panel || !panel.matches('.overlay')) return;
-    link.addEventListener('click', () => { opener = link; });
-  });
-
-  // Фокус переводим только после смены хеша: до неё :target ещё не сработал,
-  // панель скрыта display: none и focus() на ней молча ничего не делает
-  const sync = () => {
-    const open = document.querySelector('.overlay:target');
-    rest.forEach((el) => { el.inert = Boolean(open); });
-
-    if (open) {
-      const first = open.querySelector('.overlay__close');
-      if (first) first.focus();
-    } else if (opener) {
-      opener.focus();
-      opener = null;
+    if (link.closest('.overlay') && href === '#main') {
+      event.preventDefault();
+      closeOverlay();
+      return;
     }
-  };
 
-  window.addEventListener('hashchange', sync);
-  sync();
+    const id = href.slice(1);
+    const panel = document.getElementById(id);
+    if (panel && panel.matches('.overlay')) {
+      event.preventDefault();
+      opener = link;
+      openOverlay(id);
+    }
+  });
 
   overlays.forEach((overlay) => {
     overlay.addEventListener('click', (event) => {
-      if (event.target === overlay) close();
+      if (event.target === overlay) closeOverlay();
     });
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') close();
+    if (event.key === 'Escape') closeOverlay();
   });
+
+  // В адресе мог остаться хеш от прошлой версии (закладка, открытая
+  // вкладка) — вычищаем: теперь он ничего не открывает и только мешает
+  if (location.hash) {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
 }
+
+window.Cvetofor = Object.assign(window.Cvetofor || {}, { openOverlay, closeOverlay });
 
 /* --------------------------- Блоки, появляющиеся по действию пользователя */
 
@@ -776,7 +805,7 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
             text.textContent = error.message ||
               'По выбранному адресу доставка недоступна. Попробуйте другой адрес.';
           }
-          location.hash = 'delivery-area';
+          window.Cvetofor.openOverlay('delivery-area');
           return;
         }
 
@@ -1040,14 +1069,14 @@ document.querySelectorAll('input.js-phone').forEach((input) => {
   // «Не знаю адрес» сначала показывает предупреждение,
   // поля скрываются только после «Принимаю»
   unknown.addEventListener('click', () => {
-    window.location.hash = 'no-address';
+    window.Cvetofor.openOverlay('no-address');
   });
 
   const accept = document.querySelector('[data-accept-no-address]');
   if (accept) {
     accept.addEventListener('click', () => {
       setActive(false);
-      window.location.hash = 'main';
+      window.Cvetofor.closeOverlay();
     });
   }
 })();
@@ -1267,7 +1296,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (response) {
         document.querySelector('.city__name').textContent = response.name;
-        history.replaceState(null, '', '#main'); // чтобы модалка не открылась снова после перезагрузки
         window.location.reload();
       } else if (error) {
         document.querySelector('.cities-loading')?.remove(); // ошибка — убрать лоадер
@@ -1817,7 +1845,7 @@ document.addEventListener("DOMContentLoaded", function () {
           text.textContent = error.message ||
             "По выбранному адресу доставка недоступна. Попробуйте другой адрес.";
         }
-        location.hash = "delivery-area";
+        window.Cvetofor.openOverlay("delivery-area");
         return;
       }
 
@@ -1860,7 +1888,7 @@ document.addEventListener("DOMContentLoaded", function () {
         freeSum.textContent = money.format(response.free);
       }
 
-      location.hash = "delivery-summ";
+      window.Cvetofor.openOverlay("delivery-summ");
     }).catch(function () {
       // сеть/сервер недоступны — цены остаются серверными
     });

@@ -893,8 +893,9 @@
 
     <!-- Всплывашка изменения стоимости доставки (аналог delivery-show-summ
          старого дизайна). Оверлей — прямой ребёнок body: инерт-логика app.js
-         исключает его из затемнения фона. Открывается хешем #delivery-summ.
-         Карточка та же, что у #no-address (city-modal) -->
+         исключает его из затемнения фона. Открывается скриптом
+         Cvetofor.openOverlay('delivery-summ'). Карточка та же, что у
+         #no-address (city-modal) -->
     <div class="overlay overlay--center" id="delivery-summ">
         <div class="overlay__panel city-modal">
             <div class="city-modal__head">
@@ -917,7 +918,8 @@
 
     <!-- Адрес вне зоны доставки: ответ deliveryRadius с modal=delivery-area
          (аналог модалки delivery-area старого дизайна). Текст подменяет
-         скрипт сообщением сервера. Открывается хешем #delivery-area -->
+         скрипт сообщением сервера. Открывается скриптом
+         Cvetofor.openOverlay('delivery-area') -->
     <div class="overlay overlay--center" id="delivery-area">
         <div class="overlay__panel city-modal">
             <div class="city-modal__head">
