@@ -1904,8 +1904,10 @@ legend.fieldset__legend {
  * В мобильном макете (295:264) порядок такой: сводка, полоса шагов,
  * форма и только потом кнопка, а в разметке кнопка лежит внутри правой
  * колонки — иначе на десктопе она уезжает в новый ряд сетки (§4.9).
- * Согласие на обработку ПД — сразу под кнопкой (order: 5): без явного
- * order оно получает 0 и уезжает в начало страницы.
+ * Элемент сетки здесь — .checkout-step (обёртка формы шага), а не
+ * .checkout__form: форма вложена в обёртку, order на ней не работает.
+ * Гарантия — между формой и кнопкой (её DOM-позиция в колонке),
+ * согласие на обработку ПД — сразу под кнопкой.
  */
 .checkout__aside {
   display: contents;
@@ -1913,9 +1915,10 @@ legend.fieldset__legend {
 
 .summary            { order: 1; }
 .steps-wrap         { order: 2; }
-.checkout__form     { order: 3; }
-.checkout__submit   { order: 4; }
-.checkout__consent  { order: 5; }
+.checkout-step      { order: 3; }
+.guarantee          { order: 4; }
+.checkout__submit   { order: 5; }
+.checkout__consent  { order: 6; }
 
 /* Форма на мобильной — не карточка: в макете поля лежат прямо на
    странице от края до края контейнера, без подложки, тени и паддинга */
@@ -2065,8 +2068,10 @@ legend.fieldset__legend {
   .summary,
   .guarantee,
   .checkout__aside,
+  .checkout-step,
   .checkout__form,
-  .checkout__submit {
+  .checkout__submit,
+  .checkout__consent {
     order: 0;
   }
 

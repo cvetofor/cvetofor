@@ -54,7 +54,7 @@
     $udsApplied = session('uds_points_used') && session('uds_old_total') && session('uds_new_total');
 @endphp
 @section('css')
-    <link rel="stylesheet" href="template/css/build/page-checkout.css?v=20260930">
+    <link rel="stylesheet" href="template/css/build/page-checkout.css?v=202609301">
 @endsection
 @section('content')
 
