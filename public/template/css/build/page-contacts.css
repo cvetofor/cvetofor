@@ -266,6 +266,13 @@
   border-radius: 25px;
 }
 
+/* Контейнер, в который ymaps рисует карту: без высоты API карты
+   не отрисовывается, высоту даёт обёртка .shops__map
+   (aspect-ratio на мобиле, 474px на десктопе) */
+.map__holder {
+  height: 100%;
+}
+
 .shops__search {
   margin-block-end: 22px;
 }
@@ -275,10 +282,20 @@
 }
 
 /* Адрес: 82 на позицию, 36 между позицией и разделителем (64:216) */
+/* Горизонтальный padding с компенсирующим margin: пункт кликабелен и
+   подсвечивается фоном, но в покое текст стоит там же, где до этого */
 .shop {
   display: grid;
   gap: 12px;
   padding-block: 16px;
+  padding-inline: 16px;
+  margin-inline: -16px;
+  cursor: pointer;
+}
+
+.shop.active {
+  background-color: #fff4f6;
+  border-radius: 15px;
 }
 
 .shop + .shop {
@@ -460,6 +477,13 @@
   outline: 2px solid #dc0978;
   outline-offset: 1px;
   border-color: #dc0978;
+}
+
+/* Ошибка валидации: Cvetofor.setFieldError вешает is-error на обёртку
+   поля. Общее правило .field-wrap.is-error здесь не подходит —
+   у этой формы обёртка .ffield, а рамка у самого поля */
+.ffield.is-error .ffield__input {
+  border-color: #ca0606;
 }
 
 /* На мобильной кнопка во всю ширину формы (305:296 — 320×59),

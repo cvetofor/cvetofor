@@ -327,6 +327,79 @@ body {
   }
 }
 
+/* Баннер страниц ошибок 404/500/503: единственный «обычный» баннер
+   без фотографии, поэтому его подложка и паддинги живут здесь, а не
+   в страничном CSS. Селекторы заперты под .page-error — на другие
+   баннеры этот блок не влияет */
+
+.page-error {
+  padding: 40px;
+  background-color: #fbd8de;
+}
+
+/* Пятно вместо фотографии: пустой цветной баннер выглядит незавершённым,
+   а снимок букета на странице ошибки неуместен. Обрезается overflow
+   оболочки, z-index -1 — за текстом, как фото у «Способов оплаты» */
+.page-error::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block-start: -160px;
+  inset-inline-end: -120px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background-color: #ffe2e7;
+}
+
+/* Крошки без модификатора --overlay кегля выше по файлу не получают,
+   а их приглушение 0.5 на розовой подложке — 3.4:1. Здесь крупнее
+   и плотнее: подпись «Ошибка N» обязана читаться */
+.page-error .page-banner__crumbs {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.page-error .page-banner__crumb {
+  opacity: 0.8;
+}
+
+.page-error__note {
+  max-width: 480px;
+  margin-block-start: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+  opacity: 0.5;
+}
+
+@media (min-width: 1024px) {
+  .page-error__note {
+    font-size: 20px;
+    line-height: 26px;
+  }
+}
+
+.page-error__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-block-start: 32px;
+}
+
+/* Кнопки hero растягиваем: в строку на десктопе, в столбик на всю
+   ширину на мобильном — на узком баннере базовые 231px ужимаются
+   и переносят надпись */
+.page-error__btn {
+  flex: 1 1 231px;
+}
+
+@media (min-width: 1024px) {
+  .page-error {
+    padding: 67px 80px;
+  }
+}
+
 /* ================================================================ Header */
 
 .header {

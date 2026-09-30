@@ -9,7 +9,7 @@
  */
 
 /* Маркер версии: по нему видно, какая сборка скрипта реально выполнилась */
-document.documentElement.dataset.app = '16';
+document.documentElement.dataset.app = '18';
 
 /* ------------------------------------------- Закрываемые блоки (плашка) */
 
@@ -2535,5 +2535,161 @@ document.addEventListener("DOMContentLoaded", function () {
 
       showNote(recoveryForm, "Новый пароль отправляем вам в СМС сообщении.", true);
     });
+  });
+});
+
+/* ---------------------------------------- Карта магазинов («Контакты»)
+   Перенос поведения старого дизайна: каждый пункт [data-map-address]
+   геокодируется, метка — картинка из data-map-icon; клик по пункту
+   центрирует карту, клик по метке активирует пункт. Скрипт api-maps
+   подключается в contacts.blade.php синхронно, до defer-загрузки app.js,
+   поэтому ymaps на DOMContentLoaded уже существует; guard — на случай,
+   если внешний скрипт не загрузился. Фильтр поиска работает и без карты. */
+
+document.addEventListener("DOMContentLoaded", function () {
+  const items = Array.from(document.querySelectorAll("[data-map-address]"));
+  const searchInput = document.getElementById("shop-search");
+
+  if (searchInput && items.length) {
+    searchInput.addEventListener("input", function () {
+      const query = this.value.trim().toLowerCase();
+
+      items.forEach(function (item) {
+        const address = (item.dataset.mapAddress || "").toLowerCase();
+        const match = !query || address.indexOf(query) !== -1;
+        item.hidden = !match;
+      });
+    });
+  }
+
+  const mapHolder = document.querySelector("[data-map]");
+  if (!mapHolder || items.length === 0 || typeof ymaps === "undefined") return;
+
+  ymaps.ready(function () {
+    const icon = mapHolder.dataset.mapIcon;
+    // Пустой data-map-coords даёт центр [0, 0]: до первого геокода карта
+    // «в океане», как в старом дизайне, затем перецентрируется на магазин
+    const coords = (mapHolder.dataset.mapCoords || "").split(",").map(Number);
+    const center = coords.length === 2 && coords.every(Number.isFinite)
+      ? coords
+      : [0, 0];
+
+    const map = new ymaps.Map(mapHolder, {
+      center: center,
+      zoom: 15,
+      controls: [],
+    });
+
+    const points = new ymaps.ObjectManager();
+    map.geoObjects.add(points);
+
+    items.forEach(function (item, i) {
+      ymaps
+        .geocode(item.dataset.mapAddress, { results: 1 })
+        .then(function (res) {
+          const geoObject = res.geoObjects.get(0);
+          if (!geoObject) return;
+
+          const point = geoObject.geometry.getCoordinates();
+
+          points.add({
+            type: "Feature",
+            id: i,
+            geometry: { type: "Point", coordinates: point },
+            options: {
+              iconLayout: "default#image",
+              iconImageHref: icon,
+              iconImageSize: [41, 46],
+              iconImageOffset: [-20, -46],
+            },
+          });
+
+          if (i === 0) {
+            map.setCenter(point, 15, { checkZoomRange: true });
+          }
+        });
+
+      item.addEventListener("click", function () {
+        if (!this.classList.contains("active")) {
+          const current = document.querySelector("[data-map-address].active");
+          if (current) current.classList.remove("active");
+          this.classList.add("active");
+        }
+
+        // До ответа геокодера метки ещё нет — центрировать не на чем
+        const object = points.objects.getById(i);
+        if (object) {
+          map.setCenter(object.geometry.coordinates, 15, { checkZoomRange: true });
+        }
+      });
+    });
+
+    points.objects.events.add("click", function (event) {
+      const item = items[event.get("objectId")];
+      if (item && !item.classList.contains("active")) {
+        item.click();
+      }
+    });
+  });
+});
+
+/* ------------------------------- AJAX-формы [data-form] («Связаться с нами»)
+   Отправка без перезагрузки на тот же action и с теми же полями, что у
+   обычной формы: имена берутся из разметки, браузерная валидация required
+   срабатывает раньше события submit. Сервер (FormController) на AJAX
+   отвечает JSON: 422 {errors} → подписи под полями, успех — модель формы,
+   без redirect/message, поэтому успех распознаём по отсутствию error. */
+
+document.addEventListener("DOMContentLoaded", function () {
+  if (!document.querySelector("[data-form]")) return;
+
+  document.addEventListener("submit", async function (event) {
+    const form = event.target.closest("[data-form]");
+    if (!form) return;
+
+    event.preventDefault();
+
+    // Кнопка гасится на время запроса: без этого повторный клик успевает
+    // отправить форму ещё раз (роут /form к тому же throttled 6/мин)
+    const button = form.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+
+    const payload = Object.fromEntries(new FormData(form));
+
+    let result;
+    try {
+      result = await request(form.action, form.method, payload);
+    } catch (_) {
+      window.Cvetofor.toast({
+        title: "Не удалось отправить",
+        note: "Сервер недоступен, попробуйте ещё раз"
+      });
+      if (button) button.disabled = false;
+      return;
+    }
+
+    if (button) button.disabled = false;
+
+    const { response, error } = result;
+
+    if (error) {
+      if (error.errors) {
+        Object.keys(error.errors).forEach(function (name) {
+          window.Cvetofor.setFieldError(
+            form.querySelector('[name="' + name + '"]'),
+            error.errors[name][0]
+          );
+        });
+      } else if (error.message) {
+        window.Cvetofor.toast({ title: "Не удалось отправить", note: error.message });
+      }
+      return;
+    }
+
+    window.Cvetofor.toast({
+      title: "Заявка отправлена",
+      note: "Мы свяжемся с вами в ближайшее время"
+    });
+    form.reset();
   });
 });

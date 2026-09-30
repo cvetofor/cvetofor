@@ -1,6 +1,9 @@
-@extends('layouts.app')
+@extends(config('is_new_desing') ? 'newdesing.app' : 'layouts.app')
 
 @section('content')
+    @if(config('is_new_desing'))
+        @include('newdesing.errors.500')
+    @else
     <div class="heading">
         <div class="container">
             <div class="heading__row">
@@ -23,4 +26,5 @@
             </div>
         </div>
     </div>
+    @endif
 @endsection

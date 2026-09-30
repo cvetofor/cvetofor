@@ -1,7 +1,7 @@
 @extends('newdesing.app')
 @inject('citiesService', \App\Services\CitiesService::class)
 @inject('marketService', \App\Services\MarketService::class)
-@section('css')<link rel="stylesheet" href="/template/css/build/page-contacts.css?v=20260918">@endsection
+@section('css')<link rel="stylesheet" href="/template/css/build/page-contacts.css?v=1">@endsection
 @section('content')
 
     <main id="main">
@@ -138,12 +138,12 @@
                                 @endif
 
                             </li>
-                        @endforeach
+
                             @if ($market->additional_addresses)
                                 @foreach ($market->additional_addresses as $_address)
                                     @if ($_address && isset($_address['address']))
-                                        <li class="shop contacts__addresses-item  "
-                                            data-map-address="{{ $market->city->city }},  {{ $_address['address'] ?? '' }}"
+                                        <li class="shop contacts__addresses-item"
+                                            data-map-address="{{ $market->city->city }}, {{ $_address['address'] ?? '' }}"
                                         >
                                             <h3 class="shop__name">
                                                 <img src="/template/assets/icons/pin.svg" alt="" width="15" height="20">
@@ -155,17 +155,11 @@
                                                 <p class="shop__hours">{{ $market->workTimeLong()[0] ?? '' }}</p>
                                                 <p class="shop__hours">{{ $market->workTimeLong()[1] ?? '' }}</p>
                                             @endif
-
-
                                         </li>
-
-
-
-
                                     @endif
                                 @endforeach
                             @endif
-
+                        @endforeach
                     </ul>
                 </div>
                 <div class="contacts__map map map--no-touch shops__map" data-map-overlay="">
@@ -220,9 +214,7 @@
             <section aria-labelledby="form-title">
                 <h2 class="section__title" id="form-title">Связаться с нами</h2>
 
-                <form class="panel contact-form"  method="post"  data-form-wrapper="contact-us"
-                      data-form="contact-us" data-validate-form=""
-                      data-form-body=""
+                <form class="panel contact-form" data-form="contact-us"
                       method="POST"
                       action="{{ route('form') }}">
                     @csrf
@@ -234,7 +226,7 @@
                     </div>
                     <div class="ffield">
                         <label class="ffield__label" for="c-phone">Телефон <span class="req" aria-hidden="true">*</span></label>
-                        <input class="ffield__input" id="c-phone" name="phone" type="tel"
+                        <input class="ffield__input js-phone" id="c-phone" name="phone" type="tel"
                                placeholder="+7 (000) 000-00-00" autocomplete="tel" required>
                     </div>
                     <div class="ffield">
@@ -258,5 +250,4 @@
             </section>
         </div>
     </main>
-    <script src="/dist/js/common.js?v=01{{time()}}"></script>
 @endsection
