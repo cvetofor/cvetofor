@@ -21,7 +21,7 @@
 
     @if($paginator->hasMorePages())
         <div class="products__more-wrap">
-            <button class="btn btn--primary products__more  show-more-button" data-load-more="" type="button" href="{{ $paginator->appends(request()->input())->nextPageUrl() }}">Показать ещё</button>
+            <button class="btn btn--primary products__more  show-more-button" data-load-more="" type="button" href="{{ $paginator->appends(($typeproduct ?? '') == 'product' ? request()->input() + ['type' => 'ad'] : request()->input())->nextPageUrl() }}">Показать ещё</button>
         </div>
     @endif
 </section>

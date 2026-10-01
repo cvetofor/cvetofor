@@ -9,7 +9,7 @@
  */
 
 /* Маркер версии: по нему видно, какая сборка скрипта реально выполнилась */
-document.documentElement.dataset.app = '19';
+document.documentElement.dataset.app = '20';
 
 /* ------------------------------------------- Закрываемые блоки (плашка) */
 
@@ -1082,74 +1082,61 @@ document.querySelectorAll('input.js-phone').forEach((input) => {
 })();
 
 document.addEventListener("DOMContentLoaded", () => PutToCart());
-// Кнопка добавить в корзине
+// Кнопка добавить в корзине — клик делегирован на document, чтобы работали
+// и карточки, догруженные «Показать ещё»
 const PutToCart = function () {
 
-  const cartButtons = document.querySelectorAll('[data-put-cart-sku],[data-cart-additional-item-add],[data-cart-additional-item-add-cat]');
+  document.addEventListener('click', async function (e) {
 
-  if (cartButtons) {
-    cartButtons.forEach(function (button) {
-      button.addEventListener('click', async function (e) {
+    const button = e.target.closest('[data-put-cart-sku],[data-cart-additional-item-add],[data-cart-additional-item-add-cat]');
 
-        let sku = '';
-        let link = window['cvetofor'].config.routes.cart.put;
+    if (!button) return;
 
-        if (button.getAttribute('data-cart-additional-item-add')) {
-          sku = button.getAttribute('data-id');
-          link = window['cvetofor'].config.routes.cart.putAdditional;
-        }else{
-          if (button.getAttribute('data-cart-additional-item-add-cat')) {
-            sku = button.getAttribute('data-id');
-            link = window['cvetofor'].config.routes.cart.putAdditional;
-          } else {
-            sku = button.getAttribute('data-put-cart-sku');
-          }
+    let sku = '';
+    let link = window['cvetofor'].config.routes.cart.put;
 
+    if (button.getAttribute('data-cart-additional-item-add')) {
+      sku = button.getAttribute('data-id');
+      link = window['cvetofor'].config.routes.cart.putAdditional;
+    } else {
+      if (button.getAttribute('data-cart-additional-item-add-cat')) {
+        sku = button.getAttribute('data-id');
+        link = window['cvetofor'].config.routes.cart.putAdditional;
+      } else {
+        sku = button.getAttribute('data-put-cart-sku');
+      }
+    }
 
-        }
+    shareLastSku = sku;
 
+    const {response, error} = await request(link(sku), "PUT");
 
+    if (response) {
+      if (button.getAttribute('data-cart-additional-item-add')) {
+        window.location.reload();
+      }
 
+      const scope = button.closest('.card');
+      const photo = (scope || document).querySelector('.card__photo, [data-cart-photo]');
 
-        shareLastSku = sku;
-
-        const {response, error} = await request(link(sku), "PUT");
-
-        if (response) {
-          if (button.getAttribute('data-cart-additional-item-add')) {
-            window.location.reload();
-          }
-
-
-
-
-          const scope = button.closest('.card');
-          const photo = (scope || document).querySelector('.card__photo, [data-cart-photo]');
-
-          showToast({
-            photo: photo ? photo.currentSrc || photo.src : '',
-            title: 'Добавлено в корзину',
-            note: 'В корзину была добавлена одна позиция'
-          });
-
-
-
-
-
-          setCounter(response.count)
-        }
-        else if (error) {
-          if (error.modal) {
-            modal.show(error.modal);
-          }
-          else {
-            alert(error.message);
-          }
-        }
-
+      showToast({
+        photo: photo ? photo.currentSrc || photo.src : '',
+        title: 'Добавлено в корзину',
+        note: 'В корзину была добавлена одна позиция'
       });
-    });
-  }
+
+      setCounter(response.count)
+    }
+    else if (error) {
+      if (error.modal) {
+        modal.show(error.modal);
+      }
+      else {
+        alert(error.message);
+      }
+    }
+
+  });
 }
 
 function setCounter(count) {
@@ -1207,7 +1194,7 @@ const LoadMore = function (child = null) {
       btnMore.addEventListener("click", async function (e) {
         e.preventDefault();
 
-        btnMore.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+        btnMore.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Загрузка…</span>';
         btnMore.setAttribute('disabled', 'disabled');
         const { response, error } = await request(btnMore.getAttribute('href'));
 
@@ -2871,5 +2858,102 @@ document.addEventListener("DOMContentLoaded", function () {
     form.reset();
     form.hidden = true;
     success.hidden = false;
+  });
+});
+
+/* ------------------------------- Лайтбокс галереи товара (Swiper) */
+
+/*
+ * Клик по большому фото открывает полноэкранный слайдер увеличенных
+ * снимков. Слайды собираются из миниатюр галереи — адреса те же, что
+ * уже показаны в карточке, браузер берёт их из кэша. Видео в лайтбокс
+ * не входит: оно играет в карточке, клики по нему не меняются.
+ *
+ * Swiper — локальная копия (js/vendor), подключается в product.blade.php
+ * defer-скриптом раньше этого файла. Инициализация ленивая, при первом
+ * открытии: оверлей скрыт через display:none, и инициализация в скрытом
+ * контейнере даёт сломанные размеры слайдов.
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  const gallery = document.querySelector("[data-gallery]");
+  const lightbox = document.getElementById("photo-viewer");
+  if (!gallery || !lightbox || typeof Swiper === "undefined") return;
+
+  // Те же миниатюры, что листает блок №2, минус видео-слайд
+  const items = Array.from(gallery.querySelectorAll("[data-gallery-item]"));
+  const photos = items.filter((item) => !item.hasAttribute("data-gallery-video"));
+  const main = gallery.querySelector("[data-gallery-main]");
+  const wrapper = lightbox.querySelector(".swiper-wrapper");
+  if (!main || !wrapper || photos.length === 0) return;
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let swiper = null;
+
+  const build = () => {
+    photos.forEach((item) => {
+      const thumb = item.querySelector("img");
+      const img = document.createElement("img");
+      img.src = item.getAttribute("href");
+      img.alt = thumb ? thumb.alt : "";
+
+      const zoomer = document.createElement("div");
+      zoomer.className = "swiper-zoom-container";
+      zoomer.appendChild(img);
+
+      const slide = document.createElement("div");
+      slide.className = "swiper-slide";
+      slide.appendChild(zoomer);
+      wrapper.appendChild(slide);
+    });
+
+    swiper = new Swiper(lightbox.querySelector(".lightbox__swiper"), {
+      zoom: { maxRatio: 3 },
+      navigation: {
+        prevEl: ".lightbox .swiper-button-prev",
+        nextEl: ".lightbox .swiper-button-next",
+      },
+      pagination: {
+        el: ".lightbox .swiper-pagination",
+        type: "fraction",
+      },
+      speed: reducedMotion ? 0 : 300,
+    });
+
+    // Перелистывание в лайтбоксе переключает и карточку: программный
+    // клик по миниатюре запускает show() блока №2, вскрывать его
+    // замыкание не нужно
+    swiper.on("slideChange", () => {
+      photos[swiper.activeIndex].click();
+    });
+  };
+
+  main.addEventListener("click", () => {
+    // Сначала показываем контейнер — потом меряем: update() в скрытом
+    // оверлее посчитал бы слайды нулевыми
+    window.Cvetofor.openOverlay("photo-viewer");
+
+    if (!swiper) build();
+    else swiper.update();
+
+    // Открываем на текущем фото карточки: aria-current расставляет блок №2
+    const current = items.findIndex((item) => item.hasAttribute("aria-current"));
+    swiper.slideTo(Math.max(0, photos.indexOf(items[current])), 0);
+  });
+
+  // Клик по тёмному фону (мимо фото, стрелок и крестика) закрывает.
+  // Одиночный клик по самому фото ничего не делает — двойной приближает
+  lightbox.addEventListener("click", (event) => {
+    if (event.target.closest("img, a, .swiper-button-prev, .swiper-button-next")) return;
+    window.Cvetofor.closeOverlay();
+  });
+
+  // Стрелки клавиатуры — свой обработчик вместо keyboard-модуля Swiper:
+  // его слушатель живёт на document всегда и листал бы слайды в закрытом
+  // лайтбоксе. Этот работает только пока оверлей открыт
+  document.addEventListener("keydown", (event) => {
+    if (!lightbox.classList.contains("is-open")) return;
+
+    if (event.key === "ArrowLeft") swiper.slidePrev();
+    else if (event.key === "ArrowRight") swiper.slideNext();
   });
 });

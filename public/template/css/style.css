@@ -1007,6 +1007,26 @@ body {
   transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
 }
 
+/* Спиннер состояния загрузки (например, «Показать ещё»); цвет наследует
+   цвет текста кнопки */
+.spinner {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+}
+
 .btn--primary {
   padding: var(--space-2xs) var(--space-md);
   min-height: 40px;
@@ -1567,10 +1587,18 @@ body {
 }
 
 /* 18/18 на мобильной (328:244 — слой 146x18) */
+/* Максимум три строки (54px): высота фиксирована — карточки ряда не растут,
+   кнопки не прыгают. Лишний текст растворяется маской слева направо у
+   правого края; короткие названия до края не доходят */
 .card__title {
   font-size: var(--fs-body-lg);
   font-weight: var(--fw-medium);
   line-height: 18px;
+  height: 54px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 30px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 30px), transparent);
 }
 
 /* Растягиваем ссылку на всю карточку — вся карточка кликабельна,
@@ -1755,6 +1783,11 @@ body {
 
   .card__title {
     line-height: 1.2;
+    /* 20/1.2 = 24px за строку: максимум три строки (72px), растворение
+       слева направо у правого края (последние 40px) */
+    height: 72px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
   }
 
   .card__prices {

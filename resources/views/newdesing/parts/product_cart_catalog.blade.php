@@ -39,7 +39,7 @@
         </div>
 
         <div class="card__body">
-            <h3 class="card__title" style="min-height: 48px"><a class="card__link" href="{{ $price->link }}"> {{ $price->$typeproduct->title }}</a></h3>
+            <h3 class="card__title"><a class="card__link" href="{{ $price->link }}" title="{{ $price->$typeproduct->title }}"> {{ $price->$typeproduct->title }}</a></h3>
 
             <p class="card__prices">
                 <span class="card__price">@money(round($price->public_price)) р.</span>

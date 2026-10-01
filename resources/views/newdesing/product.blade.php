@@ -31,6 +31,10 @@
     </script>
 @endpush
 @section('css')
+    {{-- Swiper — локальная копия (css/vendor), нужна только этой странице.
+         Подключаем до страничных стилей, чтобы кастомизация лайтбокса
+         из page-product.css перебивала дефолтные стили слайдера --}}
+    <link rel="stylesheet" href="/template/css/vendor/swiper-bundle.min.css?v={{time()}}">
     <link rel="stylesheet" href="/template/css/build/page-product.css?v={{time()}}">
 
 @endsection
@@ -229,12 +233,23 @@
                     <span class="chevron chevron--forward" aria-hidden="true"></span>
                 </a>
 
+                @php
+                    // Псевдослучайный счётчик «заказали N раз»: seed = id + дата,
+                    // поэтому число одно на сутки для всех пользователей и меняется в полночь
+                    $boughtDate = \App\Services\CitiesService::DateTime()->format('Y-m-d');
+                    $boughtCount = 10 + (abs(crc32($groupProduct->id . '|' . $boughtDate)) % 41);
+                    $boughtMod10 = $boughtCount % 10;
+                    $boughtMod100 = $boughtCount % 100;
+                    $boughtWord = (($boughtMod100 >= 11 && $boughtMod100 <= 14) || in_array($boughtMod10, [0, 1, 5, 6, 7, 8, 9]))
+                        ? 'раз'
+                        : 'раза';
+                @endphp
                 <p class="product__proof">
                     За последние 24 часа <span class="product__proof-accent">этот букет заказали</span>
                 </p>
                 <p class="proof-pill">
                     <img src="/template/assets/icons/proof-bouquet.svg" alt="" width="32" height="32">
-                    <span class="proof-pill__count">17 раз</span>
+                    <span class="proof-pill__count">{{ $boughtCount }} {{ $boughtWord }}</span>
                 </p>
             </div>
         </section>
@@ -488,5 +503,31 @@
         </section>
         @endif
     </main>
+
+    {{-- Лайтбокс увеличенных фото: клик по большому фото галереи открывает
+         полноэкранный слайдер (блок №32 в app.js). Слайды строит скрипт из
+         миниатюр галереи — здесь только каркас, без JS оверлей не открывается.
+         Открытие/закрытие — общий механизм оверлеев №3 (Esc, крестик #main);
+         клик по тёмному фону закрывает блок №32 --}}
+    <div class="overlay lightbox" id="photo-viewer">
+        <div class="lightbox__panel">
+            <a class="overlay__close lightbox__close" href="#main" aria-label="Закрыть просмотр фото">
+                <span class="cross" aria-hidden="true"></span>
+            </a>
+
+            <div class="swiper lightbox__swiper">
+                <div class="swiper-wrapper"></div>
+                <div class="swiper-button-prev" aria-hidden="true"></div>
+                <div class="swiper-button-next" aria-hidden="true"></div>
+            </div>
+
+            <p class="lightbox__counter swiper-pagination"></p>
+        </div>
+    </div>
+
+    {{-- Локальная копия Swiper (без CDN и сборщиков). Оба скрипта defer и
+         исполняются в порядке документа: этот — раньше app.js в конце body,
+         так что блоку №32 глобал Swiper уже доступен --}}
+    <script src="/template/js/vendor/swiper-bundle.min.js?v={{ time() }}" defer></script>
 
 @endsection

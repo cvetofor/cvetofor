@@ -1,0 +1,254 @@
+/* ==========================================================================
+   Статические страницы из БД (Twill): /rules, /policy и т.п.
+   Шаблон newdesing/page.blade.php + блоки newdesing/blocks/*.
+   Build-копия page-static.css: токены развёрнуты в литеральные значения;
+   кегли, растущие на десктопе, продублированы в media-запросе.
+   ========================================================================== */
+
+/* ---------------------- Баннер страницы (оболочка — в style.css) */
+
+.page-static {
+  padding: 40px;
+  background-color: #fff4f6;
+}
+
+.page-static::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block-start: -160px;
+  inset-inline-end: -120px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background-color: #ffe2e7;
+}
+
+.page-static .page-banner__crumbs {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.page-static__lead {
+  margin-block-start: 22px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 26px;
+  opacity: 0.5;
+}
+
+.page-static--photo {
+  align-items: flex-end;
+  color: #ffffff;
+}
+
+.page-static--photo::before {
+  content: "";
+}
+
+.page-static--photo::after {
+  content: none;
+}
+
+.page-static--photo .page-banner__photo {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.page-static--photo .page-static__lead {
+  opacity: 0.8;
+}
+
+/* ------------------------------------- Текст (блок wyswyg) */
+
+.page-text {
+  max-width: 792px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.page-text > :first-child {
+  margin-block-start: 0;
+}
+
+.page-text h2 {
+  margin-block: 32px 16px;
+  font-family: "LT Remark", "Helvetica Neue", "HelveticaNeue", Helvetica, Arial, "Nimbus Sans", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.page-text h3 {
+  margin-block: 22px 12px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.page-text h4 {
+  margin-block: 16px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.page-text p {
+  margin-block-end: 12px;
+}
+
+.page-text ul,
+.page-text ol {
+  margin-block: 12px 16px;
+  padding-inline-start: 24px;
+}
+
+.page-text li {
+  margin-block-end: 8px;
+}
+
+.page-text a {
+  color: #dc0978;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.page-text a:hover,
+.page-text a:focus-visible {
+  color: #e23f8f;
+}
+
+.page-text strong {
+  font-weight: 700;
+}
+
+.page-text img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 15px;
+}
+
+.page-text table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 16px 22px;
+  border-collapse: collapse;
+}
+
+.page-text th,
+.page-text td {
+  padding: 8px 12px;
+  border: 1px solid #e5e5e5;
+  font-size: 12px;
+  text-align: start;
+  vertical-align: top;
+}
+
+.page-text th {
+  font-weight: 700;
+  background-color: #f8f8f8;
+}
+
+.page-text blockquote {
+  margin-block: 16px 22px;
+  padding: 12px 16px;
+  border-inline-start: 3px solid #f5d6da;
+  border-radius: 0 10px 10px 0;
+  background-color: #fff4f6;
+  font-weight: 500;
+}
+
+/* ------------------------------------- Медиа (блоки image, youtube) */
+
+.page-media {
+  max-width: 792px;
+}
+
+.page-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 25px;
+}
+
+.page-media figcaption {
+  margin-block-start: 8px;
+  font-size: 14px;
+  line-height: 18px;
+  opacity: 0.5;
+}
+
+.page-media__video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 25px;
+  background-color: #0c0004;
+}
+
+.page-media__video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ------------------------------------- Реквизиты (блок requisites) */
+
+.page-req__list {
+  display: grid;
+  gap: 12px;
+  margin-block-start: 16px;
+}
+
+.page-req__row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.page-req__row dt {
+  opacity: 0.5;
+}
+
+.page-req__row dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+@media (min-width: 1024px) {
+  .page-static {
+    padding: 67px 80px;
+  }
+
+  .page-static__lead {
+    font-size: 20px;
+  }
+
+  .page-text {
+    font-size: 18px;
+  }
+
+  .page-text h2 {
+    font-size: 30px;
+  }
+
+  .page-text h3 {
+    font-size: 20px;
+  }
+
+  .page-text h4 {
+    font-size: 18px;
+  }
+
+  .page-text th,
+  .page-text td {
+    font-size: 17px;
+  }
+}
