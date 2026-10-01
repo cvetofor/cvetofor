@@ -11,7 +11,7 @@
                  width="637" height="610">
 
             <div class="hero__content">
-                <h1 class="hero__title">Цветы с доставкой в Улан-Удэ</h1>
+                <h1 class="hero__title">{{ $category->title }}</h1>
                 <p class="hero__text">
                     Свежие букеты от 1490&nbsp;₽<br>
                     Доставка за 2 часа или в удобное время

@@ -295,6 +295,7 @@ class CatalogController extends Controller
         GroupProductCategoryRepository $groupProductCategoryRepository,
     )
     {
+
         $category = $groupProductCategoryRepository->forNestedSlug($slug);
 
         if ($category && $category->published) {
@@ -309,7 +310,7 @@ class CatalogController extends Controller
 
             $this->setMetadata($category);
 
-            return view(config('is_new_desing') ? 'newdesing.category' : 'welcome', compact('prices', 'breadcrumbs', 'category'));
+            return view(config('is_new_desing') ? 'newdesing.category' : 'category', compact('prices', 'breadcrumbs', 'category'));
         }
 
         abort(404);
@@ -320,6 +321,7 @@ class CatalogController extends Controller
         Request $request,
     )
     {
+
         // Ищем категорию по slug в таблице category_slugs
         $categorySlug = \DB::table('category_slugs')
             ->where('slug', $slug)
@@ -395,7 +397,7 @@ class CatalogController extends Controller
                 SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
             }
 
-            return view('additional_category', [
+            return view(config('is_new_desing') ? 'newdesing.additional_category' :'additional_category', [
                 'category' => $category,
                 'products' => $products,
                 'breadcrumbs' => $breadcrumbs
@@ -494,7 +496,7 @@ class CatalogController extends Controller
             SEOTools::setDescription(str_replace('%city%', $currentCity, $seoHelper['desc']));
         }
 
-        return view('additional_product', compact('priceModel', 'product', 'category', 'canPutToCart', 'breadcrumbs'));
+        return view(config('is_new_desing') ? 'newdesing.additional_product':'additional_product', compact('priceModel', 'product', 'category', 'canPutToCart', 'breadcrumbs'));
     }
 
     public function tags(
