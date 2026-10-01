@@ -68,6 +68,16 @@
                     $images[] = '/dist/img/image-content/error404-pic.svg';
                 @endphp
             @endif
+            @php
+                // Слайды галереи по порядку показа: видео (если есть) + фото.
+                // При видео последний снимок не выводится — его занимает постер.
+                $hasVideo = (bool) $price->groupProduct->file('preview');
+                $photoSlides = $hasVideo ? array_slice($images, 0, -1) : $images;
+                $slideUrls = $hasVideo
+                    ? array_merge([$price->groupProduct->file('preview')], $photoSlides)
+                    : $photoSlides;
+                $slideCount = count($slideUrls);
+            @endphp
             <!-- Без заголовка: h2 здесь шёл бы перед h1 страницы и ломал
                  порядок заголовков. Имя блока даёт aria-label. -->
             <div class="gallery" role="group" aria-label="Фотографии букета" data-gallery>
@@ -85,12 +95,12 @@
                     </li>@endif
                     @foreach ($images as $key => $image)
                         @if (!$loop->last || !$price->groupProduct->file('preview'))
-                    <li class="gallery__thumb @if($loop->first) is-active @endif" >
+                    <li class="gallery__thumb @if($loop->first && !$hasVideo) is-active @endif" >
                         <a class="gallery__thumb-btn" href="{{$image}}"
                            data-gallery-item>
                             <img src="{{$image}}" alt="{{$price->title}}"
                                  width="154" height="154" loading="lazy">
-                            <span class="visually-hidden">Показать фото 1</span>
+                            <span class="visually-hidden">Показать фото {{ $loop->iteration }}</span>
                         </a>
                     </li>
 
@@ -112,7 +122,7 @@
                     @endif
                     @foreach ($images as $key => $image)
                         @if (!$loop->last || !$price->groupProduct->file('preview'))
-                    <img class="gallery__photo" data-gallery-main data-cart-photo @if(!$loop->first) hidden @endif
+                    <img class="gallery__photo" data-gallery-main data-cart-photo @if(!$loop->first || $hasVideo) hidden @endif
                          src="{{$image}}"
                          alt="{{$price->title}}"
                          width="618" height="664">@endif
@@ -120,16 +130,20 @@
                     <!-- Ссылки на соседние снимки, а не кнопки: в макете (122:735)
                          стрелки видны всегда, поэтому прятать их до появления JS
                          нельзя. Без скрипта клик открывает фото, со скриптом —
-                         перелистывает галерею. Стрелка — картинкой: маска на
-                         псевдоэлементе один раз уже не нарисовалась. -->
-                    <a class="gallery__nav gallery__nav--prev" href="/template/assets/img/product-luxury-3.jpg"
+                         перелистывает галерею. Соседи считаются с заворотом, как
+                         в show() app.js. Один слайд — стрелок нет: листать нечего.
+                         Стрелка — картинкой: маска на псевдоэлементе один раз
+                         уже не нарисовалась. -->
+                    @if ($slideCount > 1)
+                    <a class="gallery__nav gallery__nav--prev" href="{{ $slideUrls[$slideCount - 1] }}"
                        data-gallery-step="-1" aria-label="Предыдущее фото">
                         <img src="/template/assets/icons/chevron-forward-ink.svg" alt="" width="13" height="20">
                     </a>
-                    <a class="gallery__nav gallery__nav--next" href="/template/assets/img/product-luxury-1.jpg"
+                    <a class="gallery__nav gallery__nav--next" href="{{ $slideUrls[1 % $slideCount] }}"
                        data-gallery-step="1" aria-label="Следующее фото">
                         <img src="/template/assets/icons/chevron-forward-ink.svg" alt="" width="13" height="20">
                     </a>
+                    @endif
                     <!-- Не figcaption: это не подпись к фото, а обещание сервиса -->
                     <p class="gallery__note">
                         <img src="/template/assets/icons/adv-photo.svg" alt="" width="21" height="21">
