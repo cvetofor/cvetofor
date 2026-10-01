@@ -196,13 +196,14 @@
                             Добавить в корзину
                         </button>
                     </form>
-                    <form class="product__form" action="/order/quick" method="post">
-                        <input type="hidden" name="product" value="luxury-peony">
-                        <button class="btn btn--outline product__cta" type="submit">
-                            <img src="/template/assets/icons/hero-fast.svg" alt="" width="18" height="22">
-                            Купить в один клик
-                        </button>
-                    </form>
+                    {{-- Быстрый заказ: открывает окно #quick-order из лейаута.
+                         Товар уходит в заявку через data-атрибут — роута
+                         /order/quick на бэкенде нет, отправка идёт на form --}}
+                    <a class="btn btn--outline product__cta" href="#quick-order"
+                       data-quick-order-product="{{ $groupProduct->title }} (арт. {{ $price->sku }})">
+                        <img src="/template/assets/icons/hero-fast.svg" alt="" width="18" height="22">
+                        Купить в один клик
+                    </a>
                 </div>
 
                 <a class="gift" href="/promo">

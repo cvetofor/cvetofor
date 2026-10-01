@@ -161,28 +161,27 @@
         <div class="footer__top">
 
             <div class="footer__brand">
-                <img class="footer__logo" src="/template/assets/icons/footer-logo.svg" alt="Цветофор" width="168" height="60">
+                <a href="/" aria-label="Цветофор — на главную">
+                    <img class="footer__logo" src="/template/assets/icons/footer-logo.svg" alt="Цветофор" width="168" height="60">
+                </a>
                 <p class="footer__tagline">Доставка свежих цветов по Улан-Удэ и Бурятии</p>
             </div>
 
-            <nav class="footer__col" aria-labelledby="f-info">
-                <h2 class="footer__title" id="f-info">Информация</h2>
+            {{-- Меню футера — из Twill-настройки public.public.footer_menu
+                 ($_menuFooter), как в старом дизайне; «Каталог» — прямая
+                 ссылка на страницу каталога, как в шапке --}}
+            <nav class="footer__col" aria-labelledby="f-menu">
+                <h2 class="footer__title" id="f-menu">Меню</h2>
                 <ul class="footer__list">
-                    <li><a class="footer__link" href="/payments">Оплата и доставка</a></li>
-                    <li><a class="footer__link" href="/about">О нас</a></li>
-                    <li><a class="footer__link" href="/reviews">Отзывы</a></li>
-                    <li><a class="footer__link" href="/guarantee">Гарантия свежести</a></li>
-                    <li><a class="footer__link" href="/contacts">Контакты</a></li>
-                </ul>
-            </nav>
-
-            <nav class="footer__col" aria-labelledby="f-clients">
-                <h2 class="footer__title" id="f-clients">Клиентам</h2>
-                <ul class="footer__list">
-                    <li><a class="footer__link" href="/b2b">Корпоративным клиентам</a></li>
-                    <li><a class="footer__link" href="/partners">Партнёрская программа</a></li>
-                    <li><a class="footer__link" href="/faq">Частые вопросы</a></li>
-                    <li><a class="footer__link" href="/returns">Возврат и обмен</a></li>
+                    <li><a class="footer__link" href="/catalog">Каталог</a></li>
+                    @if (isset($_menuFooter))
+                        @foreach ($_menuFooter as $item)
+                            <li>
+                                <a class="footer__link" target="{{ $item['content']['target'] ?: '_self' }}"
+                                   href="{{ $item['content']['href'] }}">{{ $item['content']['title'] }}</a>
+                            </li>
+                        @endforeach
+                    @endif
                 </ul>
             </nav>
 
@@ -191,7 +190,8 @@
                 <address class="footer__contacts">
                     <p class="contact">
                         <img src="/template/assets/icons/c-phone.svg" alt="Телефон" width="20" height="20">
-                        <a class="footer__link" href="tel:+78007009375">8 (800) 700-93-75</a>
+                        <a class="footer__link"
+                           href="tel:{{ str_replace([' ', '(', ')', '-'], ['', '', '', ''], TwillAppSettings::get('public.public.phone')) }}">{{ TwillAppSettings::get('public.public.phone') }}</a>
                     </p>
                     <p class="contact">
                         <img src="/template/assets/icons/c-mail.svg" alt="Почта" width="22" height="20">
@@ -211,9 +211,15 @@
         </div>
 
         <div class="footer__bottom">
-            <p class="footer__copy"><small>© 2026 Цветофор. Все права защищены</small></p>
-            <p><a class="footer__link" href="/terms">Правила ресурсов</a></p>
-            <p><a class="footer__link" href="/privacy">Политика конфиденциальности</a></p>
+            <p class="footer__copy"><small>© {{ date('Y') }} Цветофор. Все права защищены</small></p>
+            {{-- Правовые ссылки — из Twill-настройки public.public.footer_menu_second
+                 ($_menuFooterSecond), как в старом дизайне --}}
+            @if (isset($_menuFooterSecond))
+                @foreach ($_menuFooterSecond as $item)
+                    <p><a class="footer__link" target="{{ $item['content']['target'] ?: '_self' }}"
+                          href="{{ $item['content']['href'] }}">{{ $item['content']['title'] }}</a></p>
+                @endforeach
+            @endif
         </div>
 
     </div>
@@ -408,6 +414,62 @@
         </div>
     </div>
 @endguest
+
+<!-- Быстрый заказ: hero-кнопки (welcome/каталог/поиск) и «Купить в один
+     клик» в карточке товара открывают окно ссылкой href="#quick-order"
+     (общий механизм оверлеев). Отправка — блоком app.js на роут form
+     (тот же, что у «Связаться с нами»): URL страницы и товар открывателя
+     вшиваются в comment, успех переключает панель на «спасибо» -->
+<div class="overlay overlay--center" id="quick-order">
+    <div class="overlay__panel city-modal quick-order">
+        <div class="city-modal__head">
+            <h2 class="city-modal__title" id="quick-order-title">Быстрый заказ</h2>
+            <a class="overlay__close" href="#main" aria-label="Закрыть окно быстрого заказа">
+                <span class="cross" aria-hidden="true"></span>
+            </a>
+        </div>
+
+        {{-- Тот же action и те же имена полей, что у «Связаться с нами»:
+             comment (обязательный для роута) скрипт дописывает сам —
+             URL страницы и товар открывателя --}}
+        <form class="quick-order__form" data-quick-order-form
+              action="{{ route('form') }}" method="post">
+            @csrf
+            <div class="quick-order__field">
+                <label class="quick-order__label" for="quick-order-name">
+                    Имя <span class="req" aria-hidden="true">*</span>
+                </label>
+                <div class="field-wrap">
+                    <input class="field-wrap__input" id="quick-order-name" name="fio"
+                           type="text" placeholder="Иван" autocomplete="name" required>
+                </div>
+            </div>
+            <div class="quick-order__field">
+                <label class="quick-order__label" for="quick-order-phone">
+                    Телефон <span class="req" aria-hidden="true">*</span>
+                </label>
+                <div class="field-wrap">
+                    <input class="field-wrap__input js-phone" id="quick-order-phone" name="phone"
+                           type="tel" placeholder="+7 (000) 000-00-00" autocomplete="tel" required>
+                </div>
+            </div>
+            <button class="btn btn--primary quick-order__submit" type="submit">Оформить заказ</button>
+            <p class="quick-order__policy">Нажимая на кнопку, вы соглашаетесь на
+                <a href="/policy">обработку персональных данных</a>
+            </p>
+        </form>
+
+        {{-- Показывается скриптом вместо формы после успешной отправки.
+             «Понятно» — ссылка #main: закрывается общим механизмом оверлеев --}}
+        <div class="quick-order__success" data-quick-order-success hidden>
+            <img src="/template/assets/icons/success-check.svg" alt="" width="80" height="80">
+            <h3 class="quick-order__success-title">Спасибо!</h3>
+            <p class="quick-order__success-text">Заявка отправлена. С вами скоро свяжется
+                менеджер для уточнения заказа.</p>
+            <a class="btn btn--primary quick-order__success-close" href="#main">Понятно</a>
+        </div>
+    </div>
+</div>
 
 <!-- ============================================== Всплывашки ==== -->
 <!-- Уведомления: на десктопе всплывают справа снизу, на мобильной —

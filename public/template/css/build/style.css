@@ -2617,7 +2617,7 @@ body {
   .footer__top {
     /* minmax, а не жёсткие ширины: сумма 976 плюс зазоры не влезала
        в контейнер 984 на ширине 1024 */
-    grid-template-columns: minmax(0, 240px) minmax(0, 200px) minmax(0, 260px) minmax(0, 276px);
+    grid-template-columns: minmax(0, 240px) minmax(0, 260px) minmax(0, 276px);
     justify-content: space-between;
     gap: 22px;
   }
@@ -3545,4 +3545,74 @@ body:has(.overlay.is-open) {
 
 .auth-modal__note.is-error {
   color: #ca0606;
+}
+
+/* ------------------------------------------------- Окно быстрого заказа */
+
+/* Панель опирается на .city-modal (ширина 360, скругление, тень) — здесь
+   только раскладка формы и «спасибо»-состояния. Поля — глобальный
+   .field-wrap (как в окнах авторизации); подпись над полем ставит
+   обёртка .quick-order__field, потому что сам .field-wrap — flex-строка */
+.quick-order__form {
+  display: grid;
+  gap: 16px;
+}
+
+.quick-order__field {
+  display: grid;
+  gap: 12px;
+}
+
+.quick-order__label {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+@media (min-width: 1024px) {
+  .quick-order__label {
+    font-size: 20px;
+  }
+}
+
+.quick-order__submit {
+  min-height: 50px;
+  font-size: 16px;
+}
+
+.quick-order__policy {
+  font-size: 14px;
+  line-height: 1.35;
+  opacity: 0.8;
+}
+
+.quick-order__policy a {
+  color: #dc0978;
+}
+
+.quick-order__policy a:hover {
+  text-decoration: underline;
+}
+
+/* Успех занимает место формы: галочка, заголовок, пояснение и кнопка
+   «Понятно» (ссылка #main — закрывает общим механизмом оверлеев) */
+.quick-order__success {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.quick-order__success-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+@media (min-width: 1024px) {
+  .quick-order__success-title {
+    font-size: 22px;
+  }
+}
+
+.quick-order__success-text {
+  opacity: 0.5;
 }

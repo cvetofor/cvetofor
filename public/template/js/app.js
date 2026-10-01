@@ -9,7 +9,7 @@
  */
 
 /* Маркер версии: по нему видно, какая сборка скрипта реально выполнилась */
-document.documentElement.dataset.app = '18';
+document.documentElement.dataset.app = '19';
 
 /* ------------------------------------------- Закрываемые блоки (плашка) */
 
@@ -2691,5 +2691,185 @@ document.addEventListener("DOMContentLoaded", function () {
       note: "Мы свяжемся с вами в ближайшее время"
     });
     form.reset();
+  });
+});
+
+/* ------------------------------- Личный кабинет: отзыв к заказу
+   Ссылка «Отзыв» в карточке заказа (/profile/orders) открывает оверлей
+   #leave-review общим механизмом (блок №3) и подставляет в форму номер
+   заказа и уже сохранённый отзыв. Отправка — на тот же action, что у
+   нативной формы: ProfileController@review отвечает JSON — 422 {errors}
+   → подписи под полями, {status: true} → тост. Форма сознательно НЕ
+   помечена data-form: общий блок AJAX-форм ответил бы чужим тостом
+   «Заявка отправлена». Перенос review() из старого backend-temp.js. */
+
+document.addEventListener("DOMContentLoaded", function () {
+  const reviewForm = document.querySelector("[data-review-form]");
+  if (!reviewForm) return;
+
+  document.querySelectorAll("[data-review-order]").forEach(function (link) {
+    link.addEventListener("click", function () {
+      reviewForm.elements.order_id.value = link.dataset.reviewOrder;
+      reviewForm.elements.description.value = link.dataset.reviewText || "";
+    });
+  });
+
+  reviewForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const button = reviewForm.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+
+    const payload = Object.fromEntries(new FormData(reviewForm));
+
+    let result;
+    try {
+      result = await request(reviewForm.action, reviewForm.method, payload);
+    } catch (_) {
+      window.Cvetofor.toast({
+        title: "Не удалось отправить",
+        note: "Сервер недоступен, попробуйте ещё раз"
+      });
+      if (button) button.disabled = false;
+      return;
+    }
+
+    if (button) button.disabled = false;
+
+    const { error } = result;
+
+    if (error) {
+      if (error.errors) {
+        Object.keys(error.errors).forEach(function (name) {
+          window.Cvetofor.setFieldError(
+            reviewForm.querySelector('[name="' + name + '"]'),
+            error.errors[name][0]
+          );
+        });
+      } else if (error.message) {
+        window.Cvetofor.toast({ title: "Не удалось отправить", note: error.message });
+      }
+      return;
+    }
+
+    window.Cvetofor.toast({ title: "Спасибо за ваш отзыв" });
+    window.Cvetofor.closeOverlay();
+    reviewForm.reset();
+  });
+});
+
+/* ------------------------------- Личный кабинет: удаление профиля
+   Перенос поведения старого common.js: подтверждение → POST
+   profile.deleteProfile (JSON+CSRF через request()) → выход на главную.
+   Тост перед уходом со страницы не успел бы показаться, поэтому после
+   подтверждения просто переходим на «/». Кнопка стоит в форме
+   персональных данных как type="button" — сабмит формы не провоцирует. */
+
+document.addEventListener("DOMContentLoaded", function () {
+  const deleteButton = document.querySelector("[data-delete-profile]");
+  if (!deleteButton) return;
+
+  deleteButton.addEventListener("click", async function () {
+    if (!window.confirm("Вы уверены, что хотите удалить профиль?")) return;
+
+    deleteButton.disabled = true;
+
+    let result;
+    try {
+      result = await request(deleteButton.dataset.deleteProfile, "POST");
+    } catch (_) {
+      result = null;
+    }
+
+    if (!result || result.error) {
+      const note = result && result.error && result.error.message
+        ? result.error.message
+        : "Сервер недоступен, попробуйте ещё раз";
+      window.Cvetofor.toast({ title: "Не удалось удалить профиль", note });
+      deleteButton.disabled = false;
+      return;
+    }
+
+    window.location.href = "/";
+  });
+});
+
+/* ------------------------------- Быстрый заказ
+   Hero-кнопка «Быстрый заказ» (главная/каталог/поиск) и «Купить в один
+   клик» в карточке товара открывают оверлей #quick-order из лейаута
+   общим механизмом (блок №3) — здесь только отправка. POST уходит на
+   роут form, тот же, что у «Связаться с нами»: URL страницы, с которой
+   отправлена заявка, и товар из data-quick-order-product вшиваются в
+   comment, потому что остальные поля, кроме fio/phone/email/comment,
+   валидация FormController отбрасывает. Успех переключает панель на
+   «спасибо». Форма сознательно НЕ помечена data-form: общий блок
+   AJAX-форм ответил бы чужим тостом «Заявка отправлена». */
+
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("quick-order");
+  if (!modal) return;
+
+  const form = modal.querySelector("[data-quick-order-form]");
+  const success = modal.querySelector("[data-quick-order-success]");
+
+  // Что заказывают: пусто у hero-кнопки, «Букет… (арт. 123)» у товара
+  let product = "";
+
+  // Повторное открытие возвращает панель к форме — «спасибо» живёт
+  // ровно до закрытия окна
+  document.querySelectorAll('a[href="#quick-order"]').forEach(function (link) {
+    link.addEventListener("click", function () {
+      product = link.dataset.quickOrderProduct || "";
+      form.hidden = false;
+      success.hidden = true;
+    });
+  });
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    // Кнопка гасится на время запроса: без этого повторный клик успевает
+    // отправить форму ещё раз (роут /form к тому же throttled 6/мин)
+    const button = form.querySelector('button[type="submit"]');
+    if (button) button.disabled = true;
+
+    const payload = Object.fromEntries(new FormData(form));
+    payload.comment = product
+      ? "Купить в один клик. Товар: " + product + ". Страница: " + location.href
+      : "Быстрый заказ со страницы: " + location.href;
+
+    let result;
+    try {
+      result = await request(form.action, form.method, payload);
+    } catch (_) {
+      window.Cvetofor.toast({
+        title: "Не удалось отправить",
+        note: "Сервер недоступен, попробуйте ещё раз"
+      });
+      if (button) button.disabled = false;
+      return;
+    }
+
+    if (button) button.disabled = false;
+
+    const { error } = result;
+
+    if (error) {
+      if (error.errors) {
+        Object.keys(error.errors).forEach(function (name) {
+          window.Cvetofor.setFieldError(
+            form.querySelector('[name="' + name + '"]'),
+            error.errors[name][0]
+          );
+        });
+      } else if (error.message) {
+        window.Cvetofor.toast({ title: "Не удалось отправить", note: error.message });
+      }
+      return;
+    }
+
+    form.reset();
+    form.hidden = true;
+    success.hidden = false;
   });
 });

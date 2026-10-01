@@ -21,7 +21,7 @@
                         <img src="/template/assets/icons/hero-catalog.svg" alt="" width="22" height="22">
                         Каталог букетов
                     </a>
-                    <a class="btn btn--hero-outline" href="#order">
+                    <a class="btn btn--hero-outline" href="#quick-order">
                         <img src="/template/assets/icons/hero-fast.svg" alt="" width="18" height="22">
                         Быстрый заказ
                     </a>

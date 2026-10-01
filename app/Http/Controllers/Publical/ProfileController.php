@@ -20,7 +20,7 @@ class ProfileController extends Controller
 
     public function index()
     {
-        return view('profile.index');
+        return   view(config('is_new_desing') ? 'newdesing.profile' : 'profile.index');
     }
 
     public function update(Request $request)
@@ -80,7 +80,7 @@ class ProfileController extends Controller
     {
         $orders = auth()->user()->orders()->paginate();
 
-        return view('profile.orders', compact('orders'));
+        return view(config('is_new_desing') ? 'newdesing.profile_orders' : 'profile.orders', compact('orders'));
     }
 
     public function review(Request $request)
@@ -118,7 +118,7 @@ class ProfileController extends Controller
 
     public function changePassword()
     {
-        return view('profile.changePassword');
+        return view(config('is_new_desing') ? 'newdesing.profile_password' : 'profile.changePassword');
     }
 
     public function changeEmail()

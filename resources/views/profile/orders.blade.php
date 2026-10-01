@@ -81,7 +81,7 @@
                                                                     @endphp
                                                                     <div class="order__seller-list__item"><span>{{ $cartItem['quantity'] }} x {{ $cartItem['name'] }}</span><span>@money(($cartItem['price'] - $conditionals) * $cartItem['quantity']) р.</span></div>
                                                                 @endforeach
-                                                                <div class="order__seller-list__item"><span>Доставка</span><span>@money($order->delivery->price) р.</span></div>
+                                                                <div class="order__seller-list__item"><span>Доставка</span><span>@money($order->delivery->price??0) р.</span></div>
                                                             </div>
                                                         </div>
 
