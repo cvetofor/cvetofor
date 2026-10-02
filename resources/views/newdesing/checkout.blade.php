@@ -63,7 +63,7 @@
         <!-- Стрелка «назад» есть только в мобильном макете (295:380),
              на десктопе заголовок стоит один — поэтому она там скрыта -->
         <div class="container page-head">
-            <a class="page-head__back" href="cart.html" aria-label="Вернуться назад">
+            <a class="page-head__back" href="/cart" aria-label="Вернуться назад">
                 <span class="chevron chevron--back" aria-hidden="true"></span>
             </a>
             <h1 class="page-title">Оформление заказа</h1>
@@ -802,11 +802,27 @@
                                     $limitStartDate = $maxStartDate ? $maxStartDate->format('d.m.Y') : null;
                                     $limitEndDate = $minEndDate ? $minEndDate->format('d.m.Y') : null;
                                 }
+
+                                $images = [];
+
+                                if ($product) {
+                                    if (isset($product->images('cover', 'mobile')[0])) {
+                                        $images = $product->images('cover', 'mobile');
+                                    }
+                                } elseif (isset($item->associatedModel->product) && $item->associatedModel->product) {
+                                    if ($item->associatedModel->product->images('preview')) {
+                                        $images = $item->associatedModel->product->images('preview');
+                                    }
+                                }
+
+                                if (!count($images)) {
+                                    $images[] = '/dist/img/image-content/error404-pic.svg';
+                                }
                             @endphp
                             <li class="sum-item">
                               <div class="sum-item__row">
               <span class="sum-item__media">
-                <img src="template/assets/img/sum-peony.jpg" alt="" width="74" height="74" loading="lazy">
+                <img src="{{ $images[0] }}" alt="{{ $item->name }}" width="74" height="74" loading="lazy">
               </span>
                                 <span class="sum-item__text">
                 <span class="sum-item__title">{{ $item->name }}</span>

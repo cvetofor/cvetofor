@@ -9,7 +9,7 @@
  */
 
 /* Маркер версии: по нему видно, какая сборка скрипта реально выполнилась */
-document.documentElement.dataset.app = '20';
+document.documentElement.dataset.app = '21';
 
 /* ------------------------------------------- Закрываемые блоки (плашка) */
 
@@ -679,10 +679,16 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
   };
 
   const buildOrderPayload = () => {
+    // состояние переключателя «знаю/не знаю адрес»: know-address ветвит
+    // валидацию адреса на сервере (OrderRequest: 0 — правила пропускаются)
+    const addressFields = document.querySelector('[data-address-fields]');
+    const knowsAddress = !!(addressFields && !addressFields.hidden);
+
     const payload = {
       // — доставка —
       address: fullAddress(),                        // «регион, город, улица…»
       apartament_number: field('apartament_number'), // поля в новой вёрстке нет → ''
+      'know-address': knowsAddress ? 1 : 0,
       // — получатель —
       person_receiving_name: field('person_receiving_name'),
       person_receiving_phone: field('person_receiving_phone'),
@@ -716,9 +722,8 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
     // Только когда поля адреса видимы; строкой «lat,lon» — именно в таком
     // виде значение проходило через FormData старой формы, и так его ждёт
     // OrderRequest::checkRadius (explode(','))
-    const addressFields = document.querySelector('[data-address-fields]');
     const addressInput = checkoutRoot.querySelector('[data-delivery-address]');
-    if (addressFields && !addressFields.hidden && addressInput
+    if (knowsAddress && addressInput
       && addressInput.dataset.deliveryLat && addressInput.dataset.deliveryLon) {
       payload.coordinates = addressInput.dataset.deliveryLat + ',' + addressInput.dataset.deliveryLon;
     }
@@ -2956,4 +2961,38 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.key === "ArrowLeft") swiper.slidePrev();
     else if (event.key === "ArrowRight") swiper.slideNext();
   });
+});
+
+/* ------------------------------------------- Согласие на cookie (плашка) */
+
+/* Перенос баннера старого дизайна (spatie/laravel-cookie-consent):
+   та же кука cookieConsent=1, что ставит пакет, — согласие общее для
+   обоих дизайнов на одном домене, принявшим в старом плашку не кажем.
+   Плашка приходит в разметке скрытой: без JS согласие дать нельзя,
+   поэтому и показываем её только отсюда */
+document.addEventListener('DOMContentLoaded', function () {
+  const bar = document.querySelector('.cookie-bar');
+  if (!bar) return;
+
+  const COOKIE_NAME = 'cookieConsent';
+  const COOKIE_LIFETIME_DAYS = 365;
+
+  const cookieConsented = () =>
+    document.cookie.split('; ').includes(COOKIE_NAME + '=1');
+
+  const consentWithCookies = () => {
+    const date = new Date();
+    date.setTime(date.getTime() + COOKIE_LIFETIME_DAYS * 24 * 60 * 60 * 1000);
+    document.cookie = COOKIE_NAME + '=1; expires=' + date.toUTCString() +
+      '; path=/; samesite=lax';
+    bar.remove();
+  };
+
+  if (cookieConsented()) {
+    bar.remove();
+    return;
+  }
+
+  bar.hidden = false;
+  bar.querySelector('.cookie-bar__ok').addEventListener('click', consentWithCookies);
 });

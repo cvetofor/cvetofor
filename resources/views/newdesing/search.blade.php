@@ -17,7 +17,7 @@
                     Доставка за 2 часа или в удобное время
                 </p>
                 <div class="hero__actions">
-                    <a class="btn btn--hero" href="/category">
+                    <a class="btn btn--hero" href="/catalog">
                         <img src="/template/assets/icons/hero-catalog.svg" alt="" width="22" height="22">
                         Каталог букетов
                     </a>
@@ -37,5 +37,5 @@
 
     @include('newdesing.parts.catalog-product-block',
 ['cat_url'=>'','cat_name'=>request('product'),'paginator'=>$result,'cat_id'=>0,'typeproduct'=>'groupProduct'])
-
+    </main>
 @endsection

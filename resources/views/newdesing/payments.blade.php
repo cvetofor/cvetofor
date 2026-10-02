@@ -14,7 +14,7 @@
 
             <div class="page-banner__body">
                 <nav class="page-banner__crumbs" aria-label="Хлебные крошки">
-                    <a class="page-banner__crumb" href="index.html">Главная</a>
+                    <a class="page-banner__crumb" href="/">Главная</a>
                     <span aria-hidden="true"> / </span>
                     <span aria-current="page">Оплата и доставка</span>
                 </nav>
@@ -149,9 +149,9 @@
                     Мы с радостью ответим на ваши вопросы и поможем оформить заказ.
                 </p>
                 <div class="help__actions">
-                    <a class="btn btn--primary help__cta" href="contacts.html">Связаться с нами</a>
+                    <a class="btn btn--primary help__cta" href="/contacts">Связаться с нами</a>
                     <p class="help__note">или позвоните по телефону</p>
-                    <p class="help__phone"><a href="tel:+78007009375">8 (800) 700-93-75</a></p>
+                    <p class="help__phone"><a href="tel:{{TwillAppSettings::get('public.public.phone')}}">{{TwillAppSettings::get('public.public.phone')}}</a></p>
                 </div>
                 <img class="help__photo" src="/template/assets/img/pay-help.webp" alt=""
                      width="344" height="233" loading="lazy">

@@ -66,18 +66,20 @@
         <a class="icon-btn burger" href="#menu" aria-label="Открыть меню">
             <span class="burger__bars" aria-hidden="true"></span>
         </a>
+        {{-- Главная: тот же блок логотипа, но без ссылки «на саму себя».
+             Обёртка .logo — не только ссылка, а элемент сетки шапки:
+             без неё картинки становятся отдельными ячейками грида
+             .header__inner и расползаются по колонкам. --}}
         @if (request()->is('/'))
-
+            <span class="logo">
                 <img class="logo__mark" src="/template/assets/icons/logo-mark.svg" alt="" width="56" height="56">
                 <img class="logo__word" src="/template/assets/icons/logo-word.svg" alt="Цветофор" width="95" height="16">
-
-
+            </span>
         @else
             <a class="logo" href="/" aria-label="Цветофор — на главную">
                 <img class="logo__mark" src="/template/assets/icons/logo-mark.svg" alt="" width="56" height="56">
                 <img class="logo__word" src="/template/assets/icons/logo-word.svg" alt="Цветофор" width="95" height="16">
             </a>
-
         @endif
 
 
@@ -97,9 +99,9 @@
             </ul>
         </nav>
 
-        <a class="header__phone" href="tel:+78007009375">
+        <a class="header__phone" href="tel:{{TwillAppSettings::get('public.public.phone')}}">
             <img src="/template/assets/icons/phone.svg" alt="" width="19" height="19">
-            <span>8 (800) 700-93-75</span>
+            <span>{{TwillAppSettings::get('public.public.phone')}}</span>
         </a>
 
         <form class="field-wrap header__search-form" action="/search" method="get" role="search">
@@ -199,7 +201,7 @@
                     </p>
                     <p class="contact">
                         <img src="/template/assets/icons/c-pin.svg" alt="Адрес" width="20" height="20">
-                        <span class="footer__muted">г. Улан-Удэ,<br>ул. Геологическая 11А</span>
+                        <span class="footer__muted">{{ TwillAppSettings::get('public.public.address') }}</span>
                     </p>
                     <p class="contact">
                         <img src="/template/assets/icons/c-clock.svg" alt="Часы работы" width="20" height="20">
@@ -234,7 +236,7 @@
 <div class="overlay" id="menu">
     <nav class="overlay__panel drawer" aria-label="Меню">
         <div class="drawer__top">
-            <a class="logo" href="index.html" aria-label="Цветофор — на главную">
+            <a class="logo" href="/" aria-label="Цветофор — на главную">
                 <img class="logo__mark" src="/template/assets/icons/logo-mark.svg" alt="" width="56" height="56">
                 <img class="logo__word" src="/template/assets/icons/logo-word.svg" alt="Цветофор" width="95" height="16">
             </a>
@@ -470,6 +472,20 @@
         </div>
     </div>
 </div>
+
+<!-- Согласие на cookie — перенос баннера старого дизайна
+     (spatie/laravel-cookie-consent). Приходит в разметке скрытой:
+     показывает блок №33 app.js, если нет куки согласия (та же
+     cookieConsent=1, что ставит пакет в старом дизайне, — согласие
+     общее для обоих дизайнов на одном домене). «Ок» ставит куку
+     на год и убирает плашку — больше не показывается -->
+<aside class="cookie-bar" hidden>
+    <p class="cookie-bar__text">
+        Используя данный сайт, вы даете согласие на использование файлов cookie,
+        помогающих нам сделать его удобнее для вас. <a href="/policy">Подробнее.</a>
+    </p>
+    <button class="btn btn--primary cookie-bar__ok" type="button">Ок</button>
+</aside>
 
 <!-- ============================================== Всплывашки ==== -->
 <!-- Уведомления: на десктопе всплывают справа снизу, на мобильной —

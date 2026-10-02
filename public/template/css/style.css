@@ -3437,3 +3437,52 @@ body:has(.overlay.is-open) {
 .seo-text li {
   margin-block-end: var(--space-2xs);
 }
+
+/* ==========================================================================
+   Плашка согласия на cookie — перенос баннера старого дизайна
+   (spatie/laravel-cookie-consent, .modal_cookie): фиксированная по центру
+   внизу экрана. Показывает блок №33 app.js, пока нет куки согласия
+   (приходит в разметке с hidden). Тосты на десктопе всплывают справа
+   снизу — с ней не пересекаются */
+.cookie-bar {
+  position: fixed;
+  z-index: 30;
+  inset-block-end: var(--space-sm);
+  inset-inline: var(--space-sm);
+  margin-inline: auto;
+  max-width: 750px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-xl);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.cookie-bar__text {
+  font-size: var(--fs-caption-sm);
+  line-height: 21px;
+  opacity: var(--opacity-secondary);
+}
+
+.cookie-bar__text a {
+  color: var(--color-brand-500);
+}
+
+.cookie-bar__ok {
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  /* Десктоп: текст слева, кнопка справа — как баннер старого дизайна */
+  .cookie-bar {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .cookie-bar__ok {
+    width: auto;
+    margin-inline-start: auto;
+  }
+}

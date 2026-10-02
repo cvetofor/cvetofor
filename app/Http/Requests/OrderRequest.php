@@ -28,64 +28,110 @@ class OrderRequest extends FormRequest
         $defaultAddress = $citiesService::getCity()->province->name ?? ''; // пример дефолтного адреса, может быть динамическим
 
 
-        return [
-            // address
-            // is_photo_needle
-            // is_anon
-            // postcard_text
-            'address' => [
-                'required',
-                'string',
-                'max:5000',
-                function ($attribute, $value, $fail) use ($defaultAddress) {
-                    // проверка на наличие хотя бы одной цифры
-                    if (!preg_match('/\d/', $value)) {
-                        $fail("Поле $attribute должно содержать хотя бы одну цифру.");
-                    }
+        if(request('know-address')==0){
+            return [
+                // address
+                // is_photo_needle
+                // is_anon
+                // postcard_text
 
-                    // проверка длины
-                    if (mb_strlen($value) < mb_strlen($defaultAddress) + 5) {
-                        $fail("Поле $attribute должно быть длиннее дефолтного адреса на 5 символов.");
-                    }
-                },
-            ],
-            'payment_id' => [
-                'required',
-                'exists:App\Models\Payment,id',
-            ],
-            'person_receiving_name' => [
-                'required',
-                'string',
-            ],
-            'person_receiving_phone' => [
-                'required',
-                'string',
-            ],
-            'delivery_date' => [
-                'required',
-                'string',
-            ],
-            'delivery_time' => [
-                'required',
-                'string',
-            ],
-            'fio' => [
-                'required',
-                'min:3',
-            ],
-            'phone' => [
-                'required',
-                'min:10',
-            ],
-            'comment' => [
-                'max:1000',
-            ],
+                'payment_id' => [
+                    'required',
+                    'exists:App\Models\Payment,id',
+                ],
+                'person_receiving_name' => [
+                    'required',
+                    'string',
+                ],
+                'person_receiving_phone' => [
+                    'required',
+                    'string',
+                ],
+                'delivery_date' => [
+                    'required',
+                    'string',
+                ],
+                'delivery_time' => [
+                    'required',
+                    'string',
+                ],
+                'fio' => [
+                    'required',
+                    'min:3',
+                ],
+                'phone' => [
+                    'required',
+                    'min:10',
+                ],
+                'comment' => [
+                    'max:1000',
+                ],
 
-            'email' => [
-                'email',
-            ],
-            // 'postcard' => 'nullable|accepted',
-        ];
+                'email' => [
+                    'email',
+                ],
+                // 'postcard' => 'nullable|accepted',
+            ];
+        }else {
+            return [
+                // address
+                // is_photo_needle
+                // is_anon
+                // postcard_text
+                'address' => [
+                    'required',
+                    'string',
+                    'max:5000',
+                    function ($attribute, $value, $fail) use ($defaultAddress) {
+                        // проверка на наличие хотя бы одной цифры
+                        if (!preg_match('/\d/', $value)) {
+                            $fail("Поле $attribute должно содержать хотя бы одну цифру.");
+                        }
+
+                        // проверка длины
+                        if (mb_strlen($value) < mb_strlen($defaultAddress) + 5) {
+                            $fail("Поле $attribute должно быть длиннее дефолтного адреса на 5 символов.");
+                        }
+                    },
+                ],
+                'payment_id' => [
+                    'required',
+                    'exists:App\Models\Payment,id',
+                ],
+                'person_receiving_name' => [
+                    'required',
+                    'string',
+                ],
+                'person_receiving_phone' => [
+                    'required',
+                    'string',
+                ],
+                'delivery_date' => [
+                    'required',
+                    'string',
+                ],
+                'delivery_time' => [
+                    'required',
+                    'string',
+                ],
+                'fio' => [
+                    'required',
+                    'min:3',
+                ],
+                'phone' => [
+                    'required',
+                    'min:10',
+                ],
+                'comment' => [
+                    'max:1000',
+                ],
+
+                'email' => [
+                    'email',
+                ],
+                // 'postcard' => 'nullable|accepted',
+            ];
+        }
     }
 
     public function checkRadius($markets)
@@ -124,18 +170,25 @@ class OrderRequest extends FormRequest
 
     public function checkTimes($markets)
     {
-
+        $deliveryDate = \Carbon\Carbon::parse($this['delivery_date'])->format('Y-m-d');
         $userDate = new \DateTime($this['delivery_date'].' '.date('h').':'.date('i'));
 
         $deliveryMinDate = Market::getDeliveryDate($markets);
 
         $times = Market::getDeliveryTime($markets)['times'][strtolower($userDate->format('l'))] ?? [];
+        $dates = Market::getDeliveryTime($markets)['dates'][$deliveryDate] ?? [];
+
+        $times=array_merge($times, $dates);
+
+
+
 
         if (! in_array(explode(' - ', $this->delivery_time), $times)) {
             return true;
         }
 
         if ($userDate->format('d.m.Y') === $deliveryMinDate->format('d.m.Y')) {
+
             return false;
         }
         if ($userDate->getTimestamp() < $deliveryMinDate->getTimestamp()) {
