@@ -600,6 +600,38 @@ body {
   }
 }
 
+/* --------------------------- Плавные появления: раскрытие поиска
+   Фейд и лёгкий спуск вместо рывка. Открытие — @starting-style (как у
+   оверлеев), закрытие — класс header--search-closing на 250 мс (ставит
+   app.js): форма остаётся отрисованной, пока фейдит. Ниже 1024px форма
+   не показывается вовсе — правила внутри media. Блок можно удалить
+   целиком — переключение снова станет мгновенным */
+
+.header .header__search-form {
+  opacity: 0;
+  translate: 0 -6px;
+  transition: opacity 0.2s ease, translate 0.2s ease;
+}
+
+@media (min-width: 1024px) {
+  .header.header--search-closing .header__search-form {
+    display: flex;
+  }
+
+  .header.header--search-open .header__search-form {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  .header.header--search-open .header__search-form { @starting-style { opacity: 0; translate: 0 -6px; } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header .header__search-form {
+    transition: none;
+  }
+}
+
 /* Бургер: ссылка на экран меню. Работает без JS,
    скрипт может перехватить клик и открыть шторку. */
 .burger__bars,
@@ -1348,6 +1380,35 @@ body {
     font-weight: 500;
     line-height: 22px;
   }
+}
+
+/* ================================================== Разделы ссылками */
+
+/* Списки разделов на /all-category («По цене», «По категориям», «Повод /
+   кому», «Дополнительные товары») — текстовые ссылки вместо плиток.
+   Колонки набираются по минимальной ширине ссылки: на мобильном одна,
+   на десктопе ~1162px — пять (аналог четырёх колонок каталога старой
+   десктопной модалки, но без фикс-брейкпоинта) */
+.cat-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0 32px;
+}
+
+/* Ссылки — как пункты панели раздела в шторке меню: 18 светлым серым.
+   display: block — ссылка бывает и <span> (доп-товар без слага) */
+.cat-links__link {
+  display: block;
+  padding-block: 8px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #000000;
+  opacity: 0.5;
+}
+
+.cat-links__link:hover {
+  color: #dc0978;
+  opacity: 1;
 }
 
 /* ============================================================= Фильтры */
@@ -3118,6 +3179,78 @@ body:has(.overlay.is-open) {
   height: 26px;
 }
 
+/* ---------------------------------------- Плавные появления: оверлеи
+   Открытие: фейд фона + подъём панели, старт задаёт @starting-style
+   (Chrome/Edge 117+, Safari 17.5+, Firefox 129+; постарше — появляется
+   мгновенно, как раньше). Закрытие: класс is-closing (ставит app.js на
+   320 мс) держит элемент отрисованным до конца фейда — уход анимируется
+   обычными переходами opacity/translate во всех браузерах, без опоры на
+   переходимость display. Блок целиком можно удалить — вернутся
+   мгновенные появления (см. .rollback-backup/README-ОТКАТ.txt) */
+
+.overlay {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+/* Держит display: flex, пока идёт фейд-аут закрытия (320 мс, app.js).
+   С is-open не конфликтует — оба задают flex, поэтому переоткрытие
+   во время фейда просто показывает панель снова */
+.overlay.is-closing {
+  display: flex;
+}
+
+.overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* @starting-style — отдельным правилом, не вложенно: парсеры, не знающие
+   его, выкинут только это правило, не задев значения состояний выше */
+.overlay.is-open { @starting-style { opacity: 0; } }
+
+.overlay__panel {
+  opacity: 0;
+  translate: 0 16px;
+  transition: opacity 0.25s ease, translate 0.25s ease;
+}
+
+.overlay.is-open .overlay__panel {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.overlay.is-open .overlay__panel { @starting-style { opacity: 0; translate: 0 16px; } }
+
+/* Шторка меню прижата к левому краю (flex-start у .overlay) — выезжает
+   слева; всегда непрозрачна (opacity не переходит — иначе на закрытии
+   гасла бы мгновенно), фейд ей достаётся от родительского .overlay */
+.overlay__panel.drawer {
+  opacity: 1;
+  translate: -100% 0;
+  transition: translate 0.3s ease;
+}
+
+.overlay.is-open .overlay__panel.drawer {
+  translate: 0 0;
+}
+
+.overlay.is-open .overlay__panel.drawer { @starting-style { translate: -100% 0; } }
+
+/* pointer-events: none выше — затухающий на закрытии оверлей не ловит
+   клики по странице; без движения — без переходов */
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .overlay__panel,
+  .overlay__panel.drawer,
+  .drawer__sub,
+  .drawer__sub.is-open,
+  .drawer__sub.is-closing {
+    transition: none;
+  }
+}
+
 /* ------------------------------------------------------ Шторка меню */
 
 .drawer {
@@ -3220,6 +3353,131 @@ body:has(.overlay.is-open) {
 
 .drawer__row img {
   flex-shrink: 0;
+}
+
+/* --------------------------- Разделы каталога в шторке меню */
+
+/* Панель раздела («По цене» и т.д.) запаркована за правым краем шторки:
+   overflow-x прячет её без горизонтального скролла, вертикальный скролл
+   шторки от .overlay__panel сохраняется. Класс is-open ставит app.js
+   (блок «Разделы каталога в шторке меню») */
+.drawer {
+  overflow-x: hidden;
+}
+
+/* Строка раздела — кнопка, а не ссылка: вид тот же, что у .menu__link */
+button.menu__link {
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+  text-align: start;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.menu__link .chevron--forward {
+  margin-inline-start: auto;
+}
+
+/* Панель лежит поверх содержимого шторки абсолютом и выезжает справа —
+   как списки .modal__category старого каталога. Закрытая панель —
+   display: none, а не запаркована translate за краем: торчащая панель
+   расширяла скролл-область шторки, и фокус (Tab, VoiceOver) мог её
+   прокрутить — панель уезжала за левый край. Открытие — @starting-style
+   (как у оверлеев), закрытие — класс is-closing, его 320 мс держит
+   app.js, паттерн тот же, что у closeOverlay */
+.drawer__sub {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: none;
+  flex-direction: column;
+  background-color: #ffffff;
+}
+
+.drawer__sub.is-open {
+  display: flex;
+  translate: 0 0;
+  transition: translate 0.3s ease;
+}
+
+/* @starting-style — отдельным правилом: парсеры, не знающие его,
+   выкинут только его, панель просто появится без выезда */
+.drawer__sub.is-open { @starting-style { translate: 100% 0; } }
+
+/* Уход: панель доигрывает выезд вправо, пока JS держит is-closing */
+.drawer__sub.is-closing {
+  display: flex;
+  translate: 100% 0;
+  transition: translate 0.3s ease;
+}
+
+.drawer__sub-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+  border-block-end: 1px solid rgb(0 0 0 / 0.15);
+}
+
+/* Кнопка «назад» — перенос старой .arrow-return: розовый круг и шеврон
+   влево (зеркальный chevron-forward, нового актива не заводим) */
+.drawer__sub-back {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.drawer__sub-arrow {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #fee9ed;
+  background-image: url("../../assets/icons/chevron-forward.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px auto;
+  transform: scaleX(-1);
+}
+
+/* Список занимает остаток высоты панели и скроллится сам;
+   min-height: 0 — иначе flex-потомок растягивается, а не скроллится */
+.drawer__sub-list {
+  display: grid;
+  align-content: start;
+  min-height: 0;
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Ссылки — как пункты старого мобильного каталога: 18 светлым серым.
+   display: block — ссылка бывает и <span> (доп-товар без слага),
+   вертикальные отступы на инлайне не растягивают строку */
+.drawer__sub-link {
+  display: block;
+  padding-block: 8px;
+  font-size: 18px;
+  font-weight: 400;
+  color: #000000;
+  opacity: 0.5;
+}
+
+.drawer__sub-link:hover {
+  color: #dc0978;
+  opacity: 1;
 }
 
 /* --------------------------------------------------- Модалка города */
@@ -3397,6 +3655,30 @@ body:has(.overlay.is-open) {
   @keyframes toast-in {
     from { opacity: 0; translate: 0 12px; }
     to   { opacity: 1; translate: 0 0; }
+  }
+}
+
+/* --------------------------- Плавные появления: уход тоста
+   Блок №5 app.js за миг до удаления узла ставит класс is-leaving —
+   уведомление растворяется, а не пропадает рывком. Направление
+   зеркалит вход: на мобильной вверх, на десктопе вниз. Блок можно
+   удалить целиком — уход снова станет мгновенным */
+
+.toast.is-leaving {
+  opacity: 0;
+  translate: 0 -8px;
+  transition: opacity 0.2s ease-out, translate 0.2s ease-out;
+}
+
+@media (min-width: 1024px) {
+  .toast.is-leaving {
+    translate: 0 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast.is-leaving {
+    transition: none;
   }
 }
 
@@ -3733,5 +4015,26 @@ body:has(.overlay.is-open) {
   .cookie-bar__ok {
     width: auto;
     margin-inline-start: auto;
+  }
+}
+
+/* --------------------------- Плавные появления: cookie-плашка
+   Плашка приходит в разметке с hidden; блок №33 app.js снимает его —
+   в этот момент срабатывает анимация первого рендера (уход остаётся
+   мгновенным: согласие удаляет элемент из DOM). Блок можно удалить
+   целиком — появление снова станет мгновенным */
+
+.cookie-bar {
+  animation: cookie-in 0.3s ease;
+}
+
+@keyframes cookie-in {
+  from { opacity: 0; translate: 0 12px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-bar {
+    animation: none;
   }
 }

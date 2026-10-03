@@ -1,6 +1,17 @@
 @inject('citiesService', \App\Services\CitiesService::class)
+@inject('catalogService', App\Services\CatalogService::class)
 @php
     session()->forget('order_delivery_radius_km');
+
+    // Разделы каталога мобильного меню — те же источники, что у старой
+    // модалки «Каталог» (components/modals.blade.php). «По цене»
+    // ($menuPrices), «По цветам» ($menuFlovers) и «Повод / кому»
+    // ($groupProductTags) — глобальные шары AppServiceProvider
+    $menuCategories = $catalogService->getPublishedCategories();
+    $menuAdditionalCategories = \App\Models\Category::published()
+        ->where('is_additional_product', 1)
+        ->where('is_visible_catalog', 1)
+        ->get();
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -261,7 +272,46 @@
                     <span class="chevron" aria-hidden="true"></span>
                 </a>
             </li>
-            <li class="menu__item"><a class="menu__link" href="/catalog">Каталог</a></li>
+            {{-- Разделы каталога — как модалка «Каталог» старого дизайна:
+                 клик по строке выезжает панель со списком ссылок
+                 (data-menu-section-open парится с data-menu-section-panel
+                 по значению). Первая ссылка «По категориям» — «Все букеты»
+                 на страницу каталога, поэтому отдельной плоской ссылки
+                 «Каталог» в меню больше нет --}}
+            <li class="menu__item">
+                <button class="menu__link" type="button" data-menu-section-open="prices">
+                    По цене
+                    <span class="chevron chevron--forward" aria-hidden="true"></span>
+                </button>
+            </li>
+            <li class="menu__item">
+                <button class="menu__link" type="button" data-menu-section-open="flowers">
+                    По цветам
+                    <span class="chevron chevron--forward" aria-hidden="true"></span>
+                </button>
+            </li>
+            <li class="menu__item">
+                <button class="menu__link" type="button" data-menu-section-open="categories">
+                    По категориям
+                    <span class="chevron chevron--forward" aria-hidden="true"></span>
+                </button>
+            </li>
+            @if ($groupProductTags)
+                <li class="menu__item">
+                    <button class="menu__link" type="button" data-menu-section-open="tags">
+                        Повод / кому
+                        <span class="chevron chevron--forward" aria-hidden="true"></span>
+                    </button>
+                </li>
+            @endif
+            @if (count($menuAdditionalCategories))
+                <li class="menu__item">
+                    <button class="menu__link" type="button" data-menu-section-open="additional">
+                        Дополнительные товары
+                        <span class="chevron chevron--forward" aria-hidden="true"></span>
+                    </button>
+                </li>
+            @endif
             <li class="menu__item"><a class="menu__link" href="/payments">Доставка и оплата</a></li>
             <li class="menu__item"><a class="menu__link" href="/about">О нас</a></li>
             <li class="menu__item"><a class="menu__link" href="/contacts">Контакты</a></li>
@@ -277,6 +327,141 @@
                 Ежедневно с 08:00 до 22:00
             </p>
         </div>
+
+        {{-- Панели разделов каталога: лежат в шторке абсолютом, выезжают
+             поверх списка справа (класс is-open ставит app.js, блок
+             «Разделы каталога в шторке»). Кнопка «назад» возвращает к
+             списку разделов, крестик закрывает меню целиком (#main —
+             общий механизм оверлеев). Ссылки — дословная логика старой
+             модалки «Каталог» --}}
+        <div class="drawer__sub" data-menu-section-panel="prices">
+            <div class="drawer__sub-head">
+                <button class="drawer__sub-back" type="button" data-menu-section-close>
+                    <span class="drawer__sub-arrow" aria-hidden="true"></span>
+                    <span>По цене</span>
+                </button>
+                <a class="overlay__close" href="#main" aria-label="Закрыть меню">
+                    <span class="cross" aria-hidden="true"></span>
+                </a>
+            </div>
+            <ul class="drawer__sub-list">
+                @foreach ($menuPrices as $menuPrice)
+                    @if ($menuPrice->price_start == 0)
+                        <li class="drawer__sub-item">
+                            <a class="drawer__sub-link"
+                               href="{{ route('catalog.index') }}?price[to]={{ $menuPrice->price_end }}">до {{ $menuPrice->price_end }}</a>
+                        </li>
+                    @elseif ($menuPrice->price_end == 0)
+                        <li class="drawer__sub-item">
+                            <a class="drawer__sub-link"
+                               href="{{ route('catalog.index') }}?price[from]={{ $menuPrice->price_start }}">от {{ $menuPrice->price_start }}</a>
+                        </li>
+                    @else
+                        <li class="drawer__sub-item">
+                            <a class="drawer__sub-link"
+                               href="{{ route('catalog.index') }}?price[from]={{ $menuPrice->price_start }}&price[to]={{ $menuPrice->price_end }}">{{ $menuPrice->price_start }} — {{ $menuPrice->price_end }}</a>
+                        </li>
+                    @endif
+                @endforeach
+            </ul>
+        </div>
+
+        <div class="drawer__sub" data-menu-section-panel="flowers">
+            <div class="drawer__sub-head">
+                <button class="drawer__sub-back" type="button" data-menu-section-close>
+                    <span class="drawer__sub-arrow" aria-hidden="true"></span>
+                    <span>По цветам</span>
+                </button>
+                <a class="overlay__close" href="#main" aria-label="Закрыть меню">
+                    <span class="cross" aria-hidden="true"></span>
+                </a>
+            </div>
+            <ul class="drawer__sub-list">
+                @foreach ($menuFlovers as $menuItem)
+                    <li class="drawer__sub-item">
+                        <a class="drawer__sub-link"
+                           href="{{ route('catalog.search') }}?product={{ urlencode($menuItem->title) }}">{{ $menuItem->title }}</a>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+
+        <div class="drawer__sub" data-menu-section-panel="categories">
+            <div class="drawer__sub-head">
+                <button class="drawer__sub-back" type="button" data-menu-section-close>
+                    <span class="drawer__sub-arrow" aria-hidden="true"></span>
+                    <span>По категориям</span>
+                </button>
+                <a class="overlay__close" href="#main" aria-label="Закрыть меню">
+                    <span class="cross" aria-hidden="true"></span>
+                </a>
+            </div>
+            <ul class="drawer__sub-list">
+                <li class="drawer__sub-item">
+                    <a class="drawer__sub-link" href="{{ route('catalog.index') }}">{{ __('Все букеты') }}</a>
+                </li>
+                @foreach ($menuCategories as $category)
+                    <li class="drawer__sub-item">
+                        <a class="drawer__sub-link"
+                           href="{{ route('catalog.category', ['slug' => $category->nestedSlug]) }}">{{ $category->title }}</a>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+
+        @if ($groupProductTags)
+            <div class="drawer__sub" data-menu-section-panel="tags">
+                <div class="drawer__sub-head">
+                    <button class="drawer__sub-back" type="button" data-menu-section-close>
+                        <span class="drawer__sub-arrow" aria-hidden="true"></span>
+                        <span>Повод / кому</span>
+                    </button>
+                    <a class="overlay__close" href="#main" aria-label="Закрыть меню">
+                        <span class="cross" aria-hidden="true"></span>
+                    </a>
+                </div>
+                <ul class="drawer__sub-list">
+                    @foreach ($groupProductTags as $tag)
+                        <li class="drawer__sub-item">
+                            <a class="drawer__sub-link"
+                               href="{{ route('catalog.tags', ['tag' => $tag['slug']]) }}">{{ $tag['name'] }}</a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if (count($menuAdditionalCategories))
+            <div class="drawer__sub" data-menu-section-panel="additional">
+                <div class="drawer__sub-head">
+                    <button class="drawer__sub-back" type="button" data-menu-section-close>
+                        <span class="drawer__sub-arrow" aria-hidden="true"></span>
+                        <span>Дополнительные товары</span>
+                    </button>
+                    <a class="overlay__close" href="#main" aria-label="Закрыть меню">
+                        <span class="cross" aria-hidden="true"></span>
+                    </a>
+                </div>
+                <ul class="drawer__sub-list">
+                    @foreach ($menuAdditionalCategories as $category)
+                        @php
+                            $categorySlug = \App\Models\Slugs\CategorySlug::where('category_id', $category->id)
+                                ->where('locale', 'ru')
+                                ->where('active', true)
+                                ->first();
+                        @endphp
+                        <li class="drawer__sub-item">
+                            @if ($categorySlug)
+                                <a class="drawer__sub-link"
+                                   href="{{ route('catalog.additional', ['slug' => $categorySlug->slug]) }}">{{ $category->title }}</a>
+                            @else
+                                <span class="drawer__sub-link">{{ $category->title }}</span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
     </nav>
 </div>
 

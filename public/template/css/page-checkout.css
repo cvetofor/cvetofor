@@ -1691,6 +1691,43 @@ legend.fieldset__legend {
   rotate: 180deg;
 }
 
+/* --------------------------- Плавные появления: <details>-всплывашки
+   Календарь и UDS-подсказка возникают фейдом с лёгким сдвигом.
+   Анимация только на открытие: закрытие нативного <details> без
+   ::details-content кросс-браузерно не анимируется. Шевроны (здесь и
+   у сводки «Итого») поворачиваются переходом, а не рывком. Блок можно
+   удалить целиком — всплывашки снова будут возникать мгновенно */
+
+.pick-date[open] .calendar {
+  animation: drop-in 0.18s ease;
+}
+
+.hint[open] .hint__body {
+  animation: drop-in 0.18s ease;
+}
+
+.pick-date__toggle .chevron,
+.summary__toggle {
+  transition: rotate 0.2s ease;
+}
+
+@keyframes drop-in {
+  from { opacity: 0; translate: 0 -8px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pick-date[open] .calendar,
+  .hint[open] .hint__body {
+    animation: none;
+  }
+
+  .pick-date__toggle .chevron,
+  .summary__toggle {
+    transition: none;
+  }
+}
+
 /* Всплывашка: на мобильной разворачивается в поток (места мало),
    на десктопе висит над содержимым, как в UI-ките */
 .calendar {
@@ -2170,6 +2207,39 @@ legend.fieldset__legend {
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.12);
 }
 
+/* --------------------------- Плавные появления: подсказки адреса
+   Открытие/скрытие — классы is-open/is-closing от блока №21 app.js
+   (вместо inline style.display): появление фейдом с лёгким сдвигом
+   вниз (старт — @starting-style), уход — обратным фейдом, пока
+   is-closing держит панель отрисованной 250 мс. Переходы
+   opacity/translate работают во всех браузерах. Блок можно удалить
+   целиком, вернув в app.js style.display, — подсказки снова будут
+   переключаться мгновенно */
+
+.suggest-dropdown {
+  opacity: 0;
+  translate: 0 -4px;
+  transition: opacity 0.2s ease, translate 0.2s ease;
+}
+
+.suggest-dropdown.is-closing {
+  display: block;
+}
+
+.suggest-dropdown.is-open {
+  display: block;
+  opacity: 1;
+  translate: 0 0;
+}
+
+.suggest-dropdown.is-open { @starting-style { opacity: 0; translate: 0 -4px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .suggest-dropdown {
+    transition: none;
+  }
+}
+
 .ymaps-2-1-79-suggest-item {
   padding: 12px 16px;
   font-size: 14px;
@@ -2255,4 +2325,34 @@ legend.fieldset__legend {
 .totals__sum-old {
   color: var(--color-ink);
   opacity: var(--opacity-secondary);
+}
+
+/* ==========================================================================
+   Модалка «Идёт создание заказа» (#order-creating, шаг 4): открывается
+   сразу при отправке формы и держится, пока сервер создаёт заказ. Карточка
+   и заголовок — общий city-modal (style.css), спиннер — общий .spinner
+   (style.css); состояния переключает блок «Объединённый checkout» в app.js
+   ========================================================================== */
+
+/* Обёртка состояния — grid-строка карточки city-modal */
+.order-modal__state {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+/* Строка «спиннер + подпись» состояния ожидания */
+.order-modal__process {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--color-ink);
+  font-size: var(--fs-label);
+  line-height: 1.4;
+}
+
+/* В модалке спиннер крупнее кнопочных 16px */
+.order-modal__process .spinner {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
 }

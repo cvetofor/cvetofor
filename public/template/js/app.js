@@ -9,7 +9,7 @@
  */
 
 /* Маркер версии: по нему видно, какая сборка скрипта реально выполнилась */
-document.documentElement.dataset.app = '21';
+document.documentElement.dataset.app = '23';
 
 /* ------------------------------------------- Закрываемые блоки (плашка) */
 
@@ -118,6 +118,31 @@ const setRestInert = (locked) => {
   rest.forEach((el) => { el.inert = Boolean(locked); });
 };
 
+// Закрытие — фейдом: без этого класса display вернулся бы в none в тот же
+// кадр и переходы не успели бы отыграть (переходимость display умеют не
+// все браузеры — Safari добавил её лишь в 18.2). Поэтому закрывающийся
+// оверлей 320 мс держится отрисованным классом is-closing (CSS), фейд
+// делают обычные переходы opacity/translate. С is-open класс не
+// конфликтует (оба держат элемент отрисованным), так что повторное
+// открытие во время фейда просто разворачивает панель обратно, а
+// открытие другой модалки даёт старой дотаять за новой
+const stopClosing = (el) => {
+  if (el.closingTimer) {
+    clearTimeout(el.closingTimer);
+    el.closingTimer = null;
+  }
+  el.classList.remove('is-closing');
+};
+
+const startClosing = (el) => {
+  stopClosing(el);
+  el.classList.add('is-closing');
+  el.closingTimer = setTimeout(() => {
+    el.classList.remove('is-closing');
+    el.closingTimer = null;
+  }, 320);
+};
+
 const openOverlay = (id) => {
   const next = document.getElementById(id);
   if (!next || !next.matches('.overlay')) return;
@@ -131,9 +156,25 @@ const openOverlay = (id) => {
 };
 
 const closeOverlay = () => {
-  if (!document.querySelector('.overlay.is-open')) return;
+  const opened = document.querySelector('.overlay.is-open');
+  if (!opened) return;
 
   overlays.forEach((el) => { el.classList.remove('is-open'); });
+
+  // раскрытый/закрывающийся раздел шторки меню сбрасываем — при следующем
+  // открытии меню показывает список разделов, а не последнюю панель (как
+  // сброс active-категорий при закрытии каталога в старом дизайне).
+  // Заодно снимаем inert с содержимого шторки — его вешает блок «Разделы
+  // каталога в шторке меню», пока открыта панель раздела
+  opened.querySelectorAll('.drawer__sub.is-open, .drawer__sub.is-closing').forEach((panel) => {
+    panel.classList.remove('is-open');
+    panel.classList.remove('is-closing');
+  });
+  opened.querySelectorAll('[inert]').forEach((el) => {
+    el.inert = false;
+  });
+
+  startClosing(opened);
   setRestInert(false);
 
   if (opener) {
@@ -169,12 +210,19 @@ if (overlays.length) {
 
   overlays.forEach((overlay) => {
     overlay.addEventListener('click', (event) => {
-      if (event.target === overlay) closeOverlay();
+      // оверлей с классом overlay--lock вручную не закрывается
+      // (модалка «Идёт создание заказа» на шаге 4 чекаута)
+      if (event.target === overlay && !overlay.classList.contains('overlay--lock')) {
+        closeOverlay();
+      }
     });
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeOverlay();
+    if (event.key !== 'Escape') return;
+    const opened = document.querySelector('.overlay.is-open');
+    if (!opened || opened.classList.contains('overlay--lock')) return;
+    closeOverlay();
   });
 
   // В адресе мог остаться хеш от прошлой версии (закладка, открытая
@@ -254,7 +302,21 @@ function showToast(options) {
   node.querySelector('.toast__title').textContent = options.title || '';
   node.querySelector('.toast__note').textContent = options.note || '';
 
-  const close = () => node.remove();
+  // Уход — фейдом: класс is-leaving (переход в style.css, направление
+  // зеркалит вход), узел убираем по готовности. Если пользователь просил
+  // убрать анимацию — снимаем сразу. Повторный вызов (крестик после
+  // таймера) ничего не ломает.
+  const close = () => {
+    if (node.classList.contains('is-leaving')) return;
+    node.classList.add('is-leaving');
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      node.remove();
+      return;
+    }
+
+    setTimeout(() => node.remove(), 220);
+  };
   node.querySelector('.toast__close').addEventListener('click', close);
 
   toastLayer.append(node);
@@ -740,6 +802,25 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
     return payload;
   };
 
+  // Модалка создания заказа (#order-creating, разметка в конце checkout):
+  // открывается сразу при отправке шага 4 и держится, пока сервер
+  // обрабатывает POST на order.create. processing — идёт запрос (класс
+  // overlay--lock запрещает закрыть вручную, блок №3); error — заказ
+  // не создан: показываем причину и снимаем блокировку (закрывают
+  // «Понятно», Esc, клик мимо); reset — модалка закрыта, возвращаем
+  // исходное состояние к следующей попытке
+  const creatingModal = document.getElementById('order-creating');
+  const setCreatingModal = (state, text) => {
+    if (!creatingModal) return;
+    const processing = creatingModal.querySelector('[data-order-creating-processing]');
+    const failure = creatingModal.querySelector('[data-order-creating-error]');
+    const note = creatingModal.querySelector('[data-order-creating-error-text]');
+    if (processing) processing.hidden = state === 'error';
+    if (failure) failure.hidden = state !== 'error';
+    if (note && text) note.textContent = text;
+    creatingModal.classList.toggle('overlay--lock', state === 'processing');
+  };
+
   // «Далее» открывает следующий шаг; на шаге 4 — финальная отправка
   steps.forEach((wrap) => {
     const form = wrap.querySelector('form');
@@ -774,30 +855,34 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
       }
 
       // финал: данные всех шагов одним POST на order.create (action формы
-      // шага 4) — тот же контракт, что у формы старого дизайна
+      // шага 4) — тот же контракт, что у формы старого дизайна. Пока сервер
+      // обрабатывает заказ, держим модалку «Идёт создание заказа»
+      if (creatingModal && creatingModal.classList.contains('overlay--lock')) {
+        return; // отправка уже идёт
+      }
       const payload = buildOrderPayload();
+      setCreatingModal('processing');
+      window.Cvetofor.openOverlay('order-creating');
       let result;
       try {
         result = await request(form.action, form.method, payload);
       } catch (_) {
         // сеть недоступна — заказ не создан, говорим об этом
-        window.Cvetofor.toast({
-          title: 'Не удалось оформить заказ',
-          note: 'Сервер недоступен, попробуйте ещё раз'
-        });
+        setCreatingModal('error', 'Сервер недоступен, попробуйте ещё раз');
         return;
       }
       const { response, error } = result;
 
       if (response && typeof response === 'object' && response.order_id) {
         if (response.redirect) {
+          // переход на оплату: модалку не закрываем — она остаётся на
+          // экране, пока грузится страница платёжного шлюза
           window.location.href = response.redirect;
         } else {
-          // редиректа нет (оплата не онлайн) — заказ всё равно создан
-          window.Cvetofor.toast({
-            title: 'Заказ оформлен',
-            note: 'Номер заказа: ' + response.order_id
-          });
+          // order_id есть, а ссылки на оплату нет: ведём в корзину —
+          // сервер уже очистил её при создании заказа, там покажется
+          // пустое состояние «Ваша корзина пуста»
+          window.location.href = '/cart';
         }
         return;
       }
@@ -810,6 +895,8 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
             text.textContent = error.message ||
               'По выбранному адресу доставка недоступна. Попробуйте другой адрес.';
           }
+          window.Cvetofor.closeOverlay();
+          setCreatingModal('reset');
           window.Cvetofor.openOverlay('delivery-area');
           return;
         }
@@ -817,6 +904,8 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
         // ошибки валидации OrderRequest: подпись под полем + возврат
         // на шаг, где стоит это поле
         if (error.errors) {
+          window.Cvetofor.closeOverlay();
+          setCreatingModal('reset');
           Object.keys(error.errors).forEach((name) => {
             const input = checkoutRoot.querySelector('[name="' + name + '"]');
             if (!input) return;
@@ -828,13 +917,22 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
         }
 
         if (error.message) {
-          window.Cvetofor.toast({ title: 'Не удалось оформить заказ', note: error.message });
+          setCreatingModal('error', error.message);
+          return;
         }
+
+        // не-JSON ответ сервера (например, HTML страницы 500) — заказ
+        // не создан, ссылка на оплату не пришла
+        console.warn('order.create: unexpected error', error);
+        setCreatingModal('error');
         return;
       }
 
-      // не JSON (например, страница 419) — старый дизайн этот случай молчал
+      // заказ не создан и урла нет: сервер ответил не JSON (back()
+      // контроллера при несозданном заказе, страница 419 и т.п.) — раньше
+      // этот случай молчал, теперь показываем ошибку в модалке
       console.warn('order.create: unexpected response', response);
+      setCreatingModal('error');
     });
   });
 
@@ -1360,6 +1458,26 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
+  // Показ/скрытие — классами: is-open открывает, is-closing держит
+  // панель отрисованной 250 мс на фейд-ауте (переходимость display есть
+  // не у всех браузеров — тот же приём, что is-closing у оверлеев)
+  let suggestHideTimer = null;
+
+  const showSuggest = function () {
+    clearTimeout(suggestHideTimer);
+    suggestDropdown.classList.remove("is-closing");
+    suggestDropdown.classList.add("is-open");
+  };
+
+  const hideSuggest = function () {
+    suggestDropdown.classList.remove("is-open");
+    suggestDropdown.classList.add("is-closing");
+    clearTimeout(suggestHideTimer);
+    suggestHideTimer = setTimeout(function () {
+      suggestDropdown.classList.remove("is-closing");
+    }, 250);
+  };
+
   // Город берём из соседнего поля (селектор — в data-suggest-city адресного
   // поля): он уходит в DaData вместе с вводом, а из подсказок вырезается
   const citySelector = deliveryAddress.getAttribute("data-suggest-city");
@@ -1416,7 +1534,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (value.length < 3) {
       suggestDropdown.innerHTML = "";
-      suggestDropdown.style.display = "none";
+      hideSuggest();
       return;
     }
 
@@ -1458,7 +1576,7 @@ document.addEventListener("DOMContentLoaded", function () {
           suggestDropdown.innerHTML = "";
 
           if (!items.length) {
-            suggestDropdown.style.display = "none";
+            hideSuggest();
             return;
           }
 
@@ -1502,7 +1620,7 @@ document.addEventListener("DOMContentLoaded", function () {
               }
 
               suggestDropdown.innerHTML = "";
-              suggestDropdown.style.display = "none";
+              hideSuggest();
 
               deliveryAddress.dispatchEvent(
                 new Event("change", {
@@ -1516,7 +1634,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           suggestDropdown.appendChild(suggest);
 
-          suggestDropdown.style.display = "block";
+          showSuggest();
         })
         .catch((error) => {
           if (error.name !== "AbortError") {
@@ -1606,7 +1724,7 @@ document.addEventListener("DOMContentLoaded", function () {
       !suggestDropdown.contains(event.target)
     ) {
       suggestDropdown.innerHTML = "";
-      suggestDropdown.style.display = "none";
+      hideSuggest();
     }
   });
 });
@@ -1789,21 +1907,24 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   };
 
-  // выбор интервала тоже гасит предупреждение «выберите дату и время»
+  // выбор интервала тоже гасит предупреждение «выберите дату и время».
+  // Пересчёт уходит с isKnowAdress — как calcDelivery(globalPoints, true)
+  // на смене delivery_time в старом дизайне: сервер сбрасывает сохранённый
+  // радиус, и цена доставки в заказе и чеке считается одинаково
   slots.addEventListener("change", function () {
     const deliveryError = document.querySelector("[data-delivery-error]");
     if (deliveryError) {
       deliveryError.hidden = true;
     }
 
-    updateDeliveryPrice();
+    updateDeliveryPrice({ isKnowAdress: true });
   });
 
   // Пересчёт стоимости доставки — аналог calcDelivery старого дизайна:
   // POST на deliveryRadius с выбранным интервалом. Координаты не передаём —
   // город фиксированный, проверка радиуса в контроллере работает только
   // при наличии координат. При изменении цены — всплывашка #delivery-summ
-  const updateDeliveryPrice = function () {
+  const updateDeliveryPrice = function (opts) {
     const routes = window.cvetofor && window.cvetofor.config && window.cvetofor.config.routes;
     if (!routes || !routes.deliveryRadius) {
       return;
@@ -1827,9 +1948,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Поля адреса видимы = режим «Я знаю адрес»: сервер сбрасывает
-    // сохранённый радиус доставки (order_delivery_radius_km)
+    // сохранённый радиус доставки (order_delivery_radius_km).
+    // Смена интервала тоже передаёт флаг (opts.isKnowAdress) — паритет
+    // с calcDelivery(…, true) старого дизайна на смене delivery_time
     const addressFields = document.querySelector("[data-address-fields]");
-    if (addressFields && !addressFields.hidden) {
+    if ((addressFields && !addressFields.hidden) || (opts && opts.isKnowAdress)) {
       data.isKnowAdress = true;
     }
 
@@ -2362,9 +2485,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const input = form.querySelector("input");
 
+  // Закрытие — фейдом: класс header--search-closing держит форму
+  // отрисованной 250 мс (переходимость display есть не везде — тот же
+  // приём, что is-closing у оверлеев), фейд делает переход opacity/translate
+  let searchCloseTimer = null;
+
   const setOpen = function (state) {
     header.classList.toggle("header--search-open", state);
     toggle.setAttribute("aria-label", state ? "Закрыть поиск" : "Поиск по каталогу");
+
+    clearTimeout(searchCloseTimer);
+    header.classList.remove("header--search-closing");
+    if (!state) {
+      header.classList.add("header--search-closing");
+      searchCloseTimer = setTimeout(function () {
+        header.classList.remove("header--search-closing");
+      }, 250);
+    }
+
     if (state) {
       input.focus();
     } else {
@@ -2995,4 +3133,87 @@ document.addEventListener('DOMContentLoaded', function () {
 
   bar.hidden = false;
   bar.querySelector('.cookie-bar__ok').addEventListener('click', consentWithCookies);
+});
+
+/* -------------------------------------- Разделы каталога в шторке меню */
+
+/*
+ * Перенос раскрывающихся разделов модалки «Каталог» старого дизайна
+ * (data-category-open/close в dist/js/scripts.js): клик по строке
+ * раздела («По цене» и т.д.) выезжает панель со списком ссылок поверх
+ * меню, кнопка «назад» возвращает к списку разделов. Строка и панель
+ * парятся по значению data-menu-section-open / data-menu-section-panel.
+ * Пока панель открыта, содержимое шторки под ней inert — иначе Tab уходит
+ * под неё, к невидимым ссылкам (та же логика, что у оверлеев выше);
+ * из-за этого фокус при открытии не нужен: первый Tab сам попадёт
+ * на кнопку «назад». Кнопку при открытии фокусировать нельзя — панель
+ * в первый кадр ещё за правым краем шторки, и браузер, показывая
+ * сфокусированное, прокручивает шторку по горизонтали (глюк: панель
+ * уезжала за левый край). Закрытая панель — display: none (CSS), уход —
+ * класс is-closing на 320 мс, как у closeOverlay. При закрытии самого
+ * меню панели и inert сбрасывает closeOverlay
+ */
+document.addEventListener('DOMContentLoaded', function () {
+  const drawer = document.querySelector('.drawer');
+  if (!drawer) return;
+
+  const rows = drawer.querySelectorAll('[data-menu-section-open]');
+  if (!rows.length) return;
+
+  // Содержимое шторки под панелью раздела: логотип, поиск, список
+  // разделов и контакты
+  const content = drawer.querySelectorAll('.drawer__top, .drawer__search, .menu, .drawer__foot');
+
+  const setContentInert = (locked) => {
+    content.forEach((el) => { el.inert = Boolean(locked); });
+  };
+
+  // Повторное открытие во время ухода: отменяем таймер и класс,
+  // панель разворачивается обратно (как stopClosing у оверлеев)
+  const stopSubClosing = (panel) => {
+    if (panel.subClosingTimer) {
+      clearTimeout(panel.subClosingTimer);
+      panel.subClosingTimer = null;
+    }
+    panel.classList.remove('is-closing');
+  };
+
+  const startSubClosing = (panel) => {
+    stopSubClosing(panel);
+    panel.classList.remove('is-open');
+    panel.classList.add('is-closing');
+    panel.subClosingTimer = setTimeout(() => {
+      panel.classList.remove('is-closing');
+      panel.subClosingTimer = null;
+    }, 320);
+  };
+
+  rows.forEach(function (row) {
+    row.addEventListener('click', function () {
+      const panel = drawer.querySelector(
+        '[data-menu-section-panel="' + row.dataset.menuSectionOpen + '"]'
+      );
+      if (!panel) return;
+
+      stopSubClosing(panel);
+      setContentInert(true);
+      panel.classList.add('is-open');
+    });
+  });
+
+  drawer.querySelectorAll('[data-menu-section-close]').forEach(function (back) {
+    back.addEventListener('click', function () {
+      const panel = back.closest('.drawer__sub');
+      startSubClosing(panel);
+      setContentInert(false);
+
+      // фокус возвращаем строке раздела — как closeOverlay возвращает
+      // его кнопке-открывателю. Строка видна и не торчит за краем,
+      // так что браузер ничего не прокручивает
+      const row = drawer.querySelector(
+        '[data-menu-section-open="' + panel.dataset.menuSectionPanel + '"]'
+      );
+      if (row) row.focus();
+    });
+  });
 });

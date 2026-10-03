@@ -2,7 +2,10 @@
 
     <section class="section container" id="categories">
         <div class="section__head">
-            <h2 class="section__title">По категориям</h2>
+            {{-- Заголовок переопределяется на /all-category ($title): рядом
+                 стоят и другие разделы меню («По цене», «По категориям»),
+                 и плитки цветов там зовутся «По цветам» — как в меню --}}
+            <h2 class="section__title">{{ $title ?? 'По категориям' }}</h2>
            @if(!isset($not_short)) <a class="section__more section__more--chevron" href="/all-category">
                 <span class="visually-hidden">Все категории</span>
             </a>@endif

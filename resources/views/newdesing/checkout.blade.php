@@ -1007,4 +1007,33 @@
         </div>
     </div>
 
+    <!-- Создание заказа: открывается скриптом (блок «Объединённый
+         checkout» в app.js) сразу после нажатия «Оформить заказ» и держится,
+         пока сервер обрабатывает POST на order.create. Класс overlay--lock
+         (ставит скрипт на время запроса, в разметке его нет — он же служит
+         guard'ом от повторной отправки) запрещает закрытие вручную (Esc и
+         клик мимо панели — блок №3 app.js). Крестика нет: пока идёт запрос,
+         модалку закрыть нельзя; если заказ не создался (пустой/не-JSON
+         ответ, сеть), блок №11 переключает её в состояние ошибки и снимает
+         блокировку — тогда работают «Понятно», Esc и клик мимо панели -->
+    <div class="overlay overlay--center" id="order-creating">
+        <div class="overlay__panel city-modal order-modal">
+            {{-- состояние: ожидание ответа сервера --}}
+            <div class="order-modal__state" data-order-creating-processing>
+                <h2 class="city-modal__title">Идёт создание заказа</h2>
+                <p class="order-modal__process">
+                    <span class="spinner" aria-hidden="true"></span>
+                    <span>Не закрывайте страницу, это займёт несколько секунд.</span>
+                </p>
+            </div>
+
+            {{-- состояние: заказ не создан --}}
+            <div class="order-modal__state" data-order-creating-error hidden>
+                <h2 class="city-modal__title">Не удалось оформить заказ</h2>
+                <p class="overlay__text" data-order-creating-error-text>Заказ не был создан. Попробуйте ещё раз.</p>
+                <a class="btn btn--primary" href="#main">Понятно</a>
+            </div>
+        </div>
+    </div>
+
 @endsection
