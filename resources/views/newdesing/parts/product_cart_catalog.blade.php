@@ -29,6 +29,7 @@
                  alt="{{ $price->$typeproduct->title }}"
                  width="284" height="225" loading="lazy">
             @if($price->is_promo) <p class="badge badge--sale">−20%</p>@endif
+            {{-- Иконка «Добавить в избранное» спрятана по требованию (образец — закомментированный блок в product.blade.php)
             <form class="card__fav" data-fav action="/favorites/toggle" method="post">
                 <input type="hidden" name="product" value="buket-vip">
                 <button class="card__like" type="submit" aria-pressed="false"
@@ -36,6 +37,7 @@
                     <img src="/template/assets/icons/heart.svg" alt="" width="19" height="19">
                 </button>
             </form>
+            --}}
         </div>
 
         <div class="card__body">

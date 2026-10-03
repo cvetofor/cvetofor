@@ -658,6 +658,45 @@
     </div>
 </div>
 
+{{-- Плавающие соцсети — перенос виджета старого дизайна
+     (components/social-widget + развилка городов из старого layouts/app):
+     фикс. колонка из двух круглых кнопок внизу справа, только в трёх
+     городах, ссылки дословно оттуда. Появление каскадом — маркированный
+     блок «Плавные появления: соцсети-виджет» в style.css (аналог
+     инлайн-скрипта старого компонента на чистом CSS, JS-блока нет).
+     Стоит раньше cookie-плашки: на узких экранах угол уходит под неё --}}
+@if($citiesService::getCity()->id === 98)
+    {{-- Улан-Удэ --}}
+    <nav class="social-floating" aria-label="Мы в соцсетях">
+        <a href="https://vk.com/cvetofor03" target="_blank" rel="noopener" class="social-floating__btn social-floating__btn--vk">
+            <img src="/template/assets/icons/social-vk.svg" alt="VK" width="30" height="30">
+        </a>
+        <a href="https://max.ru/id032385290437_bot" target="_blank" rel="noopener" class="social-floating__btn social-floating__btn--max">
+            <img src="/template/assets/icons/social-max.svg" alt="Max" width="30" height="30">
+        </a>
+    </nav>
+@elseif($citiesService::getCity()->id === 96)
+    {{-- Кяхта --}}
+    <nav class="social-floating" aria-label="Мы в соцсетях">
+        <a href="https://vk.com/cvetofor_kht" target="_blank" rel="noopener" class="social-floating__btn social-floating__btn--vk">
+            <img src="/template/assets/icons/social-vk.svg" alt="VK" width="30" height="30">
+        </a>
+        <a href="https://max.ru/u/f9LHodD0cOKWpSkUUBEd6VqrXD6WdyzpaI4lb-w4WFBOPgPYgWGQNrTpLxE" target="_blank" rel="noopener" class="social-floating__btn social-floating__btn--max">
+            <img src="/template/assets/icons/social-max.svg" alt="Max" width="30" height="30">
+        </a>
+    </nav>
+@elseif($citiesService::getCity()->id === 216)
+    {{-- Ангарск --}}
+    <nav class="social-floating" aria-label="Мы в соцсетях">
+        <a href="https://vk.com/cvetofor_38" target="_blank" rel="noopener" class="social-floating__btn social-floating__btn--vk">
+            <img src="/template/assets/icons/social-vk.svg" alt="VK" width="30" height="30">
+        </a>
+        <a href="https://max.ru/id032385290437_1_bot" target="_blank" rel="noopener" class="social-floating__btn social-floating__btn--max">
+            <img src="/template/assets/icons/social-max.svg" alt="Max" width="30" height="30">
+        </a>
+    </nav>
+@endif
+
 <!-- Согласие на cookie — перенос баннера старого дизайна
      (spatie/laravel-cookie-consent). Приходит в разметке скрытой:
      показывает блок №33 app.js, если нет куки согласия (та же
@@ -706,6 +745,7 @@
                 get: (val) => "{{ route('v1.search.get') }}",
             },
             cart: {
+                page: "{{ route('cart.index') }}",
                 put: (val) => "{{ route('v1.cart.put', ['price' => '??']) }}".replace('??', encodeURI(val)),
                 putAdditional: (val) => "{{ route('v1.cart.putAdditional', ['id' => '??']) }}".replace('??',
                     encodeURI(val)),

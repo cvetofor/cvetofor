@@ -149,10 +149,10 @@
                     </a>
                     @endif
                     <!-- Не figcaption: это не подпись к фото, а обещание сервиса -->
-                    <p class="gallery__note">
+                   {{-- <p class="gallery__note">
                         <img src="/template/assets/icons/adv-photo.svg" alt="" width="21" height="21">
                         Фото перед отправкой
-                    </p>
+                    </p>--}}
                 </div>
             </div>
 
@@ -164,7 +164,7 @@
                             Хит продаж
                         </p>
                     @endif
-                    <div class="product__tools">
+                    {{--<div class="product__tools">
                         <form class="product__fav" data-fav action="/favorites/toggle" method="post">
                             <input type="hidden" name="product" value="luxury-peony">
                             <button class="product__tool" type="submit" aria-pressed="false"
@@ -175,7 +175,7 @@
                         <button class="product__tool" type="button" aria-label="Поделиться">
                             <img src="/template/assets/icons/share-2.svg" alt="" width="30" height="30">
                         </button>
-                    </div>
+                    </div>--}}
                 </div>
 
                 <h1 class="product__title" id="product-title">{{ $groupProduct->title }}</h1>
@@ -224,14 +224,13 @@
                     </a>
                 </div>
 
-                <a class="gift" href="/promo">
+                <div class="gift">
                     <img class="gift__icon" src="/template/assets/icons/gift.svg" alt="" width="42" height="42">
                     <span class="gift__text">
             <span class="gift__title">Особенный подарок</span>
             <span class="gift__note">Открытка с вашим текстом — бесплатно к заказу</span>
           </span>
-                    <span class="chevron chevron--forward" aria-hidden="true"></span>
-                </a>
+                </div>
 
                 @php
                     // Псевдослучайный счётчик «заказали N раз»: seed = id + дата,

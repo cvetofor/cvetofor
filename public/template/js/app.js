@@ -9,7 +9,7 @@
  */
 
 /* Маркер версии: по нему видно, какая сборка скрипта реально выполнилась */
-document.documentElement.dataset.app = '23';
+document.documentElement.dataset.app = '24';
 
 /* ------------------------------------------- Закрываемые блоки (плашка) */
 
@@ -279,9 +279,11 @@ document.querySelectorAll('[data-reveal]').forEach((control) => {
    ========================================================================== */
 
 /*
- * showToast({photo, title, note}) — публичный вызов, доступен как
+ * showToast({photo, title, note, href}) — публичный вызов, доступен как
  * window.Cvetofor.toast(...). Бэкенд может дёргать его после своего
  * ajax-ответа: разметка уведомления лежит в <template>, а не в скрипте.
+ * href (необязательно) превращает уведомление в ссылку: клик или Enter
+ * ведут по адресу, крестик закрывает как обычно.
  */
 const toastLayer = document.getElementById('toasts');
 const toastTemplate = document.getElementById('toast-template');
@@ -302,6 +304,20 @@ function showToast(options) {
   node.querySelector('.toast__title').textContent = options.title || '';
   node.querySelector('.toast__note').textContent = options.note || '';
 
+  // Тост-ссылка (опция href, так работает «Добавлено в корзину»):
+  // клик по телу уведомления или Enter с клавиатуры ведёт по адресу.
+  // Крестик — только закрытие, его клик не всплывает до узла.
+  if (options.href) {
+    node.classList.add('toast--link');
+    node.setAttribute('role', 'link');
+    node.setAttribute('tabindex', '0');
+    const go = () => window.location.assign(options.href);
+    node.addEventListener('click', go);
+    node.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') go();
+    });
+  }
+
   // Уход — фейдом: класс is-leaving (переход в style.css, направление
   // зеркалит вход), узел убираем по готовности. Если пользователь просил
   // убрать анимацию — снимаем сразу. Повторный вызов (крестик после
@@ -317,7 +333,10 @@ function showToast(options) {
 
     setTimeout(() => node.remove(), 220);
   };
-  node.querySelector('.toast__close').addEventListener('click', close);
+  node.querySelector('.toast__close').addEventListener('click', (event) => {
+    event.stopPropagation();
+    close();
+  });
 
   toastLayer.append(node);
   // Уведомление живёт 5 секунд: меньше — не успеть прочитать, больше —
@@ -382,7 +401,8 @@ document.addEventListener('submit', (event) => {
     showToast({
       photo: photo ? photo.currentSrc || photo.src : '',
       title: 'Добавлено в корзину',
-      note: 'В корзину была добавлена одна позиция'
+      note: 'В корзину была добавлена одна позиция',
+      href: window['cvetofor'].config.routes.cart.page
     });
   }
 });
@@ -874,16 +894,25 @@ document.querySelectorAll('[data-slider]').forEach((track) => {
       const { response, error } = result;
 
       if (response && typeof response === 'object' && response.order_id) {
-        if (response.redirect) {
-          // переход на оплату: модалку не закрываем — она остаётся на
-          // экране, пока грузится страница платёжного шлюза
-          window.location.href = response.redirect;
-        } else {
-          // order_id есть, а ссылки на оплату нет: ведём в корзину —
-          // сервер уже очистил её при создании заказа, там покажется
-          // пустое состояние «Ваша корзина пуста»
-          window.location.href = '/cart';
-        }
+        // покупка в Метрику — те же данные, что получал by_send_order
+        // старого backend-temp.js: order_id = num_order, продукты со
+        // скидкой отдаёт OrderController (блок №35)
+        yaPurchase(response.order_id, response.products);
+
+        // секунда до перехода — как в старом чекауте: счётчик Метрики
+        // должен успеть отправить purchase до ухода со страницы
+        setTimeout(() => {
+          if (response.redirect) {
+            // переход на оплату: модалку не закрываем — она остаётся на
+            // экране, пока грузится страница платёжного шлюза
+            window.location.href = response.redirect;
+          } else {
+            // order_id есть, а ссылки на оплату нет: ведём в корзину —
+            // сервер уже очистил её при создании заказа, там покажется
+            // пустое состояние «Ваша корзина пуста»
+            window.location.href = '/cart';
+          }
+        }, 1000);
         return;
       }
 
@@ -1215,6 +1244,10 @@ const PutToCart = function () {
     const {response, error} = await request(link(sku), "PUT");
 
     if (response) {
+      // add в Метрику — до reload доп-товаров: пуш синхронный и успевает
+      // уйти до начала перезагрузки (блок №35)
+      yaAddToCart(button, sku);
+
       if (button.getAttribute('data-cart-additional-item-add')) {
         window.location.reload();
       }
@@ -1225,7 +1258,8 @@ const PutToCart = function () {
       showToast({
         photo: photo ? photo.currentSrc || photo.src : '',
         title: 'Добавлено в корзину',
-        note: 'В корзину была добавлена одна позиция'
+        note: 'В корзину была добавлена одна позиция',
+        href: window['cvetofor'].config.routes.cart.page
       });
 
       setCounter(response.count)
@@ -1424,6 +1458,10 @@ if (cartItems) {
             setCounter(response.count);
           }
         } else {
+          // remove в Метрику — по клику, до запроса: как в старом
+          // ya_commerce.js (блок №35)
+          yaRemoveFromCart(item);
+
           let sku = '';
 
           if (item.getAttribute('data-cart-additional-item-remove')) {
@@ -3216,4 +3254,146 @@ document.addEventListener('DOMContentLoaded', function () {
       if (row) row.focus();
     });
   });
+});
+
+/* --------------------------- Яндекс.Метрика: e-commerce (dataLayer) */
+
+/*
+ * Перенос dist/js/ya_commerce.js старого дизайна (jQuery → vanilla).
+ * Счётчик подключается отдельно — Twill help-page.help.js в <head> лейаута
+ * — и сам читает window.dataLayer; здесь только пуш событий. Структуры —
+ * 1:1 со старым файлом: currencyCode «RUB», товар {id, name, price}
+ * (+category у detail и add со страницы товара), purchase — actionField.id
+ * = номер заказа + продукты из ответа order.create. Отладочные console.log
+ * и кука ya_order старого файла не переносились: кука была мёртвым кодом
+ * (проверка «ya_order == null» в деплой-версии закомментирована), а
+ * повторный сабмит чекаута и так блокируется модалкой №11.
+ *
+ * Функции — объявления: блоки №11/№16/№20 выше по файлу зовут их по
+ * событиям пользователя, когда скрипт уже исполнен целиком.
+ */
+window.dataLayer = window.dataLayer || [];
+
+function yaEcommerce(type, data) {
+  const ecommerce = { currencyCode: 'RUB' };
+  ecommerce[type] = data;
+  window.dataLayer.push({ ecommerce: ecommerce });
+}
+
+/* Цена из DOM («3 500 р.» / «3 500 ₽») → строка числа, как чистил
+   старый ya_commerce.js; \s покрывает и неразрывные пробелы */
+function yaPrice(el) {
+  if (!el) return '';
+  return el.textContent.replace(/р\./g, '').replace(/₽/g, '').replace(/\s/g, '');
+}
+
+function yaText(el) {
+  return el ? el.textContent.replace(/"/g, '').trim() : '';
+}
+
+/* Последний сегмент ссылки на товар — как id в impressions/click/remove
+   старого файла (slug цены из href карточки) */
+function yaSlugFromHref(el) {
+  return el ? (el.getAttribute('href') || '').split('/').slice(-1)[0] : '';
+}
+
+/* Карточка листинга article.card (каталог, поиск, главная, «Смотрите
+   также», категория доп-товаров) */
+function yaProductFromCard(card) {
+  return {
+    id: yaSlugFromHref(card.querySelector('a.card__link')),
+    name: yaText(card.querySelector('.card__title')),
+    price: yaPrice(card.querySelector('.card__price'))
+  };
+}
+
+/* Плитка «Рекомендуем добавить» на главной */
+function yaProductFromAddon(addon) {
+  return {
+    id: '',
+    name: yaText(addon.querySelector('.addon__title')),
+    price: yaPrice(addon.querySelector('.addon__price'))
+  };
+}
+
+/* Страница товара (букет и доп-товар — одинаковые селекторы): id —
+   последний сегмент URL, категория — последняя ссылка крошек, как в
+   старом detail */
+function yaProductFromPage() {
+  const crumbs = document.querySelectorAll('.breadcrumbs__link');
+  return {
+    id: location.pathname.split('/').slice(-1)[0],
+    name: yaText(document.querySelector('h1.product__title')),
+    price: yaPrice(document.querySelector('.product__price')),
+    category: crumbs.length ? yaText(crumbs[crumbs.length - 1]) : ''
+  };
+}
+
+/* Строка корзины li.cart-item */
+function yaProductFromCartRow(row) {
+  return {
+    id: yaSlugFromHref(row.querySelector('a.cart-item__more')),
+    name: yaText(row.querySelector('.cart-item__title')),
+    price: yaPrice(row.querySelector('.cart-item__price'))
+  };
+}
+
+/* add — из блока №16: id всегда реальный идентификатор кнопки (SKU
+   букета или id цены доп-товара), название и цена — из контекста */
+function yaAddToCart(button, sku) {
+  let product;
+  const card = button.closest('article.card');
+  const addon = button.closest('.addon');
+
+  if (card) {
+    product = yaProductFromCard(card);
+  } else if (addon) {
+    product = yaProductFromAddon(addon);
+  } else if (document.querySelector('h1.product__title')) {
+    product = yaProductFromPage();
+  } else {
+    product = { name: '', price: '' };
+  }
+  product.id = sku;
+
+  yaEcommerce('add', { products: [product] });
+}
+
+/* remove — из блока №20 */
+function yaRemoveFromCart(button) {
+  const row = button.closest('.cart-item');
+  if (!row) return;
+  yaEcommerce('remove', { products: [yaProductFromCartRow(row)] });
+}
+
+/* purchase — из блока №11: orderId = num_order, продукты (цены со
+   скидкой + «Доставка») отдаёт OrderController в ответе order.create */
+function yaPurchase(orderId, products) {
+  yaEcommerce('purchase', {
+    actionField: { id: orderId },
+    products: products || []
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  // impressions: карточки всех листингов страницы
+  const cards = document.querySelectorAll('article.card');
+  if (cards.length) {
+    yaEcommerce('impressions', Array.from(cards, yaProductFromCard));
+  }
+
+  // click по карточке каталога — делегирован на document, работает и для
+  // карточек, догруженных «Показать ещё»
+  document.addEventListener('click', function (e) {
+    const card = e.target.closest('article.card');
+    if (!card) return;
+    yaEcommerce('click', { products: [yaProductFromCard(card)] });
+  });
+
+  // detail: только страницы товара — h1.product__title есть лишь у них.
+  // Старый триггер «URL содержит /catalog/» ловил и категории (пуш с
+  // пустой ценой и названием категории) — здесь это исправлено
+  if (document.querySelector('h1.product__title')) {
+    yaEcommerce('detail', { products: [yaProductFromPage()] });
+  }
 });
