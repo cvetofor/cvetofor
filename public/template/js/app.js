@@ -3397,3 +3397,22 @@ document.addEventListener('DOMContentLoaded', function () {
     yaEcommerce('detail', { products: [yaProductFromPage()] });
   }
 });
+
+/* ==========================================================================
+   Плашка «Установите приложение»: ссылка по платформе (перенос из старого
+   layouts/app.blade.php). В разметке стоит Rustore (Android); на iOS —
+   App Store. На десктопе ничего не меняем: плашку там закрывает крестик
+   (блок №1)
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const iosUrl = 'https://apps.apple.com/mn/app/%D1%86%D0%B2%D0%B5%D1%82%D0%BE%D1%84%D0%BE%D1%80/id6761184671';
+  const link = document.querySelector('.app-strip .btn--install');
+  if (!link) return;
+
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (
+    navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
+  );
+
+  if (isIOS) link.href = iosUrl;
+});

@@ -12,10 +12,16 @@
                  width="908" height="495">
 
             <div class="page-banner__body">
-                <nav class="page-banner__crumbs" aria-label="Хлебные крошки">
-                    <a class="page-banner__crumb" href="/">Главная</a>
+                <nav class="page-banner__crumbs" aria-label="Хлебные крошки" itemscope itemtype="http://schema.org/BreadcrumbList">
+                    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                        <a class="page-banner__crumb" href="/" itemprop="item"><span itemprop="name">Главная</span></a>
+                        <meta itemprop="position" content="1">
+                    </span>
                     <span aria-hidden="true"> / </span>
-                    <span aria-current="page">{{ $item->title }}</span>
+                    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                        <span itemprop="name" aria-current="page">{{ $item->title }}</span>
+                        <meta itemprop="position" content="2">
+                    </span>
                 </nav>
 
                 <h1 class="page-banner__title" id="page-title">{{ $item->title }}</h1>
@@ -172,10 +178,10 @@
             <div class="section__head">
                 <h2 class="section__title" id="reviews-title">Отзывы клиентов</h2>
                 <!-- Шеврон смотрит вправо (176:866 — 13x20), а не вниз -->
-                <a class="more-link" href="/reviews">
+                {{--<a class="more-link" href="/reviews">
                     Смотреть больше
                     <span class="chevron chevron--forward" aria-hidden="true"></span>
-                </a>
+                </a>--}}
             </div>
 
             <ul class="reviews">

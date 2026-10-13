@@ -44,20 +44,27 @@
 
         <!-- ================================================ Breadcrumbs ==== -->
         <nav class="breadcrumbs container" aria-label="Хлебные крошки">
-            <ol class="breadcrumbs__list">
-                <li><a class="breadcrumbs__link" href="/">Главная</a></li>
+            <ol class="breadcrumbs__list" itemscope itemtype="http://schema.org/BreadcrumbList">
+                <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    <a class="breadcrumbs__link" href="/" itemprop="item">
+                        <span itemprop="name">Главная</span>
+                    </a>
+                    <meta itemprop="position" content="1">
+                </li>
                 @foreach ($breadcrumbs as $i => $bread)
                     @if (!$loop->last)
-
-                        <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a
-                                class="breadcrumbs__link" href="/catalog/{{ $bread->nestedSlug }}"
-                                itemprop="item" itemprop="name">{{ $bread->title }}</a></li>
-
+                        <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                            <a class="breadcrumbs__link" href="/catalog/{{ $bread->nestedSlug }}" itemprop="item">
+                                <span itemprop="name">{{ $bread->title }}</span>
+                            </a>
+                            <meta itemprop="position" content="{{ $i + 2 }}">
+                        </li>
                     @endif
                 @endforeach
-
-
-                <li><span aria-current="page">{{ $groupProduct->title }}</span></li>
+                <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                    <span itemprop="name" aria-current="page">{{ $groupProduct->title }}</span>
+                    <meta itemprop="position" content="{{ count($breadcrumbs) + 1 }}">
+                </li>
             </ol>
         </nav>
 
@@ -502,6 +509,65 @@
         </section>
         @endif
     </main>
+
+    {{-- Микроразметка товара: JSON-LD Product, перенос из старого дизайна
+         (product.blade.php). Лейаут newdesing не имеет @stack('scripts'),
+         поэтому скрипт живёт прямо в контенте — JSON-LD валиден в body --}}
+    @php
+        try {
+            $compositionText = [];
+
+            foreach ($compositions as $block) {
+                foreach ($block as $product) {
+                    if (!$product) continue;
+
+                    if (isset($product->color) && $product->color) {
+                        $compositionText[] = $product->color->title . ' — ' . $product->count . ' шт.';
+                    } else {
+                        $compositionText[] = $product->title . ' — ' . $product->count . ' шт.';
+                    }
+                }
+            }
+
+            $isInStock = !(
+                $price->price == null ||
+                $price->price == 0 ||
+                $price->published === false ||
+                !$canPutToCart
+            );
+
+            $galleryImages = isset($groupProduct->images('cover', 'mobile')[0])
+                ? $groupProduct->images('cover', 'mobile')
+                : [url('/dist/img/image-content/error404-pic.svg')];
+
+            $schema = [
+                '@context' => 'https://schema.org/',
+                '@type' => 'Product',
+                'name' => $groupProduct->title,
+                'image' => array_map(function ($image) {
+                    return str_starts_with($image, 'http') ? $image : url($image);
+                }, $galleryImages),
+                'description' => 'Состав букета: ' . implode(', ', $compositionText),
+                'sku' => $price->sku ?? $groupProduct->id,
+                'brand' => [
+                    '@type' => 'Brand',
+                    'name' => 'Цветофор.рф',
+                ],
+                'offers' => [
+                    '@type' => 'Offer',
+                    'priceCurrency' => 'RUB',
+                    'price' => number_format((float) ($price->price ?? 0), 2, '.', ''),
+                    'availability' => 'https://schema.org/' . ($isInStock ? 'InStock' : 'OutOfStock'),
+                    'url' => url()->current(),
+                ],
+            ];
+        } catch (\Exception $r) {
+            $schema = '';
+        }
+    @endphp
+    <script type="application/ld+json">
+        {!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+    </script>
 
     {{-- Лайтбокс увеличенных фото: клик по большому фото галереи открывает
          полноэкранный слайдер (блок №32 в app.js). Слайды строит скрипт из

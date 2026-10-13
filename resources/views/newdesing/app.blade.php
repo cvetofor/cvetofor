@@ -161,7 +161,7 @@
             <img class="app-strip__word" src="/template/assets/icons/logo-word.svg" alt="Цветофор" width="72" height="12">
         </p>
 
-        <a class="btn btn--install" href="/app">Установить</a>
+        <a class="btn btn--install" href="https://www.rustore.ru/catalog/app/rf.cvetofor.app" target="_blank">Установить</a>
     </div>
 </aside>
 @yield('content')

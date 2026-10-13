@@ -40,14 +40,23 @@
             @endif
 
             <div class="page-banner__body">
-                <nav class="page-banner__crumbs" aria-label="Хлебные крошки">
-                    <a class="page-banner__crumb" href="/">Главная</a>
-                    @foreach ($breadcrumbs as $crumb)
+                <nav class="page-banner__crumbs" aria-label="Хлебные крошки" itemscope itemtype="http://schema.org/BreadcrumbList">
+                    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                        <a class="page-banner__crumb" href="/" itemprop="item"><span itemprop="name">Главная</span></a>
+                        <meta itemprop="position" content="1">
+                    </span>
+                    @foreach ($breadcrumbs as $i => $crumb)
                         <span aria-hidden="true"> / </span>
                         @if ($loop->last)
-                            <span aria-current="page">{{ $crumb->title }}</span>
+                            <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                                <span itemprop="name" aria-current="page">{{ $crumb->title }}</span>
+                                <meta itemprop="position" content="{{ $i + 2 }}">
+                            </span>
                         @else
-                            <a class="page-banner__crumb" href="/{{ $crumb->nestedSlug }}">{{ $crumb->title }}</a>
+                            <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                                <a class="page-banner__crumb" href="/{{ $crumb->nestedSlug }}" itemprop="item"><span itemprop="name">{{ $crumb->title }}</span></a>
+                                <meta itemprop="position" content="{{ $i + 2 }}">
+                            </span>
                         @endif
                     @endforeach
                 </nav>

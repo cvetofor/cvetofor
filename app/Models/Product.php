@@ -8,7 +8,7 @@ use A17\Twill\Models\Behaviors\HasRevisions;
 use A17\Twill\Models\Behaviors\HasSlug;
 use A17\Twill\Models\Model;
 use App\Scopes\MarketScope;
-use App\Models\Traits\HasMarketScope;
+
 use App\Repositories\RemainRepository;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Rennokki\QueryCache\Traits\QueryCacheable;
 
 class Product extends Model {
-    use HasMedias, HasRelated, HasRevisions, HasSlug,HasMarketScope;
+    use HasMedias, HasRelated, HasRevisions, HasSlug;
     use QueryCacheable;
 
     /**
@@ -53,7 +53,7 @@ class Product extends Model {
 
     protected static function boot() {
         parent::boot();
-      //  static::addGlobalScope(new MarketScope());
+        static::addGlobalScope(new MarketScope());
         static::retrieved(function ($model) {
         });
     }

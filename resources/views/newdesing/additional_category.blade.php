@@ -30,16 +30,29 @@
                      живут под /categories/{slug}: nestedSlug крошек здесь пуст у всех,
                      кроме собранного вручную пути --}}
                 <nav class="breadcrumbs" aria-label="Хлебные крошки">
-                    <ol class="breadcrumbs__list">
-                        <li><a class="breadcrumbs__link" href="/">Главная</a></li>
-                        @foreach ($breadcrumbs as $bread)
+                    <ol class="breadcrumbs__list" itemscope itemtype="http://schema.org/BreadcrumbList">
+                        <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                            <a class="breadcrumbs__link" href="/" itemprop="item">
+                                <span itemprop="name">Главная</span>
+                            </a>
+                            <meta itemprop="position" content="1">
+                        </li>
+                        @foreach ($breadcrumbs as $i => $bread)
                             @if (!$loop->last)
-                                <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a
-                                        class="breadcrumbs__link" href="{{ $bread->nestedSlug ? '/' . $bread->nestedSlug : '/catalog' }}"
-                                        itemprop="item" itemprop="name">{{ $bread->title }}</a></li>
+                                <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                                    <a class="breadcrumbs__link"
+                                       href="{{ $bread->nestedSlug ? '/' . $bread->nestedSlug : '/catalog' }}"
+                                       itemprop="item">
+                                        <span itemprop="name">{{ $bread->title }}</span>
+                                    </a>
+                                    <meta itemprop="position" content="{{ $i + 2 }}">
+                                </li>
                             @endif
                         @endforeach
-                        <li><span aria-current="page">{{ $category->title }}</span></li>
+                        <li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                            <span itemprop="name" aria-current="page">{{ $category->title }}</span>
+                            <meta itemprop="position" content="{{ count($breadcrumbs) + 1 }}">
+                        </li>
                     </ol>
                 </nav>
 
