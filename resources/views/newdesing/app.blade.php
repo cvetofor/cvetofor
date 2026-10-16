@@ -68,6 +68,29 @@
 </head>
 
 <body>
+
+<script>
+  if (localStorage.getItem('back-to-old-dismissed')) {
+    document.write('<style>.back-to-old{display:none}</style>');
+  }
+</script>
+<div class="back-to-old" data-dismiss=".back-to-old" data-dismiss-storage="back-to-old-dismissed">
+
+    <a class="back-to-old__link" href="{{ URL::current() }}{{ url()->full() && strpos(url()->full(), '?wistis=1') === false ? '?' . 'wistis=1' : (strpos(url()->full(), '?wistis=1') !== false ? '' : '?wistis=1') }}" aria-label="Вернуться в старый дизайн">
+        <span class="back-to-old__text">Вернуться в старый дизайн</span>
+        <span class="back-to-old__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 1L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M1 8L8 1L15 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </span>
+
+    </a>
+    <button class="back-to-old__close" type="button" aria-label="Скрыть">
+        <span class="cross" aria-hidden="true"></span>
+    </button>
+</div>
+
 <a class="skip-link" href="#main">Перейти к основному содержимому</a>
 
 <!-- ====================================================== Header ==== -->

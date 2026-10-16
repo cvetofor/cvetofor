@@ -48,16 +48,16 @@
             <img src="/template/assets/icons/adv-truck.svg" alt="" width="67" height="50">
           </span>
                                     <h3 class="advantage__title">Доставка сегодня</h3>
-                                    <p class="advantage__text">При заказе до 18:00</p>
+                                    <p class="advantage__text">При заказе до 21:00</p>
                                 </li>
-                                <li class="advantages__rule" aria-hidden="true"></li>
+                                {{--<li class="advantages__rule" aria-hidden="true"></li>
                                 <li class="advantage advantage--wide">
           <span class="advantage__icon">
             <img src="/template/assets/icons/adv-photo.svg" alt="" width="57" height="57">
           </span>
                                     <h3 class="advantage__title">Фото перед отправкой</h3>
                                     <p class="advantage__text">Каждого букета</p>
-                                </li>
+                                </li>--}}
                                 <li class="advantages__rule" aria-hidden="true"></li>
                                 <li class="advantage">
           <span class="advantage__icon">

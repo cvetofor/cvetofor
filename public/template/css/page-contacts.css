@@ -385,7 +385,7 @@
 }
 
 .ffield__input--area {
-  min-height: 110px;
+  min-height: 80px;
   padding-block: var(--pad-field);
   resize: vertical;
 }

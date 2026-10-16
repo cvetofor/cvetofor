@@ -43,10 +43,8 @@
             <img src="/template/assets/icons/target.svg" alt="" width="50" height="50">
           </span>
                     <h2 class="about-card__title" id="mission-title">Наша миссия</h2>
-                    <p class="about-card__text">Мы считаем, что цветы — это язык,
-                        который говорит о любви, уважении, радости и сострадании.</p>
-                    <p class="about-card__text">Наша миссия — помочь вам передать эти
-                        чувства и сделать каждый день особенным.</p>
+                    <p class="about-card__text">Мы считаем, что цветы - это язык, который говорит о любви, уважении, радости и сострадании.</p>
+                    <p class="about-card__text">Помочь вам передать эти чувства и сделать каждый день особенным</p>
                     <img class="about-card__decor about-card__decor--mission" src="/template/assets/img/about-mission.webp"
                          alt="" aria-hidden="true" width="216" height="186" loading="lazy">
                 </section>
@@ -97,22 +95,22 @@
           <span class="stat__icon stat__icon--tilt">
             <img src="/template/assets/icons/bouquet-of-flowers.svg" alt="" width="50" height="50">
           </span>
-                    <p class="stat__val">12 000+</p>
+                    <p class="stat__val">15 000+</p>
                     <p class="stat__key">Доставленных букетов</p>
                 </li>
                 <li class="stat">
           <span class="stat__icon">
             <img src="/template/assets/icons/happy-face.svg" alt="" width="50" height="50">
           </span>
-                    <p class="stat__val">7200+</p>
-                    <p class="stat__key">Довольных клиентов</p>
+                    <p class="stat__val">15</p>
+                    <p class="stat__key">Лет на рынке</p>
                 </li>
                 <li class="stat">
           <span class="stat__icon">
             <img src="/template/assets/icons/flower.svg" alt="" width="50" height="50">
           </span>
-                    <p class="stat__val">200+</p>
-                    <p class="stat__key">Видов цветов</p>
+                    <p class="stat__val">11</p>
+                    <p class="stat__key">Филиалов в 4-х городах</p>
                 </li>
             </ul>
         </div>

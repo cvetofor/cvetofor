@@ -11,7 +11,7 @@
                  width="637" height="610">
 
             <div class="hero__content">
-                <h1 class="hero__title">Цветы с доставкой в Улан-Удэ</h1>
+                <h1 class="hero__title">Цветы с доставкой в {{ $citiesService::getCity()->parent_case }}</h1>
                 <p class="hero__text">
                     Свежие букеты от 1490&nbsp;₽<br>
                     Доставка за 2 часа или в удобное время
@@ -49,16 +49,16 @@
             <img src="/template/assets/icons/adv-truck.svg" alt="" width="67" height="50">
           </span>
                                     <h3 class="advantage__title">Доставка сегодня</h3>
-                                    <p class="advantage__text">При заказе до 18:00</p>
+                                    <p class="advantage__text">При заказе до 21:00</p>
                                 </li>
-                                <li class="advantages__rule" aria-hidden="true"></li>
-                                <li class="advantage advantage--wide">
+                              {{--  <li class="advantages__rule" aria-hidden="true"></li>--}}
+                             {{--   <li class="advantage advantage--wide">
           <span class="advantage__icon">
             <img src="/template/assets/icons/adv-photo.svg" alt="" width="57" height="57">
           </span>
                                     <h3 class="advantage__title">Фото перед отправкой</h3>
                                     <p class="advantage__text">Каждого букета</p>
-                                </li>
+                                </li>--}}
                                 <li class="advantages__rule" aria-hidden="true"></li>
                                 <li class="advantage">
           <span class="advantage__icon">

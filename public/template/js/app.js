@@ -3416,3 +3416,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (isIOS) link.href = iosUrl;
 });
+
+/* ==========================================================================
+   Плашка «Вернуться в старый дизайн»: показ/скрытие с localStorage
+   ========================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  const strip = document.querySelector('.back-to-old');
+  if (!strip) return;
+
+  const storageKey = 'back-to-old-dismissed';
+
+  if (localStorage.getItem(storageKey)) {
+    strip.remove();
+    return;
+  }
+
+  const closeBtn = strip.querySelector('[data-dismiss]');
+  if (!closeBtn) return;
+  closeBtn.hidden = false;
+
+  closeBtn.addEventListener('click', () => {
+    strip.remove();
+    localStorage.setItem(storageKey, '1');
+  });
+});

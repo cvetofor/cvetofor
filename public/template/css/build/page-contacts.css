@@ -463,7 +463,7 @@
 }
 
 .ffield__input--area {
-  min-height: 110px;
+  min-height: 80px;
   padding-block: 16px;
   resize: vertical;
 }

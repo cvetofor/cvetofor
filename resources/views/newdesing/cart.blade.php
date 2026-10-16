@@ -152,7 +152,7 @@
                         <p class="guarantee__text">
                             <span class="guarantee__title">Мы гарантируем свежесть цветов</span>
                             <span
-                                class="guarantee__note">Если цветы завянут раньше — вернём деньги или заменим букет.</span>
+                                class="guarantee__note">Если цветы завянут раньше 48 часов — вернём деньги или заменим букет.</span>
                         </p>
                     </div>
                 </aside>
