@@ -57,7 +57,13 @@ class AppServiceProvider extends ServiceProvider {
 
 
         if (! app()->runningInConsole()) {
-            if(!request()->has('wistis')){
+            $design = TwillAppSettings::get('resource.resource.design') ?? 'dynamic';
+            if ($design === 'new') {
+                config(['is_new_desing'=>true]);
+            } elseif ($design === 'old') {
+                config(['is_new_desing'=>false]);
+            } elseif (!request()->has('wistis')) {
+                // динамический — пока ведёт себя как раньше: новый дизайн, ?wistis включает старый
                 config(['is_new_desing'=>true]);
             }
 

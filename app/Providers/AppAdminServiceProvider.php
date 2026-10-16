@@ -53,7 +53,7 @@ class AppAdminServiceProvider extends ServiceProvider {
                 ->availableWhen(fn() => \Auth::user()->can('edit-settings')),
             SettingsGroup::make()
                 ->name('resource')
-                ->label('Ресурс')
+                ->label('Ресурс и Дизайн')
                 ->availableWhen(fn() => \Gate::allows('is_owner')),
         );
 
