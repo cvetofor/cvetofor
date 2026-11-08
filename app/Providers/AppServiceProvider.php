@@ -62,8 +62,8 @@ class AppServiceProvider extends ServiceProvider {
                 config(['is_new_desing'=>true]);
             } elseif ($design === 'old') {
                 config(['is_new_desing'=>false]);
-            } elseif (!request()->has('wistis')) {
-                // динамический — пока ведёт себя как раньше: новый дизайн, ?wistis включает старый
+            } elseif (!request()->has('set_old_view')) {
+                // динамический: дефолт до работы DesignSplit — вариант по куке посетителя выставит middleware
                 config(['is_new_desing'=>true]);
             }
 

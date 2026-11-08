@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\OrderRequest;
 use App\Models\Delivery;
+use App\Models\DesignOrderStat;
 use App\Models\LegalAccount;
 use App\Models\Market;
 use App\Models\Order;
@@ -488,6 +489,18 @@ class OrderController extends Controller
             }
 
             event(new OrderCreated($order));
+
+            try {
+                $designSplit = json_decode((string) request()->cookie('design_split'), true);
+                DesignOrderStat::create([
+                    'order_id' => $order->id,
+                    'visitor_id' => $designSplit['id'] ?? null,
+                    'design' => config('is_new_desing') ? 'new' : 'old',
+                    'phone' => $order->phone,
+                ]);
+            } catch (\Throwable $e) {
+                \Log::channel('marketplace')->warning('design_order_stats not saved', [$e->getMessage()]);
+            }
 
             \Log::channel('marketplace')->log('info', 'Создан новый заказ', [
                 'ID' => $order->id,

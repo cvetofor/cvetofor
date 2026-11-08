@@ -1,7 +1,7 @@
 @extends('newdesing.app')
 @inject('citiesService', \App\Services\CitiesService::class)
 
-@section('css')<link rel="stylesheet" href="/template/css/build/page-payment.css?v=20260918">@endsection
+@section('css')<link rel="stylesheet" href="/template/css/build/page-payment.css?v=20261017">@endsection
 @section('content')
 
     <main id="main">
@@ -53,13 +53,13 @@
                     <p class="method__text">Оплата через Систему Быстрых Платежей по QR-коду или в мобильном приложении вашего банка.</p>
                 </section>
 
-                <section class="method" aria-labelledby="method-3">
+                {{--<section class="method" aria-labelledby="method-3">
           <span class="method__icon">
             <img src="/template/assets/icons/wallet-money.svg" alt="" width="46" height="44">
           </span>
                     <h2 class="method__title" id="method-3">Наличными или картой курьеру</h2>
                     <p class="method__text">Оплата наличными или картой при получении заказа курьеру. Доступно для заказов по Улан-Удэ.</p>
-                </section>
+                </section>--}}
 
                 <section class="method" aria-labelledby="method-4">
           <span class="method__icon">

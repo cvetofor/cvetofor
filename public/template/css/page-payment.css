@@ -24,9 +24,12 @@
 
 /* --------------------------------------------------- Способы оплаты */
 
+/* Одна колонка: из четырёх способов в разметке осталось три
+   (четвёртый закомментирован в payments.blade.php) — плитки
+   друг под другом */
 .methods {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--gap-products);
   margin-block-start: var(--space-lg);
 }
@@ -341,8 +344,10 @@
     opacity: var(--opacity-tertiary);
   }
 
+  /* Три карточки поровну на всю ширину контейнера
+     (в макете было 4, один способ скрыт) */
   .methods {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-md);
     margin-block-start: var(--space-xl);
   }

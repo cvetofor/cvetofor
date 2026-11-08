@@ -137,6 +137,10 @@ class AppAdminServiceProvider extends ServiceProvider {
                             ->onlyWhen(fn() => \Auth::user()->can('view-module', 'stats'))
                             ->forRoute('twill.stats.index')
                             ->title('Статистика'),
+                        NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'stats'))
+                            ->forRoute('twill.designStats.index')
+                            ->title('Статистика по дизайну'),
                     ]
                 )
         );

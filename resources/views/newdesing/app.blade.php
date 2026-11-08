@@ -76,7 +76,7 @@
 </script>
 <div class="back-to-old" data-dismiss=".back-to-old" data-dismiss-storage="back-to-old-dismissed">
 
-    <a class="back-to-old__link" href="{{ URL::current() }}{{ url()->full() && strpos(url()->full(), '?wistis=1') === false ? '?' . 'wistis=1' : (strpos(url()->full(), '?wistis=1') !== false ? '' : '?wistis=1') }}" aria-label="Вернуться в старый дизайн">
+    <a class="back-to-old__link" href="{{ URL::current() }}{{ url()->full() && strpos(url()->full(), '?set_old_view=1') === false ? '?' . 'set_old_view=1' : (strpos(url()->full(), '?set_old_view=1') !== false ? '' : '?set_old_view=1') }}" aria-label="Вернуться в старый дизайн">
         <span class="back-to-old__text">Вернуться в старый дизайн</span>
         <span class="back-to-old__icon" aria-hidden="true">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
