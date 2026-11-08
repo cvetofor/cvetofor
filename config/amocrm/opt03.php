@@ -16,6 +16,7 @@ return [
         'payment_method_map' => [
             'yookassa' => 801191,
             'robokassa' => 751401,
+            'split' => 817243,
         ],
         'receipt' => 659683,
         'order_structure' => 450561,

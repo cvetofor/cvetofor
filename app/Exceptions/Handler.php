@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use League\Glide\Filesystem\FileNotFoundException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -22,7 +23,7 @@ class Handler extends ExceptionHandler
      * @var array<int, class-string<\Throwable>>
      */
     protected $dontReport = [
-        //
+        FileNotFoundException::class,
     ];
 
     /**
@@ -45,6 +46,11 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        // Битые ссылки на картинки Glide (/img/...) — отдаём 404 вместо 500
+        $this->renderable(function (FileNotFoundException $e, $request) {
+            return response('', 404);
         });
     }
 }

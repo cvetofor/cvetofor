@@ -24,7 +24,7 @@ class Hollyday extends Model
     {
         return \Cache::remember(
             'isHollyDays_'.CitiesService::getCity()->id,
-            360,
+            7200,
             function () {
                 $date = \Carbon\Carbon::create(CitiesService::DateTime());
 
