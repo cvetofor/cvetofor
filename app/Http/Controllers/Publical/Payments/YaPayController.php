@@ -87,7 +87,7 @@ class YaPayController extends Controller
         if (!isset($order->payment_status_id) || $order->payment_status_id == 1) {
             \Log::channel('marketplace')->error('Ошибка или отказ от оплаты orderId= ' . $orderId);
 
-            return view('order.fail');
+            return view(config('is_new_desing') ? 'newdesing.order_fail' : 'order.fail');
         } elseif ($order->payment_status_id == 2) {
             return redirect()->to('https://xn--b1ag1aakjpl.xn--p1ai/order/' . $order->uuid);
         }

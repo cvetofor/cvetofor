@@ -1,0 +1,480 @@
+/* ==========================================================================
+   Личный кабинет: /profile, /profile/orders, /profile/change/password.
+   Общая рамка всех трёх страниц — шапка с крошками и грид «меню + контент»;
+   различается только контентная панель. Поля (.ffield) — тот же вид, что
+   у формы «Связаться с нами» на «Контактах»; ошибки полей (.field-error)
+   и оверлеи (.overlay, .city-modal) — глобальные из style.css.
+   ========================================================================== */
+
+/* ------------------------------------------------------------- Шапка */
+
+.profile-head {
+  display: grid;
+  gap: var(--space-2xs);
+  padding-block-start: var(--space-sm);
+}
+
+.profile-head__crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs);
+  font-size: var(--fs-caption-sm);
+  opacity: var(--opacity-secondary);
+}
+
+.profile-head__crumb {
+  color: var(--color-ink);
+}
+
+.profile-head__crumb:hover {
+  color: var(--color-brand-500);
+}
+
+.profile-head__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-bold);
+  line-height: 1.15;
+}
+
+/* --------------------------------------------------------------- Сетка */
+
+.profile {
+  display: grid;
+  gap: var(--space-md);
+  padding-block-end: var(--space-lg);
+}
+
+.profile__content {
+  display: grid;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+/* ------------------------------------------------------- Меню кабинета */
+/* На мобильной ширине — горизонтальная лента чипов (перелистывается),
+   на десктопе — вертикальная панель, прижатая к верху при скролле */
+
+.profile-nav__list {
+  display: flex;
+  gap: var(--space-2xs);
+  overflow-x: auto;
+  list-style: none;
+}
+
+.profile-nav__link {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  padding: 10px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  color: var(--color-ink);
+}
+
+.profile-nav__link:hover {
+  border-color: var(--color-brand-500);
+  color: var(--color-brand-500);
+}
+
+.profile-nav__link.is-active {
+  border-color: var(--color-brand-500);
+  background-color: var(--color-brand-500);
+  color: var(--color-surface);
+}
+
+/* Выход — не чип, а тихая текстовая кнопка под лентой */
+.profile-nav__exit {
+  margin-block-start: var(--space-2xs);
+}
+
+.profile-nav__link--exit {
+  border: none;
+  background: none;
+  padding-inline: 2px;
+  opacity: var(--opacity-secondary);
+}
+
+.profile-nav__link--exit:hover {
+  border: none;
+  color: var(--color-danger);
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------ Панели-формы */
+
+.profile-form {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.profile-form__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+}
+
+/* Поля — вид как у формы «Связаться с нами» (page-contacts.css):
+   подпись сверху, поле 50px, рамка --color-border */
+.ffield {
+  display: grid;
+  gap: var(--space-xs);
+}
+
+.ffield__label {
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+}
+
+.ffield__input {
+  min-height: 50px;
+  line-height: 16px;
+  padding-inline: var(--pad-field);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  font-size: var(--fs-label);
+}
+
+.ffield__input--area {
+  min-height: 110px;
+  padding-block: var(--pad-field);
+  resize: vertical;
+}
+
+.ffield__input::placeholder {
+  color: var(--color-ink);
+  opacity: var(--opacity-secondary);
+}
+
+.ffield__input:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 1px;
+  border-color: var(--color-brand-500);
+}
+
+.ffield__hint {
+  font-size: var(--fs-caption-sm);
+  opacity: var(--opacity-secondary);
+}
+
+/* Ошибка валидации: серверная разметка и Cvetofor.setFieldError дают
+   одинаковый DOM — is-error на обёртке, .field-error следом (глобальный) */
+.ffield.is-error .ffield__input {
+  border-color: var(--color-danger);
+}
+
+/* Кнопки формы: на мобильной — столбиком на всю ширину панели */
+.profile-form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.profile-form__save,
+.profile-form__delete,
+.order-card__pay,
+.order-card__review,
+.profile__more,
+.profile-empty__link {
+  padding: var(--space-2xs) var(--space-md);
+}
+
+.profile-form__delete {
+  justify-content: center;
+}
+
+/* Флеш-ответы смены пароля: «Пароль измёнен» / «Пароли не совпадают» */
+.notice {
+  padding: var(--space-xs) var(--pad-field);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+  line-height: 22px;
+}
+
+.notice--ok {
+  background-color: var(--color-success-50);
+  color: var(--color-success);
+}
+
+.notice--error {
+  background-color: var(--color-surface-rose);
+  color: var(--color-danger);
+}
+
+/* ------------------------------------------------------ Карточка заказа */
+
+.order-card {
+  display: grid;
+  gap: var(--space-sm);
+}
+
+.order-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2xs) var(--space-sm);
+}
+
+.order-card__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-title-lg);
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+}
+
+.order-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-caption-sm);
+  font-weight: var(--fw-medium);
+  line-height: 20px;
+}
+
+.order-card__status img {
+  flex-shrink: 0;
+}
+
+.order-card__status--completed {
+  background-color: var(--color-success-50);
+  color: var(--color-success);
+}
+
+.order-card__status--canceled {
+  background-color: var(--color-surface-rose);
+  color: var(--color-danger);
+}
+
+.order-card__status--in-work {
+  background-color: var(--color-brand-50);
+  color: var(--color-brand-500);
+}
+
+.order-card__items {
+  display: grid;
+  gap: var(--space-2xs);
+  padding-block: var(--space-sm);
+  border-block: 1px solid var(--color-neutral-200);
+  list-style: none;
+}
+
+.order-card__item {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  font-size: var(--fs-label);
+  line-height: 22px;
+}
+
+.order-card__item span:first-child {
+  opacity: var(--opacity-tertiary);
+}
+
+.order-card__item span:last-child {
+  font-weight: var(--fw-medium);
+}
+
+/* Строка доставки — тише товарных: она не часть букета */
+.order-card__item--delivery span {
+  opacity: var(--opacity-secondary);
+}
+
+.order-card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.order-card__info {
+  display: grid;
+  gap: var(--space-2xs);
+}
+
+.order-card__row {
+  display: flex;
+  gap: var(--space-2xs);
+  font-size: var(--fs-label);
+  line-height: 22px;
+}
+
+.order-card__row dt {
+  opacity: var(--opacity-secondary);
+}
+
+.order-card__row dd {
+  margin: 0;
+  font-weight: var(--fw-medium);
+}
+
+.order-card__row--sum dd {
+  font-family: var(--font-display);
+  font-size: var(--fs-sum);
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+}
+
+.order-card__actions {
+  display: flex;
+  gap: var(--space-2xs);
+}
+
+.order-card__pay,
+.order-card__review {
+  flex: 1;
+}
+
+/* ------------------------------------------------------ Пустая история */
+
+.profile-empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-xs);
+  padding-block: var(--space-lg);
+  text-align: center;
+}
+
+.profile-empty__icon {
+  margin-block-end: var(--space-2xs);
+}
+
+.profile-empty__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-bold);
+}
+
+.profile-empty__note {
+  max-width: 46ch;
+  font-size: var(--fs-label);
+  line-height: 22px;
+  opacity: var(--opacity-secondary);
+}
+
+.profile-empty__link {
+  margin-block-start: var(--space-2xs);
+}
+
+/* --------------------------------------------------- Модалка отзыва */
+/* Панель — глобальная .city-modal (ширина 360, радиус, тень) */
+
+.review-modal__form {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.review-modal__submit {
+  justify-self: stretch;
+}
+
+.review-modal__policy {
+  font-size: var(--fs-caption-sm);
+  line-height: 20px;
+  opacity: var(--opacity-secondary);
+}
+
+.review-modal__policy a {
+  color: var(--color-brand-500);
+}
+
+/* ------------------------------------------------------------- Десктоп */
+
+@media (min-width: 1024px) {
+
+  .profile-head {
+    gap: var(--space-xs);
+    padding-block-start: var(--space-md);
+  }
+
+  /* Меню — Sticky-панель слева: страницы короткие, но список заказов
+     длинный, и навигация должна оставаться на экране */
+  .profile {
+    grid-template-columns: 290px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .profile__aside {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-sm));
+  }
+
+  .profile-nav {
+    padding: var(--space-sm);
+    border-radius: var(--radius-2xl);
+    background-color: var(--color-surface);
+    box-shadow: var(--shadow-card);
+  }
+
+  .profile-nav__list {
+    flex-direction: column;
+    gap: var(--space-2xs);
+    overflow: visible;
+  }
+
+  .profile-nav__link {
+    width: 100%;
+    border: none;
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+  }
+
+  .profile-nav__link:hover {
+    background-color: var(--color-brand-50);
+    color: var(--color-brand-500);
+  }
+
+  .profile-nav__link.is-active {
+    background-color: var(--color-brand-50);
+    color: var(--color-brand-500);
+  }
+
+  /* Выход отделён от навигации линией — тот же приём, что у контактов
+     в шторке меню */
+  .profile-nav__exit {
+    margin-block-start: var(--space-2xs);
+    padding-block-start: var(--space-sm);
+    border-block-start: 1px solid var(--color-neutral-200);
+  }
+
+  .profile-nav__link--exit {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 14px 18px;
+    font-size: var(--fs-label);
+  }
+
+  .profile-form__actions {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  /* «Удалить профиль» уводится от «Сохранить»: случайный клик по нему
+     не должен попадать в только что сохранённую форму */
+  .profile-form__delete {
+    margin-inline-start: auto;
+  }
+
+  /* Одинокая кнопка «Сохранить» (смена пароля) — по содержимому */
+  .profile-form > .profile-form__save {
+    justify-self: start;
+  }
+
+  .order-card__pay,
+  .order-card__review {
+    flex: none;
+  }
+
+  .review-modal__submit {
+    justify-self: start;
+  }
+}

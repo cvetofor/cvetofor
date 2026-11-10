@@ -1,0 +1,48 @@
+/* ==========================================================================
+   Шрифты проекта
+
+   Собираются из Fonts/ скриптом `python tools/build_fonts.py`: только те
+   четыре начертания, которые есть в макете, только WOFF2 и только нужный
+   диапазон символов — 1.6 МБ исходных OTF превращаются в 110 КБ.
+
+   Имена семейств совпадают с макетом, поэтому токены --font-sans
+   и --font-display в tokens.css не меняются.
+
+   font-display: swap — текст виден сразу системным аналогом и подменяется,
+   когда шрифт доехал. Fallback (Helvetica → Arial) метрически близок,
+   поэтому подмена почти не сдвигает вёрстку.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Helvetica Neue";
+  src: url("../assets/fonts/hn-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue";
+  src: url("../assets/fonts/hn-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica Neue";
+  src: url("../assets/fonts/hn-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Только Bold: в макете LT Remark стоит единственный раз — заголовок
+   баннера, и всегда жирный */
+@font-face {
+  font-family: "LT Remark";
+  src: url("../assets/fonts/remark-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

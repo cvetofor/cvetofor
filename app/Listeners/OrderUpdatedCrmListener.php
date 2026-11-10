@@ -68,8 +68,24 @@ class OrderUpdatedCrmListener implements ShouldQueue
         } // Заказ привязан не к магазину Цветофор Улан-Удэ
 
         if ($order->paymentStatus->title == 'Оплачено') {
-            $amocrmLogger->debug('Начали поиск сделки', ['query' => "Заказ #$order->num_order"]);
-            $lead = $this->findLead("Заказ #$order->num_order");
+            $lead = null;
+
+            // 1) Ищем сделку по сохранённому ид из заказа (orders.amocrm_lead_id)
+            if (! empty($order->amocrm_lead_id)) {
+                try {
+                    $lead = $this->client->leads()->getOne($order->amocrm_lead_id);
+                    $amocrmLogger->debug('Нашли сделку по ид', ['lead_id' => $order->amocrm_lead_id]);
+                } catch (AmoCRMApiException $e) {
+                    $amocrmLogger->debug('Сделка по ид не найдена, ищем по имени', ['lead_id' => $order->amocrm_lead_id]);
+                }
+            }
+
+            // 2) Fallback: старые заказы без ид / сделку удалили в CRM
+            if (empty($lead)) {
+                $amocrmLogger->debug('Начали поиск сделки', ['query' => "Заказ #$order->num_order"]);
+                $lead = $this->findLead("Заказ #$order->num_order");
+            }
+
             if (empty($lead)) {
                 $amocrmLogger->warning('Не смогли найти сделку в системе');
                 return;

@@ -82,12 +82,20 @@ class OrderCreatedCrmListener implements ShouldQueue
             return;
         } // Заказ привязан не к магазину Цветофор Улан-Удэ
 
+        if (! empty($order->amocrm_lead_id)) {
+            $amocrmLogger->warning('Сделка уже создана, пропускаем', ['order_id' => $order->id, 'lead_id' => $order->amocrm_lead_id]);
+
+            return;
+        }
+
         $amocrmLogger->debug('Начали поиск контакта');
+        sleep(1);
 
         $contact = $this->findContact($order->phone);
+        sleep(1);
         if (empty($contact)) {
             $contact = $this->createContact($order);
-        }
+        }sleep(1);
         $amocrmLogger->debug('Нашли/создали контакт', ['contact_id' => $contact->getId()]);
 
         $amocrmLogger->debug('сделка-степ 1');
@@ -100,6 +108,9 @@ class OrderCreatedCrmListener implements ShouldQueue
         try {
             $lead = $this->client->leads()->addOne($leadModel);
             $amocrmLogger->debug('Создали сделку', ['lead_id' => $lead->getId()]);
+
+            $order->amocrm_lead_id = $lead->getId();
+            $order->saveQuietly();
         } catch (AmoCRMApiErrorResponseException $e) {
             $amocrmLogger->error('Произошла ошибка при попытке создания сделки', [
                 'message' => $e->getMessage(),
@@ -109,8 +120,17 @@ class OrderCreatedCrmListener implements ShouldQueue
             return;
         }
 
-        $this->client->leads()->link($lead, (new LinksCollection)->add($contact));
-        $amocrmLogger->debug('Привязали контакта к сделке', ['lead_id' => $lead->getId(), 'contact_id' => $contact->getId()]);
+        try {
+            $this->client->leads()->link($lead, (new LinksCollection)->add($contact));
+            $amocrmLogger->debug('Привязали контакта к сделке', ['lead_id' => $lead->getId(), 'contact_id' => $contact->getId()]);
+        } catch (AmoCRMApiErrorResponseException $e) {
+            $amocrmLogger->error('Произошла ошибка при привязке контакта к сделке', [
+                'message' => $e->getMessage(),
+                'request' => Arr::except($e->getLastRequestInfo(), ['curl_call', 'jquery_call']),
+            ]);
+        } catch (AmoCRMApiException $e) {
+            $amocrmLogger->error('Произошла ошибка при привязке контакта к сделке', ['message' => $e->getMessage()]);
+        }
 
     }
 

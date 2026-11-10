@@ -1,0 +1,243 @@
+/* ==========================================================================
+   Статические страницы из БД (Twill): /rules, /policy и т.п.
+   Шаблон newdesing/page.blade.php + блоки newdesing/blocks/*.
+   ========================================================================== */
+
+/* ---------------------- Баннер страницы (оболочка — в style.css) */
+
+/* Без фотографии, по образцу .page-error: паддинги, фон и пятно вместо
+   снимка; крошки/заголовок/лид — поля страницы из Twill */
+.page-static {
+  padding: 40px;
+  background-color: var(--color-brand-50);
+}
+
+.page-static::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block-start: -160px;
+  inset-inline-end: -120px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background-color: var(--color-brand-125);
+}
+
+/* Крошки без модификатора --overlay кегля в style.css не получают —
+   как у .page-error, задаём здесь */
+.page-static .page-banner__crumbs {
+  font-size: var(--fs-label);
+  line-height: 1.2;
+}
+
+/* Поле «Описание» страницы */
+.page-static__lead {
+  margin-block-start: var(--space-md);
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-medium);
+  line-height: 26px;
+  opacity: var(--opacity-secondary);
+}
+
+/* Баннер с фотографией (первый блок-картинка или поле cover). Фото —
+   фоном на всю площадь, поэтому белый текст и градиент нужны на всех
+   ширинах: базовый --overlay на десктопе красит текст тёмным и снимает
+   затемнение — там фото лежит сбоку, текст на цветной подложке */
+.page-static--photo {
+  align-items: flex-end;
+  color: var(--color-surface);
+}
+
+/* Вернуть градиент-затемнение, снятый базовым --overlay на десктопе
+   (сама картинка градиента — в style.css, здесь только content) */
+.page-static--photo::before {
+  content: "";
+}
+
+/* Декоративное пятно — только для баннера без фото */
+.page-static--photo::after {
+  content: none;
+}
+
+.page-static--photo .page-banner__photo {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Лид на фотографии читается хуже, чем на ровной подложке, — плотнее */
+.page-static--photo .page-static__lead {
+  opacity: var(--opacity-tertiary);
+}
+
+/* ------------------------------------- Текст (блок wyswyg) */
+
+/* HTML из визивига приходит без классов — вся типографика по тегам */
+.page-text {
+  max-width: 792px;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+
+.page-text > :first-child {
+  margin-block-start: 0;
+}
+
+.page-text h2 {
+  margin-block: var(--space-lg) var(--space-sm);
+  font-family: var(--font-display);
+  font-size: var(--fs-h2-about);
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+}
+
+.page-text h3 {
+  margin-block: var(--space-md) var(--space-xs);
+  font-size: var(--fs-body-lg);
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+}
+
+.page-text h4 {
+  margin-block: var(--space-sm) var(--space-xs);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+}
+
+.page-text p {
+  margin-block-end: var(--space-xs);
+}
+
+.page-text ul,
+.page-text ol {
+  margin-block: var(--space-xs) var(--space-sm);
+  padding-inline-start: 24px;
+}
+
+.page-text li {
+  margin-block-end: var(--space-2xs);
+}
+
+.page-text a {
+  color: var(--color-brand-500);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.page-text a:hover,
+.page-text a:focus-visible {
+  color: var(--color-brand-400);
+}
+
+.page-text strong {
+  font-weight: var(--fw-bold);
+}
+
+.page-text img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+}
+
+/* Таблицы из визивига бывают шире колонки: блочная модель + прокрутка,
+   чтобы не растягивали контейнер */
+.page-text table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: var(--space-sm) var(--space-md);
+  border-collapse: collapse;
+}
+
+.page-text th,
+.page-text td {
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--color-neutral-200);
+  font-size: var(--fs-body-sm);
+  text-align: start;
+  vertical-align: top;
+}
+
+.page-text th {
+  font-weight: var(--fw-bold);
+  background-color: var(--color-surface-muted);
+}
+
+.page-text blockquote {
+  margin-block: var(--space-sm) var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
+  border-inline-start: 3px solid var(--color-brand-200);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background-color: var(--color-brand-50);
+  font-weight: var(--fw-medium);
+}
+
+/* ------------------------------------- Медиа (блоки image, youtube) */
+
+.page-media {
+  max-width: 792px;
+}
+
+.page-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-2xl);
+}
+
+.page-media figcaption {
+  margin-block-start: var(--space-2xs);
+  font-size: var(--fs-caption-sm);
+  line-height: 18px;
+  opacity: var(--opacity-secondary);
+}
+
+.page-media__video {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-ink-hero);
+}
+
+.page-media__video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ------------------------------------- Реквизиты (блок requisites) */
+
+.page-req__list {
+  display: grid;
+  gap: var(--space-xs);
+  margin-block-start: var(--space-sm);
+}
+
+.page-req__row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: var(--space-xs);
+  align-items: baseline;
+}
+
+.page-req__row dt {
+  opacity: var(--opacity-secondary);
+}
+
+.page-req__row dd {
+  margin: 0;
+  font-weight: var(--fw-medium);
+}
+
+@media (min-width: 1024px) {
+  .page-static {
+    padding: 67px 80px;
+  }
+}

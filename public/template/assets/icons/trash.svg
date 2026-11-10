@@ -1,0 +1,29 @@
+<svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<g id="&#208;&#154;&#208;&#190;&#209;&#128;&#208;&#183;&#208;&#184;&#208;&#189;&#208;&#176;">
+
+<g id="Products">
+
+<g id="1">
+<g id="Delete">
+
+<g id="trash 1">
+<path id="Vector" d="M4.16602 6.25H20.8327M16.666 6.25L16.3841 5.40424C16.1109 4.58464 15.9742 4.17483 15.7209 3.87185C15.4972 3.6043 15.2099 3.39721 14.8853 3.26956C14.5177 3.125 14.0858 3.125 13.2218 3.125H11.7768C10.9129 3.125 10.481 3.125 10.1134 3.26956C9.78885 3.39721 9.50152 3.6043 9.27778 3.87185C9.0244 4.17483 8.88781 4.58464 8.6146 5.40424L8.33268 6.25M18.7493 6.25V16.875C18.7493 18.6252 18.7493 19.5002 18.4087 20.1687C18.1091 20.7568 17.6311 21.2348 17.0431 21.5344C16.3746 21.875 15.4996 21.875 13.7493 21.875H11.2493C9.49918 21.875 8.6241 21.875 7.95563 21.5344C7.36762 21.2348 6.88956 20.7568 6.58995 20.1687C6.24935 19.5002 6.24935 18.6252 6.24935 16.875V6.25M14.5827 10.4167V17.7083M10.416 10.4167V17.7083" stroke="#DC0978" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_1" x="-749.7" y="-80.2" width="819.4" height="381.4" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="4"/>
+<feGaussianBlur stdDeviation="6.35"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.802885 0 0 0 0 0.802885 0 0 0 0 0.802885 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+</filter>
+</defs>
+</svg>

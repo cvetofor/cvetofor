@@ -50,6 +50,9 @@ TwillRoutes::module('categories');
 Route::name('stats.')->group(function () {
     Route::get('/stats', [\App\Http\Controllers\Twill\StatController::class, 'index'])->name('index');
 });
+Route::name('designStats.')->group(function () {
+    Route::get('/design-stats', [\App\Http\Controllers\Twill\DesignStatController::class, 'index'])->name('index');
+});
 Route::name('bulkgrouproduct.')->group(function () {
     Route::get('/bulkgrouproduct', [\App\Http\Controllers\Twill\GroupProductBulkController::class, 'index'])->name('index');
     Route::post('/bulkgrouproduct/doit', [\App\Http\Controllers\Twill\GroupProductBulkController::class, 'doit'])->name('doit');

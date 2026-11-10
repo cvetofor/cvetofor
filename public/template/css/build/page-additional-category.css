@@ -1,0 +1,98 @@
+/* ==========================================================================
+   Страница категории доп-товаров (/categories/{slug})
+   Подключается только additional_category.blade.php: крошки в баннере
+   и модификатор баннера с обложкой. Общий style.css и page-product.css
+   не трогает.
+   ========================================================================== */
+
+/* ------------------------------------------- Крошки в баннере категории */
+
+/* Те же крошки, что на странице товара (там их стилизует
+   page-product.css), только стоят не над контентом, а внутри hero —
+   над заголовком. Цвет не задаём: наследуют белый от баннера.
+   text-align выключает центрирование мобильного hero__content */
+.breadcrumbs {
+  margin-block-end: 16px;
+  text-align: start;
+}
+
+/* Прозрачность висит на пунктах, а не на всём списке: иначе её не
+   снять с последнего уровня пути */
+.breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+@media (min-width: 1024px) {
+  .breadcrumbs__list {
+    font-size: 20px;
+  }
+}
+
+.breadcrumbs__list li {
+  opacity: 0.5;
+}
+
+.breadcrumbs__list li:last-child {
+  opacity: 1;
+}
+
+/* Косая черта перед текущим уровнем остаётся частью пути и приглушена
+   вместе с ним: в полную силу набрано только само название */
+.breadcrumbs__list li:last-child::before {
+  opacity: 0.5;
+}
+
+.breadcrumbs__list li + li::before {
+  content: "/";
+  margin-inline-end: 8px;
+}
+
+.breadcrumbs__link:hover {
+  color: #dc0978;
+}
+
+/* -------------------------------------------------- Баннер с обложкой */
+
+/* Модификатор hero--cover: обложка категории занимает весь баннер на
+   всех ширинах, а не компонуется сбоку от розовой заливки, как фото
+   на главной. Удвоенная специфичность .hero.hero--cover перебивает и
+   базовые правила общего style.css, и правила внутри его @media */
+.hero.hero--cover .hero__bg {
+  width: 100%;
+  height: 100%;
+  object-position: center;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+
+.hero.hero--cover .hero__blob {
+  display: none;
+}
+
+/* Текст лежит поверх произвольного снимка: вместо розовой пелены
+   базового ::before — тёмный scrim для читаемости белого текста */
+.hero.hero--cover::before {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, #000000 38%, transparent) 0,
+    color-mix(in srgb, #000000 10%, transparent) 45%,
+    color-mix(in srgb, #000000 42%, transparent) 100%
+  );
+}
+
+@media (min-width: 1024px) {
+  .hero.hero--cover::before {
+    display: block;
+  }
+
+  /* Десктопный тёмный заголовок hero рассчитан на розовую заливку —
+     поверх обложки нужен белый */
+  .hero.hero--cover .hero__title {
+    color: #ffffff;
+  }
+}

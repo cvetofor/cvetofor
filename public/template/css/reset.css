@@ -1,0 +1,101 @@
+/* ==========================================================================
+   Reset — нормализация поведения элементов
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  /* Место под полосу прокрутки резервируется всегда: иначе при открытии
+     оверлея (body получает overflow: hidden) страница дёргается вбок */
+  scrollbar-gutter: stable;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+/* :where() обнуляет специфичность: иначе `ul[class]` (0,1,1) перебивает
+   padding любого компонента-класса (0,1,0) — ловушка, на которой уже
+   «съелись» отступы у .occasions */
+:where(ul[class], ol[class]) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+body {
+  line-height: 1.4;
+  text-rendering: optimizeSpeed;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+address {
+  font-style: normal;
+}
+
+s {
+  text-decoration-thickness: 1px;
+}
+
+/* Атрибут hidden должен побеждать любой display у компонента */
+[hidden] {
+  display: none !important;
+}
+
+:target {
+  scroll-margin-block: 5ex;
+}
+
+/* Уважаем системную настройку «уменьшить движение» */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

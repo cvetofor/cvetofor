@@ -57,6 +57,16 @@ class AppServiceProvider extends ServiceProvider {
 
 
         if (! app()->runningInConsole()) {
+            $design = TwillAppSettings::get('resource.resource.design') ?? 'dynamic';
+            if ($design === 'new') {
+                config(['is_new_desing'=>true]);
+            } elseif ($design === 'old') {
+                config(['is_new_desing'=>false]);
+            } elseif (!request()->has('set_old_view')) {
+                // динамический: дефолт до работы DesignSplit — вариант по куке посетителя выставит middleware
+                config(['is_new_desing'=>true]);
+            }
+
             \View::share('menuPrices', MenuPrice::orderBy('sort')->get());
             \View::share('menuFlovers', MenuFlover::orderBy('sort')->get());
             $ttl = 60;

@@ -82,7 +82,7 @@ class RobokassaController extends Controller
                         SEOTools::setTitle('Заказ №'.$order->id);
                         SEOTools::metatags()->setRobots('noindex, nofollow');
 
-                        return view('order.show', compact('order'));
+                        return view(config('is_new_desing') ? 'newdesing.order_show' : 'order.show', compact('order'));
                     } else {
                         \Log::channel('marketplace')->error('Суммы различаются '.$payment->getSum().'!= '.$order->total_price.' №: '.$payment->getInvoiceId());
                     }
@@ -90,20 +90,20 @@ class RobokassaController extends Controller
                     \Log::channel('marketplace')->error('Ошибка оплаты №: '.$payment->getInvoiceId());
                 }
 
-                return view('order.fail');
+                return view(config('is_new_desing') ? 'newdesing.order_fail' : 'order.fail');
             }, 5);
         } catch (\Throwable $th) {
             \Log::channel('marketplace')->critical('Ошибка Сохранения оплаты'.$th->getMessage(), $request->toArray());
 
-            return view('order.fail');
+            return view(config('is_new_desing') ? 'newdesing.order_fail' : 'order.fail');
         }
 
-        return view('order.fail');
+        return view(config('is_new_desing') ? 'newdesing.order_fail' : 'order.fail');
     }
 
     public function fail(Request $request)
     {
         // \Log::channel('marketplace')->error('Ошибка оплаты request fail №: ' . $request->get('InvId'));
-        return view('order.fail');
+        return view(config('is_new_desing') ? 'newdesing.order_fail' : 'order.fail');
     }
 }

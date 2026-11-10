@@ -41,6 +41,7 @@ class Kernel extends HttpKernel {
             \App\Http\Middleware\GeoMiddleware::class,
             \App\Http\Middleware\CityFromQueryString::class,
             \App\Http\Middleware\SaveUtm::class,
+            \App\Http\Middleware\DesignSplit::class,
         ],
 
         'logs' => [

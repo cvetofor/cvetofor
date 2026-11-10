@@ -53,7 +53,7 @@ class AppAdminServiceProvider extends ServiceProvider {
                 ->availableWhen(fn() => \Auth::user()->can('edit-settings')),
             SettingsGroup::make()
                 ->name('resource')
-                ->label('Ресурс')
+                ->label('Ресурс и Дизайн')
                 ->availableWhen(fn() => \Gate::allows('is_owner')),
         );
 
@@ -137,6 +137,10 @@ class AppAdminServiceProvider extends ServiceProvider {
                             ->onlyWhen(fn() => \Auth::user()->can('view-module', 'stats'))
                             ->forRoute('twill.stats.index')
                             ->title('Статистика'),
+                        NavigationLink::make()
+                            ->onlyWhen(fn() => \Auth::user()->can('view-module', 'stats'))
+                            ->forRoute('twill.designStats.index')
+                            ->title('Статистика по дизайну'),
                     ]
                 )
         );

@@ -26,7 +26,28 @@ class PageController extends Controller
         }
 
         $this->setMetadata($page);
+        $template='page';
+        if($slug=='about'){
+            $template='about';
+        }
+        if($slug=='payments'){
+            $template='payments';
+        }
+        $array_data=[];
+        if($slug=='contacts'){
 
-        return view('site.page', ['item' => $page, 'breadcrumbs' => array_reverse($breadcrumbs)]);
+            $template='contacts';
+            foreach ($page->blocks as $block) {
+                if($block->content&&is_array($block->content)){
+                    $array_data=$block->content;
+                }
+
+
+            }
+        }
+
+
+
+        return view(config('is_new_desing')?'newdesing.'.$template:'site.page', ['item' => $page, 'breadcrumbs' => array_reverse($breadcrumbs),'array_data'=>$array_data]);
     }
 }

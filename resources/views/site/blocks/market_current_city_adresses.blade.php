@@ -14,6 +14,7 @@
                         </div>
                     </div>
                     <div class="contacts__addresses-items__wrap">
+
                         @foreach ($marketService->getCurrentCityMarkets() as $market)
                             <div class="contacts__addresses-item @if ($loop->first) active @endif"
                                  data-map-address="{{ $market->city->city }}, {{ $market->address }}">

@@ -223,30 +223,32 @@ class GroupProduct extends Model
      */
     public function isMono()
     {
-        $blocks = $this->blocks()->select('content->browsers->products as product')->where('type', 'products')->get();
+        return (bool) \Cache::remember('isMono_' . $this->id, 3600, function () {
+            $blocks = $this->blocks()
+                ->select('content->browsers->products as product')
+                ->where('type', 'products')
+                ->get()
+                ->pluck('product');
 
-        $blocks = $blocks->pluck('product');
+            $flipped = array_flip($blocks->toArray());
 
-        $flipped = array_flip($blocks->toArray());
-
-        if (count($flipped) !== 1) {
-            foreach ($flipped as $id => $key) {
-                $arr = json_decode($id);
-                if (optional(Product::published()->whereIn('id', $arr)->first())->category) {
-                    $isVisible = Product::published()->whereIn('id', $arr)->first()->category->is_visible;
-                } else {
-                    $isVisible = true;
-                }
-
-                if (!$isVisible) {
-                    unset($flipped[$id]);
+            if (count($flipped) !== 1) {
+                foreach ($flipped as $id => $key) {
+                    $arr = json_decode($id);
+                    $product = Product::published()->whereIn('id', $arr)->first(); // один запрос вместо двух
+                    if ($product?->category) {
+                        $isVisible = $product->category->is_visible;
+                    } else {
+                        $isVisible = true;
+                    }
+                    if (!$isVisible) {
+                        unset($flipped[$id]);
+                    }
                 }
             }
-        }
 
-        $isMono = count($flipped) === 1 && count($flipped) >= 1;
-
-        return $isMono;
+            return count($flipped) === 1 && count($flipped) >= 1;
+        });
     }
 
     /**
